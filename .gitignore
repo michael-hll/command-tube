@@ -1,0 +1,11 @@
+__pycache__
+build
+dist
+*.log
+test.yaml
+tube
+*.ini
+*.spec
+.DS_Store
+test
+templates

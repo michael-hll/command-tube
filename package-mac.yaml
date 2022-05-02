@@ -1,0 +1,5 @@
+TUBE:
+    - COMMAND: python3 -m PyInstaller --onefile programming-tube.py
+    - COMMAND: mv ./dist/programming-tube ./dist/tube
+    - COMMAND: cp ./dist/tube ./test/tube
+    - COMMAND: cp ./dist/tube ./tube
