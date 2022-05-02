@@ -275,7 +275,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '1.0.0 Beta'       
+        self.C_CURR_VERSION            = '2.0.0 Beta'       
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()    
         self.C_SLEEP_SECONDS           = 1
@@ -652,7 +652,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                                         '\nThe -b parameter supports text file content as email body when it\'s text file.'
             },
             self.C_COMMAND: {
-                self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
                     [True, '-','--', 'str', '+', '', True]                 
@@ -2492,6 +2492,11 @@ def get_ssh_to_yab(tube):
 
 def get_ant_build_errors(log: TubeCommandLog):
     
+    '''
+    Currently this method is not used, it would be helpfule to read additional log errors from other files
+    Keep it here in case some day later to use it.
+    '''
+    
     found_error = False
     return_lines = []
     try:
@@ -3691,19 +3696,8 @@ def job_start(tube):
                     
                     log.end_datetime = datetime.now()
                     if result.returncode != 0:  
-                        log.status = Storage.I.C_FAILED   
-                        # reading 'ant deploy' error from build.log file
-                        found_error = False
-                        # TODO: Remove 'ant deploy' logging error reading logic in final
-                        if 'ant deploy' in command.content:
-                            found_error = get_ant_build_errors(log)
-                            if found_error:
-                                for line in log.errors:
-                                    tprint(line.replace('\n',''), type=Storage.I.C_PRINT_TYPE_ERROR)    
-                        
-                        # print errors if there are any                        
-                        if found_error == False:                            
-                            log.add_error(error)                            
+                        log.status = Storage.I.C_FAILED 
+                        log.add_error(error)                            
                     else:
                         log.status = Storage.I.C_SUCCESSFUL                                                     
                 except Exception as e:
