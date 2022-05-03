@@ -3223,104 +3223,77 @@ def print_tube_command_help(parser: ArgumentParser):
                 help_all = help_all % (help_continue, help_redo, help_if, help_key, help_var)
                 
                 template = '''
----
-# ---------------------------------------------------------------
-# Notes: Please read the 'Readme.md' file for more information
-# ---------------------------------------------------------------
 # RUN_MODE is either SRC or BIN
 RUN_MODE: BIN
 SERVERS:
-    # these serers can be used by the CONNECT command
     - SERVER:
-        NAME: vmlxxx0001
-        HOST: vmlxxx0001.qad.com
+        NAME: server1
+        HOST: server1.qad.com
         SSH_PORT: 22
         USER: mfg
         PASSWORD: $passwords.ini
-        ROOT: /dr01/qadapps/systest
+        ROOT: /usr
         PROFILE: source /etc/profile
     - SERVER:
-        NAME: vmlxxx0002
-        HOST: vmlxxx0002.qad.com
+        NAME: server2
+        HOST: server2.qad.com
         SSH_PORT: 22
         USER: mfg
         PASSWORD: $passwords.ini
-        ROOT: /dr01/qadapps/systest
+        ROOT: /usr
         PROFILE: source /etc/profile
-VARIABLES:
-    bl_root_folder: c:\workspaces\\fin-trunk\\trunk
-    fin_package_name: enterprise-financials-app
-    drive: x
-    run: yes
 EMAIL:
     EMAIL_SMTP_SERVER: smtp.office365.com
     EMAIL_SERVER_PORT: 587
     EMAIL_SENDER_ADDRESS: <sender email address>
     EMAIL_SENDER_PASSWORD: $passwords.ini
     EMAIL_RECEIVER_ADDRESS: <receiver email address comma list>
-    EMAIL_SUBJECT: Programming Tube Result
+    EMAIL_SUBJECT: Tube Email Subject
+VARIABLES:
+    bl_root_folder: c:\workspaces\dev\project
+    drive: X
+    run: yes
+    xxx-app: 1.0.0.0
 TUBE:
     # ----------------------------------------------------
     # You can use below command to view all command syntax
     # >>> python programming-tube.py help
-    # Or you can read Readme.md to get more details
-    # Note: This tube is the main tube template, if you need sub-tube, it only needs
-    # the TUBE section.
+    # Or you can read README.md to get details
     # ----------------------------------------------------
     # Run a windows or Mac OS command
     - COMMAND: dir
     # Example of switching servers, connect to SERVER:HOST
-    - CONNECT: vmlxxx0001.qad.com --if {run}
-    # Example of delete a line
-    - DELETE_LINE_IN_FILE: -f configuration.properties -b dependency.redirects=
-    # Email
-    - EMAIL: -t mh6@qad.com -s test email subject -b this is the content of your email
-    # Example of get a package version
-    - GET_PACKAGE_VERSION: -p enterprise-financials-app -s 2022.0 -e 2022.1
-    # Or use tube variables
-    - GET_PACKAGE_VERSION: -p {fin_package_name} -s 2022.0 -e 2022.1
-    # Example of read a XML file tag value
+    - CONNECT: server1.qad.com
+    # Example of delete a line which begin with 'hello'
+    - DELETE_LINE_IN_FILE: -f tmp.txt -b hello
+    # Sent an Email
+    - EMAIL: -t michael_hll@hotmail.com -s Email Subject -b this is the content of your email
+    # Example of read a XML file tag value using xpath
     - GET_XML_TAG_TEXT: -f xxx.xml -x xpath
-    # Read key-value from a file
+    # Read key-value from a file and store them into tube variables
     - GET_FILE_KEY_VALUE: -f config.ini
     # Example of import commands from a sub tube 
     - IMPORT_TUBE: sub-tube.yaml
-    # Run a linux command
+    # Run a linux command, make sure the server is connected by CONNECT command
     - LINUX_COMMAND: ls
     # Example of go to a directory
-    - PATH: X:\qadapps\systest\\build\config
-    # Or use predefined tube variables
-    - PATH: {bl_root_folder}
-    # Or partially use tube variables
-    - PATH: '{drive}:\qadapps\systest\\build\config'
+    - PATH: X:\dev\\trunk
     # To pause 30.5 minutes, in order to wait linux vm is up
     - PAUSE: 30.5
     # Example of report current tube progress
-    - REPORT_PROGRESS: Refresh code ant deploy failed 
+    - REPORT_PROGRESS: Refresh Code Failed
     # Example of set file key value
-    - SET_FILE_KEY_VALUE: -f configuration.properties -k packages.enterprise-financials-app -v {enterprise-financials-app}
+    - SET_FILE_KEY_VALUE: -f configuration.properties -k packages.xxx-app -v {xxx-app}
     # Example of update a xml file tag text
     - SET_XML_TAG_TEXT: -f file.xml -x xpath -v value
     # Example of tail a file content
-    - TAIL_FILE: -f X:\qadapps\systest\\build\logs\yab.log -l 100
+    - TAIL_FILE: -f X:\dev\\build.log -l 100
     # Write a line in a file
-    - WRITE_LINE_IN_FILE: -f xxx.txt -n line-nubmer -v content
-
-# --------------------------------------
-# Sub-Tube tempalte
-# Save below part to a sepreate yaml file
-# and remove the '#' character
-# Template:
-#TUBE:
-#    - PAUSE: 0.1
-# --------------------------------------
-# passwords.ini tempalte
-# Save below template to a text file
-# and remove the '#' character
-# Template:
-#email-sender-address=password
-#mfg=qad   
-# --------------------------------------              
+    - WRITE_LINE_IN_FILE: -f xxx.txt -n line-nubmer -v content 
+    # Count txt file line number or tube command numbers by status
+    - COUNT: -t FAILED -v failed_count    
+    # Set a tube variable value
+    - SET_VARIABLE: -n var1 -v Hello Tube        
                 '''
                 command_name = ''
                 # Prepare examples of each command
