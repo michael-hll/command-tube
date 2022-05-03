@@ -312,7 +312,6 @@ class Storage():
         self.C_DELETE_LINE_IN_FILE     = 'DELETE_LINE_IN_FILE'
         self.C_LINE_BEGINS             = 'LINE_BEGINS'   
         self.C_PAUSE                   = 'PAUSE'
-        self.C_GET_PACKAGE_VERSION     = 'GET_PACKAGE_VERSION'
         self.C_PACKAGE_NAME            = 'PACKAGE_NAME'
         self.C_VERSION_START           = 'VERSION_START'
         self.C_VERSION_END             = 'VERSION_END'
@@ -481,19 +480,6 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                                 \nIf keywords were given, then only tail the file \
                                 \nwhen the keywords exist from those lines.'                
             },
-            self.C_GET_PACKAGE_VERSION: {
-                self.C_ARG_SYNTAX: 'Syntax: GET_PACKAGE_VERSION: -p package -s start -e end [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
-                self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]         [3]  [4]   [5]       [6]
-                    [False, '-p','--package', 'str', 1, 'package', True],
-                    [False, '-s','--start', 'str', 1, 'start', True],
-                    [False, '-e','--end', 'str', 1, 'end', True]                    
-                ],
-                self.C_CONTINUE_PARAMETER: True,
-                self.C_REDO_PARAMETER: True,
-                self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Get latest version of package from packages.qad.com.'
-            }, 
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
                 self.C_ARG_ARGS: [        
@@ -3694,25 +3680,6 @@ def job_start(tube):
                     log.status = Storage.I.C_FAILED
                     log.end_datetime = datetime.now()
             
-            elif current_command_type == Storage.I.C_GET_PACKAGE_VERSION:
-                try:
-                    log.start_datetime = datetime.now()                    
-                    results = command.get_package_version(Storage.I.PACKAGES_URL)                    
-                    if results != None:
-                        StorageUtility.update_key_value_dict(results[0], results[1], command)
-                        log.status = Storage.I.C_SUCCESSFUL
-                        log.end_datetime = datetime.now()
-                    else:
-                        log.status = Storage.I.C_FAILED
-                        log.end_datetime = datetime.now()
-                        msg = "Package version does't found."
-                        log.add_error(msg)                        
-                except Exception as e:
-                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                    log.add_error(str(e))
-                    log.status = Storage.I.C_FAILED
-                    log.end_datetime = datetime.now()
-
             elif current_command_type == Storage.I.C_SET_FILE_KEY_VALUE:
                 try:
                     log.start_datetime = datetime.now()                        
