@@ -412,7 +412,6 @@ Use 'help command-name' to print all the tube commands syntax which name matched
         self.SERVERS                   = None 
         self.VARIABLES                 = None              
         self.TUBE                      = None
-        self.TUBE_JSON_FILE            = None
         self.TUBE_YAML_FILE            = None
         self.TUBE_LOG_FILE             = 'tube.log'
         self.IS_LOOP                   = False
@@ -806,7 +805,6 @@ class TubeCommand():
         self.if_run                = True
         self.index                 = None
         self.log                   = None
-        self.is_legacy_json_format = False
         self.is_imported           = False
         self.has_syntax_error      = False
         self.tube_index            = 0
@@ -827,9 +825,8 @@ class TubeCommand():
         if type(content) is int or type(content) is float:
             self.content = str(self.content)
             self.redo_content = str(self.redo_content)
-        
-        # in order to support previous commands in json format  
-        # also check if it's single placeholder
+         
+        # check if it's single placeholder
         # for single placeholder we could replace the place holder     
         if type(self.content) is dict:
             keys = [k for k in self.content.keys()]
@@ -839,8 +836,6 @@ class TubeCommand():
                 self.has_placeholders = True
                 self.content = '{' + keys[0] + '}'
                 self.original_content = self.content            
-            else:
-                self.is_legacy_json_format = True 
                 
         # check if command content has place holders
         if type(self.content) is str:
@@ -886,8 +881,8 @@ class TubeCommand():
     
     def reset_general_arguments(self):
         
-        # return command with json content
-        if self.is_legacy_json_format == True or self.is_single_placeholder:
+        # return command with singlie placeholder
+        if self.is_single_placeholder:
             return
         
         args, unknow = general_command_parser.parse_known_args(self.content.split())
@@ -1044,14 +1039,10 @@ class TubeCommand():
         '''
         return_val = None
         file_name, xpath = '',''    
-        if self.is_legacy_json_format:
-            file_name = self.content[Storage.I.C_FILE_NAME]
-            xpath = self.content[Storage.I.C_XPATH]        
-        else:
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            file_name = ' '.join(args.file)
-            xpath = ' '.join(args.xpath)
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file_name = ' '.join(args.file)
+        xpath = ' '.join(args.xpath)
             
         # replace placeholders
         file_name = TubeCommand.format_placeholders(file_name)
@@ -1177,16 +1168,11 @@ class TubeCommand():
     def get_package_version(self, url):
         try:
             package, start, end = '', '', ''
-            if self.is_legacy_json_format:
-                package = self.content[Storage.I.C_PACKAGE_NAME]
-                start = str(self.content[Storage.I.C_VERSION_START])
-                end = str(self.content[Storage.I.C_VERSION_END])
-            else:
-                parser = self.tube_argument_parser
-                args, _ = parser.parse_known_args(self.content.split())
-                package = args.package[0]
-                start = args.start[0]
-                end = args.end[0]
+            parser = self.tube_argument_parser
+            args, _ = parser.parse_known_args(self.content.split())
+            package = args.package[0]
+            start = args.start[0]
+            end = args.end[0]
                 
             # replace placeholders
             package = TubeCommand.format_placeholders(package)
@@ -1215,16 +1201,11 @@ class TubeCommand():
         '''
         return_val = False
         file_name, keywords, value = '', '', ''
-        if self.is_legacy_json_format:
-            file_name = self.content[Storage.I.C_FILE_NAME]
-            keywords = self.content[Storage.I.C_KEY]
-            value = self.content[Storage.I.C_VALUE]
-        else:
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            file_name = ' '.join(args.file)
-            keywords = ' '.join(args.keywords)
-            value = ' '.join(args.value)
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file_name = ' '.join(args.file)
+        keywords = ' '.join(args.keywords)
+        value = ' '.join(args.value)
             
         # replace placeholders
         file_name = TubeCommand.format_placeholders(file_name)
@@ -1318,20 +1299,16 @@ class TubeCommand():
         file, line_no, line_content, line_contains = '', 0 ,'', None
         write_mode = 'w'
         is_append_mode = False
-        if self.is_legacy_json_format:
-            file = self.content[Storage.I.C_FILE_NAME]
-            line_no = int(self.content[Storage.I.C_LINE_NO])
-            line_content = self.content[Storage.I.C_LINE_CONTENT]
-        else:
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            file = ' '.join(args.file)
-            if args.number:
-                line_no = args.number[0]
-            line_content = ' '.join(args.value)
-            if args.contains:
-                line_contains = ' '.join(args.contains)    
-        
+
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        if args.number:
+            line_no = args.number[0]
+        line_content = ' '.join(args.value)
+        if args.contains:
+            line_contains = ' '.join(args.contains)    
+    
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
         line_content = TubeCommand.format_placeholders(line_content)
@@ -1445,23 +1422,20 @@ class TubeCommand():
         '''
         file, line_begins, line_contains, delete_empty = '', '', '', False
         deleted_count = 0
-        if self.is_legacy_json_format:
-            file = self.content[Storage.I.C_FILE_NAME]
-            line_begins = self.content[Storage.I.C_LINE_BEGINS]        
-        else:
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            file = ' '.join(args.file)
-            if args.begins != None:
-                line_begins = ' '.join(args.begins)
-            if args.contains != None:
-                line_contains = ' '.join(args.contains)
-            if args.del_empty:
-                delete_empty = True
-            # if didn't found any conditions then delete nothing
-            if line_begins == '' and line_contains == '' and not delete_empty:
-                raise Exception('No parameters found: -c, -b or -e')        
         
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        if args.begins != None:
+            line_begins = ' '.join(args.begins)
+        if args.contains != None:
+            line_contains = ' '.join(args.contains)
+        if args.del_empty:
+            delete_empty = True
+        # if didn't found any conditions then delete nothing
+        if line_begins == '' and line_contains == '' and not delete_empty:
+            raise Exception('No parameters found: -c, -b or -e')        
+    
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
         line_begins = TubeCommand.format_placeholders(line_begins)
@@ -1523,18 +1497,14 @@ class TubeCommand():
         For command: TAIL_FILE
         '''
         file, lines_count, keywords = '', 0, ''
-        if self.is_legacy_json_format:
-            file = self.content[Storage.I.C_FILE_FULL_NAME]
-            lines_count = self.content[Storage.I.C_TAIL_LINES]
-            keywords = self.content[Storage.I.C_TAIL_KEYWORDS]
-        else:
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            file = ' '.join(args.file)
-            lines_count = args.lines[0]
-            if args.keywords != None:
-                keywords = ' '.join(args.keywords)
-                
+
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        lines_count = args.lines[0]
+        if args.keywords != None:
+            keywords = ' '.join(args.keywords)
+            
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
         keywords = TubeCommand.format_placeholders(keywords)  
@@ -2076,11 +2046,7 @@ class StorageUtility():
                 errors_return.append(msg)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 continue
-            
-            # skip json format
-            if command.is_legacy_json_format == True:
-                continue
-            
+                        
             if command.content == None:
                 msg = 'Command: %s is empty.' % command.cmd_type
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
@@ -2886,7 +2852,7 @@ def output_tail_lines(lines):
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', '-------------- END OF TAIL LINES --------------')
 
 def output_log_header():
-    # Log start for xxx.json.log    
+    # Log start for xxx.yaml.log    
     Storage.I.START_DATE_TIME = datetime.now()
     run_mode = ' (%s)' % Storage.I.RUN_MODE
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 
@@ -2907,7 +2873,7 @@ def init_log_file():
         except Exception as e:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 'Backup log file failed:' + str(e))
 
-    # Log start for xxx.json.log    
+    # Log start for xxx.yaml.log    
     run_mode = ' (%s)' % Storage.I.RUN_MODE
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 
                       Storage.I.C_JOB_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) +
@@ -2919,9 +2885,7 @@ def init_log_file():
                           '>>> RUNNING TUBE >>> ' + tube_name) 
 
 def init_arguments():
-    # parameters for user inputs    
-    parser.add_argument('-j', '--json', dest='json_config',
-                        help='Config file with JSON format (Suggest using YAML file with -y parameter).')   
+    # parameters for user inputs       
     parser.add_argument('-y', '--yaml', dest='yaml_config',
                         help='Config file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
                              '\nFor quick you could leave out the file name extension .yaml or .yml') 
@@ -3938,21 +3902,9 @@ print_tube_command_help(parser)
 
 # ------------------------------------------------------------
 # Check log file name
-# if json file exists then reset log file name to xxx.json.log
-# the same to yaml
-# ------------------------------------------------------------
-if(args.json_config != None):
-    Storage.I.TUBE_JSON_FILE = args.json_config 
-    if(path.exists(Storage.I.TUBE_JSON_FILE)):
-        Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, Storage.I.TUBE_JSON_FILE + '.log')
-    else:
-        msg = "JSON file doesn't exist: " + Storage.I.TUBE_JSON_FILE
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-        # Log start
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        sys.exit()  
-elif(args.yaml_config != None):
+# if yaml file exists then reset log file name to xxx.yaml.log
+# ------------------------------------------------------------ 
+if(args.yaml_config != None):
     # if the config file name without extensions
     # then add '.yaml' or '.yml' ad default and
     # check if they exists
@@ -3978,7 +3930,7 @@ elif(args.yaml_config != None):
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()         
 else:
-    msg = '-j or -y parameter is missing. \
+    msg = '-y or --yaml parameter is missing. \
           \nUse \'-h\' argument to view the usage of all the parameters.'
     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
     # Log start
@@ -3993,20 +3945,14 @@ else:
 # ------------------------------------------------
 try:
     data = None
-    if(Storage.I.TUBE_JSON_FILE and path.exists(Storage.I.TUBE_JSON_FILE)):
-        with open(Storage.I.TUBE_JSON_FILE, 'r') as f:
-            data = json.load(f)  
-    elif(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
+    if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
         with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
             data = yaml.safe_load(f)  
     
     # check if given configuration file is empty        
     if not data:
         msg = 'The content of given config file is empty: %s'
-        if Storage.I.TUBE_JSON_FILE:
-            msg = msg % Storage.I.TUBE_JSON_FILE
-        else:
-            msg = msg % Storage.I.TUBE_YAML_FILE
+        msg = msg % Storage.I.TUBE_YAML_FILE
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()
