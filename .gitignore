@@ -9,3 +9,4 @@ tube
 .DS_Store
 test
 templates
+tube.template.yaml

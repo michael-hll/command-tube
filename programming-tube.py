@@ -7,6 +7,7 @@
 # Email: michael_hll@hotmail.com
 # Author: Michael Han
 # Date: May 1, 2022
+# Copyright 2022
 # -------------------------
 
 import os
@@ -403,13 +404,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
         self.RUN_MODE                  = self.C_RUN_MODE_SRC
         # User inputs, these values should be all set well from config file
         self.EXEC_DATE_TIME            = '01/01/20 00:00:00'   
-        self.YAB_HOST                  = 'vmlxxx0001'
-        self.YAB_SSH_PORT              = 22
-        self.YAB_USER                  = 'mfg'
-        self.YAB_PASSWORD              = 'qad'
-        self.YAB_ROOT_PATH             = '/dr01/qadapps/systest'
-        self.GOTO_HOST_ROOT            = 'cd %s;' % self.YAB_ROOT_PATH
-        self.YAB_PRE_COMMAND           = 'source /etc/profile;'
+        self.GOTO_HOST_ROOT            = 'cd /' 
         self.PACKAGES_URL              = 'http://packages.qad.com/packages/'
         # Some default input parameters
         self.IS_IMMEDIATE              = False
@@ -2471,25 +2466,6 @@ def install_package(package_name):
             installed = False
     return installed
 
-def get_ssh_to_yab(tube):
-    ssh = None
-    try:
-        command: TubeCommand
-        for command in tube:        
-            if command.cmd_type == Storage.I.C_LINUX_COMMAND:
-                ssh = paramiko.SSHClient()
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(Storage.I.YAB_HOST, Storage.I.YAB_SSH_PORT, Storage.I.YAB_USER, Storage.I.YAB_PASSWORD, 
-                            timeout=Storage.I.C_SSH_CONNECT_TIMEOUT) 
-                break
-    except Exception as e:
-        msg = 'When connect to yab: %s, port: %s, user: %s, password: %s, exception: %s' \
-              % (Storage.I.YAB_HOST, Storage.I.YAB_SSH_PORT, Storage.I.YAB_USER, Storage.I.YAB_PASSWORD, str(e))
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR) 
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        return None        
-    return ssh
-
 def get_ant_build_errors(log: TubeCommandLog):
     
     '''
@@ -3267,15 +3243,6 @@ def print_tube_command_help(parser: ArgumentParser):
 # ---------------------------------------------------------------
 # RUN_MODE is either SRC or BIN
 RUN_MODE: BIN
-EXECUTE_DATE_TIME: 01/01/20 00:00:00
-# YAB server is the default Linux server
-# You can use CONNECT command to switch servers
-YAB:
-    YAB_HOST: vmlxxx0001
-    YAB_SSH_PORT: 22
-    YAB_USER: mfg
-    YAB_PASSWORD: $passwords.ini
-    YAB_ROOT_PATH: /dr01/qadapps/systest
 SERVERS:
     # these serers can be used by the CONNECT command
     - SERVER:
@@ -3527,11 +3494,7 @@ def job_start(tube):
     current_command = None
     current_command_type = None
     pre_command: TubeCommand = None
-    build_ssh_conn = False
     ssh = None
-    # TODO: in final version remove YAB host related logic
-    is_using_yab_host = True
-    Storage.I.CURR_HOST = Storage.I.YAB_HOST
     
     if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
         tprint('Current directory is: %s' % (Storage.I.C_CURR_DIR), type=Storage.I.C_PRINT_TYPE_DEBUG)
@@ -3593,13 +3556,7 @@ def job_start(tube):
             tprint(msg_print, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
 
             if current_command_type == Storage.I.C_LINUX_COMMAND:
-                log.start_datetime = datetime.now()     
-
-                # For first linux command, we build a ssh connection
-                if ssh == None and build_ssh_conn == False:
-                    # Get ssh connector if commands contains 'LINUX_COMMAND'
-                    ssh = get_ssh_to_yab(Storage.I.TUBE_RUN)   
-                    build_ssh_conn = True            
+                log.start_datetime = datetime.now()                
 
                 # Check if we have a valid ssh connection
                 if ssh == None:
@@ -3619,10 +3576,7 @@ def job_start(tube):
                 # replace placeholders
                 command.content = TubeCommand.format_placeholders(command.content)          
 
-                # Execute any linux command, yab command
-                if is_using_yab_host:
-                    Storage.I.CURR_HOST_ROOT = Storage.I.YAB_ROOT_PATH
-                    Storage.I.CURR_HOST_PROFILE = Storage.I.YAB_PRE_COMMAND
+                # Execute any linux command
                 Storage.I.GOTO_HOST_ROOT = 'cd %s;' % Storage.I.CURR_HOST_ROOT # update root path    
                 _ , stdout, stderr = ssh.exec_command(Storage.I.CURR_HOST_PROFILE + Storage.I.GOTO_HOST_ROOT + command.content)                    
                 
@@ -3835,12 +3789,6 @@ def job_start(tube):
                     host_name = command.content
                     host: Host = None
                     
-                    # if used CONNECT command, then we have to close previous YAB connection
-                    if is_using_yab_host == True:
-                        if ssh != None:
-                            ssh.close()
-                        is_using_yab_host = False    
-                    
                     # check if connect host name exists from configruations
                     if host_name in Storage.I.HOSTS:
                         host = Storage.I.HOSTS[host_name]
@@ -3857,9 +3805,6 @@ def job_start(tube):
                         # host name doesn't exist then set ssh to None
                         ssh = None
                     
-                    # anyway set the build connection to true
-                    build_ssh_conn = True   
-                    
                     # update command status and datetime
                     if host.is_connected == True:
                         log.status = Storage.I.C_SUCCESSFUL
@@ -3873,7 +3818,6 @@ def job_start(tube):
                     
                 except Exception as e:
                     ssh = None
-                    build_ssh_conn = True
                     tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                     log.add_error(str(e))
                     log.status = Storage.I.C_FAILED
@@ -4008,8 +3952,7 @@ def job_start(tube):
 
         # close all connections         
         disconect_all_hosts(Storage.I.HOSTS)     
-        ssh = None    
-        build_ssh_conn = False
+        ssh = None  
 # --------- END OF FUNCTIONS -----------------
 
 # to check main flow
@@ -4128,16 +4071,7 @@ try:
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()
 
-    # tprint(json.dumps(data, indent=4))
-    # EXECUTE_DATE_TIME and YAB may be removed in the future
-    if 'EXECUTE_DATE_TIME' in data.keys():
-        Storage.I.EXEC_DATE_TIME = data['EXECUTE_DATE_TIME']
-    if 'YAB' in data.keys():
-        Storage.I.YAB_HOST = data['YAB']['YAB_HOST']
-        Storage.I.YAB_SSH_PORT = data['YAB']['YAB_SSH_PORT']
-        Storage.I.YAB_USER = data['YAB']['YAB_USER']
-        Storage.I.YAB_PASSWORD = data['YAB']['YAB_PASSWORD']
-        Storage.I.YAB_ROOT_PATH = data['YAB']['YAB_ROOT_PATH']   
+    # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
         Storage.I.TUBE = data[Storage.I.C_TUBE]
     # Emails
@@ -4156,13 +4090,7 @@ try:
 
     # ------------------------------------
     # Begin to deal with all input parameters
-    # ------------------------------------
-    # Read YAB user password from file
-    if Storage.I.YAB_PASSWORD.startswith('$'):
-        file = Storage.I.YAB_PASSWORD[1:]
-        found, pwd = Utility.read_password_from_file(file, Storage.I.YAB_USER)
-        if found == True:
-            Storage.I.YAB_PASSWORD = pwd    
+    # ------------------------------------ 
         
     # Get servers to hosts
     StorageUtility.read_hosts(Storage.I.SERVERS)
