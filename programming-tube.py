@@ -19,7 +19,6 @@ from datetime import datetime, timedelta, date
 import time
 import argparse
 from argparse import ArgumentParser
-import json
 import re
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -3061,7 +3060,7 @@ def print_tube_command_help(parser: ArgumentParser):
                 will be skipped. But use --continue parameter could change
                 this.
 
-                Without m and n parameters: the tube will run continuely.
+                Without m and n parameters: tube will run next command.
                         
                 With m (m >= 1) parameter only: If current command failed,
                 the later m steps will be skipped. Otherwise the later m steps
@@ -3078,9 +3077,9 @@ def print_tube_command_help(parser: ArgumentParser):
         If:            
             Syntax: --if {tube_variable} | value=={tube_variable} | value!={tube_variable}
             Description:
-                If {tube_variable} uppercase equals 'FALSE' or 'NO' then the tube command
+                If {tube_variable} uppercase equals 'FALSE' or 'NO' then the current tube command
                 will be skipped.
-                For value=={tube_variable} condition, if value not equal {tube_variable} then this
+                For value=={tube_variable} condition, if value not equal {tube_variable} then current
                 command will be skipped.
                 For value!={tube_variable} condition, if value equal {tube_variable} then this
                 command will be skipped.
@@ -3101,45 +3100,43 @@ def print_tube_command_help(parser: ArgumentParser):
         From tube YAML file, you can add tube variables under 'VARIABLES' property. 
         e.g.:       
         VARIABLES:  
-            bl_root_folder: C:\workspaces\\fin-trunk\\trunk
-            fin_package_name: financials-qra-app
+            root_folder: C:\workspaces\\trunk
+            package_name: xxx-app
             cmd_parameters: -l
             # Below are default hidden variables:
             s: ' ' # Its value is a space char and can't be overridden
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
-            - PATH: {bl_root_folder}
+            - PATH: {root_folder}
             - COMMAND: ls {cmd_parameters}
             # The below {s:10} will be replaced by 10 space chars 
             - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here  
         The below commands will update the tube variables:
             - GET_XML_TAG_TEXT => xpath will be the variable name
-            - GET_PACKAGE_VERSION => package will be the variable name
             - GET_FILE_KEY_VALUE => key(s) will be the variable name
-            - COUNT => variable will be tored into tube
+            - COUNT => variable parameter will be stored into tube variables
             - SET_VARIABLE => update tube variable by name value
-        Note: If variable was updated from console inputs, then it can't be udpated again.
+        Note: If variable was updated from console inputs, then it will become readonly.
                 '''
                 help_all = '''
 -------------------------------           
 * Welcome to Programming Tube *
 -------------------------------                
 # Introduction
-    Programming Tube is a tool that can run a group of sequenced commands at a future datetime.
-    Those commands are added from a YAML config file, which I usually call a tube file. 
-    See the examples from the templates folder. 
+
+    Programming Tube is a tool that can run a group of sequenced commands.    
+    Those commands are added from a YAML config file, which I usually call it a tube file. 
+    See the examples from the template YAML file ('help template' could output it).
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
-    The commands could include normal terminal commands run from Windows, MacOS and Linux systems. 
-    Besides that, Programming Tube also adds additional tube commands 
-    which can achieve more tasks. 
-    From below 'Examples of Each Command' you could get more information.
+    From help you could find all types of supported commands.
 
 # How to run Programming Tube    
+
     Programming Tube is a Python 3 script. The most important two arguments 
     for Programming Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
-    From the 'xxx.template.yaml' you could view how it looks like.
+    From the 'tube.template.yaml' you could view how it looks like.
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
@@ -3157,21 +3154,17 @@ def print_tube_command_help(parser: ArgumentParser):
         >>> python programming-tube.py -y tube.yaml -t t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
         >>> python programming-tube.py -y tube.yaml -t '02/01/22 09:00:00'
-        6: Find command name contains 'file' keyword:
+        6: Find command syntax which name contains 'file' keyword:
         >>> python programming-tube.py help file
     
         ** Find tube running result from tube.yaml.log file  
 
     - Binary Mode        
         Following below steps you can use it in binary mode
-        1. In order to generate binary exe file, you need to install pyinstaller
-        >>> pip install pyinstaller
-        2. Then compile programming-tube.py to exe file:
-        (programming-tube.exe will be generated in the dist folder)
-        >>> pyinstaller --onefile programmingtube.py
-        3. Using it from your terminal (This exe don't need Python to run):
+        1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
+        3. Using it from your terminal:
         (You need to change RUN_MODE from SRC to BIN in YAML config file)
-        >>> programming-tube -y tube.yaml -f
+        >>> tube -y tube.yaml -f
     
 # General Arguments & Tube Variables
     - General Arguments
