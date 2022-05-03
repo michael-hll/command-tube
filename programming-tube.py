@@ -2887,14 +2887,14 @@ def init_log_file():
 def init_arguments():
     # parameters for user inputs       
     parser.add_argument('-y', '--yaml', dest='yaml_config',
-                        help='Config file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
+                        help='Programming Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
                              '\nFor quick you could leave out the file name extension .yaml or .yml') 
     parser.add_argument('-v', '--vars', type=str, dest='variables', nargs='+',
                         help='Pass tube variables into tube: var1=value1 var2=value2')                 
     parser.add_argument('-i', '--immediate', dest='immediate', action='store_const', const='yes',
-                        help='A flag to tell if run this tool immediately, but needs a user confirm. \nDefault no.')  
+                        help='A flag to tell if run the tube immediately, but needs a user confirm. \nDefault no.')  
     parser.add_argument('-f', '--force', dest='force', action='store_const', const='yes',
-                        help='A flag to run tube at once without any confirmation. \nDefault no.') 
+                        help='A flag to run tube at once without confirmation. \nDefault no.') 
     parser.add_argument('-t', '--datetime', dest='datetime',
                         help='At what datetime to start this job. \nFORMAT: [mm/dd/yy H:M:S] e.g.: \'03/18/20 6:00:00\'; ' +
                              '\nIt also supports addition format \'n/tXX o\'clock, means next or this XX o\'clock. \ne.g.: \'n7\', means next 7:00 o\'clock; ' + \
