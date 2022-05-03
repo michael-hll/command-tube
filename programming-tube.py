@@ -344,7 +344,8 @@ Use 'help if' to view the --if syntax;
 use 'help key' to view the --key syntax;
 Use 'help variable' to view the tube variables usage;
 Use 'help vars' to print all the given tube variables;
-Use 'help command-name' to print all the tube commands syntax which name matched your inputs.
+Use 'help commands' to print all commands usages;
+Use 'help command-name' to print all the tube commands usage which name matched.
         '''
         # Server used
         self.C_SERVERS                 = 'SERVERS'
@@ -479,7 +480,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                                 \nwhen the keywords exist from those lines.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
-                self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
                     [False, '-f','--file', 'str', '+', 'file', True],
@@ -507,11 +508,15 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: Write any characters into a file.' + \
                     '\nThe value also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL (DELETE_LINE) ' + \
                     '\nIf you need more than two space characters in the value content, you can use {s:m} (m > 0) ' + \
-                    '\nThe \'m\' means how many spaces you want.' + \
-                    '\neg: -v {s:5}hello => will be translated to 5 space chars plus hello: \'     hello\''
+                    '\nThe \'m\' means how many spaces you want.'
+                    '\neg: -v {s:5}hello => will be translated to 5 space chars plus hello: \'     hello\'' + \
+                    '\nParameters:' + \
+                    '\n -n parameter: Write line in which line number.' + \
+                    '\n -c parameter: Write line which line contains specific characters.' + \
+                    '\n -v parameter: The character (content) you want to write into the file.'
             },    
             self.C_SET_FILE_KEY_VALUE: {
-                self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
                     [False, '-f','--file', 'str', '+', 'file', True],
@@ -533,7 +538,8 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Get a xml tag text value from xml file'
+                self.C_ARG_DESCRIPTION: 'Description: Get a xml tag text value from xml file. \
+                                        \nThe result will be stored into tube variables.'
             },
             self.C_SET_XML_TAG_TEXT: {
                 self.C_ARG_SYNTAX: 'Syntax: SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
@@ -549,7 +555,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: Update XML file tag text using xpath.'
             },
             self.C_SET_VARIABLE: {
-                self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
                     [False, '-n','--name', 'str', '+', 'name', True],
@@ -561,7 +567,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: Set tube variable value.'
             },
             self.C_CONNECT: {
-                self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
                     [True, '-','--', 'str', '+', '', True]
@@ -572,7 +578,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: You can use this command to switch your server connection.'
             },
             self.C_REPORT_PROGRESS: {
-                self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]    [3]   [4]  [5]  [6]
                     [True, '-','--', 'str', '+', '', True]
@@ -583,7 +589,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: You can use this command to sent current progress via Email.'
             },
             self.C_PAUSE: {
-                self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
                     [True, '-','--', 'str', '+', '', True]
@@ -594,7 +600,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: Programming Tube will pause with given minutes.'
             },
             self.C_PATH: {
-                self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
                     [True, '-','--', 'str', '+', '', True]
@@ -605,7 +611,7 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_ARG_DESCRIPTION: 'Description: Go to specific directory.'
             },
             self.C_GET_FILE_KEY_VALUE: {
-                self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]    [3]    [4]   [5]   [6]
                     [False, '-k','--keywords', 'str', '+', 'keywords', False],
@@ -614,10 +620,11 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Read key values from key-value file.'
+                self.C_ARG_DESCRIPTION: 'Description: Read key values from key-value file. \
+                                        \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
-                self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]   [3]    [4]  [5]   [6]
                     [False, '-t','--to', 'str', '+', 'to', True],
@@ -667,7 +674,8 @@ Use 'help command-name' to print all the tube commands syntax which name matched
                 self.C_IF_PARAMETER: True,
                 self.C_ARG_DESCRIPTION: 'Description: Count file lines number (-f) or tube command number by status (-t). \
                                          \nThe -c flag means if count within current tube. Default no. \
-                                         \nThe -s flag means if skip COUNT command. Defalult no.'
+                                         \nThe -s flag means if skip COUNT command. Defalult no. \
+                                         \nThe count result will be stored into tube variable using -v parameter.' 
             },
         }
 
@@ -3034,7 +3042,7 @@ def print_tube_command_help(parser: ArgumentParser):
         args = parser.parse_args()    
         if(args.help):
             if(len(args.help) >= 1 and len(args.help) <= 2 and args.help[0].upper() == 'HELP'):
-                add_notes = '* View Readme document to get more examples.\n' + \
+                add_notes = '* View Readme document to get more.\n' + \
                          Storage.I.C_PROGRAM_NAME + '=' + Storage.I.C_CURR_VERSION
                 help_redo = '''
         Redo: 
@@ -3121,7 +3129,8 @@ def print_tube_command_help(parser: ArgumentParser):
                 help_all = '''
 -------------------------------           
 * Welcome to Programming Tube *
--------------------------------                
+-------------------------------    
+            
 # Introduction
 
     Programming Tube is a tool that can run a group of sequenced commands.    
@@ -3255,7 +3264,7 @@ TUBE:
                 command_name = ''
                 # Prepare examples of each command
                 command_examples = []
-                command_examples.append('# Examples of Each Command:')
+                command_examples.append('# Usage of Each Command:')
                 command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
                 keys = [k for k in Storage.I.TUBE_ARGS_CONFIG.keys()]
                 keys.sort()
@@ -3277,6 +3286,10 @@ TUBE:
                     for eg in command_examples:
                         tprint(eg)  
                     tprint(add_notes)                         
+                    sys.exit()
+                elif command_name.upper() == 'COMMANDS':
+                    for eg in command_examples:
+                        tprint(eg)
                     sys.exit()
                 elif command_name.upper() == 'TEMPLATE':
                     # print template and write it to a file
