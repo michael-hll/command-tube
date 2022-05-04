@@ -23,7 +23,7 @@ Update Date: May 2022
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
-    from your terminal (In MacOS, you may need Python3):
+    from your terminal (In MacOS, you may need Python3 >= 3.7):
         >>> python programming-tube.py -h
     
 ### - Examples of running Programming Tube:
@@ -48,6 +48,7 @@ Update Date: May 2022
         3. Using it from your terminal:
         (You need to change RUN_MODE from SRC to BIN in YAML config file)
         >>> tube -y tube.yaml -f  
+        Note: In MacOS you need give the 'tube' exec right first.
        
 
 ## General Arguments & Tube Variables
