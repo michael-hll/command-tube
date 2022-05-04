@@ -4,10 +4,9 @@ dist
 *.log
 test.yaml
 tube
-*.ini
 *.spec
 .DS_Store
 test
-templates
 tube.template.yaml
 help.txt
+mypasswords.ini
