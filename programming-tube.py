@@ -518,7 +518,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Update key-value file.'
             },
             self.C_GET_XML_TAG_TEXT: {
-                self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run]  [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
                     [False, '-f','--file', 'str', '+', 'file', True],
