@@ -2,12 +2,12 @@ __pycache__
 build
 dist
 *.log
-test.yaml
 tube
 *.spec
 .DS_Store
 test
 tube.template.yaml
+test.yaml
 help.txt
 mypasswords.ini
 TODO.ls
