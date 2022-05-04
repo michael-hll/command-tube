@@ -276,6 +276,7 @@ class Storage():
         Storage.I = self     
         # -------- CONSTANTS START --------
         self.C_CURR_VERSION            = '2.0.0 Beta'       
+        self.C_YAML_VERSION            = 'VERSION'
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()    
         self.C_SLEEP_SECONDS           = 1
@@ -389,6 +390,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # ************************************************************************
         # Run mode
         self.RUN_MODE                  = self.C_RUN_MODE_SRC
+        self.YAML_VERSION              = None
         # User inputs, these values should be all set well from config file
         self.EXEC_DATE_TIME            = '01/01/20 00:00:00'   
         self.GOTO_HOST_ROOT            = 'cd /' 
@@ -2295,6 +2297,27 @@ class TubeCommandUtility():
         
             tube_run.insert(redo_command_index + i, command_new ) 
 
+class TubeVersion():
+    
+    '''
+    Programming Tube version format: x.x.x
+    #1: Major version (number)
+    #2: Minor version (number)
+    #3: Fix or build version (character)
+    '''
+    
+    def __init__(self, yaml_version) -> None:
+        self.major_version = 0
+        self.minor_version = 0
+        self.fix_version = '0'
+        # split versions
+        if yaml_version:            
+            version_array = yaml_version.split('.')
+            if len(version_array) == 3:
+                self.major_version = int(version_array[0])
+                self.minor_version = int(version_array[1])
+                self.fix_version = version_array[2]
+
 # -------- END OF CLASSES -------
 
 # --------- FUNCTIONS --------------------
@@ -3961,6 +3984,9 @@ try:
     # Variables
     if(Storage.I.C_VARIABLES in data.keys()):
         Storage.I.VARIABLES = data[Storage.I.C_VARIABLES]
+    # YAML Version
+    if Storage.I.C_YAML_VERSION in data.keys():
+        Storage.I.YAML_VERSION = data[Storage.I.C_YAML_VERSION]        
     del data
     
     # log job header
@@ -4039,6 +4065,18 @@ try:
         tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()
+        
+    # checking YAML versions
+    # if programming tube major/minor version is different
+    # with YAML file version then raised a warning to the end user.
+    yaml_ver = TubeVersion(Storage.I.YAML_VERSION)
+    program_ver = TubeVersion(Storage.I.C_CURR_VERSION)
+    if yaml_ver.major_version > 0 and \
+       (yaml_ver.major_version != program_ver.major_version or \
+       yaml_ver.minor_version != program_ver.minor_version):
+        msg = 'Programming Tube major/minor versions are different with YAML file version.'
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     
 except Exception as e:
     msg = 'Programming Tube process parameters error: ' + str(e)
