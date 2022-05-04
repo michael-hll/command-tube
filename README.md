@@ -100,7 +100,8 @@ Update Date: May 2022
                 command will be skipped.
                 For value!={tube_variable} condition, if value equal {tube_variable} then this
                 command will be skipped.
-                It also support >, >=, <, <= cases, make sure the values are numbers before comparison.
+                It also support >, >=, <, <= cases, make sure the values are numbers before 
+                comparison.
                 Note: Extra spaces are NOT allowed in the compare expression.
         
         Key:
