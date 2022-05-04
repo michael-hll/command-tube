@@ -136,7 +136,10 @@ Update Date: May 2022
 ---
 ## Examples of Each Command
 
-    Notes: The tube variables and general arguments are play important roles in Programming Tube. They can be used in all suppported commands. In order to show the examples of how to use variables and general arguments, only list some examples in the first COMMAND, you can use them similarly in other support commands.
+    Notes: The tube variables and general arguments are play important roles in Programming Tube. 
+    They can be used in all suppported commands. In order to show the examples of how to use variables 
+    and general arguments, only list some examples in the first COMMAND, you can use them similarly 
+    in other support commands.
 
     - COMMAND
         Description: Run any Windows/MacOS terminal command.
