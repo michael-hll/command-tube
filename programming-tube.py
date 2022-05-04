@@ -392,7 +392,6 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # User inputs, these values should be all set well from config file
         self.EXEC_DATE_TIME            = '01/01/20 00:00:00'   
         self.GOTO_HOST_ROOT            = 'cd /' 
-        self.PACKAGES_URL              = 'http://packages.qad.com/packages/'
         # Some default input parameters
         self.IS_IMMEDIATE              = False
         self.IS_FORCE_RUN              = False
@@ -413,7 +412,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.EMAIL_SENDER_ADDRESS      = '<sender email address>'
         self.EMAIL_SENDER_PASSWORD     = '<sender email password>'
         self.EMAIL_RECEIVER_ADDRESS    = '<receiver email address comma list>'
-        self.EMAIL_SUBJECT             = 'Programming Cube Result'
+        self.EMAIL_SUBJECT             = 'Programming Tube Result'
         # global variables
         self.LOGS                      = []
         self.FILE_TAIL_LINES           = []
@@ -2793,7 +2792,6 @@ def prepare_emails_content_and_sent(LOGS):
     email_body += '-------------------------------<br>'
     email_body += '<br>Total Time   : ' + totals + ' <br></body>'
     email_body = '<font face="monospace">' + email_body + '</font>'
-    email_body += "<br><a href=\"https://team.qad.com/display/FIN/Programming+Tube\">Programming Tube</a>"
 
     # disk space checking
     for key in Storage.I.DISK_SPACE_STATUS.keys():
