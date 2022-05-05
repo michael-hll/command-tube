@@ -30,7 +30,7 @@ Update Date: May 2022
         1: Run at once and sent email result: 
         >>> python programming-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python programming-tube.py -y tube.yaml -t20
+        >>> python programming-tube.py -y tube.yaml -t t20
         3: Run at every 6 o'clock for 100 days: 
         >>> python programming-tube.py -y tube.yaml -t n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
@@ -354,3 +354,12 @@ Update Date: May 2022
     # YAML format
     - SET_VARIABLE: -n var_name -v value
 ```
+
+    - GET_PACKAGE_VERSION   
+        Description: This is a TODO command, since each company/organization could have different package management tool.
+        Work around:
+        1. Write a tool/script to get your package versions and save it to a key-value file: packages.txt
+        2. Calling this tool/script using tube command: COMMAND
+        3. Use tube command GET_FILE_KEY_VALUE to read package versions into tube variables
+        4. Use tube command SET_FILE_KEY_VALUE or WRITE_LINE_IN_FILE or SET_XML_TAG_TEXT to update the package version
+        5. Continue do other compile/build/deploy tasks using tube commands
