@@ -360,6 +360,6 @@ Update Date: May 2022
         Work around:
         1. Write a tool/script to get your package versions and save it to a key-value file: packages.txt
         2. Calling this tool/script using tube command: COMMAND
-        3. Use tube command GET_FILE_KEY_VALUE to read package versions into tube variables
+        3. Use tube command GET_FILE_KEY_VALUE to read package versions from packages.txt into tube variables
         4. Use tube command SET_FILE_KEY_VALUE or WRITE_LINE_IN_FILE or SET_XML_TAG_TEXT to update the package version
-        5. Continue do other compile/build/deploy tasks using tube commands
+        5. Continue do other compile/build/deploy tasks
