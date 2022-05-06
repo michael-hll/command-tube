@@ -19,7 +19,7 @@ Update Date: May 2022
     for Command Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
-    From the 'tube.template.yaml' you could view how it looks like.
+    From the 'templates\template*.yaml' you could view how it looks like.
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
