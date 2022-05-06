@@ -2,8 +2,8 @@
 #!/usr/bin/python
 
 # -------------------------
-# Programming Tube
-# GitHub: https://github.com/michael-hll/programming-tube
+# Command Tube
+# GitHub: https://github.com/michael-hll/command-tube
 # Email: michael_hll@hotmail.com
 # Author: Michael Han
 # Date: May 1, 2022
@@ -314,9 +314,9 @@ class Storage():
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
-        self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nProgramming Tube Log starts at '
+        self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
-        self.C_FINISHED_HEADER         = '*** Programming Tube Finished Status ***'
+        self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
         self.C_CONTINUE_PARAMETER      = '--continue'
         self.C_REDO_PARAMETER          = '--redo'
         self.C_IF_PARAMETER            = '--if'
@@ -360,7 +360,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.C_RUN_MODE_BIN            = 'BIN' 
         self.C_RUN_MODE_DEBUG          = 'DEBUG'       
         # Current Version
-        self.C_PROGRAM_NAME            = 'Programming Tube'
+        self.C_PROGRAM_NAME            = 'Command Tube'
         # Tube
         self.C_TUBE                    = 'TUBE'
         # Email
@@ -414,7 +414,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.EMAIL_SENDER_ADDRESS      = '<sender email address>'
         self.EMAIL_SENDER_PASSWORD     = '<sender email password>'
         self.EMAIL_RECEIVER_ADDRESS    = '<receiver email address comma list>'
-        self.EMAIL_SUBJECT             = 'Programming Tube Result'
+        self.EMAIL_SUBJECT             = 'Command Tube Result'
         # global variables
         self.LOGS                      = []
         self.FILE_TAIL_LINES           = []
@@ -586,7 +586,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Programming Tube will pause with given minutes.'
+                self.C_ARG_DESCRIPTION: 'Description: Command Tube will pause with given minutes.'
             },
             self.C_PATH: {
                 self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
@@ -2300,7 +2300,7 @@ class TubeCommandUtility():
 class TubeVersion():
     
     '''
-    Programming Tube version format: x.x.x
+    Command Tube version format: x.x.x
     #1: Major version (number)
     #2: Minor version (number)
     #3: Fix or build version (character)
@@ -2911,7 +2911,7 @@ def init_log_file():
 def init_arguments():
     # parameters for user inputs       
     parser.add_argument('-y', '--yaml', dest='yaml_config',
-                        help='Programming Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
+                        help='Command Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
                              '\nFor quick you could leave out the file name extension .yaml or .yml') 
     parser.add_argument('-v', '--vars', type=str, dest='variables', nargs='+',
                         help='Pass tube variables into tube: var1=value1 var2=value2')                 
@@ -2951,7 +2951,7 @@ def install_3rd_party_packages(args):
     try:        
         # return if running in binary mode
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_BIN:
-            msg = 'Programming Tube is running in binary mode.'
+            msg = 'Command Tube is running in binary mode.'
             print(msg)
             return
         
@@ -3145,21 +3145,21 @@ def print_tube_command_help(parser: ArgumentParser):
                 '''
                 help_all = '''
 -------------------------------           
-* Welcome to Programming Tube *
+* Welcome to Command Tube *
 -------------------------------    
             
 # Introduction
 
-    Programming Tube is a tool that can run a group of sequenced commands.    
+    Command Tube is a tool that can run a group of sequenced commands.    
     Those commands are added from a YAML config file, which I usually call it a tube file. 
     See the examples from the template YAML file ('help template' could output it).
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
     From help you could find all types of supported commands.
 
-# How to run Programming Tube    
+# How to run Command Tube    
 
-    Programming Tube is a Python 3 script. The most important two arguments 
-    for Programming Tube are '--yaml' and '--datetime'.    
+    Command Tube is a Python 3 script. The most important two arguments 
+    for Command Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
     From the 'tube.template.yaml' you could view how it looks like.
@@ -3167,21 +3167,21 @@ def print_tube_command_help(parser: ArgumentParser):
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
     from your terminal (In MacOS, you may need Python3):
-        >>> python programming-tube.py -h
+        >>> python command-tube.py -h
     
-    - Examples of running Programming Tube:
+    - Examples of running Command Tube:
         1: Run at once and sent email result: 
-        >>> python programming-tube.py -y tube.yaml -fe
+        >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python programming-tube.py -y tube.yaml -t20
+        >>> python command-tube.py -y tube.yaml -t20
         3: Run at every 6 o'clock for 100 days: 
-        >>> python programming-tube.py -y tube.yaml -t n6 -l 24 -times 100
+        >>> python command-tube.py -y tube.yaml -t n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
-        >>> python programming-tube.py -y tube.yaml -t t10 -l 5m -times 10
+        >>> python command-tube.py -y tube.yaml -t t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
-        >>> python programming-tube.py -y tube.yaml -t '02/01/22 09:00:00'
+        >>> python command-tube.py -y tube.yaml -t '02/01/22 09:00:00'
         6: Find command syntax which name contains 'file' keyword:
-        >>> python programming-tube.py help file
+        >>> python command-tube.py help file
     
         ** Find tube running result from tube.yaml.log file  
 
@@ -3240,7 +3240,7 @@ VARIABLES:
 TUBE:
     # ----------------------------------------------------
     # You can use below command to view all command syntax
-    # >>> python programming-tube.py help
+    # >>> python command-tube.py help
     # Or you can read README.md to get details
     # ----------------------------------------------------
     # Run a windows or Mac OS command
@@ -3563,7 +3563,7 @@ def job_start(tube):
                     log.start_datetime = datetime.now()
                     command.content = TubeCommand.format_placeholders(command.content)
                     pasued_mins = float(command.content)
-                    tprint('Programming Tube is paused for ' + str(pasued_mins) + ' minutes.', type=Storage.I.C_PRINT_TYPE_INFO)
+                    tprint('Command Tube is paused for ' + str(pasued_mins) + ' minutes.', type=Storage.I.C_PRINT_TYPE_INFO)
                     time.sleep(60 * pasued_mins)
                     log.status = Storage.I.C_SUCCESSFUL
                     log.end_datetime = datetime.now()
@@ -3754,7 +3754,7 @@ def job_start(tube):
                 try:                        
                     log.start_datetime = datetime.now()   
                     command.log.status = Storage.I.C_SUCCESSFUL                
-                    tprint('Programming Tube is reporting progress via e-mail settings... ', type=Storage.I.C_PRINT_TYPE_INFO)
+                    tprint('Command Tube is reporting progress via e-mail settings... ', type=Storage.I.C_PRINT_TYPE_INFO)
                     # replace placeholders
                     command.content = TubeCommand.format_placeholders(command.content) 
                     result = command.report_progress(Storage.I.TUBE_RUN)
@@ -3897,7 +3897,7 @@ StorageUtility.reset_colors()
 parser = ArgumentParser(allow_abbrev=False, formatter_class=RawTextHelpFormatter)    
 general_command_parser = ArgumentParser(allow_abbrev=False)   
 
-# init Programming-Tube arguments and help document
+# init Command-Tube arguments and help document
 init_arguments()   
 
 # parse user inputs arguments
@@ -3906,7 +3906,7 @@ try:
 except Exception as e:
     # Log start
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 'Programming Tube parameters error:' + str(e))
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 'Command Tube parameters error:' + str(e))
     sys.exit()
 
 # -------------------------------
@@ -4078,19 +4078,19 @@ try:
         sys.exit()
         
     # checking YAML versions
-    # if programming tube major/minor version is different
+    # if command tube major/minor version is different
     # with YAML file version then raised a warning to the end user.
     yaml_ver = TubeVersion(Storage.I.YAML_VERSION)
     program_ver = TubeVersion(Storage.I.C_CURR_VERSION)
     if yaml_ver.major_version > 0 and \
        (yaml_ver.major_version != program_ver.major_version or \
        yaml_ver.minor_version != program_ver.minor_version):
-        msg = 'Programming Tube major/minor versions are different with YAML file version.'
+        msg = 'Command Tube major/minor versions are different with YAML file version.'
         tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     
 except Exception as e:
-    msg = 'Programming Tube process parameters error: ' + str(e)
+    msg = 'Command Tube process parameters error: ' + str(e)
     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     sys.exit()

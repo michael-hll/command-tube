@@ -1,4 +1,4 @@
 TUBE:
-    - COMMAND: PyInstaller --onefile programming-tube.py
-    - COMMAND: copy dist\programming-tube.exe dist\tube.exe
-    - COMMAND: del dist\programming-tube.exe
+    - COMMAND: PyInstaller --onefile command-tube.py
+    - COMMAND: copy dist\command-tube.exe dist\tube.exe
+    - COMMAND: del dist\command-tube.exe

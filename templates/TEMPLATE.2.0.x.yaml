@@ -33,7 +33,7 @@ VARIABLES:
 TUBE:
     # ----------------------------------------------------
     # You can use below command to view all command syntax
-    # >>> python programming-tube.py help
+    # >>> python command-tube.py help
     # Or you can read README.md to get details
     # ----------------------------------------------------
     # Run a windows or Mac OS command

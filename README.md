@@ -1,4 +1,4 @@
-# Programming Tube
+# Command Tube
 
 Author: Han LiangLiang
 
@@ -8,15 +8,15 @@ Update Date: May 2022
 
 ---
 ## Introduction
-    Programming Tube is a tool that can run a group of sequenced commands.    
+    Command Tube is a tool that can run a group of sequenced commands.    
     Those commands are added from a YAML config file, which I usually call it a tube file. 
     See the examples from the template YAML file ('help template' could output it).
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
     From help you could find all types of supported commands.
 ---
-## How to run Programming Tube
-    Programming Tube is a Python 3 script. The most important two arguments 
-    for Programming Tube are '--yaml' and '--datetime'.    
+## How to run Command Tube
+    Command Tube is a Python 3 script. The most important two arguments 
+    for Command Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
     From the 'tube.template.yaml' you could view how it looks like.
@@ -24,21 +24,21 @@ Update Date: May 2022
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
     from your terminal (In MacOS, you may need Python3 >= 3.7):
-        >>> python programming-tube.py -h
+        >>> python command-tube.py -h
     
-### - Examples of running Programming Tube:
+### - Examples of running Command Tube:
         1: Run at once and sent email result: 
-        >>> python programming-tube.py -y tube.yaml -fe
+        >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python programming-tube.py -y tube.yaml -t t20
+        >>> python command-tube.py -y tube.yaml -t t20
         3: Run at every 6 o'clock for 100 days: 
-        >>> python programming-tube.py -y tube.yaml -t n6 -l 24 -times 100
+        >>> python command-tube.py -y tube.yaml -t n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
-        >>> python programming-tube.py -y tube.yaml -t t10 -l 5m -times 10
+        >>> python command-tube.py -y tube.yaml -t t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
-        >>> python programming-tube.py -y tube.yaml -t '02/01/22 09:00:00'
+        >>> python command-tube.py -y tube.yaml -t '02/01/22 09:00:00'
         6: Find command syntax which name contains 'file' keyword:
-        >>> python programming-tube.py help file
+        >>> python command-tube.py help file
     
         ** Find tube running result from tube.yaml.log file
                  
@@ -136,7 +136,7 @@ Update Date: May 2022
 ---
 ## Examples of Each Command
 
-    Notes: The tube variables and general arguments are play important roles in Programming Tube. 
+    Notes: The tube variables and general arguments are play important roles in Command Tube. 
     They can be used in all suppported commands. In order to show the examples of how to use variables 
     and general arguments, only list some examples in the first COMMAND, you can use them similarly 
     in other support commands.
@@ -267,7 +267,7 @@ Update Date: May 2022
 ```
 
     - PAUSE
-        Description: Programming Tube will pause with given minutes.
+        Description: Command Tube will pause with given minutes.
         Syntax: 
             PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]
 
