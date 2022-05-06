@@ -2582,7 +2582,9 @@ def output_tube_file_list(is_print=False, is_write_log=False):
 
 def print_logs(LOGS):
     tprint()    
-    tprint('----- Status of Each Step -----')    
+    
+    # print status of each command
+    tprint('----- Status of Each Command -----')    
     seq = 0
     total_minutes = 0
     total_seconds = 0
@@ -2600,10 +2602,15 @@ def print_logs(LOGS):
     # If output note for * before command type    
     if has_retried_command == True:
         tprint(Storage.I.C_RETRIED_COMMAND_NOTE) 
+    
+    # print overall tube logs at the end
+    # then it's easier for the user to see
     tprint() 
     tprint(Storage.I.C_FINISHED_HEADER, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
     tprint(calculate_success_failed_details(LOGS, False))
     tprint()   
+    
+    # print total running during time
     totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
     if total_seconds < 60:
         totals = '%s seconds' % str(total_seconds)
