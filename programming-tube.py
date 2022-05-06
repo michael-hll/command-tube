@@ -2876,6 +2876,14 @@ def output_log_header():
                       Storage.I.START_DATE_TIME.strftime(Storage.I.C_DATETIME_FORMAT) +
                       run_mode)
 
+def output_user_console_inputs():
+    user_inputs = ''
+    for s in sys.argv:
+        user_inputs += s + ' '
+    if user_inputs and len(user_inputs) > 0:
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 
+                      'User inputs form console >>> ' + user_inputs)        
+
 def init_log_file():
     # check the log file size in the begining
     if(path.exists(Storage.I.TUBE_LOG_FILE)):
@@ -3991,6 +3999,9 @@ try:
     
     # log job header
     output_log_header()
+    
+    # log user inputs from console
+    output_user_console_inputs()
 
     # ------------------------------------
     # Begin to deal with all input parameters
