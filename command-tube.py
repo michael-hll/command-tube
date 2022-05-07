@@ -314,7 +314,7 @@ class Storage():
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
-        self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
+        self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
         self.C_CONTINUE_PARAMETER      = '--continue'
