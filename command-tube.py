@@ -275,7 +275,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.0 Beta'       
+        self.C_CURR_VERSION            = '2.0.0 Beta2'       
         self.C_YAML_VERSION            = 'VERSION'
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()    
@@ -3214,6 +3214,7 @@ def print_tube_command_help(parser: ArgumentParser):
                 help_all = help_all % (help_continue, help_redo, help_if, help_key, help_var)
                 
                 template = '''
+VERSION: 2.0.x            
 # RUN_MODE is either SRC or BIN
 RUN_MODE: BIN
 SERVERS:
