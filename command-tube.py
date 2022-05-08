@@ -275,7 +275,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.0 Beta2'       
+        self.C_CURR_VERSION            = '2.0.0'       
         self.C_YAML_VERSION            = 'VERSION'
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()    
