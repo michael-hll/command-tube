@@ -2757,7 +2757,7 @@ def send_email(sender_address, sender_password, receiver_address_list, subject, 
         for receiver_address in receiver_address_array:            
             #Setup the MIME
             message = MIMEMultipart()
-            message['From']    = sender_address
+            message['From']    = 'TUBE ' + f'<{sender_address}>'
             message['To']      = receiver_address.strip()
             message['Subject'] = subject
             #The body and the attachments for the mail
