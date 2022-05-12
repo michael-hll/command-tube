@@ -23,7 +23,7 @@ Update Date: May 2022
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
-    from your terminal (In MacOS, you may need Python3 >= 3.7):
+    from your terminal (You may need Python3 >= 3.7):
         >>> python command-tube.py -h
     
 ### - Examples of running Command Tube:
