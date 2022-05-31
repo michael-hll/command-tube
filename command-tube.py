@@ -3475,6 +3475,11 @@ def job_start(tube):
             if command.is_skip == True:
                 log.status = Storage.I.C_SKIPPED             
                 Storage.I.LOGS.append(log)
+                # log command which is skipped
+                msg = 'Tube command: \'' + command.content + '\' was skipped by previous --continue arguments.'
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                # continue with next loop item
                 continue
                         
             # skip if any previous command failed
@@ -3483,6 +3488,7 @@ def job_start(tube):
               (pre_command.log.status == Storage.I.C_FAILED and pre_command.is_failed_continue == False):               
                 log.status = Storage.I.C_SKIPPED
                 Storage.I.LOGS.append(log)
+                # continue with next loop item                
                 continue
             
             # reset general arguments
@@ -3498,6 +3504,11 @@ def job_start(tube):
                 command.is_skip_by_if = True
                 log.status = Storage.I.C_SKIPPED             
                 Storage.I.LOGS.append(log)
+                # log command which is skipped
+                msg = 'Tube command: \'' + command.content + '\' was skipped since --if condition is False.'
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                # continue with next loop item
                 continue
                         
             # Log current running step
