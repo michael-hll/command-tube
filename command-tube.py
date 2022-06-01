@@ -2330,7 +2330,7 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, spli
     type: it could be 'INFO', 'WARNING', 'ERROR' or ''
     tcolor: the color of the main printed string
     
-    return: prefix + type + str
+    return: prefix + type + line
     '''
     
     # switch color style
