@@ -385,6 +385,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.C_PRINT_COLOR_GREEN       = (0,0,0)
         self.C_PRINT_COLOR_BLUE        = (0,0,0)
         self.C_PRINT_COLOR_PURPLE      = (0,0,0)
+        self.C_PRINT_COLOR_GREY        = (71,71,71)
         self.C_PRINT_COLOR_STYLE       = None
         # -------- CONSTANTS END --------
         # ************************************************************************
@@ -3478,7 +3479,7 @@ def job_start(tube):
                 # log command which is skipped
                 msg = 'Tube command: \'' + command.content + '\' was skipped by previous --continue arguments.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
                 # continue with next loop item
                 continue
                         
@@ -3507,7 +3508,7 @@ def job_start(tube):
                 # log command which is skipped
                 msg = 'Tube command: \'' + command.content + '\' was skipped since --if condition is False.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
                 # continue with next loop item
                 continue
                         
