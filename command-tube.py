@@ -3363,7 +3363,11 @@ TUBE:
     # Count txt file line number or tube command numbers by status
     - COUNT: -t FAILED -v failed_count    
     # Set a tube variable value
-    - SET_VARIABLE: -n var1 -v Hello Tube        
+    - SET_VARIABLE: -n var1 -v Hello Tube     
+    # Get a Linux file to local
+    - SFTP_GET: -r filepath -l filepath
+    # Put a local file to Linux
+    - SFTP_PUT: -l filepath -r filepath   
                 '''
                 command_name = ''
                 # Prepare examples of each command
@@ -3480,6 +3484,7 @@ TUBE:
                             tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
                             tprint(Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_DESCRIPTION])                   
                             tprint(Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_SYNTAX])
+                            tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])                            
                             tprint(Storage.I.C_STATUS_LINE)
                     if found_match == True:
                         tprint(add_notes)

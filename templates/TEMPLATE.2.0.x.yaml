@@ -69,4 +69,8 @@ TUBE:
     # Count txt file line number or tube command numbers by status
     - COUNT: -t FAILED -v failed_count    
     # Set a tube variable value
-    - SET_VARIABLE: -n var1 -v Hello Tube        
+    - SET_VARIABLE: -n var1 -v Hello Tube   
+    # Get a Linux file to local
+    - SFTP_GET: -r filepath -l filepath
+    # Put a local file to Linux
+    - SFTP_PUT: -l filepath -r filepath      
