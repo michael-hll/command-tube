@@ -3937,7 +3937,8 @@ def job_start(tube):
                     log.add_error(str(e))
                     log.end_datetime = datetime.now()
             
-            elif current_command_type == Storage.I.C_SFTP_GET:
+            elif current_command_type == Storage.I.C_SFTP_GET or \
+                 current_command_type == Storage.I.C_SFTP_PUT:
                 # Check if we have a valid ssh connection
                 if ssh == None:
                     msg = 'Please check your provide server information, ssh failed to connect to your server.'
@@ -3962,31 +3963,6 @@ def job_start(tube):
                     log.add_error(str(e))
                     log.end_datetime = datetime.now()
                     
-            elif current_command_type == Storage.I.C_SFTP_PUT:
-                # Check if we have a valid ssh connection
-                if ssh == None:
-                    msg = 'Please check your provide server information, ssh failed to connect to your server.'
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                    log.end_datetime = datetime.now()
-                    log.add_error(msg)
-                    log.status = Storage.I.C_FAILED
-                    Storage.I.LOGS.append(log)
-                    pre_command = command
-                    continue 
-                
-                try:
-                    log.start_datetime = datetime.now()
-                    log.status = Storage.I.C_FAILED
-                    command.sftp_get_put(ssh)
-                    log.status = Storage.I.C_SUCCESSFUL
-                    log.end_datetime = datetime.now()                    
-                except Exception as e:
-                    log.status = Storage.I.C_FAILED
-                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                    log.add_error(str(e))
-                    log.end_datetime = datetime.now()
-            
             # not supported command found then log errors and continue next          
             else:
                 log.status = Storage.I.C_FAILED 
