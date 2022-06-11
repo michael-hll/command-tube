@@ -355,6 +355,30 @@ Update Date: May 2022
     - SET_VARIABLE: -n var_name -v value
 ```
 
+    - SFTP_GET
+        Description: Using SSHClient to get remote server file to local.                                          
+                     The -r argument means remotepath.                                          
+                     The -l argument means localpath.
+        Syntax:
+            SFTP_GET: -r file1 -l file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]
+
+```yml
+    # YAML format
+    - SFTP_GET: -r remotepath -l localpath
+```   
+
+    - SFTP_PUT
+        Description: Using SSHClient to put local file to remote server.                                        
+                     The -r argument means remotepath.                                          
+                     The -l argument means localpath.
+        Syntax:
+            SFTP_PUT: -l file1 -r file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]
+
+```yml
+    # YAML format
+    - SFTP_PUT: -l localpath -r remotepath
+``` 
+
     - GET_PACKAGE_VERSION   
         Description: This is a TODO command, since each company/organization could have different package management tool.
         Work around:
