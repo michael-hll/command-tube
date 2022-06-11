@@ -313,6 +313,8 @@ class Storage():
         self.C_EMAIL                   = 'EMAIL'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
+        self.C_SFTP_GET                = 'SFTP_GET'
+        self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -666,6 +668,34 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                          \nThe -c flag means if count within current tube. Default no. \
                                          \nThe -s flag means if skip COUNT command. Defalult no. \
                                          \nThe count result will be stored into tube variable using -v parameter.' 
+            },
+            self.C_SFTP_GET: {
+                self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r file1 -l file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    # [0]    [1]   [2]            [3]   [4]   [5]    [6]
+                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True],
+                    [False, '-l','--localpath',  'str',  1,  'localpath', True],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to get remote server file to local. \
+                                         \nThe -r argument means remotepath. \
+                                         \nThe -l argument means localpath.'
+            },
+            self.C_SFTP_PUT: {
+                self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l file1 -r file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    # [0]    [1]   [2]            [3]   [4]   [5]    [6]
+                    [False, '-l','--localpath',  'str',  1,  'localpath', True],                    
+                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to put local file to remote server. \
+                                         \nThe -l argument means localpath. \
+                                         \nThe -r argument means remotepath.'
             },
         }
 
@@ -1789,6 +1819,33 @@ class TubeCommand():
         
         return True
 
+    def sftp_get_put(self, ssh):
+        localpath, remotepath = '',''
+        
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        localpath = args.localpath[0]
+        remotepath = args.remotepath[0]
+        
+        # replace placeholders
+        localpath = TubeCommand.format_placeholders(localpath)
+        remotepath = TubeCommand.format_placeholders(remotepath)
+        
+        sftp = ssh.open_sftp()
+        try:      
+            if self.cmd_type == Storage.I.C_SFTP_GET:                   
+                sftp.get(remotepath, localpath)
+                msg = 'Remote file \'%s\' is transferred to local \'%s\' ' % (remotepath, localpath)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            elif self.cmd_type == Storage.I.C_SFTP_PUT:
+                sftp.put(localpath, remotepath)
+                msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (localpath, remotepath)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        finally:
+            sftp.close()
+            
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
     # for display command content could use the format_placeholders_no_error method
@@ -3852,6 +3909,56 @@ def job_start(tube):
                     result = command.set_variable()
                     if result == False:
                         log.status = Storage.I.C_SKIPPED
+                    log.end_datetime = datetime.now()                    
+                except Exception as e:
+                    log.status = Storage.I.C_FAILED
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                    log.add_error(str(e))
+                    log.end_datetime = datetime.now()
+            
+            elif current_command_type == Storage.I.C_SFTP_GET:
+                # Check if we have a valid ssh connection
+                if ssh == None:
+                    msg = 'Please check your provide server information, ssh failed to connect to your server.'
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                    log.end_datetime = datetime.now()
+                    log.add_error(msg)
+                    log.status = Storage.I.C_FAILED
+                    Storage.I.LOGS.append(log)
+                    pre_command = command
+                    continue 
+                
+                try:
+                    log.start_datetime = datetime.now()
+                    log.status = Storage.I.C_FAILED
+                    command.sftp_get_put(ssh)
+                    log.status = Storage.I.C_SUCCESSFUL
+                    log.end_datetime = datetime.now()                    
+                except Exception as e:
+                    log.status = Storage.I.C_FAILED
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                    log.add_error(str(e))
+                    log.end_datetime = datetime.now()
+                    
+            elif current_command_type == Storage.I.C_SFTP_PUT:
+                # Check if we have a valid ssh connection
+                if ssh == None:
+                    msg = 'Please check your provide server information, ssh failed to connect to your server.'
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                    log.end_datetime = datetime.now()
+                    log.add_error(msg)
+                    log.status = Storage.I.C_FAILED
+                    Storage.I.LOGS.append(log)
+                    pre_command = command
+                    continue 
+                
+                try:
+                    log.start_datetime = datetime.now()
+                    log.status = Storage.I.C_FAILED
+                    command.sftp_get_put(ssh)
+                    log.status = Storage.I.C_SUCCESSFUL
                     log.end_datetime = datetime.now()                    
                 except Exception as e:
                     log.status = Storage.I.C_FAILED
