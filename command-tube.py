@@ -275,7 +275,8 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.1 beta'       
+        self.C_CURR_VERSION            = '2.0.1 beta'  
+        self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()    
@@ -446,6 +447,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # 8: default 
         self.TUBE_ARGS_CONFIG = { 
             self.C_IMPORT_TUBE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
@@ -457,6 +459,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Import tube commands, servers, variables or emails from sub tube yaml file.'
             },                     
             self.C_TAIL_FILE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]     [6]
@@ -472,6 +475,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                 \nwhen the keywords exist from those lines.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -486,6 +490,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Delete line which characters begin or contains with given value. -e means delete empty line.'
             },  
             self.C_WRITE_LINE_IN_FILE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -508,6 +513,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                     '\n -v parameter: The character (content) you want to write into the file.'
             },    
             self.C_SET_FILE_KEY_VALUE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -521,6 +527,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Update key-value file.'
             },
             self.C_GET_XML_TAG_TEXT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -534,6 +541,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                         \nThe result will be stored into tube variables.'
             },
             self.C_SET_XML_TAG_TEXT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -547,6 +555,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Update XML file tag text using xpath.'
             },
             self.C_SET_VARIABLE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -559,6 +568,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Set tube variable value.'
             },
             self.C_CONNECT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
@@ -570,6 +580,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: You can use this command to switch your server connection.'
             },
             self.C_REPORT_PROGRESS: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]    [3]   [4]  [5]  [6]
@@ -581,6 +592,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: You can use this command to sent current progress via Email.'
             },
             self.C_PAUSE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
@@ -592,6 +604,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Command Tube will pause with given minutes.'
             },
             self.C_PATH: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
@@ -603,6 +616,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Go to specific directory.'
             },
             self.C_GET_FILE_KEY_VALUE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]    [3]    [4]   [5]   [6]
@@ -616,6 +630,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                         \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]   [3]    [4]  [5]   [6]
@@ -630,6 +645,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                         '\nThe -b parameter supports text file content as email body when it\'s text file.'
             },
             self.C_COMMAND: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
@@ -641,6 +657,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Run any Windows/MacOS terminal command.'
             },
             self.C_LINUX_COMMAND: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]    [3]   [4]  [5] [6]
@@ -652,6 +669,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_DESCRIPTION: 'Description: Run a Linux command from the previous connected server.'                
             },
             self.C_COUNT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]      [3]   [4]   [5]    [6]
@@ -670,6 +688,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                          \nThe count result will be stored into tube variable using -v parameter.' 
             },
             self.C_SFTP_GET: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r file1 -l file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]            [3]   [4]   [5]    [6]
@@ -684,6 +703,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                          \nThe -l argument means localpath.'
             },
             self.C_SFTP_PUT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l file1 -r file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]            [3]   [4]   [5]    [6]
@@ -3356,6 +3376,7 @@ TUBE:
                     command_examples.append('[%s]: %s' % (str(index+1), key))
                     command_examples.append('%s' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_DESCRIPTION]) 
                     command_examples.append('%s' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_SYNTAX]) 
+                    command_examples.append('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])
                     command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
                 # End of prepare examples of each command    
                 
