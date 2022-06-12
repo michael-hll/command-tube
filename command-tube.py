@@ -689,7 +689,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
             },
             self.C_SFTP_GET: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r file1 -l file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]            [3]   [4]   [5]    [6]
                     [False, '-r','--remotepath', 'str',  1,  'remotepath', True],
@@ -704,7 +704,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
             },
             self.C_SFTP_PUT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l file1 -r file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]    [1]   [2]            [3]   [4]   [5]    [6]
                     [False, '-l','--localpath',  'str',  1,  'localpath', True],                    
