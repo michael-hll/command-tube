@@ -360,7 +360,7 @@ Update Date: May 2022
                      The -r argument means remotepath.                                          
                      The -l argument means localpath.
         Syntax:
-            SFTP_GET: -r file1 -l file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]
+            SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]
 
 ```yml
     # YAML format
@@ -372,7 +372,7 @@ Update Date: May 2022
                      The -r argument means remotepath.                                          
                      The -l argument means localpath.
         Syntax:
-            SFTP_PUT: -l file1 -r file2 [--continue [m][n]] [--redo [m]] [--if run] [--key]
+            SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]
 
 ```yml
     # YAML format
