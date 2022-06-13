@@ -3365,9 +3365,9 @@ TUBE:
     # Set a tube variable value
     - SET_VARIABLE: -n var1 -v Hello Tube     
     # Get a Linux file to local
-    - SFTP_GET: -r filepath -l filepath
+    - SFTP_GET: -r remotefile -l localfile
     # Put a local file to Linux
-    - SFTP_PUT: -l filepath -r filepath   
+    - SFTP_PUT: -l localfile -r remotefile   
                 '''
                 command_name = ''
                 # Prepare examples of each command
