@@ -277,9 +277,10 @@ class Storage():
         # -------- CONSTANTS START --------
         self.C_CURR_VERSION            = '2.0.1 beta'  
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
-        self.C_YAML_VERSION            = 'VERSION'
+        self.C_YAML_VERSION            = 'VERSION'        
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
-        self.C_CURR_DIR                = os.getcwd()    
+        self.C_CURR_DIR                = os.getcwd()   
+        self.C_TUBE_HOME               = 'TUBE_HOME' 
         self.C_SLEEP_SECONDS           = 1
         self.C_BUILD_SUCCESSFUL        = 'BUILD SUCCESSFUL'
         self.C_BUILD_FAILED            = 'BUILD FAILED'
@@ -393,7 +394,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # -------- CONSTANTS END --------
         # ************************************************************************
         # Run mode
-        self.RUN_MODE                  = self.C_RUN_MODE_SRC
+        self.RUN_MODE                  = self.C_RUN_MODE_SRC        
         self.YAML_VERSION              = None
         # User inputs, these values should be all set well from config file
         self.EXEC_DATE_TIME            = '01/01/20 00:00:00'   
@@ -3534,6 +3535,9 @@ def job_start(tube):
     current_command_type = None
     pre_command: TubeCommand = None
     ssh = None
+    
+    # Update TUBE_HOME
+    StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR)
     
     if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
         tprint('Current directory is: %s' % (Storage.I.C_CURR_DIR), type=Storage.I.C_PRINT_TYPE_DEBUG)
