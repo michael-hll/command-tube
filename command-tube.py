@@ -3456,6 +3456,9 @@ TUBE:
                                     continue
                                 elif var_start == True and not line.startswith(' '):
                                     break
+                            # print default tube variables
+                            tprint(color('TUBE_HOME: ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + Storage.I.C_CURR_DIR)                                                        
+                            tprint(color('S: ' + '\' \'' + ' # S is a readonly tube variable and it holds a space character.', fore=Storage.I.C_PRINT_COLOR_GREY, style=Storage.I.C_PRINT_COLOR_STYLE))
                         sys.exit()
                     except Exception as e:
                         tprint('Read variables from yaml file errors:' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
