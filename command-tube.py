@@ -13,6 +13,7 @@
 import os
 import sys
 from os import path
+from pathlib import Path
 import traceback
 import subprocess
 from datetime import datetime, timedelta, date
@@ -1866,7 +1867,7 @@ class TubeCommand():
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 else:
                     # to deal with *.* or *.extension case
-                    # localpath mast be a directory in order to copy multiple files from remove server directory
+                    # localpath must be a directory in order to copy multiple files from remove server directory
                     if not os.path.isdir(localpath):
                         msg = 'Directory \'%s\' doesnot exists.' % localpath
                         raise Exception(msg) 
@@ -1909,10 +1910,48 @@ class TubeCommand():
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                                   
                     
             elif self.cmd_type == Storage.I.C_SFTP_PUT:
-                sftp.put(localpath, remotepath)
-                msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (localpath, remotepath)
+                if not star_char in localpath:
+                    sftp.put(localpath, remotepath)
+                    copy_count += 1
+                    msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (localpath, remotepath)
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                else:
+                    # to deal with *.* or *.extension case
+                    # remotepath must be an existing directory
+                    cd_command = 'cd %s' % remotepath
+                    _, stdout, _ = ssh.exec_command(cd_command)                    
+                    return_code = stdout.channel.recv_exit_status()
+                    if return_code != 0:
+                        msg = 'Directory \'%s\' doesnot exists.' % remotepath
+                        raise Exception(msg)  
+                    
+                    # get local files      
+                    localdir = localpath
+                    start_index = localpath.index(star_char)
+                    localdir = localdir[:start_index]
+                    file_extension = localpath[start_index + 1:]
+                    local_files = os.listdir(Path(localdir))
+                    for lfile in local_files:
+                        if file_extension != '.*' and not lfile.endswith(file_extension):
+                            continue
+                        local_file_fullpath = os.path.join(localdir, lfile)
+                        if os.path.isfile(local_file_fullpath):
+                            remote_file_fullpath = os.path.join(remotepath, lfile)
+                            sftp.put(local_file_fullpath, remote_file_fullpath)   
+                            copy_count += 1                            
+                            msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (local_file_fullpath, remote_file_fullpath)
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                
+                # log total copied files
+                if copy_count > 0:
+                    msg = '%s files are copied to server.' % str(copy_count)                           
+                else:    
+                    msg = '0 files are copied to server.'
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                    
         finally:
             sftp.close()
             
