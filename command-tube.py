@@ -1853,12 +1853,14 @@ class TubeCommand():
         remotepath = TubeCommand.format_placeholders(remotepath)
         
         star_char = '*.'
+        copy_count = 0
         
         sftp = ssh.open_sftp()
         try:      
             if self.cmd_type == Storage.I.C_SFTP_GET:   
                 if not star_char in remotepath:                
                     sftp.get(remotepath, localpath)
+                    copy_count += 1
                     msg = 'Remote file \'%s\' is transferred to local \'%s\' ' % (remotepath, localpath)
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
@@ -1883,7 +1885,7 @@ class TubeCommand():
                     find_files_command = find_files_command.format(path=remote_dir, pattern=file_pattern)
                     _, stdout, _ = ssh.exec_command(find_files_command)
                     filelist = stdout.read().splitlines()
-                    copy_count = 0
+
                     for afile in filelist:
                         (_, filename) = os.path.split(afile)
                         if type(afile) is bytes:
@@ -1897,12 +1899,14 @@ class TubeCommand():
                         msg = 'Remote file \'%s\' is transferred to local \'%s\' ' % (afile, localfile_path)
                         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
-                    if copy_count > 0:
-                        msg = '%s files are copied to local.' % str(copy_count)                           
-                    else:    
-                        msg = '0 files are copied to local.'
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                                   
+                
+                # log total copied files
+                if copy_count > 0:
+                    msg = '%s files are copied to local.' % str(copy_count)                           
+                else:    
+                    msg = '0 files are copied to local.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                                   
                     
             elif self.cmd_type == Storage.I.C_SFTP_PUT:
                 sftp.put(localpath, remotepath)
