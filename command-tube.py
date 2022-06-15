@@ -276,7 +276,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.1 beta'  
+        self.C_CURR_VERSION            = '2.0.1 Beta'  
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
@@ -2479,10 +2479,12 @@ class TubeVersion():
         # split versions
         if yaml_version:            
             version_array = yaml_version.split('.')
-            if len(version_array) == 3:
+            if len(version_array) >= 3:
                 self.major_version = int(version_array[0])
                 self.minor_version = int(version_array[1])
-                self.fix_version = version_array[2]
+                self.fix_version = str(version_array[2])
+                if len(version_array) == 4:
+                    self.fix_version += '.' + str(version_array[3])
 
 # -------- END OF CLASSES -------
 
