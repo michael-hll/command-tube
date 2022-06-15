@@ -702,7 +702,8 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_IF_PARAMETER: True,
                 self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to get remote server file to local. \
                                          \nThe -r argument means remotepath. \
-                                         \nThe -l argument means localpath.'
+                                         \nThe -l argument means localpath. \
+                                         \nWhen copy multiple files using *.* then localpath must be a directory.'
             },
             self.C_SFTP_PUT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
@@ -717,7 +718,8 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_IF_PARAMETER: True,
                 self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to put local file to remote server. \
                                          \nThe -l argument means localpath. \
-                                         \nThe -r argument means remotepath.'
+                                         \nThe -r argument means remotepath. \
+                                         \nWhen copy multiple files using *.* then remotepath must be a directory.'
             },
         }
 
@@ -1934,7 +1936,10 @@ class TubeCommand():
                             continue
                         local_file_fullpath = os.path.join(localdir, lfile)
                         if os.path.isfile(local_file_fullpath):
-                            remote_file_fullpath = os.path.join(remotepath, lfile)
+                            if remotepath.endswith('/'):
+                                remote_file_fullpath = remotepath + lfile
+                            else:
+                                remote_file_fullpath = remotepath + '/' + lfile
                             sftp.put(local_file_fullpath, remote_file_fullpath)   
                             copy_count += 1                            
                             msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (local_file_fullpath, remote_file_fullpath)
