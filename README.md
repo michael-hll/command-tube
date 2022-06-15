@@ -359,6 +359,7 @@ Update Date: May 2022
         Description: Using SSHClient to get remote server file to local.                                          
                      The -r argument means remotepath.                                          
                      The -l argument means localpath.
+                     When copy multiple files using *.* then localpath must be a directory.
         Syntax:
             SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]
 
@@ -371,6 +372,7 @@ Update Date: May 2022
         Description: Using SSHClient to put local file to remote server.                                        
                      The -r argument means remotepath.                                          
                      The -l argument means localpath.
+                     When copy multiple files using *.* then remotepath must be a directory.
         Syntax:
             SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]
 
