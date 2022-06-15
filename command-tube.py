@@ -1902,10 +1902,7 @@ class TubeCommand():
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
                 
                 # log total copied files
-                if copy_count > 0:
-                    msg = '%s files are copied to local.' % str(copy_count)                           
-                else:    
-                    msg = '0 files are copied to local.'
+                msg = '%s files are copied to local.' % str(copy_count)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                                   
                     
@@ -1945,10 +1942,7 @@ class TubeCommand():
                             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 
                 # log total copied files
-                if copy_count > 0:
-                    msg = '%s files are copied to server.' % str(copy_count)                           
-                else:    
-                    msg = '0 files are copied to server.'
+                msg = '%s files are copied to server.' % str(copy_count)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                     
