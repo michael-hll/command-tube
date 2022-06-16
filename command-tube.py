@@ -318,6 +318,7 @@ class Storage():
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
         self.C_SFTP_GET                = 'SFTP_GET'
         self.C_SFTP_PUT                = 'SFTP_PUT'
+        self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -720,6 +721,23 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                          \nThe -l argument means localpath. \
                                          \nThe -r argument means remotepath. \
                                          \nWhen copy multiple files using *.* then remotepath must be a directory.'
+            },
+            self.C_CHECK_CHAR_EXISTS: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.1',
+                self.C_ARG_SYNTAX: 'Syntax: CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    # [0]    [1]   [2]       [3]   [4]    [5]    [6]
+                    [False, '-f','--file',  'str', '+',  'file', True],                    
+                    [False, '-c','--char',  'str', '+',  'characters', True],
+                    [False, '-r','--result', 'str', 1,   'result', True],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_ARG_DESCRIPTION: 'Description: Check if given characters exists from a file. Result was updated into a tube variable. \
+                                         \nThe -f argument of the given file. \
+                                         \nThe -c argument of the searching characters . \
+                                         \nThe -r argument is the tube variable name to store the result.'
             },
         }
 
@@ -1844,6 +1862,9 @@ class TubeCommand():
         return True
 
     def sftp_get_put(self, ssh):
+        '''
+        Get or Put files between local and linux server using ssh.
+        '''
         localpath, remotepath = '',''
         
         parser = self.tube_argument_parser
@@ -1953,6 +1974,38 @@ class TubeCommand():
                     
         finally:
             sftp.close()
+    
+    def check_char_exists(self):
+        '''
+        Check if given characters exists from given file.
+        Checking result was updated into given tube variable.
+        '''
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file, characters, result = '', '', False
+        
+        # get user inputs
+        file = ' '.join(args.file)
+        characters = ' '.join(args.characters)
+        result = args.result[0]
+        
+        # replace placeholders
+        file = TubeCommand.format_placeholders(file)
+        characters = TubeCommand.format_placeholders(characters)
+        result = TubeCommand.format_placeholders(result)
+        
+        found = False
+        # read file line by line
+        try:
+            with open(file, 'r') as f:
+                for line in f:
+                    if characters in line:
+                        found = True
+                        break                       
+        
+        finally:
+            # update result to tube variables
+            StorageUtility.update_key_value_dict(result, found)
             
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
@@ -3458,6 +3511,8 @@ TUBE:
     - SFTP_GET: -r remotefile -l localfile
     # Put a local file to Linux
     - SFTP_PUT: -l localfile -r remotefile   
+    # Check if given characters exists from a given file
+    - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
                 '''
                 command_name = ''
                 # Prepare examples of each command
@@ -3701,6 +3756,9 @@ def job_start(tube):
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             tprint(msg_print, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
 
+            # --------------------------------------------------------
+            # Begin to run each tube command based on its command type
+            # --------------------------------------------------------
             if current_command_type == Storage.I.C_LINUX_COMMAND:
                 log.start_datetime = datetime.now()                
 
@@ -4063,7 +4121,20 @@ def job_start(tube):
                     tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                     log.add_error(str(e))
                     log.end_datetime = datetime.now()
-                    
+            
+            elif current_command_type == Storage.I.C_CHECK_CHAR_EXISTS:
+                try:
+                    log.start_datetime = datetime.now()
+                    log.status = Storage.I.C_FAILED
+                    command.check_char_exists()
+                    log.status = Storage.I.C_SUCCESSFUL
+                    log.end_datetime = datetime.now()                    
+                except Exception as e:
+                    log.status = Storage.I.C_FAILED
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                    log.add_error(str(e))
+                    log.end_datetime = datetime.now()    
+                        
             # not supported command found then log errors and continue next          
             else:
                 log.status = Storage.I.C_FAILED 

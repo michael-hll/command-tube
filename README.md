@@ -381,6 +381,19 @@ Update Date: May 2022
     - SFTP_PUT: -l localpath -r remotepath
 ``` 
 
+    - CHECK_CHAR_EXISTS
+        Description: Check if given characters exists from a file. Result was updated into a tube variable.                                          
+                     The -f argument of the given file.                                          
+                     The -c argument of the searching characters .                                          
+                     The -r argument is the tube variable name to store the result.
+        Syntax: 
+            CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]
+
+```yml
+    # YAML format
+    - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
+``` 
+
     - GET_PACKAGE_VERSION   
         Description: This is a TODO command, since each company/organization could have different package management tool.
         Work around:
