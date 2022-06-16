@@ -73,4 +73,6 @@ TUBE:
     # Get a Linux file to local
     - SFTP_GET: -r filepath -l filepath
     # Put a local file to Linux
-    - SFTP_PUT: -l filepath -r filepath      
+    - SFTP_PUT: -l filepath -r filepath     
+    # Check if given characters exists from a file
+    - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists 
