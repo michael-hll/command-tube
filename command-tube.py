@@ -2309,6 +2309,13 @@ class StorageUtility():
         
         if(servers == None):
             return
+        
+        # read servers configuration from file
+        if type(servers) is str:
+            with open(servers, 'r') as f:
+                servers = yaml.safe_load(f)
+                servers = servers[Storage.I.C_SERVERS]
+        
         for server in servers:
             host: Host
             host = Host(name=server[Storage.I.C_SERVER][Storage.I.C_SERVER_NAME], 
@@ -2349,13 +2356,19 @@ class StorageUtility():
         '''
         Read email configurations from 'EMAIL' section.
         '''   
-        Storage.I.EMAIL_SMTP_SERVER = emails[Storage.I.C_EMAIL_SMTP_SERVER]
-        if Storage.I.C_EMAIL_SERVER_PORT in emails.keys():
-            Storage.I.EMAIL_SERVER_PORT = emails[Storage.I.C_EMAIL_SERVER_PORT]
-        Storage.I.EMAIL_SENDER_ADDRESS = emails[Storage.I.C_EMAIL_SENDER_ADDRESS]
-        Storage.I.EMAIL_SENDER_PASSWORD = emails[Storage.I.C_EMAIL_SENDER_PASSWORD]
-        Storage.I.EMAIL_RECEIVER_ADDRESS = emails[Storage.I.C_EMAIL_RECEIVER_ADDRESS]
-        Storage.I.EMAIL_SUBJECT = emails[Storage.I.C_EMAIL_SUBJECT]  
+        if type(emails) is str:
+            with open(emails, 'r') as f:
+                emails = yaml.safe_load(f)
+                emails = emails[Storage.I.C_EMAIL]
+                
+        if type(emails) is dict:
+            Storage.I.EMAIL_SMTP_SERVER = emails[Storage.I.C_EMAIL_SMTP_SERVER]
+            if Storage.I.C_EMAIL_SERVER_PORT in emails.keys():
+                Storage.I.EMAIL_SERVER_PORT = emails[Storage.I.C_EMAIL_SERVER_PORT]
+            Storage.I.EMAIL_SENDER_ADDRESS = emails[Storage.I.C_EMAIL_SENDER_ADDRESS]
+            Storage.I.EMAIL_SENDER_PASSWORD = emails[Storage.I.C_EMAIL_SENDER_PASSWORD]
+            Storage.I.EMAIL_RECEIVER_ADDRESS = emails[Storage.I.C_EMAIL_RECEIVER_ADDRESS]
+            Storage.I.EMAIL_SUBJECT = emails[Storage.I.C_EMAIL_SUBJECT] 
         
         # Read email passwords form file
         if Storage.I.EMAIL_SENDER_PASSWORD.startswith('$'):
