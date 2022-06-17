@@ -4,7 +4,7 @@ Author: Han LiangLiang
 
 Email: michael_hll@hotmail.com
 
-Update Date: May 2022
+Update Date: Jun 2022
 
 ---
 ## Introduction
@@ -26,7 +26,7 @@ Update Date: May 2022
     from your terminal (You may need Python3 >= 3.7):
         >>> python command-tube.py -h
     
-### - Examples of running Command Tube:
+### - Examples of running Command Tube with source code:
         1: Run at once and sent email result: 
         >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
@@ -43,7 +43,7 @@ Update Date: May 2022
         ** Find tube running result from tube.yaml.log file
                  
 ### - Binary Mode        
-        Following below steps you can use it in binary mode
+        Following below steps you can use it in binary mode:
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
         3. Using it from your terminal:
         (You need to change RUN_MODE from SRC to BIN in YAML config file)
@@ -119,20 +119,27 @@ Update Date: May 2022
             root_folder: C:\workspaces\trunk
             package_name: xxx-app
             cmd_parameters: -l
-            # Below are default hidden variables:
-            s: ' ' # Its value is a space char and can't be overridden
+            # Below two hidden variables are assigned values when tube starts:
+            S: ' ' # Its value is a space char and can't be overridden
+            TUBE_HOME: <tube-running-startup-location-path>
+
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
             - PATH: {root_folder}
+            # Go to tube home directory:
+            - PATH: {TUBE_HOME}
             - COMMAND: ls {cmd_parameters}
             # The below {s:10} will be replaced by 10 space chars 
-            - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here  
+            - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here               
+             
         The below commands will update the tube variables:
             - GET_XML_TAG_TEXT => xpath will be the variable name
-            - GET_FILE_KEY_VALUE => key(s) will be the variable name
+            - GET_FILE_KEY_VALUE => key will be the variable name
             - COUNT => variable parameter will be stored into tube variables
             - SET_VARIABLE => update tube variable by name value
-        Note: If variable was updated from console inputs, then it will become readonly. 
+            - CHECK_CHAR_EXISTS => Result will be stored into tube variable
+             
+        ** Note: If variable was updated from console inputs, then it will become readonly. 
 ---
 ## Examples of Each Command
 
