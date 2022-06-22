@@ -3760,11 +3760,11 @@ def job_start(tube):
                 continue
                         
             # Log current running step
-            running_command = ' => %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's'
-            running_command_print = ' => %s'
-            msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % command.get_formatted_type() + ' >>> ' + \
+            running_command = ' >>> %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's'
+            running_command_print = ' >>> %s'
+            msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % command.get_formatted_type() + ': ' + \
                   str(command.get_formatted_content())
-            msg_print = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command_print % command.get_formatted_type() + ' >>> ' + \
+            msg_print = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command_print % command.get_formatted_type() + ': ' + \
                   str(command.get_formatted_content())
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             tprint(msg_print, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
