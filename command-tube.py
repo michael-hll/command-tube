@@ -4223,7 +4223,7 @@ def job_start(tube):
                     log.start_datetime = datetime.now()
                     log.status = Storage.I.C_FAILED
                     replaced_count = command.replace_char()
-                    msg = 'There are \'%s\' items are replaced.' % replaced_count
+                    msg = 'There are \'%s\' items replaced.' % replaced_count
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                     log.status = Storage.I.C_SUCCESSFUL
