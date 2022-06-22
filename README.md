@@ -401,6 +401,20 @@ Update Date: Jun 2022
     - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
 ``` 
 
+    - REPLACE_CHAR
+        Description: Replace file lines which contains given characters.                                          
+                     The -f argument of the given file.                                          
+                     The -o argument of the old characters .                                          
+                     The -n argument of the new characters.                                          
+                     The -c optional argument is the replacement times. Default all.
+        Syntax: 
+            REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+
+```yml
+    # YAML format
+    - REPLACE_CHAR: -f file -c hello -r hello_exists
+``` 
+
     - GET_PACKAGE_VERSION   
         Description: This is a TODO command, since each company/organization could have different package management tool.
         Work around:

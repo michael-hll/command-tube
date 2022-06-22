@@ -319,6 +319,7 @@ class Storage():
         self.C_SFTP_GET                = 'SFTP_GET'
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
+        self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -738,6 +739,25 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                                          \nThe -f argument of the given file. \
                                          \nThe -c argument of the searching characters . \
                                          \nThe -r argument is the tube variable name to store the result.'
+            },
+            self.C_REPLACE_CHAR: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.1',
+                self.C_ARG_SYNTAX: 'Syntax: REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    # [0]    [1]   [2]       [3]   [4]    [5]    [6]
+                    [False, '-f','--file',  'str', '+',  'file', True],                    
+                    [False, '-o','--oldvalue',  'str', '+',  'oldvalue', True],
+                    [False, '-n','--newvalue', 'str', '+',   'newvalue', True],
+                    [False, '-c','--count', 'str', 1,   'count', False]
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_ARG_DESCRIPTION: 'Description: Replace file lines which contains given characters. \
+                                         \nThe -f argument of the given file. \
+                                         \nThe -o argument of the old characters . \
+                                         \nThe -n argument of the new characters. \
+                                         \nThe -c optional argument is the replacement times. Default all.'
             },
         }
 
@@ -2006,6 +2026,54 @@ class TubeCommand():
         finally:
             # update result to tube variables
             StorageUtility.update_key_value_dict(result, found)
+    
+    def replace_char(self) -> int:
+        '''
+        Replace strings for a given file line by line
+        '''
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file, oldvalue, newvalue, count = '', '', '', sys.maxsize
+        
+        # get user inputs
+        file = ' '.join(args.file)
+        oldvalue = ' '.join(args.oldvalue)
+        newvalue = ' '.join(args.newvalue)
+        if args.count:
+            count = int(args.count[0])
+        
+        # check input count parameter
+        if count < 1:
+            raise Exception('Count parameter is less than 1: %s' % str(count))
+        
+        # replace placeholders
+        file = TubeCommand.format_placeholders(file)
+        oldvalue = TubeCommand.format_placeholders(oldvalue)
+        newvalue = TubeCommand.format_placeholders(newvalue)
+        
+        # local variables
+        replaced_count = 0
+        
+        if os.path.exists(file):
+            lines = []
+            lines_new = []
+            
+            with open(file, 'r') as f:
+                lines = f.readlines()
+            for line in lines:
+                while oldvalue in line and replaced_count < count:
+                    line = line.replace(oldvalue, newvalue, 1)
+                    replaced_count += 1
+                lines_new.append(line)
+            
+            # write replaced lines back to file
+            with open(file, 'w') as f:
+                for line in lines_new:
+                    f.write(line)
+        else:
+            raise Exception("file doesn't exist: " + file)        
+        
+        return replaced_count
             
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
@@ -3526,6 +3594,8 @@ TUBE:
     - SFTP_PUT: -l localfile -r remotefile   
     # Check if given characters exists from a given file
     - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
+    # Replace file lines which contains given characters.
+    - REPLACE_CHAR: -f file -o oldvalue -n newvalue -c 1
                 '''
                 command_name = ''
                 # Prepare examples of each command
@@ -4146,7 +4216,23 @@ def job_start(tube):
                     log.status = Storage.I.C_FAILED
                     tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                     log.add_error(str(e))
-                    log.end_datetime = datetime.now()    
+                    log.end_datetime = datetime.now()  
+            
+            elif current_command_type == Storage.I.C_REPLACE_CHAR:
+                try:
+                    log.start_datetime = datetime.now()
+                    log.status = Storage.I.C_FAILED
+                    replaced_count = command.replace_char()
+                    msg = 'There are \'%s\' items are replaced.' % replaced_count
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                    log.status = Storage.I.C_SUCCESSFUL
+                    log.end_datetime = datetime.now()                    
+                except Exception as e:
+                    log.status = Storage.I.C_FAILED
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                    log.add_error(str(e))
+                    log.end_datetime = datetime.now()   
                         
             # not supported command found then log errors and continue next          
             else:
