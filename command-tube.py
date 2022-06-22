@@ -755,7 +755,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_IF_PARAMETER: True,
                 self.C_ARG_DESCRIPTION: 'Description: Replace file lines which contains given characters. \
                                          \nThe -f argument of the given file. \
-                                         \nThe -o argument of the old characters . \
+                                         \nThe -o argument of the old characters (Support regular expressions). \
                                          \nThe -n argument of the new characters. \
                                          \nThe -c optional argument is the replacement times. Default all.'
             },
@@ -2061,8 +2061,8 @@ class TubeCommand():
             with open(file, 'r') as f:
                 lines = f.readlines()
             for line in lines:
-                while oldvalue in line and replaced_count < count:
-                    line = line.replace(oldvalue, newvalue, 1)
+                while re.search(oldvalue, line) is not None and replaced_count < count:
+                    line = re.sub(oldvalue, newvalue, line, 1)
                     replaced_count += 1
                 lines_new.append(line)
             

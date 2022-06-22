@@ -404,7 +404,7 @@ Update Date: Jun 2022
     - REPLACE_CHAR
         Description: Replace file lines which contains given characters.                                          
                      The -f argument of the given file.                                          
-                     The -o argument of the old characters .                                          
+                     The -o argument of the old characters (Support regular expressions).                                          
                      The -n argument of the new characters.                                          
                      The -c optional argument is the replacement times. Default all.
         Syntax: 
