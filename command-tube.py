@@ -455,7 +455,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]
+                    [True, '-','--', 'str', '+', 'file', True]
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -576,7 +576,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]
+                    [True, '-','--', 'str', '+', 'host', True]
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -588,7 +588,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]    [3]   [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]
+                    [True, '-','--', 'str', '+', 'subject', True]
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -600,7 +600,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]
+                    [True, '-','--', 'str', '+', 'minutes', True]
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -612,7 +612,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]
+                    [True, '-','--', 'str', '+', 'directory', True]
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -653,7 +653,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', '', True]                 
+                    [True, '-','--', 'str', '+', 'command', True]                 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -665,7 +665,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     # [0]  [1] [2]    [3]   [4]  [5] [6]
-                    [True, '-','--', 'str', '+', '', True]                  
+                    [True, '-','--', 'str', '+', 'command', True]                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
