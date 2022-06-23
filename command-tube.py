@@ -784,7 +784,7 @@ class TubeCommandArgumentConfig():
         self.is_support_continue = True
         self.is_support_redo = True
         self.is_support_if_run = True
-        self.is_key_command = True
+        self.is_support_key = True
         self.syntax = None        
         
         if self.type in config_dict.keys():
@@ -865,7 +865,7 @@ class TubeArgumentParser(ArgumentParser):
             new_parser.add_argument(Storage.I.C_REDO_PARAMETER, type=int, nargs='*', required=False)
         if argument_config.is_support_if_run:
             new_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, nargs='*', required=False)
-        if argument_config.is_key_command:
+        if argument_config.is_support_key:
             new_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
         
         return new_parser
