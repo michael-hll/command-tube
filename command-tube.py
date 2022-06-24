@@ -360,7 +360,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # Tube Argument Used
         self.C_ARG_SYNTAX              = 'SYNTAX'
         self.C_ARG_ARGS                = 'ARGS'
-        self.C_ARG_DESCRIPTION         = 'DESCRIPTION'
+        self.C_COMMAND_DESCRIPTION     = 'DESCRIPTION'
         # Run mode used
         self.C_RUN_MODE                = 'RUN_MODE'
         self.C_RUN_MODE_SRC            = 'SRC'
@@ -439,7 +439,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.IS_STOP                   = False
         self.MAX_TUBE_COMMAND_LENGTH   = 10
         self.TUBE_FILE_LIST            = {}
-        # Tube Command argument configurations
+        # Tube Command argument configurations design details
         # 0: Is postion arguments
         # 1: -
         # 2: --
@@ -447,317 +447,326 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         # 4: nargs
         # 5: destination
         # 6: is required
-        # 7: action
-        # 8: default 
+        # 7: has action
+        # 8: action
+        # 9: default 
+        # LAST: description
         self.TUBE_ARGS_CONFIG = { 
             self.C_IMPORT_TUBE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'file', True]
+                    [True, '-','--', 'str', '+', 'file', True, False, '', '',
+                        'Sub tube file with YAML format.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Import tube commands, servers, variables or emails from sub tube yaml file.'
+                self.C_COMMAND_DESCRIPTION: 'Import tube commands from a sub-tube file, servers, variables or emails can also be imported.'
             },                     
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]     [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-l','--lines', 'str', 1, 'lines', True],
-                    [False, '-k','--keywords', 'str', '*', 'keywords', False]                    
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The text file you want to tail.'],
+                    [False, '-l','--lines', 'str', 1, 'lines', True, False, '', '',
+                        'The lines count you want to output.'],
+                    [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
+                        'Output file content only if it contains the given keywords.'],                    
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Print/Log the last N lines given file. \
-                                \nIf keywords were given, then only tail the file \
-                                \nwhen the keywords exist from those lines.'                
+                self.C_COMMAND_DESCRIPTION: 'Print/Log the last N lines of given file.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-b','--begins', 'str', '+', 'begins', False],
-                    [False, '-c','--contains', 'str', '+', 'contains', False],
-                    [False, '-e','--empty', '', '', 'del_empty', False, 'store_true', False],                                      
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to delete lines from.'],
+                    [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
+                        'The line begins with character you want to delete.'],
+                    [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
+                        'The line contains with character you want to delete.'],
+                    [False, '-e','--empty', '', '', 'del_empty', False, 'store_true', False, False, '', '',
+                        'A flag to tell if delete empty line. Default no.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Delete line which characters begin or contains with given value. -e means delete empty line.'
+                self.C_COMMAND_DESCRIPTION: 'Conditionally delete lines from a file.'
             },  
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-n','--number', 'str', 1, 'number', False],
-                    [False, '-v','--value', 'str', '+', 'value', True],
-                    [False, '-c','--contains', 'str', '+', 'contains', False]                                       
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to update.'],
+                    [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
+                        'The character value you want to update in the file.'],
+                    [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
+                        'The line number you want to update.'],                    
+                    [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
+                        'Only update the line if it contains the given characters content.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Write any characters into a file.' + \
-                    '\nThe value also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL (DELETE_LINE) ' + \
-                    '\nIf you need more than two space characters in the value content, you can use {s:m} (m > 0) ' + \
-                    '\nThe \'m\' means how many spaces you want.'
-                    '\neg: -v {s:5}hello => will be translated to 5 space chars plus hello: \'     hello\'' + \
-                    '\nParameters:' + \
-                    '\n -n parameter: Write line in which line number.' + \
-                    '\n -c parameter: Write line which line contains specific characters.' + \
-                    '\n -v parameter: The character (content) you want to write into the file.'
+                self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.  \
+                    \nThe written characters also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL\' (DELETE_LINE). \
+                    \nIf you need more than two space characters in the value content, you can use {s:m} (m > 0) formular. \
+                    \nThe \'m\' means how many spaces you want to write. \
+                    \neg: -v {s:5}hello => will be translated to 5 space chars plus hello: \'     hello\''                    
             },    
             self.C_SET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-k','--keywords', 'str', '+', 'keywords', True],
-                    [False, '-v','--value', 'str', '*', 'value', True]                    
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to update.'],
+                    [False, '-k','--keywords', 'str', '+', 'keywords', True, False, '', '',
+                        'The key in the left side of \'=\'.'],
+                    [False, '-v','--value', 'str', '*', 'value', True, False, '', '',
+                        'The value in the right side of \'=\'.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Update key-value file.'
+                self.C_COMMAND_DESCRIPTION: 'Update key-value file.'
             },
             self.C_GET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-x','--xpath', 'str', '+', 'xpath', True]
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The XML file you want to get tag text.'],
+                    [False, '-x','--xpath', 'str', '+', 'xpath', True, False, '', '',
+                        'The xpath of the XML tag.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Get a xml tag text value from xml file. \
-                                        \nThe result will be stored into tube variables.'
+                self.C_COMMAND_DESCRIPTION: 'Get XML file tag text value. \
+                                           \nThe result will be stored into a tube variable and xpath will be used as the variable name.'
             },
             self.C_SET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', True],
-                    [False, '-x','--xpath', 'str', '+', 'xpath', True],
-                    [False, '-v','--value', 'str', '+', 'value', True]                    
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The XML file you want tup set tag text.'],
+                    [False, '-x','--xpath', 'str', '+', 'xpath', True, False, '', '',
+                        'The xpath of the XML tag'],
+                    [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
+                        'The new value of the tag.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Update XML file tag text using xpath.'
+                self.C_COMMAND_DESCRIPTION: 'Update XML file tag text using xpath.'
             },
             self.C_SET_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-n','--name', 'str', '+', 'name', True],
-                    [False, '-v','--value', 'str', '*', 'value', True]                    
+                    [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
+                        'The tube variable name you want to set.'],
+                    [False, '-v','--value', 'str', '*', 'value', True, False, '', '',
+                        'The tube variable value you want to set.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Set tube variable value.'
+                self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
             },
             self.C_CONNECT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'host', True]
+                    [True, '-','--', 'str', '+', 'host', True, False, '', '',
+                        'The Linux host name you want to connect using SSH.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: You can use this command to switch your server connection.'
+                self.C_COMMAND_DESCRIPTION: 'You can use this command to switch your server connection.'
             },
             self.C_REPORT_PROGRESS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]    [3]   [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'subject', True]
+                    [True, '-','--', 'str', '+', 'subject', True, False, '', '',
+                        'The email subject/title you want to set.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: You can use this command to sent current progress via Email.'
+                self.C_COMMAND_DESCRIPTION: 'You can use this command to sent current progress via Email.'
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'minutes', True]
+                    [True, '-','--', 'str', '+', 'minutes', True, False, '', '',
+                        'The minutes you want to pause.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Command Tube will pause with given minutes.'
+                self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes.'
             },
             self.C_PATH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'directory', True]
+                    [True, '-','--', 'str', '+', 'directory', True, False, '', '',
+                        'The directory you want to goto.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Go to specific directory.'
+                self.C_COMMAND_DESCRIPTION: 'Go to specific directory.'
             },
             self.C_GET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]    [3]    [4]   [5]   [6]
-                    [False, '-k','--keywords', 'str', '+', 'keywords', False],
-                    [False, '-f','--file', 'str', '+', 'file', True]
+                self.C_ARG_ARGS: [    
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to get key-value from.'],    
+                    [False, '-k','--keywords', 'str', '+', 'keywords', False, False, '', '',
+                        'Set the key you can get specific value of a given key.'],                    
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Read key values from key-value file. \
-                                        \nThe key-value results will be stored into tube variables.'
+                self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
+                                           \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]   [3]    [4]  [5]   [6]
-                    [False, '-t','--to', 'str', '+', 'to', True],
-                    [False, '-s','--subject', 'str', '+', 'subject', True],
-                    [False, '-b','--body', 'str', '+', 'body', True]                   
+                    [False, '-t','--to', 'str', '+', 'to', True, False, '', '',
+                        'The sending email addresses.'],
+                    [False, '-s','--subject', 'str', '+', 'subject', True, False, '', '',
+                        'The email title.'],
+                    [False, '-b','--body', 'str', '+', 'body', True, False, '', '',
+                        'The email content. If it\'s text file name, then the content of the file will be as the email content.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Sent Email to somebody with given subject and content.' +
-                                        '\nThe -b parameter supports text file content as email body when it\'s text file.'
+                self.C_COMMAND_DESCRIPTION: 'Sent Email to someone with given subject and content.'
             },
             self.C_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]   [3]    [4]  [5]  [6]
-                    [True, '-','--', 'str', '+', 'command', True]                 
+                    [True, '-','--', 'str', '+', 'command', True, False, '', '',
+                        'Any command you want to run.'],                 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Run any Windows/MacOS terminal command.'
+                self.C_COMMAND_DESCRIPTION: 'Run any Windows/MacOS terminal command.'
             },
             self.C_LINUX_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]  [1] [2]    [3]   [4]  [5] [6]
-                    [True, '-','--', 'str', '+', 'command', True]                  
+                    [True, '-','--', 'str', '+', 'command', True, False, '', '',
+                        'Any Linux command you want to run.'],                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Run a Linux command from the previous connected server.'                
+                self.C_COMMAND_DESCRIPTION: 'Run a Linux command from the previous connected server.'                
             },
             self.C_COUNT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]      [3]   [4]   [5]    [6]
-                    [False, '-f','--file', 'str', '+', 'file', False],
-                    [False, '-t','--tube', 'str', '+', 'tube', False],
-                    [False, '-v','--variable', 'str', '+', 'variable', True],
-                    [False, '-c','--current', '', '', 'current_tube', False, 'store_true', False],
-                    [False, '-s','--skip', '', '', 'skip_count', False, 'store_true', False],
+                    [False, '-f','--file', 'str', '+', 'file', False, False, '', '',
+                        'The file you want to count line numbers.'],
+                    [False, '-t','--tube', 'str', '+', 'tube', False, False, '', '',
+                        'The tube status you want to count.'],
+                    [False, '-v','--variable', 'str', '+', 'variable', True, False, '', '',
+                        'The tube variable name to store the count result.'],
+                    [False, '-c','--current', '', '', 'current_tube', False, True, 'store_true', False,
+                        'If only count current tube. Default no.'],
+                    [False, '-s','--skip', '', '', 'skip_count', False, True, 'store_true', False,
+                        'If skip COUNT command. Default no.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Count file lines number (-f) or tube command number by status (-t). \
-                                         \nThe -c flag means if count within current tube. Default no. \
-                                         \nThe -s flag means if skip COUNT command. Defalult no. \
-                                         \nThe count result will be stored into tube variable using -v parameter.' 
+                self.C_COMMAND_DESCRIPTION: 'Count file lines number (-f) or Count tube command number by status (-t).' 
             },
             self.C_SFTP_GET: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]            [3]   [4]   [5]    [6]
-                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True],
-                    [False, '-l','--localpath',  'str',  1,  'localpath', True],
+                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True, False, '', '',
+                        'The file full remotepath.'],
+                    [False, '-l','--localpath',  'str',  1,  'localpath', True, False, '', '',
+                        'The file localpath.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to get remote server file to local. \
-                                         \nThe -r argument means remotepath. \
-                                         \nThe -l argument means localpath. \
-                                         \nWhen copy multiple files using *.* then localpath must be a directory.'
+                self.C_COMMAND_DESCRIPTION: 'Using SSHClient to copy remote server file to local. \
+                                           \nWhen copy multiple files using *.* then localpath must be a directory.'
             },
             self.C_SFTP_PUT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]            [3]   [4]   [5]    [6]
-                    [False, '-l','--localpath',  'str',  1,  'localpath', True],                    
-                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True],
+                    [False, '-l','--localpath',  'str',  1,  'localpath', True, False, '', '',
+                        'The file localpath.'],                    
+                    [False, '-r','--remotepath', 'str',  1,  'remotepath', True, False, '', '',
+                        'The file full remotepath.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Using SSHClient to put local file to remote server. \
-                                         \nThe -l argument means localpath. \
-                                         \nThe -r argument means remotepath. \
-                                         \nWhen copy multiple files using *.* then remotepath must be a directory.'
+                self.C_COMMAND_DESCRIPTION: 'Using SSHClient to put local file to remote server. \
+                                           \nWhen copy multiple files using *.* then remotepath must be a directory.'
             },
             self.C_CHECK_CHAR_EXISTS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]       [3]   [4]    [5]    [6]
-                    [False, '-f','--file',  'str', '+',  'file', True],                    
-                    [False, '-c','--char',  'str', '+',  'characters', True],
-                    [False, '-r','--result', 'str', 1,   'result', True],
+                    [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
+                        'The file you want to check.'],                    
+                    [False, '-c','--char',  'str', '+',  'characters', True, False, '', '',
+                        'The characters you want to check.'],
+                    [False, '-r','--result', 'str', 1,   'result', True, False, '', '',
+                        'The tube variable name to store the checking result.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Check if given characters exists from a file. Result was updated into a tube variable. \
-                                         \nThe -f argument of the given file. \
-                                         \nThe -c argument of the searching characters . \
-                                         \nThe -r argument is the tube variable name to store the result.'
+                self.C_COMMAND_DESCRIPTION: 'Check if given characters exists from a file. Result was updated into a tube variable.'
             },
             self.C_REPLACE_CHAR: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ARG_SYNTAX: 'Syntax: REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    # [0]    [1]   [2]       [3]   [4]    [5]    [6]
-                    [False, '-f','--file',  'str', '+',  'file', True],                    
-                    [False, '-o','--oldvalue',  'str', '+',  'oldvalue', True],
-                    [False, '-n','--newvalue', 'str', '+',   'newvalue', True],
-                    [False, '-c','--count', 'str', 1,   'count', False]
+                    [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
+                        'The file you want to replace given characters.'],                    
+                    [False, '-o','--oldvalue',  'str', '+',  'oldvalue', True, False, '', '',
+                        'The oldvalue you want to replace (Support regular expressions).'],
+                    [False, '-n','--newvalue', 'str', '+',   'newvalue', True, False, '', '',
+                        'The newvalue to replace.'],
+                    [False, '-c','--count', 'str', 1,   'count', False, False, '', '',
+                        'The replaced times you want to set. Default no limitation.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_ARG_DESCRIPTION: 'Description: Replace file lines which contains given characters. \
-                                         \nThe -f argument of the given file. \
-                                         \nThe -o argument of the old characters (Support regular expressions). \
-                                         \nThe -n argument of the new characters. \
-                                         \nThe -c optional argument is the replacement times. Default all.'
+                self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
         }
 
@@ -806,10 +815,9 @@ class TubeCommandArgumentConfig():
                 argument.nargs      = item[4]
                 argument.dest       = item[5]
                 argument.required   = item[6]
-                if len(item) > 7:
-                    argument.has_action = True
-                    argument.action     = item[7]
-                    argument.default    = item[8]
+                argument.has_action = item[7]
+                argument.action     = item[8]
+                argument.default    = item[9]
                 self.tube_command_arguments.append(argument)
 
 class TubeArgumentParser(ArgumentParser):  
@@ -2127,6 +2135,66 @@ class TubeCommand():
         except Exception as e:
             return ret_value    
 
+    @classmethod
+    def get_command_syntax(self, command_type, arg_configs) -> str:   
+        '''
+        Dynamicly get command syntax.
+        '''     
+        syntax = 'Syntax: - ' + command_type + ': '
+        arg_config = arg_configs[command_type]
+        general_args = '[--continue [m][n]] [--redo [m]] [--if run] [--key]'
+        args = arg_config[Storage.I.C_ARG_ARGS]
+        for arg in args:
+            if arg[0] is True:
+                syntax += arg[5]
+            else:
+                prefix, suffix = '[', ']'
+                if arg[6] is True:
+                    prefix, suffix = '', ''
+                syntax += prefix + arg[1] + '|' + arg[2] + ' ' + arg[5] + suffix
+            
+            syntax += ' '      
+        syntax += general_args          
+        return syntax
+
+    @classmethod
+    def get_command_parameters(self, command_type, arg_configs) -> str:  
+        '''
+        Dynamicly get command parameter details.
+        '''      
+        parameters = 'Parameters:\n'
+        arg_config = arg_configs[command_type]
+        args = arg_config[Storage.I.C_ARG_ARGS]
+        indentation = '   '
+        # get max argument character lenght
+        max_arg_length = 0
+        for arg in args:
+            if len(arg[1]) + len(arg[2]) > max_arg_length:
+                max_arg_length = len(arg[1]) + len(arg[2])
+            if len(arg[5]) > max_arg_length:
+                max_arg_length = len(arg[5])
+        max_arg_length += 5
+        # format parameters
+        format_str = '{:<' + str(max_arg_length) + '} {}'
+        for arg in args:
+            if arg[0] is False:
+                parameters += format_str.format(indentation + arg[1] + '/' + arg[2] + ':', arg[len(arg) - 1] + '\n')
+            else:
+                parameters += format_str.format(indentation + arg[5] + ':', arg[len(arg) - 1] + '\n')                
+            
+        return parameters
+
+    @classmethod
+    def get_command_description(self, command_type, arg_configs) -> str:   
+        '''
+        Dynamicly get command description
+        '''     
+        description = 'Description: '
+        arg_config = arg_configs[command_type]
+        description += arg_config[Storage.I.C_COMMAND_DESCRIPTION]
+            
+        return description
+    
 class TubeCommandLog:
 
     def __init__(self, command: TubeCommand):
@@ -3606,8 +3674,9 @@ TUBE:
                 keys.sort()
                 for index, key in enumerate(keys):
                     command_examples.append('[%s]: %s' % (str(index+1), key))
-                    command_examples.append('%s' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_DESCRIPTION]) 
-                    command_examples.append('%s' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_SYNTAX]) 
+                    command_examples.append('%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
+                    command_examples.append('%s' % TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG)) 
+                    command_examples.append('%s' % TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG))
                     command_examples.append('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])
                     command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
                 # End of prepare examples of each command    
@@ -3713,8 +3782,9 @@ TUBE:
                             found_match = True        
                             index += 1        
                             tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
-                            tprint(Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_DESCRIPTION])                   
-                            tprint(Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ARG_SYNTAX])
+                            tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n')
+                            tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG))                   
+                            tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG))
                             tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])                            
                             tprint(Storage.I.C_STATUS_LINE)
                     if found_match == True:
