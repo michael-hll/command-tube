@@ -2695,7 +2695,9 @@ class TubeVersion():
                     self.fix_version += '.' + str(version_array[3])
 
 class Matrix():  
-    
+    '''
+    The main code of this Matrix class are from: https://github.com/jsbueno/terminal_matrix
+    '''
     MAX_CASCADES = 600
     MAX_COLS = 20
     FRAME_DELAY = 0.03
@@ -2795,7 +2797,7 @@ class Matrix():
         return stopped
 
     @staticmethod
-    def main():
+    def __main():
         global cols, lines
         cascading = set()
         while not Matrix.Is_Ended:
@@ -2810,7 +2812,7 @@ class Matrix():
     def start():
         try:
             Matrix.__init()
-            Matrix.main()
+            Matrix.__main()
         except KeyboardInterrupt:
             Matrix.end()
         finally:
