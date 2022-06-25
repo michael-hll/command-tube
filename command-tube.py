@@ -3657,23 +3657,30 @@ def print_tube_command_help(parser: ArgumentParser):
         From tube YAML file, you can add tube variables under 'VARIABLES' property. 
         e.g.:       
         VARIABLES:  
-            root_folder: C:\workspaces\\trunk
+            root_folder: C:\workspaces\trunk
             package_name: xxx-app
             cmd_parameters: -l
-            # Below are default hidden variables:
-            s: ' ' # Its value is a space char and can't be overridden
+            # Below two hidden variables are assigned values when tube starts:
+            S: ' ' # Its value is a space char and can't be overridden
+            TUBE_HOME: <tube-running-startup-location-path>
+
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
             - PATH: {root_folder}
+            # Go to tube home directory:
+            - PATH: {TUBE_HOME}
             - COMMAND: ls {cmd_parameters}
             # The below {s:10} will be replaced by 10 space chars 
-            - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here  
+            - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here               
+             
         The below commands will update the tube variables:
             - GET_XML_TAG_TEXT => xpath will be the variable name
-            - GET_FILE_KEY_VALUE => key(s) will be the variable name
+            - GET_FILE_KEY_VALUE => key will be the variable name
             - COUNT => variable parameter will be stored into tube variables
             - SET_VARIABLE => update tube variable by name value
-        Note: If variable was updated from console inputs, then it will become readonly.
+            - CHECK_CHAR_EXISTS => Result will be stored into tube variable
+             
+        ** Note: If variable was updated from console inputs, then it will become readonly. 
                 '''
                 help_all = '''
 -------------------------------           
@@ -3701,7 +3708,7 @@ def print_tube_command_help(parser: ArgumentParser):
     from your terminal (In MacOS, you may need Python3):
         >>> python command-tube.py -h
     
-    - Examples of running Command Tube:
+    - Examples of running Command Tube with source code:
         1: Run at once and sent email result: 
         >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
