@@ -3459,7 +3459,7 @@ def init_arguments():
     parser.add_argument('-e', '--email', dest='email', action='store_const', const='yes',
                         help='A flag to tell if sent result to your Email. \nNeed complete Email configurations first. Default no.')
     parser.add_argument('-m', '--matrix-mode', dest='matrix_mode', action='store_const', const='yes',
-                        help='A flag to run terminal in matrix mode. You can\'t use it in loop mode. Defalut no.')
+                        help='A flag to run terminal in matrix mode. Defalut no.')
     parser.add_argument('--log', dest='log_file', nargs=1,
                         help='Set log file name. Default is tube file name plus \'.log\'.')
     parser.add_argument('--pip', dest='pip_command',
