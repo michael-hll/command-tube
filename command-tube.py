@@ -31,6 +31,9 @@ import multiprocessing
 from argparse import RawTextHelpFormatter
 import uuid
 import shlex
+import shutil
+from random import choice, randrange, paretovariate
+import threading
 
 # -------- CLASSES --------------
 class Utility():
@@ -439,6 +442,9 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.IS_STOP                   = False
         self.MAX_TUBE_COMMAND_LENGTH   = 10
         self.TUBE_FILE_LIST            = {}
+        self.IS_MATRIX_MODE            = False
+        self.IS_MATRIX_MODE_RUNNING    = False
+        self.MATRIX_THREAD             = None
         # Tube Command argument configurations design details
         # 0: Is postion arguments
         # 1: -
@@ -2688,6 +2694,146 @@ class TubeVersion():
                 if len(version_array) == 4:
                     self.fix_version += '.' + str(version_array[3])
 
+class Matrix():  
+    
+    MAX_CASCADES = 600
+    MAX_COLS = 20
+    FRAME_DELAY = 0.03
+    MAX_SPEED  = 5
+    CSI = '\x1b[' # \x1b = ESC # https://en.wikipedia.org/wiki/ANSI_escape_code
+    
+    Is_Ended = False
+    cols, lines = 10, 10
+
+    mprint = lambda command: print(Matrix.CSI, command, sep='', end='')
+    get_chars = lambda start, end: [chr(i) for i in range(start, end)]
+
+    black, green, white = '30', '32', '37'
+
+    latin_chars = get_chars(0x30, 0x80)
+    greek_chars = get_chars(0x390, 0x3d0)
+    hebrew_chars = get_chars(0x5d0, 0x5eb)
+    cyrillic_chars = get_chars(0x400, 0x50)
+
+    chars_all = latin_chars + greek_chars + hebrew_chars + cyrillic_chars
+
+    @staticmethod
+    def __pareto(limit):
+        scale = lines // 2
+        number = (paretovariate(1.16) - 1) * scale
+        return max(0, limit - number)
+
+    @staticmethod
+    def __init():
+        global cols, lines        
+        cols, lines = shutil.get_terminal_size()
+        Matrix.mprint('2J') # clear terminal screen characters        
+        Matrix.mprint('?25l')  # Hides cursor
+        Matrix.mprint('s')  # Saves cursor position
+        Matrix.Is_Ended = False # reset endded flag
+
+    @staticmethod
+    def __print_at(char, x, y, color='', bright='0'):
+        Matrix.mprint('%d;%df' % (y, x))
+        Matrix.mprint(bright + ';' + color + 'm')
+        print(char, end='', flush=True)
+
+    @staticmethod
+    def __update_line(speed, counter, line):
+        counter += 1
+        if counter >= speed:
+            line += 1
+            counter = 0
+        return counter, line
+
+    @staticmethod
+    def __cascade(col):
+        speed = randrange(1, Matrix.MAX_SPEED)
+        espeed = randrange(1, Matrix.MAX_SPEED)
+        line = counter = ecounter = 0
+        oldline = eline = -1
+        erasing = False
+        bright = '1'
+        limit = Matrix.__pareto(lines)
+        while True:
+            counter, line = Matrix.__update_line(speed , counter, line)
+            if randrange(10 * speed) < 1:
+                bright = '0'
+            if line > 1 and line <= limit and oldline != line:
+                Matrix.__print_at(choice(Matrix.chars_all),col, line-1, Matrix.green, bright)
+            if line < limit:
+                Matrix.__print_at(choice(Matrix.chars_all),col, line, Matrix.white, '1')
+            if erasing:
+                ecounter, eline = Matrix.__update_line(espeed, ecounter, eline)
+                Matrix.__print_at(' ',col, eline, Matrix.black)
+            else:
+                erasing = randrange(line + 1) > (lines / 2)
+                eline = 0
+            yield None
+            oldline = line
+            if eline >= limit:
+                Matrix.__print_at(' ', col, oldline, Matrix.black)
+                break
+
+    @staticmethod
+    def __add_new(cascading):
+        if randrange(Matrix.MAX_CASCADES + 1) > len(cascading):
+            col = randrange(cols)
+            for i in range(randrange(Matrix.MAX_COLS)):
+                cascading.add(Matrix.__cascade((col + i) % cols))
+            return True
+        return False
+
+    @staticmethod
+    def __iterate(cascading):
+        stopped = set()
+        for c in cascading:
+            try:
+                next(c)
+            except StopIteration:
+                stopped.add(c)
+        return stopped
+
+    @staticmethod
+    def main():
+        global cols, lines
+        cascading = set()
+        while not Matrix.Is_Ended:
+            while Matrix.__add_new(cascading): pass
+            stopped = Matrix.__iterate(cascading)
+            sys.stdout.flush()
+            cascading.difference_update(stopped)
+            cols, lines = shutil.get_terminal_size()
+            time.sleep(Matrix.FRAME_DELAY)
+            
+    @staticmethod
+    def start():
+        try:
+            Matrix.__init()
+            Matrix.main()
+        except KeyboardInterrupt:
+            Matrix.end()
+        finally:
+            Matrix.end()
+
+    @staticmethod
+    def end():
+        Matrix.Is_Ended = True # set ended flag
+        Matrix.mprint('m')   # reset attributes
+        Matrix.mprint('2J')  # clear screen
+        Matrix.mprint('u')  # Restores cursor position
+        Matrix.mprint('?25h')  # Show cursor              
+
+class MatrixThread (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+      
+    def run(self):
+        Matrix.start()    
+    
+    def stop(self):
+        Matrix.end()   
+ 
 # -------- END OF CLASSES -------
 
 # --------- FUNCTIONS --------------------
@@ -2701,6 +2847,10 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, spli
     
     return: prefix + type + line
     '''
+    
+    # return if in matrix terminal mode
+    if Storage.I.IS_MATRIX_MODE_RUNNING:
+        return
     
     # switch color style
     if os.name.startswith('nt') and not tcolor_style:
@@ -3308,6 +3458,8 @@ def init_arguments():
                         help='Iteration times of tube. Default 1024.')  
     parser.add_argument('-e', '--email', dest='email', action='store_const', const='yes',
                         help='A flag to tell if sent result to your Email. \nNeed complete Email configurations first. Default no.')
+    parser.add_argument('-m', '--matrix-mode', dest='matrix_mode', action='store_const', const='yes',
+                        help='A flag to run terminal in matrix mode. You can\'t use it in loop mode. Defalut no.')
     parser.add_argument('--log', dest='log_file', nargs=1,
                         help='Set log file name. Default is tube file name plus \'.log\'.')
     parser.add_argument('--pip', dest='pip_command',
@@ -3829,6 +3981,17 @@ def read_run_mode():
         msg = 'READ RUN_MODE EXCEPTION: %s' % (str(e))
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+
+def start_matrix_terminal():  
+    Storage.I.IS_MATRIX_MODE_RUNNING = True
+    Storage.I.MATRIX_THREAD = MatrixThread()
+    Storage.I.MATRIX_THREAD.start()    
+
+def stop_matrix_terminal():
+    Storage.I.IS_MATRIX_MODE_RUNNING = False
+    Storage.I.MATRIX_THREAD.stop()
+    Storage.I.MATRIX_THREAD.join()
+    Storage.I.MATRIX_THREAD = None
         
 def job_start(tube):
     current_command = None
@@ -4533,6 +4696,10 @@ try:
     if(args.force != None and (args.force.lower() == 'true' or args.force.lower() == 'yes' or args.force.lower() == 'y' or args.force.lower() == 't')):
         Storage.I.IS_FORCE_RUN = True
         Storage.I.IS_IMMEDIATE = True
+    
+    # matrix mode
+    if(args.matrix_mode != None and args.matrix_mode == 'yes'):
+        Storage.I.IS_MATRIX_MODE = True
         
     # checking tube command syntax
     Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE)
@@ -4618,7 +4785,17 @@ while Storage.I.IS_STOP == False:
             if Storage.I.CURR_LOOP_ID == Storage.I.LOOP_TIMES:
                 Storage.I.IS_STOP = True
         
-        job_start(Storage.I.TUBE)        
+        # check matrix mode and start it
+        if Storage.I.IS_MATRIX_MODE:
+            start_matrix_terminal()
+        
+        # start the job
+        job_start(Storage.I.TUBE) 
+        
+        # stop matrix mode if it's started
+        if Storage.I.IS_MATRIX_MODE:
+            stop_matrix_terminal()
+            
         print_logs(Storage.I.LOGS)
         write_logs_to_file(Storage.I.LOGS)        
         if Storage.I.IS_SENT_EMAIL:
