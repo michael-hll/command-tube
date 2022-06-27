@@ -496,7 +496,7 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                         'The line begins with character you want to delete.'],
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
                         'The line contains with character you want to delete.'],
-                    [False, '-e','--empty', '', '', 'del_empty', False, 'store_true', False, False, '', '',
+                    [False, '-e','--empty', '', '', 'del_empty', False, True, 'store_true', False,
                         'A flag to tell if delete empty line. Default no.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
