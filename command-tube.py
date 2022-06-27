@@ -3591,8 +3591,7 @@ def print_tube_command_help(parser: ArgumentParser):
         args = parser.parse_args()    
         if(args.help):
             if(len(args.help) >= 1 and len(args.help) <= 2 and args.help[0].upper() == 'HELP'):
-                add_notes = '* View Readme document to get more.\n' + \
-                         Storage.I.C_PROGRAM_NAME + '=' + Storage.I.C_CURR_VERSION
+                add_notes = Storage.I.C_PROGRAM_NAME + '=' + Storage.I.C_CURR_VERSION
                 help_redo = '''
         Redo: 
             Syntax: --redo [m]
@@ -3682,12 +3681,16 @@ def print_tube_command_help(parser: ArgumentParser):
              
         ** Note: If variable was updated from console inputs, then it will become readonly. 
                 '''
+                help_title = '''-------------------------------           
+# Welcome to Command Tube
+## Author: Michael Han
+## version: %s
+-------------------------------
+                '''
+                help_title = help_title % Storage.I.C_CURR_VERSION
                 help_all = '''
--------------------------------           
-* Welcome to Command Tube *
--------------------------------    
-            
-# Introduction
+%s                      
+## Introduction
 
     Command Tube is a tool that can run a group of sequenced commands.    
     Those commands are added from a YAML config file, which I usually call it a tube file. 
@@ -3695,7 +3698,7 @@ def print_tube_command_help(parser: ArgumentParser):
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
     From help you could find all types of supported commands.
 
-# How to run Command Tube    
+## How to run Command Tube    
 
     Command Tube is a Python 3 script. The most important two arguments 
     for Command Tube are '--yaml' and '--datetime'.    
@@ -3731,7 +3734,7 @@ def print_tube_command_help(parser: ArgumentParser):
         (You need to change RUN_MODE from SRC to BIN in YAML config file)
         >>> tube -y tube.yaml -f
     
-# General Arguments & Tube Variables
+## General Arguments & Tube Variables
     - General Arguments
         Description: All tube commands support additional --redo, --continue, 
                  --key and --if paramters. It could make your tube realize
@@ -3742,7 +3745,7 @@ def print_tube_command_help(parser: ArgumentParser):
 %s
 %s
                 '''
-                help_all = help_all % (help_continue, help_redo, help_if, help_key, help_var)
+                help_all = help_all % (help_title, help_continue, help_redo, help_if, help_key, help_var)
                 
                 template = '''
 VERSION: 2.0.x            
@@ -3827,24 +3830,39 @@ TUBE:
     - REPLACE_CHAR: -f file -o oldvalue -n newvalue -c 1
                 '''
                 command_name = ''
-                # Prepare examples of each command
-                command_examples = []
-                command_examples.append('# Usage of Each Command:')
-                command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
-                keys = [k for k in Storage.I.TUBE_ARGS_CONFIG.keys()]
-                keys.sort()
-                for index, key in enumerate(keys):
-                    command_examples.append('[%s]: %s' % (str(index+1), key))
-                    command_examples.append('%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
-                    command_examples.append('%s' % TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG)) 
-                    command_examples.append('%s' % TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG))
-                    command_examples.append('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])
-                    command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
-                # End of prepare examples of each command    
-                
                 # get the second argument value
                 if len(args.help) == 2:
-                    command_name = args.help[1]                
+                    command_name = args.help[1]
+                
+                # check if help readme
+                is_for_readme = False
+                if command_name and command_name.upper() == 'README':
+                    is_for_readme = True
+                    
+                # Prepare examples of each command
+                command_examples = []
+                command_examples.append('## Usage of Each Command:')
+                #command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
+                keys = [k for k in Storage.I.TUBE_ARGS_CONFIG.keys()]
+                keys.sort()                
+                for index, key in enumerate(keys):
+                    if is_for_readme:
+                        command_examples.append('## %s: %s' % (str(index+1), key))
+                        command_examples.append('<pre>%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
+                    else:
+                        command_examples.append('[%s]: %s' % (str(index+1), key))                        
+                        command_examples.append('%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
+                    
+                    command_examples.append('%s' % TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG)) 
+                    command_examples.append('%s' % TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG))
+                    
+                    if command_name == '' or command_name.upper() != 'README':
+                        command_examples.append('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])
+                        command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
+                    else:
+                        command_examples.append('Support from version: %s</pre>' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])                    
+                        
+                # End of prepare examples of each command  
                 
                 found_match = False
                 if command_name == '' or command_name.upper() == 'ALL':
@@ -3935,6 +3953,12 @@ TUBE:
                 elif command_name.upper() == 'VARIABLE':
                     print(help_var)
                     sys.exit()
+                elif command_name.upper() == 'README':
+                    with open('README.md', 'w') as f:
+                        f.write(help_all + '\n')
+                        for eg in command_examples:
+                            f.write(eg + '\n')
+                    sys.exit()
                 else:     
                     # checking if could find matched commands             
                     index = 0
@@ -3992,11 +4016,18 @@ def read_run_mode():
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
 
 def start_matrix_terminal():  
+    '''
+    This method only run when --matrix-mode flag is set to true
+    '''
+    
     Storage.I.IS_MATRIX_MODE_RUNNING = True
     Storage.I.MATRIX_THREAD = MatrixThread()
     Storage.I.MATRIX_THREAD.start()    
 
 def stop_matrix_terminal():
+    '''
+    This method only run when --matrix-mode flag is set to true
+    '''
     Storage.I.IS_MATRIX_MODE_RUNNING = False
     Storage.I.MATRIX_THREAD.stop()
     Storage.I.MATRIX_THREAD.join()

@@ -1,36 +1,36 @@
-# Command Tube
 
-Author: Han LiangLiang
-
-Email: michael_hll@hotmail.com
-
-Update Date: Jun 2022
-
----
+-------------------------------           
+# Welcome to Command Tube
+## Author: Michael Han
+## version: 2.0.1 Beta
+-------------------------------
+                                      
 ## Introduction
+
     Command Tube is a tool that can run a group of sequenced commands.    
     Those commands are added from a YAML config file, which I usually call it a tube file. 
     See the examples from the template YAML file ('help template' could output it).
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
     From help you could find all types of supported commands.
----
-## How to run Command Tube
+
+## How to run Command Tube    
+
     Command Tube is a Python 3 script. The most important two arguments 
     for Command Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
-    From the 'templates\template*.yaml' you could view how it looks like.
+    From the 'tube.template.yaml' you could view how it looks like.
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
-    from your terminal (You may need Python3 >= 3.7):
+    from your terminal (In MacOS, you may need Python3):
         >>> python command-tube.py -h
     
-### - Examples of running Command Tube with source code:
+    - Examples of running Command Tube with source code:
         1: Run at once and sent email result: 
         >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python command-tube.py -y tube.yaml -t t20
+        >>> python command-tube.py -y tube.yaml -t20
         3: Run at every 6 o'clock for 100 days: 
         >>> python command-tube.py -y tube.yaml -t n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
@@ -40,70 +40,71 @@ Update Date: Jun 2022
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
-        ** Find tube running result from tube.yaml.log file
-                 
-### - Binary Mode        
-        Following below steps you can use it in binary mode:
+        ** Find tube running result from tube.yaml.log file  
+
+    - Binary Mode        
+        Following below steps you can use it in binary mode
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
         3. Using it from your terminal:
         (You need to change RUN_MODE from SRC to BIN in YAML config file)
-        >>> tube -y tube.yaml -f  
-        Note: In MacOS you need give the 'tube' exec right first.
-       
-
+        >>> tube -y tube.yaml -f
+    
 ## General Arguments & Tube Variables
     - General Arguments
-        Description: All tube commands support additional --redo, --continue,
+        Description: All tube commands support additional --redo, --continue, 
                  --key and --if paramters. It could make your tube realize
-                 more complex flow.
+                 more complex flow.         
 
-        Redo: 
-            Syntax: --redo [m]
-            Description: Without m parameter, if current command failed it  
-            will be re-executed once.
-
-            With m (m < 0) parameter, and current command failed, it will  
-            redo commands from previous m steps.
-
-            With m (m > 0) parameter, and current command success, it will
-            redo this command for m times.
-        
         Continue:
             Syntax: --continue [m] [n]
             Description:
-            If current command failed the later tube commands will be 
-            conditional skiped.
+                If current command failed the later tube commands will be 
+                conditional skiped.
 
-            Normally if current command failed, the later tube commands 
-            will be skipped. But use --continue parameter could change
-            this.
+                Normally if current command failed, the later tube commands 
+                will be skipped. But use --continue parameter could change
+                this.
 
-            Without m and n parameters: the tube will run continuely.
-                    
-            With m (m >= 1) parameter only: If current command failed,
-            the later m steps will be skipped. Otherwise the later m steps
-            will be executed as normal.
+                Without m and n parameters: tube will run next command.
+                        
+                With m (m >= 1) parameter only: If current command failed,
+                the later m steps will be skipped. Otherwise the later m steps
+                will be executed as normal.
 
-            With m & n ( m,n >=0 ) both parameters: If current command faild,
-            the later m steps after current will be skiped, the later n steps
-            after m will be executed.
-            If current command successful, the previous senario will be swapped.
-            The later m steps after current will be executed and the later n steps
-            after m will be skipped.
+                With m & n ( m,n >=0 ) both parameters: If current command faild,
+                the later m steps after current will be skiped, the later n steps
+                after m will be executed.
+                If current command successful, the previous senario will be swapped.
+                The later m steps after current will be executed and the later n steps
+                after m will be skipped.
+                
 
-        If:
+        Redo: 
+            Syntax: --redo [m]
+            Description: 
+                Without m parameter, if current command failed it  
+                will be re-executed once.
+
+                With m (m < 0) parameter, and current command failed, it will  
+                redo commands from previous m steps.
+
+                With m (m > 0) parameter, and current command success, it will
+                redo this command for m times.
+                
+
+        If:            
             Syntax: --if {tube_variable} | value=={tube_variable} | value!={tube_variable}
             Description:
-                If {tube_variable} uppercase equals 'FALSE' or 'NO' then the tube command
+                If {tube_variable} uppercase equals 'FALSE' or 'NO' then the current tube command
                 will be skipped.
-                For value=={tube_variable} condition, if value not equal {tube_variable} then this
+                For value=={tube_variable} condition, if value not equal {tube_variable} then current
                 command will be skipped.
                 For value!={tube_variable} condition, if value equal {tube_variable} then this
                 command will be skipped.
-                It also support >, >=, <, <= cases, make sure the values are numbers before 
-                comparison.
+                It also support >, >=, <, <= cases, make sure the values are numbers before comparison.
                 Note: Extra spaces are NOT allowed in the compare expression.
-        
+                
+
         Key:
             Syntax: --key
             Description:
@@ -111,12 +112,13 @@ Update Date: Jun 2022
                 key commands exist, only all of them run successfully, the tube result will be 
                 marked as successfull. (If the command's --if condition is False, then --key
                 will be skipped.)
+                
 
     - Tube Variables            
         From tube YAML file, you can add tube variables under 'VARIABLES' property. 
         e.g.:       
         VARIABLES:  
-            root_folder: C:\workspaces\trunk
+            root_folder: C:\workspaces	runk
             package_name: xxx-app
             cmd_parameters: -l
             # Below two hidden variables are assigned values when tube starts:
@@ -140,286 +142,210 @@ Update Date: Jun 2022
             - CHECK_CHAR_EXISTS => Result will be stored into tube variable
              
         ** Note: If variable was updated from console inputs, then it will become readonly. 
----
-## Examples of Each Command
+                
+                
+## Usage of Each Command:
+## 1: CHECK_CHAR_EXISTS
+<pre>Description: Check if given characters exists from a file. Result was updated into a tube variable.
 
-    Notes: The tube variables and general arguments are play important roles in Command Tube. 
-    They can be used in all suppported commands. In order to show the examples of how to use variables 
-    and general arguments, only list some examples in the first COMMAND, you can use them similarly 
-    in other support commands.
+Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -r|--result result [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:   The file you want to check.
+   -c/--char:   The characters you want to check.
+   -r/--result: The tube variable name to store the checking result.
 
-    - COMMAND
-        Description: Run any Windows/MacOS terminal command.
-        Syntax: 
-            COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
-```yml
-    # YAML format
-    # Assume we want to run a code build command 'ant deploy':
-    # If 'ant deploy' run successfully, then tube will continue run next command
-    # otherwise tube will stop if it failed
-    - COMMAND: ant deploy
-    # With --continue argument tube will continue exec next command if current failed:
-    - COMMAND: ant deploy --continue
-    # With --redo argument tube will re-run current if it failed:  
-    - COMMAND: ant deploy --redo 
-    # - With --redo and --continue arguments together, tube will continue exec next command if redo also failed:
-    - COMMAND: ant deploy --redo --continue
-    # With --redo -1 tube will re-run previous plus current command again if it failed:
-    - COMMAND: ant deploy --redo -1 --continue
-    # Assume we have one tube variable 'run_deploy' and it equals 'Yes', then below
-    # --if condition will return true and the 'ant deploy' command will be exec as normal.
-    # If 'run_deploy' variable equals 'No', then the below command will be skipped:
-    - COMMAND: ant deploy --if {run_deploy}
-    # For some cases you can also use --if with comparison simples: ==, >, <, != etc.
-    # if tube variable 'run_deploy' equals character 'run' then this command will be executed:
-    - COMMAND: ant deploy --if {run_deploy}==run
-    # Since there could be lots of command within a tube, then using the --key
-    # argument can determine which tube commands can deside the final tube exec result:
-    - COMMAND: ant deploy --key
-```
+Support from version: 2.0.1</pre>
+## 2: COMMAND
+<pre>Description: Run any Windows/MacOS terminal command.
 
-    - CONNECT
-        Description: You can use this command to switch your server connection.
-        Syntax: 
-            CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]
+Syntax: - COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   command:  Any command you want to run.
 
-```yml
-    # YAML format
-    # You need to config your servers from your tube file first
-    - CONNECT: server1.xxx.com
-```
+Support from version: 2.0.0</pre>
+## 3: CONNECT
+<pre>Description: You can use this command to switch your server connection.
 
-    - LINUX_COMMAND
-        Description: Run a Linux command from the previous connected server.
-        Syntax: 
-            LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
-            
-```yaml
-    # YAML format
-    # If we want to do a 'ant deploy' from a Linux server (assume you have connected 
-    # a server from a previously CONNECT command):
-    - LINUX_COMMAND: ant deploy
-```
+Syntax: - CONNECT: host [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   host:  The Linux host name you want to connect using SSH.
 
-    - PATH
-        Description: Go to specific directory.
-        Syntax: 
-            PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 4: COUNT
+<pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
-```yml
-    # YAML format
-    # Go to directory c:\users
-    - PATH: c:\users
-```
+Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current current_tube] [-s|--skip skip_count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to count line numbers.
+   -t/--tube:     The tube status you want to count.
+   -v/--variable: The tube variable name to store the count result.
+   -c/--current:  If only count current tube. Default no.
+   -s/--skip:     If skip COUNT command. Default no.
 
-    - GET_XML_TAG_TEXT
-        Description: Get a xml tag text value from xml file.                                         
-                     The result will be stored into tube variables.
-        Syntax: 
-            GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run]  [--key]
-```yml
-    # YAML format
-    # Get app-api-version value from pom.xml file using xpath:
-    - GET_XML_TAG_TEXT: -f pom.xml -x properties/app-api-version
-```
+Support from version: 2.0.0</pre>
+## 5: DELETE_LINE_IN_FILE
+<pre>Description: Conditionally delete lines from a file.
 
-    - SET_XML_TAG_TEXT
-        Description: Update XML file tag text using xpath.
-        Syntax: 
-            SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key] 
-```yml
-    # YAML format
-    # Set app-api-version value from pom.xml file using xpath:
-    - SET_XML_TAG_TEXT: -f pom.xml -x properties/app-api-version -v 2022.1
-```
+Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-b|--begins begins] [-c|--contains contains] [-e|--empty del_empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to delete lines from.
+   -b/--begins:   The line begins with character you want to delete.
+   -c/--contains: The line contains with character you want to delete.
+   -e/--empty:    A flag to tell if delete empty line. Default no.
 
-    - SET_FILE_KEY_VALUE
-        Description: Update key-value file.
-        Syntax: 
-            SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 6: EMAIL
+<pre>Description: Sent Email to someone with given subject and content.
 
-```yml
-    # YAML format
-    # Update command=update in build.properties file:
-    - SET_FILE_KEY_VALUE: -f build.properties -k command -v update
-```
+Syntax: - EMAIL: -t|--to to -s|--subject subject -b|--body body [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -t/--to:      The sending email addresses.
+   -s/--subject: The email title.
+   -b/--body:    The email content. If it's text file name, then the content of the file will be as the email content.
 
-    - WRITE_LINE_IN_FILE
-        Description: Write any characters into a file.
-        The value also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL (DELETE_LINE) 
-        If you need more than two space characters in the value content, you can use {s:m} (m > 0) 
-        The 'm' means how many spaces you want.
-        eg: -v {s:5}hello => will be translated to 5 space chars plus hello: '     hello'
-        Parameters:
-        -n parameter: Write line in which line number.
-        -c parameter: Write line which line contains specific characters.
-        -v parameter: The character (content) you want to write into the file.
-        Syntax: 
-            WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 7: GET_FILE_KEY_VALUE
+<pre>Description: Read key values from key-value file.                                            
+The key-value results will be stored into tube variables.
 
-```yml
-    # YAML format
-    # Append 'command=update' into build.properties file:
-    - WRITE_LINE_IN_FILE: -f build.properties -v command=update
-```
-    - DELETE_LINE_IN_FILE
-        Description: Delete line which characters begin or contains with given value. -e means delete empty line.
-        Syntax: 
-            DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]
-            
-```yml
-    # YAML foramt
-    # Delete line which begin with 'command='
-    - DELETE_LINE_IN_FILE: -f build.properties -b command=
-```
+Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to get key-value from.
+   -k/--keywords: Set the key you can get specific value of a given key.
 
-    - PAUSE
-        Description: Command Tube will pause with given minutes.
-        Syntax: 
-            PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 8: GET_XML_TAG_TEXT
+<pre>Description: Get XML file tag text value.                                            
+The result will be stored into a tube variable and xpath will be used as the variable name.
 
-```yml
-    # YAML foramt
-    # Pause for 30.5 minutes:
-    - PAUSE: 30.5
-```
+Syntax: - GET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:  The XML file you want to get tag text.
+   -x/--xpath: The xpath of the XML tag.
 
-    - TAIL_FILE
-        Description: Print/Log the last N lines given file.                                 
-                     If keywords were given, then only tail the file                                 
-                     when the keywords exist from those lines.
-        Syntax: 
-            TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 9: IMPORT_TUBE
+<pre>Description: Import tube commands from a sub-tube file, servers, variables or emails can also be imported.
 
-```yml
-    # YAML format
-    # Output last 25 lines if it contains 'error' or 'failure' keywords
-    - TAIL_FILE: -f build.log -l 25 -k error,failure
-```
+Syntax: - IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   file:  Sub tube file with YAML format.
 
-    - REPORT_PROGRESS
-        Description: You can use this command to sent current progress via Email.
-        Syntax: 
-            REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 10: LINUX_COMMAND
+<pre>Description: Run a Linux command from the previous connected server.
 
-```yml
-    # YAML format
-    - REPORT_PROGRESS: Email subject
-```
+Syntax: - LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   command:  Any Linux command you want to run.
 
-    - GET_FILE_KEY_VALUE
-        Description: Read key values from key-value file.                                         
-                     The key-value results will be stored into tube variables.
-        Syntax: 
-            GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]
-        
-```yml
-    # YAML format
-    - GET_FILE_KEY_VALUE: -k key -f file
-```
+Support from version: 2.0.0</pre>
+## 11: PATH
+<pre>Description: Go to specific directory.
 
-    - EMAIL
-        Description: Sent Email to somebody with given subject and content.
-                     The -b parameter supports text file content as email body when it's text file.
-        Syntax: 
-            EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]
-        
-```yml
-    # YAML format
-    - EMAIL: -t michael_hll@hotmail.com -s Hello to you -b email-body.txt
-```
+Syntax: - PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   directory:  The directory you want to goto.
 
-    - IMPORT_TUBE
-        Description: Import tube commands, servers, variables or emails from sub tube yaml file.
-        Syntax: 
-            IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 12: PAUSE
+<pre>Description: Command Tube will pause with given minutes.
 
-```yml
-    # YAML format
-    - IMPORT_TUBE: sub-tube.yaml
-```
+Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   minutes:  The minutes you want to pause.
 
-    - COUNT
-        Description: Count file lines number (-f) or tube command number by status (-t).                                          
-                The -c flag means if count within current tube. Default no.                                          
-                The -s flag means if skip COUNT command. Defalult no.                                          
-                The count result will be stored into tube variable using -v parameter.
-        Syntax: 
-            COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 13: REPLACE_CHAR
+<pre>Description: Replace file line content which contains/matches given value.
 
-```yml
-    # YAML format
-    - COUNT: -f file -v lines_count
-```
+Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to replace given characters.
+   -o/--oldvalue: The oldvalue you want to replace (Support regular expressions).
+   -n/--newvalue: The newvalue to replace.
+   -c/--count:    The replaced times you want to set. Default no limitation.
 
-    - SET_VARIABLE
-        Description: Set tube variable value.
-        Syntax: 
-            SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.1</pre>
+## 14: REPORT_PROGRESS
+<pre>Description: You can use this command to sent current progress via Email.
 
-```yml
-    # YAML format
-    - SET_VARIABLE: -n var_name -v value
-```
+Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   subject:  The email subject/title you want to set.
 
-    - SFTP_GET
-        Description: Using SSHClient to get remote server file to local.                                          
-                     The -r argument means remotepath.                                          
-                     The -l argument means localpath.
-                     When copy multiple files using *.* then localpath must be a directory.
-        Syntax:
-            SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 15: SET_FILE_KEY_VALUE
+<pre>Description: Update key-value file.
 
-```yml
-    # YAML format
-    - SFTP_GET: -r remotepath -l localpath
-```   
+Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to update.
+   -k/--keywords: The key in the left side of '='.
+   -v/--value:    The value in the right side of '='.
 
-    - SFTP_PUT
-        Description: Using SSHClient to put local file to remote server.                                        
-                     The -r argument means remotepath.                                          
-                     The -l argument means localpath.
-                     When copy multiple files using *.* then remotepath must be a directory.
-        Syntax:
-            SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 16: SET_VARIABLE
+<pre>Description: Set tube variable value.
 
-```yml
-    # YAML format
-    - SFTP_PUT: -l localpath -r remotepath
-``` 
+Syntax: - SET_VARIABLE: -n|--name name -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -n/--name:  The tube variable name you want to set.
+   -v/--value: The tube variable value you want to set.
 
-    - CHECK_CHAR_EXISTS
-        Description: Check if given characters exists from a file. Result was updated into a tube variable.                                          
-                     The -f argument of the given file.                                          
-                     The -c argument of the searching characters .                                          
-                     The -r argument is the tube variable name to store the result.
-        Syntax: 
-            CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 17: SET_XML_TAG_TEXT
+<pre>Description: Update XML file tag text using xpath.
 
-```yml
-    # YAML format
-    - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
-``` 
+Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:  The XML file you want tup set tag text.
+   -x/--xpath: The xpath of the XML tag
+   -v/--value: The new value of the tag.
 
-    - REPLACE_CHAR
-        Description: Replace file lines which contains given characters.                                          
-                     The -f argument of the given file.                                          
-                     The -o argument of the old characters (Support regular expressions).                                          
-                     The -n argument of the new characters.                                          
-                     The -c optional argument is the replacement times. Default all.
-        Syntax: 
-            REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Support from version: 2.0.0</pre>
+## 18: SFTP_GET
+<pre>Description: Using SSHClient to copy remote server file to local.                                            
+When copy multiple files using *.* then localpath must be a directory.
 
-```yml
-    # YAML format
-    - REPLACE_CHAR: -f file -c hello -r hello_exists
-``` 
+Syntax: - SFTP_GET: -r|--remotepath remotepath -l|--localpath localpath [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -r/--remotepath: The file full remotepath.
+   -l/--localpath:  The file localpath.
 
-    - GET_PACKAGE_VERSION   
-        Description: This is a TODO command, since each company/organization could have different package management tool.
-        Work around:
-        1. Write a tool/script to get your package versions and save it to a key-value file: packages.txt
-        2. Calling this tool/script using tube command: COMMAND
-        3. Use tube command GET_FILE_KEY_VALUE to read package versions from packages.txt into tube variables
-        4. Use tube command SET_FILE_KEY_VALUE or WRITE_LINE_IN_FILE or SET_XML_TAG_TEXT to update the package version
-        5. Continue do other compile/build/deploy tasks
+Support from version: 2.0.1</pre>
+## 19: SFTP_PUT
+<pre>Description: Using SSHClient to put local file to remote server.                                            
+When copy multiple files using *.* then remotepath must be a directory.
+
+Syntax: - SFTP_PUT: -l|--localpath localpath -r|--remotepath remotepath [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -l/--localpath:  The file localpath.
+   -r/--remotepath: The file full remotepath.
+
+Support from version: 2.0.1</pre>
+## 20: TAIL_FILE
+<pre>Description: Print/Log the last N lines of given file.
+
+Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The text file you want to tail.
+   -l/--lines:    The lines count you want to output.
+   -k/--keywords: Output file content only if it contains the given keywords.
+
+Support from version: 2.0.0</pre>
+## 21: WRITE_LINE_IN_FILE
+<pre>Description: Write any characters into a file.                      
+The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
+If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
+The 'm' means how many spaces you want to write.                     
+eg: -v {s:5}hello => will be translated to 5 space chars plus hello: '     hello'
+
+Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to update.
+   -v/--value:    The character value you want to update in the file.
+   -n/--number:   The line number you want to update.
+   -c/--contains: Only update the line if it contains the given characters content.
+
+Support from version: 2.0.0</pre>
