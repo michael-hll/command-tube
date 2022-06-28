@@ -279,7 +279,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.1'  
+        self.C_CURR_VERSION            = '2.0.2 Beta'  
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
