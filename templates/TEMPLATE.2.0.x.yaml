@@ -76,3 +76,5 @@ TUBE:
     - SFTP_PUT: -l filepath -r filepath     
     # Check if given characters exists from a file
     - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists 
+    # Replace char from a file
+    - REPLACE_CHAR: -f file -o oldvalue -n newvalue
