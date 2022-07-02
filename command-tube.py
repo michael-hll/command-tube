@@ -3776,39 +3776,39 @@ def print_tube_command_help(parser: ArgumentParser):
                 help_all = help_all % (help_title, help_continue, help_redo, help_if, help_key, help_var)
                 
                 template = '''
-VERSION: 2.0.x            
-# RUN_MODE is either SRC or BIN
-RUN_MODE: BIN
-SERVERS:
-    - SERVER:
-        NAME: server1
-        HOST: server1.qad.com
-        SSH_PORT: 22
-        USER: mfg
-        PASSWORD: $passwords.ini
-        ROOT: /usr
-        PROFILE: source /etc/profile
-    - SERVER:
-        NAME: server2
-        HOST: server2.qad.com
-        SSH_PORT: 22
-        USER: mfg
-        PASSWORD: $passwords.ini
-        ROOT: /usr
-        PROFILE: source /etc/profile
-EMAIL:
-    EMAIL_SMTP_SERVER: smtp.office365.com
-    EMAIL_SERVER_PORT: 587
-    EMAIL_SENDER_ADDRESS: <sender email address>
-    EMAIL_SENDER_PASSWORD: $passwords.ini
-    EMAIL_RECEIVER_ADDRESS: <receiver email address comma list>
-    EMAIL_SUBJECT: Tube Email Subject
-VARIABLES:
+Version: 2.0.x            
+# Run_Mode is either SRC or BIN
+Run_Mode: BIN
+Servers:
+    - Server:
+        Name: server1
+        Host: server1.xxx.com
+        SSH_Port: 22
+        User: mfg
+        Password: $passwords.ini
+        Root: /usr
+        Profile: source /etc/profile
+    - Server:
+        Name: server2
+        Host: server2.xxx.com
+        SSH_Port: 22
+        User: mfg
+        Password: $passwords.ini
+        Root: /usr
+        Profile: source /etc/profile
+Email:
+    Email_SMTP_Server: smtp.office365.com
+    Email_Server_Port: 587
+    Email_Sender_Address: <sender email address>
+    Email_Sender_Password: $passwords.ini
+    Email_Receiver_Address: <receiver email address comma list>
+    Email_Subject: Tube Email Subject
+Variables:
     bl_root_folder: c:\workspaces\dev\project
     drive: X
     run: yes
     xxx-app: 1.0.0.0
-TUBE:
+Tube:
     # ----------------------------------------------------
     # You can use below command to view all command syntax
     # >>> python command-tube.py help
