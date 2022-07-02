@@ -1,3 +1,5 @@
+# Note: From tube version 2.0.2, all the keys of this template support 
+# to use lowercase
 VERSION: 2.0.x
 # RUN_MODE is either SRC or BIN
 RUN_MODE: BIN
