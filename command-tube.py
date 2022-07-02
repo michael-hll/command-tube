@@ -3567,7 +3567,7 @@ def convert_tube_to_new(tube, is_from_job_start=False):
     # go through each tube command and imported
     for item in tube:            
         for key in item.keys():                  
-            command = TubeCommand(key, item[key])
+            command = TubeCommand(key.upper(), item[key])
             if is_from_job_start == True:
                 command.tube_file = os.path.abspath(Storage.I.TUBE_YAML_FILE)
                 Storage.I.TUBE_FILE_LIST[command.tube_index] = command.tube_file
@@ -4032,7 +4032,24 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD.stop()
     Storage.I.MATRIX_THREAD.join()
     Storage.I.MATRIX_THREAD = None
-        
+
+def make_dict_key_upper(yaml):
+    if not yaml or type(yaml) is not dict:
+        return
+    
+    deleted_keys = []
+    
+    # make the key upper cases
+    keys = [k for k in yaml.keys()]
+    for key in keys:
+        if key != key.upper():
+            yaml[key.upper()] = yaml[key]
+            deleted_keys.append(key)
+    
+    # deleted not upper case key/value
+    for key in deleted_keys:
+        del yaml[key]   
+              
 def job_start(tube):
     current_command = None
     current_command_type = None
@@ -4648,6 +4665,9 @@ try:
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()
+    
+    # make key to upper case
+    make_dict_key_upper(data)
 
     # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
