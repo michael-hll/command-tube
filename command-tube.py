@@ -273,7 +273,32 @@ class Utility():
             else:
                 return_set.add(item)
         return return_set
-                
+    
+    @classmethod
+    def safe_load_with_upper_key(self, f):
+        data = yaml.safe_load(f)
+        Utility.make_dict_key_upper(data)
+        return data    
+    
+    @classmethod
+    def make_dict_key_upper(self, yaml):
+        if not yaml or type(yaml) is not dict:
+            return
+        
+        deleted_keys = []
+        
+        # make the key upper cases
+        keys = [k for k in yaml.keys()]
+        for key in keys:
+            if key != key.upper():
+                yaml[key.upper()] = yaml[key]
+                deleted_keys.append(key)
+        
+        # deleted not upper case key/value
+        for key in deleted_keys:
+            del yaml[key]   
+  
+             
 class Storage():
     I = None
     def __init__(self) -> None:
@@ -1763,13 +1788,13 @@ class TubeCommand():
         insert_at_index = self.index
         tube_check = []
         with open(file, 'r') as f:
-            data = yaml.safe_load(f) 
+            data = Utility.safe_load_with_upper_key(f)
             if Storage.I.C_TUBE in data.keys():            
-                sub_tube = data[Storage.I.C_TUBE]                
+                sub_tube = data[Storage.I.C_TUBE]              
                 next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
                 for item in sub_tube:
                     for key in item.keys():
-                        sub_command = TubeCommand(key, item[key])
+                        sub_command = TubeCommand(key.upper(), item[key])
                         sub_command.is_imported = True
                         sub_command.tube_index = next_index
                         sub_command.tube_file = os.path.abspath(file)
@@ -2455,11 +2480,13 @@ class StorageUtility():
         # read servers configuration from file
         if type(servers) is str:
             with open(servers, 'r') as f:
-                servers = yaml.safe_load(f)
+                servers = Utility.safe_load_with_upper_key(f)
                 servers = servers[Storage.I.C_SERVERS]
         
         for server in servers:
             host: Host
+            Utility.make_dict_key_upper(server)
+            Utility.make_dict_key_upper(server[Storage.I.C_SERVER])
             host = Host(name=server[Storage.I.C_SERVER][Storage.I.C_SERVER_NAME], 
                         host=server[Storage.I.C_SERVER][Storage.I.C_SERVER_HOST], 
                         port=server[Storage.I.C_SERVER][Storage.I.C_SERVER_PORT], 
@@ -2500,10 +2527,11 @@ class StorageUtility():
         '''   
         if type(emails) is str:
             with open(emails, 'r') as f:
-                emails = yaml.safe_load(f)
+                emails = Utility.safe_load_with_upper_key(f)
                 emails = emails[Storage.I.C_EMAIL]
                 
         if type(emails) is dict:
+            Utility.make_dict_key_upper(emails)
             Storage.I.EMAIL_SMTP_SERVER = emails[Storage.I.C_EMAIL_SMTP_SERVER]
             if Storage.I.C_EMAIL_SERVER_PORT in emails.keys():
                 Storage.I.EMAIL_SERVER_PORT = emails[Storage.I.C_EMAIL_SERVER_PORT]
@@ -4032,24 +4060,7 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD.stop()
     Storage.I.MATRIX_THREAD.join()
     Storage.I.MATRIX_THREAD = None
-
-def make_dict_key_upper(yaml):
-    if not yaml or type(yaml) is not dict:
-        return
-    
-    deleted_keys = []
-    
-    # make the key upper cases
-    keys = [k for k in yaml.keys()]
-    for key in keys:
-        if key != key.upper():
-            yaml[key.upper()] = yaml[key]
-            deleted_keys.append(key)
-    
-    # deleted not upper case key/value
-    for key in deleted_keys:
-        del yaml[key]   
-              
+            
 def job_start(tube):
     current_command = None
     current_command_type = None
@@ -4656,7 +4667,7 @@ try:
     data = None
     if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
         with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
-            data = yaml.safe_load(f)  
+            data = Utility.safe_load_with_upper_key(f) 
     
     # check if given configuration file is empty        
     if not data:
@@ -4665,15 +4676,12 @@ try:
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()
-    
-    # make key to upper case
-    make_dict_key_upper(data)
 
     # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
         Storage.I.TUBE = data[Storage.I.C_TUBE]
     # Emails
-    if Storage.I.C_EMAIL in data.keys():
+    if Storage.I.C_EMAIL in data.keys():        
         StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
     # Servers
     if(Storage.I.C_SERVERS in data.keys()):
