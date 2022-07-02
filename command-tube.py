@@ -3875,7 +3875,7 @@ Tube:
                 keys.sort()                
                 for index, key in enumerate(keys):
                     if is_for_readme:
-                        command_examples.append('## %s: %s' % (str(index+1), key))
+                        command_examples.append('### %s: %s' % (str(index+1), key))
                         command_examples.append('<pre>%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
                     else:
                         command_examples.append('[%s]: %s' % (str(index+1), key))                        

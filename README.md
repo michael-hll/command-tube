@@ -2,7 +2,7 @@
 -------------------------------           
 # Welcome to Command Tube
 ## Author: Michael Han
-## version: 2.0.1
+## version: 2.0.2 Beta
 -------------------------------
                                       
 ## Introduction
@@ -145,7 +145,7 @@
                 
                 
 ## Usage of Each Command:
-## 1: CHECK_CHAR_EXISTS
+### 1: CHECK_CHAR_EXISTS
 <pre>Description: Check if given characters exists from a file. Result was updated into a tube variable.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -r|--result result [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -155,7 +155,7 @@ Parameters:
    -r/--result: The tube variable name to store the checking result.
 
 Support from version: 2.0.1</pre>
-## 2: COMMAND
+### 2: COMMAND
 <pre>Description: Run any Windows/MacOS terminal command.
 
 Syntax: - COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -163,7 +163,7 @@ Parameters:
    command:  Any command you want to run.
 
 Support from version: 2.0.0</pre>
-## 3: CONNECT
+### 3: CONNECT
 <pre>Description: You can use this command to switch your server connection.
 
 Syntax: - CONNECT: host [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -171,7 +171,7 @@ Parameters:
    host:  The Linux host name you want to connect using SSH.
 
 Support from version: 2.0.0</pre>
-## 4: COUNT
+### 4: COUNT
 <pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
 Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current current_tube] [-s|--skip skip_count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -183,7 +183,7 @@ Parameters:
    -s/--skip:     If skip COUNT command. Default no.
 
 Support from version: 2.0.0</pre>
-## 5: DELETE_LINE_IN_FILE
+### 5: DELETE_LINE_IN_FILE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-b|--begins begins] [-c|--contains contains] [-e|--empty del_empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -194,7 +194,7 @@ Parameters:
    -e/--empty:    A flag to tell if delete empty line. Default no.
 
 Support from version: 2.0.0</pre>
-## 6: EMAIL
+### 6: EMAIL
 <pre>Description: Sent Email to someone with given subject and content.
 
 Syntax: - EMAIL: -t|--to to -s|--subject subject -b|--body body [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -204,7 +204,7 @@ Parameters:
    -b/--body:    The email content. If it's text file name, then the content of the file will be as the email content.
 
 Support from version: 2.0.0</pre>
-## 7: GET_FILE_KEY_VALUE
+### 7: GET_FILE_KEY_VALUE
 <pre>Description: Read key values from key-value file.                                            
 The key-value results will be stored into tube variables.
 
@@ -214,7 +214,7 @@ Parameters:
    -k/--keywords: Set the key you can get specific value of a given key.
 
 Support from version: 2.0.0</pre>
-## 8: GET_XML_TAG_TEXT
+### 8: GET_XML_TAG_TEXT
 <pre>Description: Get XML file tag text value.                                            
 The result will be stored into a tube variable and xpath will be used as the variable name.
 
@@ -224,7 +224,7 @@ Parameters:
    -x/--xpath: The xpath of the XML tag.
 
 Support from version: 2.0.0</pre>
-## 9: IMPORT_TUBE
+### 9: IMPORT_TUBE
 <pre>Description: Import tube commands from a sub-tube file, servers, variables or emails can also be imported.
 
 Syntax: - IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -232,7 +232,7 @@ Parameters:
    file:  Sub tube file with YAML format.
 
 Support from version: 2.0.0</pre>
-## 10: LINUX_COMMAND
+### 10: LINUX_COMMAND
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -240,7 +240,7 @@ Parameters:
    command:  Any Linux command you want to run.
 
 Support from version: 2.0.0</pre>
-## 11: PATH
+### 11: PATH
 <pre>Description: Go to specific directory.
 
 Syntax: - PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -248,7 +248,7 @@ Parameters:
    directory:  The directory you want to goto.
 
 Support from version: 2.0.0</pre>
-## 12: PAUSE
+### 12: PAUSE
 <pre>Description: Command Tube will pause with given minutes.
 
 Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -256,7 +256,7 @@ Parameters:
    minutes:  The minutes you want to pause.
 
 Support from version: 2.0.0</pre>
-## 13: REPLACE_CHAR
+### 13: REPLACE_CHAR
 <pre>Description: Replace file line content which contains/matches given value.
 
 Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -267,7 +267,7 @@ Parameters:
    -c/--count:    The replaced times you want to set. Default no limitation.
 
 Support from version: 2.0.1</pre>
-## 14: REPORT_PROGRESS
+### 14: REPORT_PROGRESS
 <pre>Description: You can use this command to sent current progress via Email.
 
 Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -275,7 +275,7 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-## 15: SET_FILE_KEY_VALUE
+### 15: SET_FILE_KEY_VALUE
 <pre>Description: Update key-value file.
 
 Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -285,7 +285,7 @@ Parameters:
    -v/--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-## 16: SET_VARIABLE
+### 16: SET_VARIABLE
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: -n|--name name -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -294,7 +294,7 @@ Parameters:
    -v/--value: The tube variable value you want to set.
 
 Support from version: 2.0.0</pre>
-## 17: SET_XML_TAG_TEXT
+### 17: SET_XML_TAG_TEXT
 <pre>Description: Update XML file tag text using xpath.
 
 Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -304,7 +304,7 @@ Parameters:
    -v/--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-## 18: SFTP_GET
+### 18: SFTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
 
@@ -314,7 +314,7 @@ Parameters:
    -l/--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-## 19: SFTP_PUT
+### 19: SFTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
 
@@ -324,7 +324,7 @@ Parameters:
    -r/--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-## 20: TAIL_FILE
+### 20: TAIL_FILE
 <pre>Description: Print/Log the last N lines of given file.
 
 Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -334,7 +334,7 @@ Parameters:
    -k/--keywords: Output file content only if it contains the given keywords.
 
 Support from version: 2.0.0</pre>
-## 21: WRITE_LINE_IN_FILE
+### 21: WRITE_LINE_IN_FILE
 <pre>Description: Write any characters into a file.                      
 The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
 If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
