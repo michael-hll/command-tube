@@ -7,11 +7,11 @@
                                       
 ## Introduction
 
-    Command Tube is a tool that can run a group of sequenced commands.    
+    Command Tube is a tool that can run a group of sequenced commands. You can get a full
+    list of supportted tube commands from readme document.
     Those commands are added from a YAML config file, which I usually call it a tube file. 
     See the examples from the template YAML file ('help template' could output it).
     When you run this program, you can use the -y | --yaml parameter to specify the config file.
-    From help you could find all types of supported commands.
 
 ## How to run Command Tube    
 
@@ -19,15 +19,15 @@
     for Command Tube are '--yaml' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
     using '--yaml file' you can specify the tube configurations. 
-    From the 'tube.template.yaml' you could view how it looks like.
+    From the 'tube.template.yaml' (tube help tempalte could output it) you could view it.
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
     For more information about input arguments please use following command 
-    from your terminal (In MacOS, you may need Python3):
+    from your terminal (Needs Python >= 3.6):
         >>> python command-tube.py -h
     
     - Examples of running Command Tube with source code:
-        1: Run at once and sent email result: 
+        1: Run at once and sent result via email: 
         >>> python command-tube.py -y tube.yaml -fe
         2: Run at 20:00 o'clock:
         >>> python command-tube.py -y tube.yaml -t20
@@ -40,13 +40,12 @@
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
-        ** Find tube running result from tube.yaml.log file  
+        ** Find tube running result from tube.yaml.log file by default 
 
     - Binary Mode        
         Following below steps you can use it in binary mode
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
-        3. Using it from your terminal:
-        (You need to change RUN_MODE from SRC to BIN in YAML config file)
+        3. Using it from your terminal (Need exec right from MacOS):
         >>> tube -y tube.yaml -f
     
 ## General Arguments & Tube Variables
