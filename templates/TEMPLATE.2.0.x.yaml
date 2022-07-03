@@ -40,7 +40,7 @@ Tube:
     # Run a windows or Mac OS command
     - COMMAND: dir
     # Example of switching servers, connect to SERVER:HOST
-    - CONNECT: server1.qad.com
+    - CONNECT: server1.xxx.com
     # Example of delete a line which begin with 'hello'
     - DELETE_LINE_IN_FILE: -f tmp.txt -b hello
     # Sent an Email
