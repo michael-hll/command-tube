@@ -1,0 +1,37 @@
+
+Version: 2.0.x            
+Run_Mode: BIN
+Servers:
+    - Server:
+        Name: server1
+        Host: server1.xxx.com
+        SSH_Port: 22
+        User: mfg
+        Password: $passwords.ini
+        Root: /usr
+        Profile: source /etc/profile
+Variables:
+    build_bl: no
+    build_ui: no
+Tube:
+    - CONNECT: server1.xxx.com
+    # Build/Deploy BL code
+    - PATH: '{bl_root} --if {build_bl}'
+    - COMMAND: ant clean --redo --if {build_bl}
+    - COMMAND: ant deploy --redo --if {build_bl}
+    # Build/Deploy UI Code
+    - PATH: '{ui_root} --if {ui}'
+    - COMMAND: ant clean --redo --if {build_ui}
+    - COMMAND: ant deploy --redo --if {build_ui}       
+
+    # ** Usage **
+    # We can use tube variable to condition exec our tube commands
+    # For this example, there are two tube variables: build_bl and build_ui 
+    # Then from the terminal console, we can use below command to only build bL:
+    # >>> tube -y Sample-conditional-build.yaml -f -v build_bl=yes
+    # We can use below command to build ui only:
+    # >>> tube -y Sample-conditional-build.yaml -f -v build_ui=yes
+    # Or we can build both bl and ui:
+    # >>> tube -y Sample-conditional-build.yaml -f -v build_bl=yes build_ui=yes 
+    
+            
