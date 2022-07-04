@@ -11,6 +11,8 @@ Servers:
         Root: /usr
         Profile: source /etc/profile
 Variables:
+    bl_root: c:\workspaces\bl\trunk
+    ui_root: c:\workspaces\ui\trunk
     build_bl: no
     build_ui: no
 Tube:
