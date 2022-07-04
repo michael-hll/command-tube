@@ -3856,6 +3856,14 @@ Tube:
     # Replace file lines which contains given characters.
     - REPLACE_CHAR: -f file -o oldvalue -n newvalue -c 1
                 '''
+                examples = '''
+## Tube File Samples 
+### For samples tube file, please check templates folder.
+<pre>
+    Sample-refresh-dev.yaml
+    Sample-conditional-build.yaml
+</pre>
+                '''
                 command_name = ''
                 # get the second argument value
                 if len(args.help) == 2:
@@ -3985,6 +3993,8 @@ Tube:
                         f.write(help_all + '\n')
                         for eg in command_examples:
                             f.write(eg + '\n')
+                        # sampels tube file
+                        f.write(examples)
                     sys.exit()
                 else:     
                     # checking if could find matched commands             

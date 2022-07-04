@@ -348,3 +348,11 @@ Parameters:
    -c/--contains: Only update the line if it contains the given characters content.
 
 Support from version: 2.0.0</pre>
+
+## Tube File Samples 
+### For samples tube file, please check templates folder.
+<pre>
+    Sample-refresh-dev.yaml
+    Sample-conditional-build.yaml
+</pre>
+                
