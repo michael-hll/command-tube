@@ -3722,9 +3722,9 @@ def print_tube_command_help(parser: ArgumentParser):
 
     Command Tube is a tool that can run a group of sequenced commands. You can get a full
     list of supportted tube commands from readme document.
-    Those commands are added from a YAML config file, which I usually call it a tube file. 
-    See the examples from the template YAML file ('help template' could output it).
-    When you run this program, you can use the -y | --yaml parameter to specify the config file.
+    Using these commands you can easily build your own tube to do tasks like:
+    Refresh Development Environment, Daily Run Test Cases etc.
+    It's more user friendly and eaiser to use than PowerShell.
 
 ## How to run Command Tube    
 
