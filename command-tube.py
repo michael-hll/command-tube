@@ -297,8 +297,7 @@ class Utility():
         # deleted not upper case key/value
         for key in deleted_keys:
             del yaml[key]   
-  
-             
+            
 class Storage():
     I = None
     def __init__(self) -> None:
@@ -470,6 +469,8 @@ Use 'help command-name' to print all the tube commands usage which name matched.
         self.IS_MATRIX_MODE            = False
         self.IS_MATRIX_MODE_RUNNING    = False
         self.MATRIX_THREAD             = None
+        self.IS_REPORT_PROGRESS        = False
+        self.HAS_EMAIL_SETTINGS        = False
         # Tube Command argument configurations design details
         # 0: Is postion arguments
         # 1: -
@@ -824,7 +825,7 @@ class TubeCommandArgumentConfig():
         self.is_support_continue = True
         self.is_support_redo = True
         self.is_support_if_run = True
-        self.is_support_key = True
+        self.is_support_key = True        
         self.syntax = None        
         
         if self.type in config_dict.keys():
@@ -2113,6 +2114,43 @@ class TubeCommand():
             raise Exception("file doesn't exist: " + file)        
         
         return replaced_count
+    
+    def self_report_progress(self):
+        
+        if(Storage.I.IS_REPORT_PROGRESS == False or 
+           Storage.I.HAS_EMAIL_SETTINGS == False):
+            return
+        
+        # index
+        index = '[%s]' % str(self.index)
+        
+        # status
+        status = '-%s >> '
+        if self.log.status == Storage.I.C_SUCCESSFUL:
+            status = status % 'SUCCESS'
+        elif self.log.status == Storage.I.C_SKIPPED:
+            status = status % 'SKIP'
+        else:
+            status = status % 'FAIL'
+        
+        # email title
+        title = index + status + self.cmd_type + ': ' + self.get_formatted_content()
+        
+        # prepare errors content
+        email_body = ''
+        if self.log.status == Storage.I.C_FAILED:
+            for error in self.log.errors:
+                error = error.replace('\n','')
+                if len(error) == 0:
+                    continue
+                email_body += error + '<br>'
+        try:
+            send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, Storage.I.EMAIL_RECEIVER_ADDRESS, 
+                    title, email_body, Storage.I.EMAIL_SMTP_SERVER)  
+        except Exception as e:
+            msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
             
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
@@ -2546,6 +2584,9 @@ class StorageUtility():
             found, pwd = Utility.read_password_from_file(file, Storage.I.EMAIL_SENDER_ADDRESS)
             if found == True:
                 Storage.I.EMAIL_SENDER_PASSWORD = pwd
+        
+        # Update email settings flag                
+        Storage.I.HAS_EMAIL_SETTINGS = True
     
     @classmethod
     def read_variables_from_console(self, variables):
@@ -3490,6 +3531,8 @@ def init_arguments():
                         help='A flag to tell if sent result to your Email. \nNeed complete Email configurations first. Default no.')
     parser.add_argument('-m', '--matrix-mode', dest='matrix_mode', action='store_const', const='yes',
                         help='A flag to run terminal in matrix mode. Defalut no.')
+    parser.add_argument('--report-progress', dest='report_progress', action='store_const', const='yes',
+                        help='A flag to report each tube command progress via Email. Defalut no.')
     parser.add_argument('--log', dest='log_file', nargs=1,
                         help='Set log file name. Default is tube file name plus \'.log\'.')
     parser.add_argument('--pip', dest='pip_command',
@@ -4107,6 +4150,7 @@ def job_start(tube):
                 msg = 'Tube command: \'' + command.content + '\' was skipped by previous --continue arguments.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                command.self_report_progress()
                 # continue with next loop item
                 continue
                         
@@ -4116,6 +4160,7 @@ def job_start(tube):
               (pre_command.log.status == Storage.I.C_FAILED and pre_command.is_failed_continue == False):               
                 log.status = Storage.I.C_SKIPPED
                 Storage.I.LOGS.append(log)
+                command.self_report_progress()
                 # continue with next loop item                
                 continue
             
@@ -4136,6 +4181,7 @@ def job_start(tube):
                 msg = 'Tube command: \'' + command.content + '\' was skipped since --if condition is False.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                command.self_report_progress()
                 # continue with next loop item
                 continue
                         
@@ -4165,6 +4211,7 @@ def job_start(tube):
                     log.status = Storage.I.C_FAILED
                     Storage.I.LOGS.append(log)
                     pre_command = command
+                    command.self_report_progress()
                     continue   
                 
                 # Check Linux Server Disk Space, only checking on the first Linux Command
@@ -4569,6 +4616,9 @@ def job_start(tube):
             # if command failed and errors then output to log
             if log.status == Storage.I.C_FAILED:
                 log.write_errors_to_log()
+                
+            # report self report progress if enabled
+            command.self_report_progress()
                                 
             # Finnally append the command log
             Storage.I.LOGS.append(log)
@@ -4777,6 +4827,10 @@ try:
     # matrix mode
     if(args.matrix_mode != None and args.matrix_mode == 'yes'):
         Storage.I.IS_MATRIX_MODE = True
+    
+    # report progress
+    if(args.report_progress != None and args.report_progress == 'yes'):
+        Storage.I.IS_REPORT_PROGRESS = True
         
     # checking tube command syntax
     Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE)
