@@ -2117,6 +2117,12 @@ class TubeCommand():
     
     def self_report_progress(self):
         
+        '''
+        Report each tube command finished status via Email
+        If --report-progress is not set or there is no Email settings
+        then the report status will do nothing
+        '''
+        
         if(Storage.I.IS_REPORT_PROGRESS == False or 
            Storage.I.HAS_EMAIL_SETTINGS == False):
             return
@@ -4150,6 +4156,7 @@ def job_start(tube):
                 msg = 'Tube command: \'' + command.content + '\' was skipped by previous --continue arguments.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                # check if report tube command status
                 command.self_report_progress()
                 # continue with next loop item
                 continue
@@ -4160,6 +4167,7 @@ def job_start(tube):
               (pre_command.log.status == Storage.I.C_FAILED and pre_command.is_failed_continue == False):               
                 log.status = Storage.I.C_SKIPPED
                 Storage.I.LOGS.append(log)
+                # check if report tube command status
                 command.self_report_progress()
                 # continue with next loop item                
                 continue
@@ -4181,6 +4189,7 @@ def job_start(tube):
                 msg = 'Tube command: \'' + command.content + '\' was skipped since --if condition is False.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                # check if report tube command status
                 command.self_report_progress()
                 # continue with next loop item
                 continue
@@ -4211,6 +4220,7 @@ def job_start(tube):
                     log.status = Storage.I.C_FAILED
                     Storage.I.LOGS.append(log)
                     pre_command = command
+                    # check if report tube command status
                     command.self_report_progress()
                     continue   
                 
@@ -4617,7 +4627,7 @@ def job_start(tube):
             if log.status == Storage.I.C_FAILED:
                 log.write_errors_to_log()
                 
-            # report self report progress if enabled
+            # check if report tube command status
             command.self_report_progress()
                                 
             # Finnally append the command log
