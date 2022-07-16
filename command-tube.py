@@ -361,15 +361,15 @@ class Storage():
         self.C_ANT_DEPLOY_ERROR        = 'BUILD FAILED'
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) before command type means the command is run again.'
         self.C_HELP                    = '''Use 'help' command to view the whole help document;
-Use 'help template' to view the tube tempalte;
-Use 'help continue' to view the --continue syntax;
-Use 'help redo' to view the --redo syntax;
-Use 'help if' to view the --if syntax;
-use 'help key' to view the --key syntax;
-Use 'help variable' to view the tube variables usage;
-Use 'help vars' to print all the given tube variables;
 Use 'help commands' to print all commands usages;
 Use 'help command-name' to print all the tube commands usage which name matched.
+Use 'help continue' to view the --continue syntax;
+Use 'help if' to view the --if syntax;
+use 'help key' to view the --key syntax;
+Use 'help redo' to view the --redo syntax;
+Use 'help template' to view the tube tempalte;
+Use 'help variable' to view the tube variables usage;
+Use 'help vars' to print all the given tube variables;
         '''
         # Server used
         self.C_SERVERS                 = 'SERVERS'

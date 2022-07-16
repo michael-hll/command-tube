@@ -255,7 +255,15 @@ Parameters:
    minutes:  The minutes you want to pause.
 
 Support from version: 2.0.0</pre>
-### 13: REPLACE_CHAR
+### 13: PRINT_VARS
+<pre>Description: Print all tube variable values by given name for debugging purpose.
+
+Syntax: - PRINT_VARS: -n|--name name [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -n/--name: Tube variable name parameter (* means print all).
+
+Support from version: 2.0.2</pre>
+### 14: REPLACE_CHAR
 <pre>Description: Replace file line content which contains/matches given value.
 
 Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -266,7 +274,7 @@ Parameters:
    -c/--count:    The replaced times you want to set. Default no limitation.
 
 Support from version: 2.0.1</pre>
-### 14: REPORT_PROGRESS
+### 15: REPORT_PROGRESS
 <pre>Description: You can use this command to sent current progress via Email.
 
 Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -274,7 +282,7 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 15: SET_FILE_KEY_VALUE
+### 16: SET_FILE_KEY_VALUE
 <pre>Description: Update key-value file.
 
 Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -284,7 +292,7 @@ Parameters:
    -v/--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 16: SET_VARIABLE
+### 17: SET_VARIABLE
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: -n|--name name -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -293,7 +301,7 @@ Parameters:
    -v/--value: The tube variable value you want to set.
 
 Support from version: 2.0.0</pre>
-### 17: SET_XML_TAG_TEXT
+### 18: SET_XML_TAG_TEXT
 <pre>Description: Update XML file tag text using xpath.
 
 Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -303,7 +311,7 @@ Parameters:
    -v/--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 18: SFTP_GET
+### 19: SFTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
 
@@ -313,7 +321,7 @@ Parameters:
    -l/--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 19: SFTP_PUT
+### 20: SFTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
 
@@ -323,7 +331,7 @@ Parameters:
    -r/--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 20: TAIL_FILE
+### 21: TAIL_FILE
 <pre>Description: Print/Log the last N lines of given file.
 
 Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -333,7 +341,7 @@ Parameters:
    -k/--keywords: Output file content only if it contains the given keywords.
 
 Support from version: 2.0.0</pre>
-### 21: WRITE_LINE_IN_FILE
+### 22: WRITE_LINE_IN_FILE
 <pre>Description: Write any characters into a file.                      
 The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
 If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
