@@ -942,6 +942,7 @@ class TubeCommand():
         self.is_single_placeholder = False
         self.has_placeholders      = False
         self.is_key_command        = False
+        self.results               = []
         
         # Private properties
         self.__original_content2   = None # content without place holders        
@@ -1721,7 +1722,8 @@ class TubeCommand():
                 else:
                     keywords.append(k)
             
-        file = ' '.join(args.file)   
+        file = ' '.join(args.file)
+        key_values = [] 
         
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
@@ -1739,12 +1741,15 @@ class TubeCommand():
                     line_value = line[i+1:].strip()
                     if len(keywords) == 0:
                         StorageUtility.update_key_value_dict(line_key, line_value, self)
+                        key_values.append(line_key + '=' + line_value)
                     else:
                         for key in keywords:
                             if key == line_key:
-                                StorageUtility.update_key_value_dict(key, line_value, self)                      
+                                StorageUtility.update_key_value_dict(key, line_value, self)   
+                                key_values.append(key + '=' + line_value)
+                                                   
 
-        return True    
+        return True, key_values    
 
     def send_email_via_command(self):
         '''
@@ -2125,6 +2130,15 @@ class TubeCommand():
         
         if(Storage.I.IS_REPORT_PROGRESS == False or 
            Storage.I.HAS_EMAIL_SETTINGS == False):
+            
+            # log message when there is no email settings
+            if (Storage.I.IS_REPORT_PROGRESS == True and 
+                Storage.I.HAS_EMAIL_SETTINGS == False):
+                
+                msg = 'Tube command self report progress is returned since there is no Email settings.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
             return
         
         # index
@@ -2150,6 +2164,9 @@ class TubeCommand():
                 if len(error) == 0:
                     continue
                 email_body += error + '<br>'
+        else:
+            for result in self.results:
+                email_body += result + '<br>'
         try:
             send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, Storage.I.EMAIL_RECEIVER_ADDRESS, 
                     title, email_body, Storage.I.EMAIL_SMTP_SERVER)  
@@ -4320,6 +4337,7 @@ def job_start(tube):
                     returns = command.get_xml_tag_text()                      
                     if returns != None and len(returns[0]) > 0:
                         StorageUtility.update_key_value_dict(returns[2], returns[0], command)
+                        command.results.append(returns[0])
                         log.status = Storage.I.C_SUCCESSFUL
                         log.end_datetime = datetime.now()
                     else:
@@ -4480,9 +4498,11 @@ def job_start(tube):
                 try:
                     log.start_datetime = datetime.now()
                     log.status = Storage.I.C_FAILED
-                    result = command.get_file_key_value()
+                    result, values = command.get_file_key_value()
                     if result == True:
                         log.status = Storage.I.C_SUCCESSFUL
+                        for item in values:
+                            command.results.append(item)
                     log.end_datetime = datetime.now()                    
                 except Exception as e:
                     log.status = Storage.I.C_FAILED
