@@ -347,6 +347,7 @@ class Storage():
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
+        self.C_PRINT_VARIABLES         = 'PRINT_VARIABLES'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -800,6 +801,18 @@ Use 'help command-name' to print all the tube commands usage which name matched.
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
+            self.C_PRINT_VARIABLES: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: -n/--name name [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-n','--name',  'str', 1,  'name', True, False, '', '',
+                        'Tube variable name parameter (* means print all).'],                    
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Print all tube variable values by given name for debugging purpose.'
+            },
         }
 
 class TubeCommandArgument():
@@ -829,7 +842,7 @@ class TubeCommandArgumentConfig():
         self.syntax = None        
         
         if self.type in config_dict.keys():
-            self.syntax = config_dict[self.type][Storage.I.C_ARG_SYNTAX]
+            self.syntax = TubeCommand.get_command_syntax(self.type, Storage.I.TUBE_ARGS_CONFIG)
             self.is_support_continue = config_dict[self.type][Storage.I.C_CONTINUE_PARAMETER]
             self.is_support_redo = config_dict[self.type][Storage.I.C_REDO_PARAMETER]  
             self.is_support_if_run = config_dict[self.type][Storage.I.C_IF_PARAMETER]          
@@ -2174,6 +2187,44 @@ class TubeCommand():
             msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+    
+    def print_variables(self):
+        '''
+        Print all tube variables that matches given name
+        If given name is empty then export all
+        '''
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        name = None
+        
+        if args.name:
+            name = args.name[0]
+            # replace placeholders
+            name = TubeCommand.format_placeholders(name)
+            if name == '*':
+                name = None
+            
+        # return if variables is None
+        if not Storage.I.KEY_VALUES_DICT:
+            return
+        
+        # go through each tube variables    
+        for key in Storage.I.KEY_VALUES_DICT:
+            is_print = False
+            if name:
+                if name.upper() in key.upper():
+                    is_print = True
+            else:
+                is_print = True
+            
+            if is_print:
+                value = str(Storage.I.KEY_VALUES_DICT[key])
+                if value == ' ':
+                    value = '[SPACE CHAR]'
+                msg = key + ': ' + value
+                tprint(msg)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        
             
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
@@ -4620,6 +4671,19 @@ def job_start(tube):
                     tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                     log.add_error(str(e))
                     log.end_datetime = datetime.now()   
+            
+            elif current_command_type == Storage.I.C_PRINT_VARIABLES:
+                try:
+                    log.start_datetime = datetime.now()
+                    log.status = Storage.I.C_FAILED
+                    command.print_variables()
+                    log.status = Storage.I.C_SUCCESSFUL
+                    log.end_datetime = datetime.now()                    
+                except Exception as e:
+                    log.status = Storage.I.C_FAILED
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                    log.add_error(str(e))
+                    log.end_datetime = datetime.now() 
                         
             # not supported command found then log errors and continue next          
             else:
