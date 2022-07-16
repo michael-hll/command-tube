@@ -347,7 +347,7 @@ class Storage():
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
-        self.C_PRINT_VARIABLES         = 'PRINT_VARIABLES'
+        self.C_PRINT_VARIABLES         = 'PRINT_VARS'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
