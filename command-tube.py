@@ -7,7 +7,7 @@
 # Email: michael_hll@hotmail.com
 # Author: Michael Han
 # Date: May 1, 2022
-# Copyright 2022
+# Copyright 2022 
 # -------------------------
 
 import os
