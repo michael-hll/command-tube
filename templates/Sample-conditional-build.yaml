@@ -6,7 +6,7 @@ Servers:
         Name: server1
         Host: server1.xxx.com
         SSH_Port: 22
-        User: mfg
+        User: root
         Password: $passwords.ini
         Root: /usr
         Profile: source /etc/profile
