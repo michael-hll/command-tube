@@ -1,7 +1,6 @@
 
 -------------------------------           
 # Welcome to Command Tube
-## Author: Michael Han
 ## version: 2.0.2 Beta
 -------------------------------
                                       

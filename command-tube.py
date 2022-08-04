@@ -3828,7 +3828,6 @@ def print_tube_command_help(parser: ArgumentParser):
                 '''
                 help_title = '''-------------------------------           
 # Welcome to Command Tube
-## Author: Michael Han
 ## version: %s
 -------------------------------
                 '''
