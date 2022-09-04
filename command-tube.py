@@ -806,6 +806,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
             self.C_PRINT_VARIABLES: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: name [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
@@ -2243,9 +2244,7 @@ class TubeCommand():
             msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
-
-        
-            
+       
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
     # for display command content could use the format_placeholders_no_error method
@@ -2312,12 +2311,11 @@ class TubeCommand():
                 syntax += arg[5]
             else:
                 prefix, suffix = '[', ']'
-                stored_variable = ''
                 if arg[6] is True: # is required
                     prefix, suffix = '', ''
-                    stored_variable = ' ' + arg[5]
-                    if arg[7] == True: # has store action
-                        stored_variable = ''
+                stored_variable = ' ' + arg[5]
+                if arg[7] == True: # has store action
+                    stored_variable = ''
                 syntax += prefix + arg[1] + '|' + arg[2] + stored_variable + suffix
             
             syntax += ' '      

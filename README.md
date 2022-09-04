@@ -166,13 +166,13 @@ Support from version: 2.0.0</pre>
 
 Syntax: - CONNECT: host [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   host:  The Linux host name you want to connect using SSH.
+   host:  The Linux server host or name you want to connect using SSH protocal.
 
 Support from version: 2.0.0</pre>
 ### 4: COUNT
 <pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
-Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current current_tube] [-s|--skip skip_count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current] [-s|--skip] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
    -f/--file:     The file you want to count line numbers.
    -t/--tube:     The tube status you want to count.
@@ -184,7 +184,7 @@ Support from version: 2.0.0</pre>
 ### 5: DELETE_LINE_IN_FILE
 <pre>Description: Conditionally delete lines from a file.
 
-Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-b|--begins begins] [-c|--contains contains] [-e|--empty del_empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-b|--begins begins] [-c|--contains contains] [-e|--empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
    -f/--file:     The file you want to delete lines from.
    -b/--begins:   The line begins with character you want to delete.
@@ -255,11 +255,11 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 13: PRINT_VARS
-<pre>Description: Print all tube variable values by given name for debugging purpose.
+<pre>Description: Print tube variable values for debugging purpose.
 
-Syntax: - PRINT_VARS: -n|--name name [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - PRINT_VARS: name [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   -n/--name: Tube variable name parameter (* means print all).
+   name:  The tube variable name. Provide value '*' can print all variable.
 
 Support from version: 2.0.2</pre>
 ### 14: REPLACE_CHAR
@@ -294,10 +294,12 @@ Support from version: 2.0.0</pre>
 ### 17: SET_VARIABLE
 <pre>Description: Set tube variable value.
 
-Syntax: - SET_VARIABLE: -n|--name name -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - SET_VARIABLE: -n|--name name -v|--value value [-r|--readonly] [-f|--force] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   -n/--name:  The tube variable name you want to set.
-   -v/--value: The tube variable value you want to set.
+   -n/--name:     The tube variable name you want to set.
+   -v/--value:    The tube variable value you want to set.
+   -r/--readonly: Mark the variable as readonly after updating. Default no.
+   -f/--force:    Force update even the varialbe is readonly. Default no.
 
 Support from version: 2.0.0</pre>
 ### 18: SET_XML_TAG_TEXT
