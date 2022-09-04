@@ -455,7 +455,7 @@ Use 'help vars' to print all the given tube variables;
         self.LOGS                      = []
         self.FILE_TAIL_LINES           = []
         self.KEY_VALUES_DICT           = {}
-        self.KEYS_CONSOLE_SET          = set() # to store tube variables from console inputs
+        self.KEYS_READONLY_SET          = set() # to store tube variables which are readonly
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
         self.TUBE_RUN                  = [] 
@@ -608,6 +608,10 @@ Use 'help vars' to print all the given tube variables;
                         'The tube variable name you want to set.'],
                     [False, '-v','--value', 'str', '*', 'value', True, False, '', '',
                         'The tube variable value you want to set.'],
+                    [False, '-r','--readonly', '', '', 'is_readonly', False, True, 'store_true', False,
+                        'Mark the variable as readonly after updating. Default no.'],
+                    [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False,
+                        'Force update even the varialbe is readonly. Default no.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -878,7 +882,7 @@ class TubeArgumentParser(ArgumentParser):
         for err in self.argument_error:
             errors.append(err)
         if len(self.argument_error) > 0: 
-            errors.append('%s' % (self.argument_config.syntax))
+            errors.append(TubeCommand.get_command_syntax(self.argument_config.type, Storage.I.TUBE_ARGS_CONFIG))            
         return errors    
 
     @classmethod
@@ -1915,27 +1919,42 @@ class TubeCommand():
         '''
         For command: SET_VARIABLE
         '''
-        name, value = '', ''
+        name, value, is_readonly, is_force = '', '', False, False
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
         if len(args.name) > 0:
             name = args.name[0]
         if args.value:
             value = ' '.join(args.value)
+        if args.is_readonly:
+            is_readonly = True
+        if args.is_force:
+            is_force = True
         
         # check input parameter
         if not name:
             raise Exception('Parameter -n (name) is missing.')
         
         # check if variable has been updated from console inputs
-        if name in Storage.I.KEYS_CONSOLE_SET:
-            msg = 'Variable (%s:%s) is updated from console inputs, it cannot be updated again.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
+        if is_force == False and name in Storage.I.KEYS_READONLY_SET:
+            msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
             return False
         
         # update key value dict
-        StorageUtility.update_key_value_dict(name, value)
+        if is_force:
+            StorageUtility.update_key_value_dict(name, value, is_force=True)
+        else:
+            StorageUtility.update_key_value_dict(name, value)
+        
+        # check if marek variable as readonly
+        if is_readonly == True and not name in Storage.I.KEYS_READONLY_SET:
+            # Flag it has been updated to readonly
+            Storage.I.KEYS_READONLY_SET.add(name)
+            msg = 'Variable (%s:%s) is set to readonly.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
         
         return True
 
@@ -2288,13 +2307,17 @@ class TubeCommand():
         general_args = '[--continue [m][n]] [--redo [m]] [--if run] [--key]'
         args = arg_config[Storage.I.C_ARG_ARGS]
         for arg in args:
-            if arg[0] is True:
+            if arg[0] is True: # postion argument
                 syntax += arg[5]
             else:
                 prefix, suffix = '[', ']'
-                if arg[6] is True:
+                stored_variable = ''
+                if arg[6] is True: # is required
                     prefix, suffix = '', ''
-                syntax += prefix + arg[1] + '|' + arg[2] + ' ' + arg[5] + suffix
+                    stored_variable = ' ' + arg[5]
+                    if arg[7] == True: # has store action
+                        stored_variable = ''
+                syntax += prefix + arg[1] + '|' + arg[2] + stored_variable + suffix
             
             syntax += ' '      
         syntax += general_args          
@@ -2466,7 +2489,7 @@ class Host():
 class StorageUtility():
 
     @classmethod
-    def update_key_value_dict(self, key, value, command: TubeCommand=None):
+    def update_key_value_dict(self, key, value, command: TubeCommand=None, is_force=False):
         '''
         Update storage's key-value pair
         
@@ -2485,35 +2508,39 @@ class StorageUtility():
             msg = 'It\'s not allowed to update tube reserved variable \'s\' with value: ' + str(value)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
-            return False
-        
-        # give a warning that the key-value was overrode from the memory
-        if key in Storage.I.KEY_VALUES_DICT.keys():
-            msg = 'Tube variable \'%s\' was updated to value: \'%s\'.' % (key, value)
-            if command:
-                msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        else:
-            msg = 'Tube variable \'%s\' was set value: \'%s\'.' % (key, value)
-            if command:
-                msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            return False  
         
         # If value is None, then udpate it with empty string
         if value == None:
             value = ''
         
         # update the key value
-        if not key in Storage.I.KEYS_CONSOLE_SET:
+        updated = False        
+        if not key in Storage.I.KEYS_READONLY_SET:
             Storage.I.KEY_VALUES_DICT[key] = value
+            updated = True
         else:
-            msg = 'Variable (%s:%s) is updated from console inputs, it cannot be updated again.' % (key, str(Storage.I.KEY_VALUES_DICT[key]))
+            if is_force == False:
+                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (key, str(Storage.I.KEY_VALUES_DICT[key]))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+            else:
+                Storage.I.KEY_VALUES_DICT[key] = value
+                updated = True        
+        
+        # give an note if the key-value dict was udpated        
+        if updated:
+            # give a warning that the key-value was overrode from the memory
+            forced = ' '
+            if is_force:
+                forced = ' forced '
+            msg = 'Tube variable \'%s\' was%supdated to value: \'%s\'.' % (key, forced, value)
+            if command:
+                msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)            
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                
         return True
-
     @classmethod
     def check_tube_command_arguments(self, tube_check, continue_redo_parser: TubeArgumentParser, is_check_import=False):
         '''
@@ -2682,7 +2709,10 @@ class StorageUtility():
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg % (var_key, var_value))
                     StorageUtility.update_key_value_dict(var_key, var_value)
                     # Flag it has been udpated by the user console inputs
-                    Storage.I.KEYS_CONSOLE_SET.add(var_key)
+                    Storage.I.KEYS_READONLY_SET.add(var_key)
+                    msg = 'Variable (%s:%s) is set to readonly.' % (var_key, str(Storage.I.KEY_VALUES_DICT[var_key]))
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         except Exception as e:
             msg = 'Read variables from console exception: ' + str(e)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
