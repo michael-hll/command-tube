@@ -2598,7 +2598,8 @@ class StorageUtility():
                 command_content = TubeCommand.format_placeholders_no_error(command.content)
                 _, input_server = continue_redo_parser.parse_known_args(command_content.split())
                 input_server = ' '.join(input_server)
-                if not input_server in Storage.I.HOSTS.keys():
+                host = StorageUtility.get_host(host=input_server,name=input_server)
+                if host == None:
                     has_errors = True
                     msg = '%s: \'%s\' doesnot exists.' % (command.cmd_type, input_server)
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
@@ -2645,6 +2646,18 @@ class StorageUtility():
                 host.profile += ';'
             Storage.I.HOSTS[host.host] = host
 
+    @classmethod
+    def get_host(self, host='', name=''):
+        if host in Storage.I.HOSTS.keys():
+            return Storage.I.HOSTS[host]
+        
+        for key in Storage.I.HOSTS.keys():
+            host = Storage.I.HOSTS[key]
+            if str(host.name) == name:
+                return host
+        
+        return None
+    
     @classmethod
     def read_variables(self, variables):
         '''
@@ -4524,8 +4537,8 @@ def job_start(tube):
                     host: Host = None
                     
                     # check if connect host name exists from configruations
-                    if host_name in Storage.I.HOSTS:
-                        host = Storage.I.HOSTS[host_name]
+                    host = StorageUtility.get_host(host=host_name, name=host_name)
+                    if host != None:  
                         if host.is_connected:
                             ssh = host.ssh
                         else:
@@ -4535,6 +4548,11 @@ def job_start(tube):
                             Storage.I.CURR_HOST_PROFILE = host.profile
                             Storage.I.CURR_HOST_ROOT = host.root
                             Storage.I.CURR_HOST = host_name
+                            
+                            # log a message for switching server successfully
+                            msg = 'Connected to server: ' + host_name               
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                     else:
                         # host name doesn't exist then set ssh to None
                         ssh = None
