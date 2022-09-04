@@ -623,7 +623,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'host', True, False, '', '',
-                        'The Linux host name you want to connect using SSH.'],
+                        'The Linux server host or name you want to connect using SSH protocal.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -4547,7 +4547,7 @@ def job_start(tube):
                         if host.is_connected:
                             Storage.I.CURR_HOST_PROFILE = host.profile
                             Storage.I.CURR_HOST_ROOT = host.root
-                            Storage.I.CURR_HOST = host_name
+                            Storage.I.CURR_HOST = host.host
                             
                             # log a message for switching server successfully
                             msg = 'Connected to server: ' + host_name               
