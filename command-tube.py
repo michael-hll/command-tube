@@ -5039,8 +5039,7 @@ while Storage.I.IS_STOP == False:
     # if run time is greater than current time 
     # or in immediate/force mode
     else:
-        tprint()
-
+        # Start doing the job for one iteration
         if Storage.I.IS_LOOP == False:
             Storage.I.IS_STOP = True
         else:
@@ -5077,5 +5076,5 @@ while Storage.I.IS_STOP == False:
         # In loop mode, we need to update the next run time
         # do this time updates just on each iteration is fully done
         if Storage.I.IS_LOOP == True:
-            Storage.I.EXEC_DATETIME += timedelta(hours=Storage.I.NEXT_REFRESH)        
+            Storage.I.EXEC_DATETIME += timedelta(hours=Storage.I.NEXT_REFRESH)       
 #--------End of the LOOP ----------------------- 
