@@ -1813,16 +1813,22 @@ class TubeCommand():
         with open(file, 'r') as f:
             data = Utility.safe_load_with_upper_key(f)
             if Storage.I.C_TUBE in data.keys():            
-                sub_tube = data[Storage.I.C_TUBE]              
-                next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-                for item in sub_tube:
-                    for key in item.keys():
-                        sub_command = TubeCommand(key.upper(), item[key])
-                        sub_command.is_imported = True
-                        sub_command.tube_index = next_index
-                        sub_command.tube_file = os.path.abspath(file)
-                        Storage.I.TUBE_FILE_LIST[sub_command.tube_index] = sub_command.tube_file                
-                        tube_check.append(sub_command)
+                sub_tube = data[Storage.I.C_TUBE] 
+                
+                if not sub_tube or type(sub_tube) != list:
+                    msg = 'Tube file doesnot have any tube commands: ' + file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                else:              
+                    next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
+                    for item in sub_tube:
+                        for key in item.keys():
+                            sub_command = TubeCommand(key.upper(), item[key])
+                            sub_command.is_imported = True
+                            sub_command.tube_index = next_index
+                            sub_command.tube_file = os.path.abspath(file)
+                            Storage.I.TUBE_FILE_LIST[sub_command.tube_index] = sub_command.tube_file                
+                            tube_check.append(sub_command)
             else:
                 # the 'TUBE' section doesn't exists from the sub-tube file
                 raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
