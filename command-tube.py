@@ -806,16 +806,15 @@ Use 'help vars' to print all the given tube variables;
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
             self.C_PRINT_VARIABLES: {
-                self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: -n/--name name [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: name [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-n','--name',  'str', 1,  'name', True, False, '', '',
-                        'Tube variable name parameter (* means print all).'],                    
+                    [True, '-','--', 'str', '+', 'name', True, False, '', '',
+                        'The tube variable name. Provide value \'*\' can print all variable.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Print all tube variable values by given name for debugging purpose.'
+                self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
             },
         }
 
@@ -2158,6 +2157,38 @@ class TubeCommand():
         
         return replaced_count
     
+    def print_variables(self):
+        new_vars = []
+        default_vars = []
+        for key in Storage.I.KEY_VALUES_DICT.keys():
+            if self.content == '*' or self.content == None or key.upper() in self.content.upper():
+                # get value
+                value = str(Storage.I.KEY_VALUES_DICT[key])
+                if value == ' ':
+                    value = '\' \''
+                # get readonly
+                readonly = ''
+                if key in Storage.I.KEYS_READONLY_SET:
+                    readonly = ' (readonly)'
+                msg = '%s=%s %s' % (key, value, readonly)
+                if key == 's' or key == 'S' or key == Storage.I.C_TUBE_HOME:
+                    default_vars.append(msg)
+                else:
+                    new_vars.append(msg)
+        
+        for var in new_vars:
+            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var)
+        
+        if len(default_vars) > 0:
+            msg = ' * Below list are hidden variables *'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        for var in default_vars:
+            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var) 
+    
     def self_report_progress(self):
         
         '''
@@ -2211,44 +2242,8 @@ class TubeCommand():
         except Exception as e:
             msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
-    
-    def print_variables(self):
-        '''
-        Print all tube variables that matches given name
-        If given name is empty then export all
-        '''
-        parser = self.tube_argument_parser
-        args, _ = parser.parse_known_args(self.content.split())
-        name = None
-        
-        if args.name:
-            name = args.name[0]
-            # replace placeholders
-            name = TubeCommand.format_placeholders(name)
-            if name == '*':
-                name = None
-            
-        # return if variables is None
-        if not Storage.I.KEY_VALUES_DICT:
-            return
-        
-        # go through each tube variables    
-        for key in Storage.I.KEY_VALUES_DICT:
-            is_print = False
-            if name:
-                if name.upper() in key.upper():
-                    is_print = True
-            else:
-                is_print = True
-            
-            if is_print:
-                value = str(Storage.I.KEY_VALUES_DICT[key])
-                if value == ' ':
-                    value = '[SPACE CHAR]'
-                msg = key + ': ' + value
-                tprint(msg)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+
         
             
     # ---- IMPORTANT RULE ------
