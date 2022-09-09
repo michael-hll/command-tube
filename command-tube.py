@@ -714,7 +714,9 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
-                        'Any Linux command you want to run.'],                  
+                        'Any Linux command you want to run.'], 
+                    [False, '-','--log-detail', '', '', 'is_log_detail', False, True, 'store_true', False,
+                        'Log command output to tube log file. Default no.'],                 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -4335,8 +4337,16 @@ def job_start(tube):
                 # Check Linux Server Disk Space, only checking on the first Linux Command
                 check_disk_space(ssh)  
                 
+                # Check command
+                parser = command.tube_argument_parser
+                args, _ = parser.parse_known_args(command.content.split())
+                                
                 # replace placeholders
-                command.content = TubeCommand.format_placeholders(command.content)          
+                command.content = TubeCommand.format_placeholders(command.content) 
+                
+                # check if log detial
+                if args.is_log_detail:
+                    command.content = command.content.replace('--log-detail', '').strip()
 
                 # Execute any linux command
                 Storage.I.GOTO_HOST_ROOT = 'cd %s;' % Storage.I.CURR_HOST_ROOT # update root path    
@@ -4347,7 +4357,16 @@ def job_start(tube):
                     line = stdout.readline()
                     if not line:
                         break
-                    tprint(line.replace('\n',''))
+                    line = line.replace('\n', '')                    
+                    tprint(line)
+                    # log details to tube log file
+                    if args.is_log_detail:
+                        lines = line.split('\r')
+                        if len(line) > 0 and len(lines) > 0:
+                            # if the line contains multiple lines
+                            # then we only output the last line
+                            line = lines[len(lines) - 1]
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)    
                 log.end_datetime = datetime.now()
                 log.status = Storage.I.C_SUCCESSFUL
 

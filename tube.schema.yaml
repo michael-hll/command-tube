@@ -1,0 +1,43 @@
+Tube:
+    - COMMAND: dir
+    # Example of switching servers, connect to SERVER:HOST
+    - CONNECT: server1.qad.com
+    # Example of delete a line which begin with 'hello'
+    - DELETE_LINE_IN_FILE: -f tmp.txt -b hello
+    # Sent an Email
+    - EMAIL: -t michael_hll@hotmail.com -s Email Subject -b this is the content of your email
+    # Example of read a XML file tag value using xpath
+    - GET_XML_TAG_TEXT: -f xxx.xml -x xpath
+    # Read key-value from a file and store them into tube variables
+    - GET_FILE_KEY_VALUE: -f config.ini
+    # Example of import commands from a sub tube 
+    - IMPORT_TUBE: sub-tube.yaml
+    # Run a linux command, make sure the server is connected by CONNECT command
+    - LINUX_COMMAND: ls
+    # Example of go to a directory
+    - PATH: X:\dev\trunk
+    # To pause 30.5 minutes, in order to wait linux vm is up
+    - PAUSE: 30.5
+    # Example of report current tube progress
+    - REPORT_PROGRESS: Refresh Code Failed
+    # Example of set file key value
+    - SET_FILE_KEY_VALUE: -f configuration.properties -k packages.xxx-app -v {xxx-app}
+    # Example of update a xml file tag text
+    - SET_XML_TAG_TEXT: -f file.xml -x xpath -v value
+    # Example of tail a file content
+    - TAIL_FILE: -f X:\dev\build.log -l 100
+    # Write a line in a file
+    - WRITE_LINE_IN_FILE: -f xxx.txt -n line-nubmer -v content 
+    # Count txt file line number or tube command numbers by status
+    - COUNT: -t FAILED -v failed_count    
+    # Set a tube variable value
+    - SET_VARIABLE: -n var1 -v Hello Tube     
+    # Get a Linux file to local
+    - SFTP_GET: -r remotefile -l localfile
+    # Put a local file to Linux
+    - SFTP_PUT: -l localfile -r remotefile   
+    # Check if given characters exists from a given file
+    - CHECK_CHAR_EXISTS: -f file -c hello -r hello_exists
+    # Replace file lines which contains given characters.
+    - REPLACE_CHAR: -f file -o oldvalue -n newvalue -c 1
+                
