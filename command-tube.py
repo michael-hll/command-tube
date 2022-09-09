@@ -2350,7 +2350,10 @@ class TubeCommand():
         format_str = '{:<' + str(max_arg_length) + '} {}'
         for arg in args:
             if arg[0] is False:
-                parameters += format_str.format(indentation + arg[1] + '/' + arg[2] + ':', arg[len(arg) - 1] + '\n')
+                if arg[1] == '-':
+                    parameters += format_str.format(indentation + arg[2] + ':', arg[len(arg) - 1] + '\n')
+                else:
+                    parameters += format_str.format(indentation + arg[1] + '/' + arg[2] + ':', arg[len(arg) - 1] + '\n')
             else:
                 parameters += format_str.format(indentation + arg[5] + ':', arg[len(arg) - 1] + '\n')                
             
