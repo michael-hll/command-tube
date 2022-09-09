@@ -474,8 +474,8 @@ Use 'help vars' to print all the given tube variables;
         self.HAS_EMAIL_SETTINGS        = False
         # Tube Command argument configurations design details
         # 0: Is postion arguments
-        # 1: -
-        # 2: --
+        # 1: -  Short argument name. eg: -f (if you want leave it empty, then only put '-' value)
+        # 2: -- Long argument anme. eg: --force
         # 3: type
         # 4: nargs
         # 5: destination
