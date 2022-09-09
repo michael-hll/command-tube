@@ -2318,7 +2318,12 @@ class TubeCommand():
                 stored_variable = ' ' + arg[5]
                 if arg[7] == True: # has store action
                     stored_variable = ''
-                syntax += prefix + arg[1] + '|' + arg[2] + stored_variable + suffix
+                # arg[1]: short argument name
+                # arg[2]: long argument name
+                if arg[1] == '-':
+                    syntax += prefix + arg[2] + stored_variable + suffix
+                else:
+                    syntax += prefix + arg[1] + '|' + arg[2] + stored_variable + suffix
             
             syntax += ' '      
         syntax += general_args          
