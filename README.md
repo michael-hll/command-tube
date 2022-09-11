@@ -233,9 +233,10 @@ Support from version: 2.0.0</pre>
 ### 10: LINUX_COMMAND
 <pre>Description: Run a Linux command from the previous connected server.
 
-Syntax: - LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   command:  Any Linux command you want to run.
+   command:        Any Linux command you want to run.
+   --log-detail:   Log command output to tube log file. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
 ### 11: PATH
@@ -297,9 +298,12 @@ Support from version: 2.0.0</pre>
 Syntax: - SET_VARIABLE: -n|--name name -v|--value value [-r|--readonly] [-f|--force] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
    -n/--name:     The tube variable name you want to set.
-   -v/--value:    The tube variable value you want to set.
-   -r/--readonly: Mark the variable as readonly after updating. Default no.
-   -f/--force:    Force update even the varialbe is readonly. Default no.
+   -v/--value:    The tube variable value you want to set. 
+                  Note: The 'eval(expression)' is also supported, eg: 
+                     - SET_VARIABLE: -n dayOfWeek -v eval(datetime.today().weekday()) # Tube variable dayOfWeek will be set to weekday() value. 
+                     - SET_VARIABLE: -n sum -v eval({var1}+{var2}) # Tube variable sum will be set to the result of var1 + var2.
+   -r/--readonly: Mark the variable as readonly after updating. Default no. [2.0.2]
+   -f/--force:    Force update even the varialbe is readonly. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
 ### 18: SET_XML_TAG_TEXT
