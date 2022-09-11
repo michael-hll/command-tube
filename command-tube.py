@@ -607,7 +607,10 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name you want to set.'],
                     [False, '-v','--value', 'str', '*', 'value', True, False, '', '',
-                        'The tube variable value you want to set.'],
+                        'The tube variable value you want to set. \n  \
+                Note: The \'eval(expression)\' is also supported, eg: \n \
+                    - SET_VARIABLE: -n dayOfWeek -v eval(datetime.today().weekday()) # Tube variable dayOfWeek will be set to weekday() value. \n \
+                    - SET_VARIABLE: -n sum -v eval({var1}+{var2}) # Tube variable sum will be set to the result of var1 + var2.'],
                     [False, '-r','--readonly', '', '', 'is_readonly', False, True, 'store_true', False,
                         'Mark the variable as readonly after updating. Default no. [2.0.2]'],
                     [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False,
@@ -1939,6 +1942,15 @@ class TubeCommand():
         if args.is_force:
             is_force = True
         
+        # replace placeholders
+        name = TubeCommand.format_placeholders(name).strip()
+        value = TubeCommand.format_placeholders(value).strip()
+
+        # evalulate eval inputs
+        if 'eval(' in value:
+            value = value.replace('eval(', '')[:-1].replace('\'', '').replace('\"', '')
+            value = eval(value)
+
         # check input parameter
         if not name:
             raise Exception('Parameter -n (name) is missing.')
