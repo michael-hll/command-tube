@@ -3643,7 +3643,7 @@ def init_log_file():
     tube_name = Storage.I.TUBE_YAML_FILE
     if tube_name:
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+',
-                          '>>> RUNNING TUBE >>> ' + tube_name) 
+                          '** Running Tube: ' + tube_name) 
 
 def init_arguments():
     # parameters for user inputs       
@@ -4284,7 +4284,7 @@ def job_start(tube):
                 log.status = Storage.I.C_SKIPPED             
                 Storage.I.LOGS.append(log)
                 # log command which is skipped
-                msg = 'Tube command >>> \'' + command.cmd_type + ': ' + command.content + '\' was skipped by previous --continue arguments.'
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped by previous --continue arguments.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
                 # check if report tube command status
@@ -4316,7 +4316,7 @@ def job_start(tube):
                 log.status = Storage.I.C_SKIPPED             
                 Storage.I.LOGS.append(log)
                 # log command which is skipped
-                msg = 'Tube command >>> \'' + command.cmd_type + ': ' + command.content + '\' was skipped since --if condition is False.'
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped since --if condition is False.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
                 # check if report tube command status
@@ -4325,14 +4325,11 @@ def job_start(tube):
                 continue
                         
             # Log current running step
-            running_command = ' >>> %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's'
-            running_command_print = ' >>> %s'
+            running_command = ' >>> %s'
             msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % command.get_formatted_type() + ': ' + \
                   str(command.get_formatted_content())
-            msg_print = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command_print % command.get_formatted_type() + ': ' + \
-                  str(command.get_formatted_content())
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            tprint(msg_print, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
+            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
 
             # --------------------------------------------------------
             # Begin to run each tube command based on its command type
