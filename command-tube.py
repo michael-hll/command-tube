@@ -2492,7 +2492,7 @@ class Host():
                     (self.host, str(self.port), self.user, self.password, str(e))
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR) 
             self.errors.add(msg)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            #write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             self.is_connected = False
             self.ssh = None        
         return self.ssh
