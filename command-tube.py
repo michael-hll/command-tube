@@ -360,6 +360,7 @@ class Storage():
         self.C_ANT_DEPLOY_LOG_FILE     = 'build.log'
         self.C_ANT_DEPLOY_ERROR        = 'BUILD FAILED'
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) before command type means the command is run again.'
+        self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
         self.C_HELP                    = '''Use 'help' command to view the whole help document;
 Use 'help commands' to print all commands usages;
 Use 'help command-name' to print all the tube commands usage which name matched.
@@ -3431,9 +3432,13 @@ def write_logs_to_file(LOGS):
 
     # log failed detail errors 
     has_retried_command = False
+    has_written_header = False
     log: TubeCommandLog     
     for index, log in enumerate(LOGS):        
         if log.status == Storage.I.C_FAILED:
+            if not has_written_header:
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, mode,  Storage.I.C_FAILED_COMMAND_LIST)  
+                has_written_header = True   
             command_details = '[%s] - %s: %s' % (str(index+1), log.command.get_formatted_type(), str(log.command.content))
             write_line_to_log(Storage.I.TUBE_LOG_FILE, mode,  command_details) 
             for error in log.errors:
@@ -3521,7 +3526,9 @@ def prepare_emails_content_and_sent(LOGS):
     log: TubeCommandLog
     for index, log in enumerate(LOGS):        
         if log.status == Storage.I.C_FAILED:
-            has_failed = True
+            if not has_failed:
+                email_body += Storage.I.C_FAILED_COMMAND_LIST + '<br>'    
+                has_failed = True            
             command_details = '[%s] - %s: %s' % \
                 (str(index+1), log.command.get_formatted_type(), str(log.command.content))
             email_body += command_details + '<br>'
@@ -3532,8 +3539,7 @@ def prepare_emails_content_and_sent(LOGS):
                 email_body += error + '<br>'
 
     # add a split line
-    if has_failed: 
-        email_body += split_line
+    email_body += split_line
 
     email_body += '----- Status of Each Step -----<br>'
     seq = 0
