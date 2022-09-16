@@ -2466,13 +2466,13 @@ class TubeCommandLog:
     
 class Host():
     def __init__(self, name='', host='', port=22, user='', pwd='', root='/', profile='') -> None:
-        self.name         = name
-        self.host         = host
-        self.port         = port
-        self.user         = user
-        self.password     = pwd
-        self.root         = root
-        self.profile      = profile
+        self.name         = str(name)
+        self.host         = str(host)
+        self.port         = str(port)
+        self.user         = str(user)
+        self.password     = str(pwd)
+        self.root         = str(root)
+        self.profile      = str(profile)
         self.ssh          = None
         self.is_connected = False
         self.errors       = set()

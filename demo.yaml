@@ -1,0 +1,18 @@
+
+Servers:
+    - Server:
+        Name: linux01
+        Host: 10.211.55.13
+        SSH_Port: 22
+        User: mac
+        Password: 123456
+        Root: /home/mac
+        Profile: source /home/mac/.bashrc
+Tube:
+    - COMMAND: ls2 --continue --redo
+    - COMMAND: echo hello mac --continue --redo 5
+    # - COMMAND: ls
+    # - COMMAND: ls
+    # - COMMAND: ls
+    - CONNECT: linux01
+    - LINUX_COMMAND: ls
