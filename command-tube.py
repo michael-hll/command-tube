@@ -3,7 +3,7 @@
 
 # -------------------------
 # Command Tube
-# GitHub: https://github.com/michael-hll/command-tube
+# GitHub: https://github.com/michael-hll/command-tube.git
 # Email: michael_hll@hotmail.com
 # Author: Michael Han
 # Date: May 1, 2022
