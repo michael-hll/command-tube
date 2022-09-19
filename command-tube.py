@@ -3,7 +3,7 @@
 
 # -------------------------
 # Command Tube
-# GitHub: https://github.com/michael-hll/command-tube
+# GitHub: https://github.com/michael-hll/command-tube.git
 # Email: michael_hll@hotmail.com
 # Author: Michael Han
 # Date: May 1, 2022
@@ -3942,10 +3942,18 @@ def print_tube_command_help(parser: ArgumentParser):
         ** Find tube running result from tube.yaml.log file by default 
 
     - Binary Mode        
-        Following below steps you can use it in binary mode
+        Following below steps you can use it in binary mode:
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
         3. Using it from your terminal (Need exec right from MacOS):
         >>> tube -y tube.yaml -f
+        
+        Following below steps to build an executable package:
+        1. Get source code from github: https://github.com/michael-hll/command-tube.git
+        2. From terminal goto source code root directory
+        3. Run below command to build the package:
+           >>> python3 command-tube.py -y package-mac.yaml -f
+        4. Run tube version command to verify it's built successfully:
+           >>> ./tube --version 
     
 ## General Arguments & Tube Variables
     - General Arguments
@@ -3969,17 +3977,17 @@ Servers:
         Name: server1
         Host: server1.xxx.com
         SSH_Port: 22
-        User: mfg
+        User: root
         Password: $passwords.ini
-        Root: /usr
+        Root: /home/root
         Profile: source /etc/profile
     - Server:
         Name: server2
         Host: server2.xxx.com
         SSH_Port: 22
-        User: mfg
+        User: root
         Password: $passwords.ini
-        Root: /usr
+        Root: /home/root
         Profile: source /etc/profile
 Email:
     Email_SMTP_Server: smtp.office365.com
