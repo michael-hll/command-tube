@@ -4443,7 +4443,7 @@ def job_start(tube):
                 try:
                     # replace placeholders
                     command.content = TubeCommand.format_placeholders(command.content) 
-                    command_array = shlex.split(command.content, posix=False)
+                    command_array = shlex.split(command.content, posix=True)
                     log.start_datetime = datetime.now()
                     result = None
                     if os.name.startswith('nt'):
