@@ -4146,7 +4146,7 @@ Tube:
                             lines = f.readlines()
                             var_start = False                            
                             for line in lines:
-                                if line.startswith(Storage.I.C_VARIABLES):    
+                                if line.upper().startswith(Storage.I.C_VARIABLES):    
                                     var_start = True
                                     continue
                                 if var_start == True and line.startswith(' '):
