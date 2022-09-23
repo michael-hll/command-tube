@@ -706,7 +706,10 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
-                        'Any command you want to run.'],                 
+                        'Any command you want to run.'],     
+                    [False, '-','--no-shell', '', '', 'no_shell', False, True, 'store_true', False,
+                        'Do not use \'Shell\' to run the command. Default no. \n \
+                This is used for Mac/Linux OS. For Windows it will always use shell. [2.0.2]'],             
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -4443,13 +4446,22 @@ def job_start(tube):
                 try:
                     # replace placeholders
                     command.content = TubeCommand.format_placeholders(command.content) 
+                    # check if using shell
+                    is_use_shell = True
+                    if '--no-shell' in command.content:
+                        is_use_shell = False
+                        command.content = command.content.replace('--no-shell', '').strip()
                     command_array = shlex.split(command.content, posix=True)
                     log.start_datetime = datetime.now()
                     result = None
                     if os.name.startswith('nt'):
                         result = subprocess.Popen(command_array, text=True, shell=True,stdout=sys.stdout,stderr=subprocess.PIPE) 
-                    else:
-                        result = subprocess.Popen(command_array, text=True, stdout=sys.stdout, stderr=subprocess.PIPE)
+                    else:                        
+                        # In Mac Os or Linux
+                        if is_use_shell:
+                            result = subprocess.Popen(command.content, shell=True, text=True, stdout=sys.stdout, stderr=subprocess.PIPE)
+                        else:
+                            result = subprocess.Popen(command_array, text=True, stdout=sys.stdout, stderr=subprocess.PIPE)                            
 
                     # terminate the process and get running result 
                     _, error = result.communicate()  
