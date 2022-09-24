@@ -1783,6 +1783,8 @@ class TubeCommand():
             data = Utility.safe_load_yaml(file)
             for key in data.keys():
                 value = data[key]
+                if value == None:
+                    value = ''
                 if type(value) != dict and type(value) != list:
                     if len(keywords) == 0:
                         StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
@@ -1806,6 +1808,8 @@ class TubeCommand():
                         i = line.index('=')
                         line_key = line[:i].strip()
                         line_value = line[i+1:].strip()
+                        if line_value == None:
+                            line_value = ''
                         if len(keywords) == 0:
                             StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
                                                              is_override=is_override, override_reason=reason.format(key))
