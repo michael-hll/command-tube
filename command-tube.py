@@ -14,6 +14,7 @@ import os
 import sys
 from os import path
 from pathlib import Path
+from tokenize import Number
 import traceback
 import subprocess
 from datetime import datetime, timedelta, date
@@ -275,7 +276,7 @@ class Utility():
         return return_set
     
     @classmethod
-    def safe_load_with_upper_key(self, f):
+    def safe_load_yaml_with_upper_key(self, f):
         data = yaml.safe_load(f)
         Utility.make_dict_key_upper(data)
         return data    
@@ -297,6 +298,12 @@ class Utility():
         # deleted not upper case key/value
         for key in deleted_keys:
             del yaml[key]   
+    
+    @classmethod
+    def safe_load_yaml(self, f):
+        with open(f, 'r') as f:
+            data = yaml.safe_load(f)
+            return data
             
 class Storage():
     I = None
@@ -677,12 +684,17 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to get key-value from.'],    
                     [False, '-k','--keywords', 'str', '+', 'keywords', False, False, '', '',
-                        'Set the key you can get specific value of a given key.'],                    
+                        'Set the key you can get specific value of a given key.'],  
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no. [2.0.2]'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False,
+                        'Force update even the variable is readonly. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
+                                           \nIt also supports to read key-value from Yaml file with simple type: string, number. \
                                            \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
@@ -1750,29 +1762,60 @@ class TubeCommand():
             
         file = ' '.join(args.file)
         key_values = [] 
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
         
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
         if args.keywords:
             keywords = [ TubeCommand.format_placeholders(item) for item in keywords]
         
-        with open(file, 'r') as f:
-            for line in f:
-                line = line.replace('\n', '')
-                if len(line) < 0:
-                    continue
-                if '=' in line:
-                    i = line.index('=')
-                    line_key = line[:i].strip()
-                    line_value = line[i+1:].strip()
+        # check if file is yaml file    
+        is_yaml_file = file.endswith('.yaml') or file.endswith('.yml')     
+        reason = 'You cannot udpate the tube variable \'{0}\' that already exists.'
+        
+        if is_yaml_file:
+            # yaml file
+            data = Utility.safe_load_yaml(file)
+            for key in data.keys():
+                value = data[key]
+                if type(value) != dict and type(value) != list:
                     if len(keywords) == 0:
-                        StorageUtility.update_key_value_dict(line_key, line_value, self)
-                        key_values.append(line_key + '=' + line_value)
+                        StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
+                                                             is_override=is_override, override_reason=reason.format(key))
+                        key_values.append(key + '=' + value)                        
                     else:
-                        for key in keywords:
-                            if key == line_key:
-                                StorageUtility.update_key_value_dict(key, line_value, self)   
-                                key_values.append(key + '=' + line_value)
+                        for word in keywords:
+                            if key == word:   
+                                StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
+                                                             is_override=is_override, override_reason=reason.format(key))
+                                key_values.append(key + '=' + value)     
+            
+        else:
+            # key value file
+            with open(file, 'r') as f:
+                for line in f:
+                    line = line.replace('\n', '')
+                    if len(line) < 0:
+                        continue
+                    if '=' in line:
+                        i = line.index('=')
+                        line_key = line[:i].strip()
+                        line_value = line[i+1:].strip()
+                        if len(keywords) == 0:
+                            StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
+                                                             is_override=is_override, override_reason=reason.format(key))
+                            key_values.append(line_key + '=' + line_value)
+                        else:
+                            for key in keywords:
+                                if key == line_key:
+                                    StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
+                                                             is_override=is_override, override_reason=reason.format(key))  
+                                    key_values.append(key + '=' + line_value)
                                                    
 
         return True, key_values    
@@ -1820,7 +1863,7 @@ class TubeCommand():
         insert_at_index = self.index
         tube_check = []
         with open(file, 'r') as f:
-            data = Utility.safe_load_with_upper_key(f)
+            data = Utility.safe_load_yaml_with_upper_key(f)
             if Storage.I.C_TUBE in data.keys():            
                 sub_tube = data[Storage.I.C_TUBE] 
                 
@@ -2515,7 +2558,8 @@ class Host():
 class StorageUtility():
 
     @classmethod
-    def update_key_value_dict(self, key, value, command: TubeCommand=None, is_force=False):
+    def update_key_value_dict(self, key, value, command: TubeCommand=None, is_force=False, 
+                              is_override=True, override_reason='It\'s not allowed to override this key.'):
         '''
         Update storage's key-value pair
         
@@ -2524,6 +2568,10 @@ class StorageUtility():
         Parameters:
             key: the key you want to update
             value: the key's value, if None then empty string will be used
+            is_force: If true it will always update the value.
+            is_override: if update value if key already exists. Default Yes.
+            override_reason: the reason user can't update this key.
+            
         '''
         # return for None or empty key
         if not key:
@@ -2535,6 +2583,17 @@ class StorageUtility():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
             return False  
+        
+        # check if force
+        if is_force:
+            is_override = True
+        
+        # check override
+        if is_override == False:
+            msg = override_reason
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
+            return False 
         
         # If value is None, then udpate it with empty string
         if value == None:
@@ -2567,6 +2626,7 @@ class StorageUtility():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 
         return True
+    
     @classmethod
     def check_tube_command_arguments(self, tube_check, continue_redo_parser: TubeArgumentParser, is_check_import=False):
         '''
@@ -2646,7 +2706,7 @@ class StorageUtility():
         # read servers configuration from file
         if type(servers) is str:
             with open(servers, 'r') as f:
-                servers = Utility.safe_load_with_upper_key(f)
+                servers = Utility.safe_load_yaml_with_upper_key(f)
                 servers = servers[Storage.I.C_SERVERS]
         
         for server in servers:
@@ -2705,7 +2765,7 @@ class StorageUtility():
         '''   
         if type(emails) is str:
             with open(emails, 'r') as f:
-                emails = Utility.safe_load_with_upper_key(f)
+                emails = Utility.safe_load_yaml_with_upper_key(f)
                 emails = emails[Storage.I.C_EMAIL]
                 
         if type(emails) is dict:
@@ -4928,7 +4988,7 @@ try:
     data = None
     if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
         with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
-            data = Utility.safe_load_with_upper_key(f) 
+            data = Utility.safe_load_yaml_with_upper_key(f) 
     
     # check if given configuration file is empty        
     if not data:
