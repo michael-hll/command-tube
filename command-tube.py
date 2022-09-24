@@ -2593,7 +2593,7 @@ class StorageUtility():
             is_override = True
         
         # check override
-        if is_override == False:
+        if is_override == False and key in Storage.I.KEY_VALUES_DICT.keys():
             msg = override_reason
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
