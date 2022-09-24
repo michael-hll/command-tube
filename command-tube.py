@@ -355,6 +355,8 @@ class Storage():
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARS'
+        self.C_LEFT_CURLY_BRACKET      = 'LCB'
+        self.C_RIGHT_CURLY_BRACKET     = 'RCB'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -1806,20 +1808,20 @@ class TubeCommand():
                         continue
                     if '=' in line:
                         i = line.index('=')
-                        line_key = line[:i].strip()
-                        line_value = line[i+1:].strip()
-                        if line_value == None:
-                            line_value = ''
+                        key = line[:i].strip()
+                        value = line[i+1:].strip()
+                        if value == None:
+                            value = ''
                         if len(keywords) == 0:
                             StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
                                                              is_override=is_override, override_reason=reason.format(key))
-                            key_values.append(line_key + '=' + line_value)
+                            key_values.append(key + '=' + value)
                         else:
                             for key in keywords:
-                                if key == line_key:
+                                if key == key:
                                     StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
                                                              is_override=is_override, override_reason=reason.format(key))  
-                                    key_values.append(key + '=' + line_value)
+                                    key_values.append(key + '=' + value)
                                                    
 
         return True, key_values    
@@ -2238,23 +2240,29 @@ class TubeCommand():
                 if key in Storage.I.KEYS_READONLY_SET:
                     readonly = ' (readonly)'
                 msg = '%s=%s %s' % (key, value, readonly)
-                if key == 's' or key == 'S' or key == Storage.I.C_TUBE_HOME:
+                if key == 's' or key == 'S' or key == Storage.I.C_TUBE_HOME or \
+                   key == Storage.I.C_LEFT_CURLY_BRACKET or key == Storage.I.C_RIGHT_CURLY_BRACKET:
                     default_vars.append(msg)
                 else:
                     new_vars.append(msg)
         
-        for var in new_vars:
-            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var)
-        
         if len(default_vars) > 0:
-            msg = ' * Below list are hidden variables *'
+            msg = '-- Default Variables --'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         for var in default_vars:
             tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var) 
+            
+        if len(new_vars) > 0:
+            msg = '-- User Variables --'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        for var in new_vars:
+            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var)
     
     def self_report_progress(self):
         
@@ -2588,6 +2596,14 @@ class StorageUtility():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
             return False  
         
+        # skip update 'LCB' or 'RCB' reserved key
+        if key.upper() == Storage.I.C_LEFT_CURLY_BRACKET or \
+            key.upper() == Storage.I.C_RIGHT_CURLY_BRACKET:
+            msg = 'It\'s not allowed to update tube reserved variable \'LCB/RCB\' with value: ' + str(value)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
+            return False 
+        
         # check if force
         if is_force:
             is_override = True
@@ -2759,8 +2775,14 @@ class StorageUtility():
             StorageUtility.update_key_value_dict(key, variables[key])
         
         # always set key 's' to ' '
-        Storage.I.KEY_VALUES_DICT['s'] = ' '
-        Storage.I.KEY_VALUES_DICT['S'] = ' '      
+        if 's' not in Storage.I.KEY_VALUES_DICT.keys():
+            Storage.I.KEY_VALUES_DICT['s'] = ' '
+            Storage.I.KEY_VALUES_DICT['S'] = ' '    
+        
+        # set Left Curly Bracket/Right Curly Bracket
+        if Storage.I.C_LEFT_CURLY_BRACKET not in Storage.I.KEY_VALUES_DICT.keys():  
+            Storage.I.KEY_VALUES_DICT[Storage.I.C_LEFT_CURLY_BRACKET] = '{'
+            Storage.I.KEY_VALUES_DICT[Storage.I.C_RIGHT_CURLY_BRACKET] = '}'  
 
     @classmethod
     def read_emails(self, emails):     
