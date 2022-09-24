@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 
-# -------------------------
-# Command Tube
-# GitHub: https://github.com/michael-hll/command-tube.git
-# Email: michael_hll@hotmail.com
-# Author: Michael Han
-# Date: May 1, 2022
-# Copyright 2022 
-# -------------------------
+# ----------------------------------------------------------------
+# Command Tube - A tool can run local and server commands together
+#    GitHub: https://github.com/michael-hll/command-tube.git
+#    Author: Michael Han
+#     Email: michael_hll@outlook.com
+# Copyright: @2021 @2022 
+# ----------------------------------------------------------------
 
 import os
 import sys
