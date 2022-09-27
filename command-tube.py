@@ -3964,8 +3964,10 @@ def print_tube_command_help(parser: ArgumentParser):
             package_name: xxx-app
             cmd_parameters: -l
             # Below two hidden variables are assigned values when tube starts:
-            S: ' ' # Its value is a space char and can't be overridden
             TUBE_HOME: <tube-running-startup-location-path>
+            S: ' '    # With a spacechar value and can't be overriden.            
+            LCB: {    # Left curly bracket. Can't be overriden.
+            RCG: }    # Right curly bracket. Can't be overriden.
 
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
