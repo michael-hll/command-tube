@@ -2858,7 +2858,7 @@ class StorageUtility():
         else:
             # Windows
             Storage.I.C_PRINT_COLOR_RED = 'red'
-            Storage.I.C_PRINT_COLOR_BLUE = 'blue'
+            Storage.I.C_PRINT_COLOR_BLUE = 'green' # blue color doesn't work well in some windows terminals
             Storage.I.C_PRINT_COLOR_PURPLE = 'purple'
             Storage.I.C_PRINT_COLOR_GREEN = 'green'
             Storage.I.C_PRINT_COLOR_ORANGE = 'orange'
