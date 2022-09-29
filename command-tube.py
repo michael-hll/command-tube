@@ -3860,6 +3860,10 @@ def get_max_tube_command_type_length(tube):
 def convert_tube_to_new(tube, is_from_job_start=False):
     '''
     Convert tube from yaml format to TubeCommand list
+    
+    args:
+        tube: the tube command list from yaml file
+        is_from_job_start: If true then udpate the command tube file to the main yaml file. Default No.
     '''
     
     tube_new = []
