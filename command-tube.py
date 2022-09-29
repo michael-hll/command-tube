@@ -2641,7 +2641,7 @@ class StorageUtility():
             msg = 'Tube variable \'%s\' was%supdated to value: \'%s\'.' % (key, forced, value)
             if command:
                 msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 
         return True
