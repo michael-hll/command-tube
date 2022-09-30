@@ -2641,8 +2641,9 @@ class StorageUtility():
             msg = 'Tube variable \'%s\' was%supdated to value: \'%s\'.' % (key, forced, value)
             if command:
                 msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 
         return True
     
@@ -3751,6 +3752,8 @@ def init_arguments():
                         help='A flag to tell if run the tube immediately, but needs a user confirm. \nDefault no.')  
     parser.add_argument('-f', '--force', dest='force', action='store_const', const='yes',
                         help='A flag to run tube at once without confirmation. \nDefault no.') 
+    parser.add_argument('-d', '--debug', dest='debug', action='store_const', const='yes',
+                        help='A flag to run tube in debug mode. \nDefault no.') 
     parser.add_argument('-t', '--datetime', dest='datetime',
                         help='At what datetime to start this job. \nFORMAT: [mm/dd/yy H:M:S] e.g.: \'03/18/20 6:00:00\'; ' +
                              '\nIt also supports addition format \'n/tXX o\'clock, means next or this XX o\'clock. \ne.g.: \'n7\', means next 7:00 o\'clock; ' + \
@@ -4367,9 +4370,6 @@ def job_start(tube):
     
     # Update TUBE_HOME
     StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR)
-    
-    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-        tprint('Current directory is: %s' % (Storage.I.C_CURR_DIR), type=Storage.I.C_PRINT_TYPE_DEBUG)
 
     try:
         # print job start initials into the log
@@ -5116,6 +5116,10 @@ try:
     if(args.force != None and (args.force.lower() == 'true' or args.force.lower() == 'yes' or args.force.lower() == 'y' or args.force.lower() == 't')):
         Storage.I.IS_FORCE_RUN = True
         Storage.I.IS_IMMEDIATE = True
+        
+    # if debug
+    if args.debug != None:
+        Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
     
     # matrix mode
     if(args.matrix_mode != None and args.matrix_mode == 'yes'):
