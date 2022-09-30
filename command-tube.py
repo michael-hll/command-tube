@@ -1877,6 +1877,8 @@ class TubeCommand():
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 else:              
+                    # there is a bug here if imported tube for multiple times, like using --redo
+                    # the next_index is calculated wrong
                     next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
                     for item in sub_tube:
                         for key in item.keys():
@@ -1893,23 +1895,26 @@ class TubeCommand():
             if Storage.I.C_SERVERS in data.keys():       
                 # Get servers to hosts
                 StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
-                msg = 'Servers hosts are updated by tube: %s.' % file
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Servers hosts are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
 
             if Storage.I.C_VARIABLES in data.keys():
                 # Read variables 
-                msg = 'Tube variables are updated by tube: %s.' % file
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-                StorageUtility.read_variables(data[Storage.I.C_VARIABLES])                
+                StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Tube variables are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
             
             if Storage.I.C_EMAIL in data.keys():
                 # read emails
                 StorageUtility.read_emails(data[Storage.I.C_EMAIL])
-                msg = 'Email configurations are updated by tube: %s.' % file
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Email configurations are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
                 
         has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
         if has_errors == False:
