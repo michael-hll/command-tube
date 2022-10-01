@@ -2329,11 +2329,18 @@ class TubeCommand():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
     
     def run(self):
-        # --------------------------------------------------------
-        # Begin to run each tube command based on its command type
-        # --------------------------------------------------------
         current_command_type = self.cmd_type
         log = self.log
+        
+        # Log current running step
+        running_command = ' >>> %s'
+        msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % self.get_formatted_type() + ': ' + \
+                str(self.get_formatted_content())
+        tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
+        # --------------------------------------------------------
+        # Begin to run each tube command based on its command type
+        # --------------------------------------------------------        
         if current_command_type == Storage.I.C_LINUX_COMMAND:
             log.start_datetime = datetime.now()                
 
@@ -4899,14 +4906,7 @@ def job_start(tube):
                 command.self_report_progress()
                 # continue with next loop item
                 continue
-                        
-            # Log current running step
-            running_command = ' >>> %s'
-            msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % command.get_formatted_type() + ': ' + \
-                  str(command.get_formatted_content())
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
-
+            
             # --------------------------------------------------------
             # Begin to run each tube command based on its command type
             # --------------------------------------------------------
