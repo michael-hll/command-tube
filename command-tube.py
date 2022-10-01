@@ -36,6 +36,15 @@ from random import choice, randrange, paretovariate
 import threading
 
 # -------- CLASSES --------------
+class TDict(dict):
+    '''
+    This class is used to replace the placehoders from the command
+    in case the key doesn't exists in the tube variables list.
+    Using this TDict it will not raise key missing error
+    '''
+    def __missing__(self, key):
+        return '{' + key + '}'
+    
 class Utility():
     
     @classmethod
@@ -354,8 +363,6 @@ class Storage():
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARS'
-        self.C_LEFT_CURLY_BRACKET      = 'LCB'
-        self.C_RIGHT_CURLY_BRACKET     = 'RCB'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -2244,8 +2251,7 @@ class TubeCommand():
                 if key in Storage.I.KEYS_READONLY_SET:
                     readonly = ' (readonly)'
                 msg = '%s=%s %s' % (key, value, readonly)
-                if key == 's' or key == 'S' or key == Storage.I.C_TUBE_HOME or \
-                   key == Storage.I.C_LEFT_CURLY_BRACKET or key == Storage.I.C_RIGHT_CURLY_BRACKET:
+                if key.upper() == 'S' or key == Storage.I.C_TUBE_HOME:
                     default_vars.append(msg)
                 else:
                     new_vars.append(msg)
@@ -2356,7 +2362,10 @@ class TubeCommand():
         # add format support
         value = value.replace('{0:', '{s:') # to compatible with {0:m} syntax
         # replace placeholders from tube commands
-        ret_value = value.format(**Storage.I.KEY_VALUES_DICT)
+        tempDict = TDict(Storage.I.KEY_VALUES_DICT)
+        # using the format_map method will not raise missing key exception
+        ret_value = value.format_map(tempDict)
+        del tempDict
         return ret_value
 
     @classmethod
@@ -2599,15 +2608,7 @@ class StorageUtility():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
             return False  
-        
-        # skip update 'LCB' or 'RCB' reserved key
-        if key.upper() == Storage.I.C_LEFT_CURLY_BRACKET or \
-            key.upper() == Storage.I.C_RIGHT_CURLY_BRACKET:
-            msg = 'It\'s not allowed to update tube reserved variable \'LCB/RCB\' with value: ' + str(value)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
-            return False 
-        
+                
         # check if force
         if is_force:
             is_override = True
@@ -2784,11 +2785,6 @@ class StorageUtility():
             Storage.I.KEY_VALUES_DICT['s'] = ' '
             Storage.I.KEY_VALUES_DICT['S'] = ' '    
         
-        # set Left Curly Bracket/Right Curly Bracket
-        if Storage.I.C_LEFT_CURLY_BRACKET not in Storage.I.KEY_VALUES_DICT.keys():  
-            Storage.I.KEY_VALUES_DICT[Storage.I.C_LEFT_CURLY_BRACKET] = '{'
-            Storage.I.KEY_VALUES_DICT[Storage.I.C_RIGHT_CURLY_BRACKET] = '}'  
-
     @classmethod
     def read_emails(self, emails):     
         '''
@@ -3978,8 +3974,6 @@ def print_tube_command_help(parser: ArgumentParser):
             # Below two hidden variables are assigned values when tube starts:
             TUBE_HOME: <tube-running-startup-location-path>
             S: ' '    # With a spacechar value and can't be overriden.            
-            LCB: {    # Left curly bracket. Can't be overriden.
-            RCG: }    # Right curly bracket. Can't be overriden.
 
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
