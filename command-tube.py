@@ -2444,7 +2444,7 @@ class TubeCommand():
                 log.start_datetime = datetime.now()
                 result = None
                 if os.name.startswith('nt'):
-                    result = subprocess.Popen(command_array, text=True, shell=True,
+                    result = subprocess.Popen(self.conent, text=True, shell=True,
                                               stdout=sys.stdout,stderr=subprocess.PIPE, bufsize=1) 
                 else:                        
                     # In Mac Os or Linux
