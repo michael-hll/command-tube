@@ -2432,34 +2432,39 @@ class TubeCommand():
                 is_use_shell = True
                 if '--no-shell' in self.content:
                     is_use_shell = False
-                    command.content = command.content.replace('--no-shell', '').strip()
+                    self.content = self.content.replace('--no-shell', '').strip()
                 command_array = shlex.split(self.content, posix=True)
                 log.start_datetime = datetime.now()
                 result = None
                 if os.name.startswith('nt'):
-                    result = subprocess.Popen(command_array, text=True, shell=True,stdout=sys.stdout,stderr=subprocess.PIPE) 
+                    result = subprocess.Popen(command_array, text=True, shell=True,
+                                              stdout=sys.stdout,stderr=subprocess.PIPE, bufsize=1) 
                 else:                        
                     # In Mac Os or Linux
                     if is_use_shell:
-                        result = subprocess.Popen(self.content, shell=True, text=True, stdout=sys.stdout, stderr=subprocess.PIPE)
+                        result = subprocess.Popen(self.content, text=True, shell=True,
+                                                  stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)
                     else:
-                        result = subprocess.Popen(command_array, text=True, stdout=sys.stdout, stderr=subprocess.PIPE)                            
+                        result = subprocess.Popen(command_array, text=True, 
+                                                  stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1) 
+                
+                # Need to print error to the terminal and the log file
+                while True:
+                    line = result.stderr.readline()
+                    line = line.replace('\n', '')
+                    if not line:
+                        break
+                    tprint(line)
+                    log.errors.append(line)                       
 
                 # terminate the process and get running result 
-                _, error = result.communicate()  
-                if error:
-                    # TODO: it seems pyinstaller has a bug, output the result to the stderr
-                    if 'PyInstaller' in self.content:
-                        tprint(error, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    else:
-                        tprint(error, type=Storage.I.C_PRINT_TYPE_ERROR)
-                
+                result.communicate()
                 log.end_datetime = datetime.now()
                 if result.returncode != 0:  
-                    log.status = Storage.I.C_FAILED 
-                    log.add_error(error)                            
+                    log.status = Storage.I.C_FAILED                            
                 else:
-                    log.status = Storage.I.C_SUCCESSFUL                                                     
+                    log.status = Storage.I.C_SUCCESSFUL  
+                    log.errors.clear()                                                   
             except Exception as e:
                 log.status = Storage.I.C_FAILED
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
