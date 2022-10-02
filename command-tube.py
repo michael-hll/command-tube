@@ -1017,7 +1017,6 @@ class TubeCommand():
         # are used by RUN_TUBE command
         self.tube                  = None # keep the whole commands
         self.tube_run              = None # keep the commands in current iteration
-        self.tube_original         = None # keep the original commands
         self.tube_yaml             = None # keep the yaml tube format
         self.tube_run_times        = None
         self.tube_conditions       = None  
@@ -2039,8 +2038,8 @@ class TubeCommand():
                 
         has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
         if has_errors == False:
-            self.tube_original = tube_check.copy()
-            Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_original)
+            self.tube_run = tube_check.copy()
+            Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
             self.tube_run_times = 0 # initial the tube running times to 0     
             retrun_value = True
         else:
@@ -3297,8 +3296,7 @@ class TubeRunner():
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_SUCCESSFUL:
                 while_condition = Utility.eval_while_condition(command.tube_conditions)   
                 if while_condition:
-                    runner = TubeRunner(False, command)
-                    command.tube_run = command.tube_original.copy()                    
+                    runner = TubeRunner(False, command)                 
                     runner.start(command.tube_run)
 
         # during the end of sub tube running
