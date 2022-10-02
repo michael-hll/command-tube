@@ -1016,12 +1016,13 @@ class TubeCommand():
         self.tube                  = None # keep the whole commands
         self.tube_run              = None # keep the commands in current iteration
         self.tube_original         = None # keep the original commands
+        self.tube_yaml             = None # keep the yaml tube format
         self.tube_run_times        = None
         self.tube_conditions       = None  
         self.tube_index            = 0
         self.tube_file             = ''  
-        self.tube_runner           = None
         self.parent                = None # The parent RUN_TUBE command
+        self.loop_index            = -1
         self.is_imported           = False # TODO 
         
         # Private properties
@@ -1073,7 +1074,10 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        command_type += '[%s]' % str(self.tube_index)
+        if self.loop_index < 0:
+            command_type += '[%s]' % str(self.tube_index)
+        else:
+            command_type += '[%s-%s]' % (str(self.tube_index), str(self.loop_index))
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -1991,6 +1995,7 @@ class TubeCommand():
             data = Utility.safe_load_yaml_with_upper_key(f)
             if Storage.I.C_TUBE in data.keys():            
                 sub_tube = data[Storage.I.C_TUBE] 
+                self.tube_yaml = sub_tube.copy()
                 
                 if not sub_tube or type(sub_tube) != list:
                     msg = 'Tube file doesnot have any tube commands: ' + file
@@ -1998,14 +2003,10 @@ class TubeCommand():
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 else:
                     next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-                    for item in sub_tube:
-                        for key in item.keys():
-                            sub_command = TubeCommand(key.upper(), item[key])
-                            sub_command.is_imported = True # TODO
-                            sub_command.tube_index = next_index
-                            sub_command.tube_file = os.path.abspath(file)
-                            Storage.I.TUBE_FILE_LIST[sub_command.tube_index] = sub_command.tube_file                
-                            tube_check.append(sub_command)
+                    tube_check = self.create_sub_tube(sub_tube, next_index, file)
+                    Storage.I.TUBE_FILE_LIST[next_index] = file
+                    self.tube_index = next_index
+                    self.tube_file = file
             else:
                 # the 'TUBE' section doesn't exists from the sub-tube file
                 raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
@@ -2038,7 +2039,7 @@ class TubeCommand():
         if has_errors == False:
             self.tube_original = tube_check.copy()
             Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_original)
-            self.tube_run_times = 0                   
+            self.tube_run_times = 0 # initial the tube running times to 0     
             retrun_value = True
         else:
             for err in errors:
@@ -2047,6 +2048,16 @@ class TubeCommand():
         
         return retrun_value
 
+    def create_sub_tube(self, tube_yaml, tube_index, file):
+        if self.cmd_type != Storage.I.C_RUN_TUBE:
+            return []
+        tube_new = convert_tube_to_new(tube_yaml)
+        for command in tube_new:
+            command.is_imported = True # TODO
+            command.tube_index = tube_index
+            command.tube_file = os.path.abspath(file)            
+        return tube_new
+    
     def count(self):
         '''
         For command: COUNT
@@ -3134,24 +3145,35 @@ class TubeCommandLog:
 
 class TubeRunner():
     
-    def __init__(self, is_main = True):
+    def __init__(self, is_main = True, run_tube_command = None):
+        '''
+        Args:
+            is_main: If the runner starts from main job. Default Yes.
+            run_tube_command: The RUN_TUBE command reference that starts this runner
+        '''
         
         self.pre_command      = None
         self.is_main          = is_main
-        self.run_tube_command = None
-    
-    def __start_again(self):
+        self.run_tube_command = run_tube_command
+        
+    def __finish_start_again(self):
+        
+        # skip the main job
         if self.is_main:
             return
+        
         self.run_tube_command : TubeCommand
-        # copy done list to the 'tube' whole sub command list
+        
+        # copy done list to the 'tube' that contains the whole sub command list
         command_done_list = self.run_tube_command.tube_run.copy()
         if self.run_tube_command.tube:
             self.run_tube_command.tube.extend(command_done_list)
         else:
             self.run_tube_command.tube = command_done_list
+            
         # clear tube run
         self.run_tube_command.tube.clear()
+        
         # check if need run again
         while_condition = Utility.eval_while_condition(self.run_tube_command.tube_conditions)
         # print current while conditions in debug mode
@@ -3162,20 +3184,37 @@ class TubeRunner():
                 )
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)  
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        # run again?
         if while_condition:             
-            self.pre_command = None
-            self.run_tube_command.tube = self.run_tube_command.tube_original.copy()
+            self.pre_command = None            
+            self.run_tube_command.tube = self.run_tube_command.create_sub_tube(
+                self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file)
             self.start(self.run_tube_command.tube)
     
-    def start(self, tube, run_tube_command = None):
-        if run_tube_command:
-            self.run_tube_command = run_tube_command
+    def start(self, tube):
+        '''
+        Run a tube.
+        
+        Args:
+            tube: The TubeCommand list that you want to run            
+        '''
+        
+        # increase the total interation times
+        if self.is_main == False:
+            self.run_tube_command.tube_run_times += 1
+        
+        # Loop each command within the tube and run it    
         command: TubeCommand
         for index, command in enumerate(tube): 
-            command.index = index + 1   
-            command.tube_runner = self      
+            command.index = index + 1  
+            # add a link if the tube runner is started a sub tube
+            # linke the each sub tube command with the RUN_TUBE command
+            if self.is_main == False:
+                command.parent = self.run_tube_command   
+                command.loop_index = self.run_tube_command.tube_run_times  
 
-            # initial log instance
+            # get log instance
             log = command.log
             
             # skip command which is skipped by continue arguments
@@ -3256,14 +3295,14 @@ class TubeRunner():
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_SUCCESSFUL:
                 while_condition = Utility.eval_while_condition(command.tube_conditions)   
                 if while_condition:
-                    runner = TubeRunner(False)
+                    runner = TubeRunner(False, command)
                     command.tube_run = command.tube_original.copy()                    
-                    runner.start(command.tube_run, command)
+                    runner.start(command.tube_run)
 
         # during the end of sub tube running
         # we need to check while condition again
         # to see if need to run the sub tube again
-        self.__start_again()
+        self.__finish_start_again()
         
 class Host():
     
