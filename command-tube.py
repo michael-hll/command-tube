@@ -2006,9 +2006,9 @@ class TubeCommand():
                 else:
                     next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
                     tube_check = self.create_sub_tube(sub_tube, next_index, file)
-                    Storage.I.TUBE_FILE_LIST[next_index] = file
+                    Storage.I.TUBE_FILE_LIST[next_index] = os.path.abspath(file)
                     self.tube_index = next_index
-                    self.tube_file = file
+                    self.tube_file = os.path.abspath(file)
             else:
                 # the 'TUBE' section doesn't exists from the sub-tube file
                 raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
@@ -2057,7 +2057,7 @@ class TubeCommand():
         for command in tube_new:
             command.is_imported = True # TODO
             command.self_tube_index = tube_index
-            command.self_tube_file = os.path.abspath(file)            
+            command.self_tube_file = file          
         return tube_new
     
     def count(self):
