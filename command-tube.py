@@ -362,6 +362,7 @@ class Storage():
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARS'
+        self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -375,6 +376,7 @@ class Storage():
         self.C_ANT_DEPLOY_ERROR        = 'BUILD FAILED'
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) before command type means the command is run again.'
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
+        self.C_DESC_NEW_LINE_SPACE     = '             '
         self.C_HELP                    = '''Use 'help' command to view the whole help document;
 Use 'help commands' to print all commands usages;
 Use 'help command-name' to print all the tube commands usage which name matched.
@@ -511,7 +513,22 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Import tube commands from a sub-tube file, servers, variables or emails can also be imported.'
-            },                     
+            },  
+            self.C_RUN_TUBE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [    
+                    [False, '-y','--yaml', 'str', '+', 'file', True, False, '', '',
+                        'The tube yaml file you want to run.'],    
+                    [False, '-w','--while', 'str', '*', 'conditions', False, False, '', '',
+                        'Set the condtions to run the tube.'],  
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Run a tube. With the \'--while\' conditions, \
+                                             \n{0}{1} will only stop once the conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
+            },                   
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
@@ -1941,6 +1958,80 @@ class TubeCommand():
         
         return retrun_value
 
+    def run_tube(self, continue_redo_parser: TubeArgumentParser):
+        '''
+        For command: RUN_TUBE
+        '''
+        retrun_value = False
+        file = self.content
+        conditions = None
+        # replace placeholders
+        file = TubeCommand.format_placeholders(file) 
+        insert_at_index = self.index
+        tube_check = []
+        with open(file, 'r') as f:
+            data = Utility.safe_load_yaml_with_upper_key(f)
+            if Storage.I.C_TUBE in data.keys():            
+                sub_tube = data[Storage.I.C_TUBE] 
+                
+                if not sub_tube or type(sub_tube) != list:
+                    msg = 'Tube file doesnot have any tube commands: ' + file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                else:              
+                    # there is a bug here if imported tube for multiple times, like using --redo
+                    # the next_index is calculated wrong
+                    next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
+                    for item in sub_tube:
+                        for key in item.keys():
+                            sub_command = TubeCommand(key.upper(), item[key])
+                            sub_command.is_imported = True
+                            sub_command.tube_index = next_index
+                            sub_command.tube_file = os.path.abspath(file)
+                            Storage.I.TUBE_FILE_LIST[sub_command.tube_index] = sub_command.tube_file                
+                            tube_check.append(sub_command)
+            else:
+                # the 'TUBE' section doesn't exists from the sub-tube file
+                raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
+            
+            if Storage.I.C_SERVERS in data.keys():       
+                # Get servers to hosts
+                StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Servers hosts are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+
+            if Storage.I.C_VARIABLES in data.keys():
+                # Read variables 
+                StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Tube variables are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
+            
+            if Storage.I.C_EMAIL in data.keys():
+                # read emails
+                StorageUtility.read_emails(data[Storage.I.C_EMAIL])
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Email configurations are updated by tube: %s.' % file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                
+        has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
+        if has_errors == False:
+            for sub_command in tube_check:
+                Storage.I.TUBE_RUN.insert(insert_at_index, sub_command)
+                insert_at_index += 1
+            Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(Storage.I.TUBE_RUN)        
+            retrun_value = True
+        else:
+            for err in errors:
+                self.log.add_error(err)
+                self.log.status = Storage.I.C_FAILED       
+        
+        return retrun_value
+
     def count(self):
         '''
         For command: COUNT
@@ -2689,6 +2780,20 @@ class TubeCommand():
                 log.start_datetime = datetime.now()
                 log.status = Storage.I.C_FAILED
                 result = self.import_tube(general_command_parser)
+                if result == True:
+                    log.status = Storage.I.C_SUCCESSFUL
+                log.end_datetime = datetime.now()                    
+            except Exception as e:
+                log.status = Storage.I.C_FAILED
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.end_datetime = datetime.now()
+        
+        elif current_command_type == Storage.I.C_RUN_TUBE:
+            try:
+                log.start_datetime = datetime.now()
+                log.status = Storage.I.C_FAILED
+                result = self.run_tube(general_command_parser)
                 if result == True:
                     log.status = Storage.I.C_SUCCESSFUL
                 log.end_datetime = datetime.now()                    
