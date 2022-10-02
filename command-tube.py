@@ -988,6 +988,11 @@ class TubeCommand():
         self.has_placeholders      = False
         self.is_key_command        = False
         self.results               = []
+        # the follow properties starts with 'tube'
+        # are used by RUN_TUBE command
+        self.tube                  = None
+        self.tube_run_times        = None
+        self.tube_conditions       = None       
         
         # Private properties
         self.__original_content2   = None # content without place holders        
@@ -3006,6 +3011,95 @@ class TubeCommandLog:
         '''
         for err in self.errors:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', err)          
+
+class TubeRunner():
+    
+    def __init__(self, is_main = True):
+        
+        self.pre_command     = None
+        self.is_main         = is_main
+    
+    def start(self, tube, command = None):
+        command: TubeCommand
+        for index, command in enumerate(tube): 
+            command.index = index + 1         
+
+            # initial log instance
+            log = command.log
+            
+            # skip command which is skipped by continue arguments
+            if command.is_skip == True:
+                log.status = Storage.I.C_SKIPPED             
+                Storage.I.LOGS.append(log)
+                # log command which is skipped
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped by previous --continue arguments.'
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                # check if report tube command status
+                command.self_report_progress()
+                # continue with next loop item
+                continue
+                        
+            # skip if any previous command failed 
+            if self.pre_command != None and \
+              (self.pre_command.log.status == Storage.I.C_FAILED and self.pre_command.is_failed_continue == False):               
+                log.status = Storage.I.C_SKIPPED
+                Storage.I.LOGS.append(log)
+                # check if report tube command status
+                command.self_report_progress()
+                # continue with next loop item                
+                continue
+            
+            # reset general arguments
+            command.reset_general_arguments()
+            
+            # skip if_run == False cases
+            if command.if_run == False:
+                command.is_skip = True
+                # in order to get key command correct running status
+                # we need this flag to tell it's skipped by if run
+                # if command is skipped by if run, then it will not 
+                # affect the key command status
+                command.is_skip_by_if = True
+                log.status = Storage.I.C_SKIPPED             
+                Storage.I.LOGS.append(log)
+                # log command which is skipped
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped since --if condition is False.'
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                # check if report tube command status
+                command.self_report_progress()
+                # continue with next loop item
+                continue
+            
+            # --------------------------------------------------------
+            # Begin to run each tube command based on its command type
+            # --------------------------------------------------------
+            if not command.run():
+                self.pre_command = command
+                continue
+              
+            # support --redo arguments logic
+            if command.is_failed_redo == True and log.status == Storage.I.C_FAILED:
+                TubeCommandUtility.insert_failed_redo_commands(tube, index, command)
+            elif command.is_failed_redo == True and log.status == Storage.I.C_SUCCESSFUL and \
+                 command.redo_steps > 0:
+                TubeCommandUtility.insert_success_redo_commands(tube, index, command)                
+                    
+            # check continue conditional skip steps at the end of each command
+            if command.is_failed_continue:
+                TubeCommandUtility.reset_command_skip(tube, command)        
+            
+            # if command failed and errors then output to log
+            if log.status == Storage.I.C_FAILED:
+                log.write_errors_to_log()
+                
+            # check if report tube command status
+            command.self_report_progress()
+                                
+            # Finnally append the command log
+            Storage.I.LOGS.append(log)
+            self.pre_command = command
     
 class Host():
     
@@ -4838,9 +4932,6 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD = None
             
 def job_start(tube):
-    current_command = None
-    current_command_type = None
-    pre_command: TubeCommand = None
     
     # Update TUBE_HOME
     StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR)
@@ -4853,90 +4944,11 @@ def job_start(tube):
         # the new command list Storage.I.TUBE_RUN will be used in each loop
         Storage.I.TUBE_RUN = convert_tube_to_new(tube, True)
         
-        command: TubeCommand
-        for index, command in enumerate(Storage.I.TUBE_RUN):
-            current_command = command.content
-            current_command_type = command.cmd_type   
-            command.index = index + 1         
-
-            # initial log instance
-            log = command.log
-            
-            # skip command which is skipped by continue arguments
-            if command.is_skip == True:
-                log.status = Storage.I.C_SKIPPED             
-                Storage.I.LOGS.append(log)
-                # log command which is skipped
-                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped by previous --continue arguments.'
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
-                # check if report tube command status
-                command.self_report_progress()
-                # continue with next loop item
-                continue
-                        
-            # skip if any previous command failed 
-            if pre_command != None and \
-              (pre_command.log.status == Storage.I.C_FAILED and pre_command.is_failed_continue == False):               
-                log.status = Storage.I.C_SKIPPED
-                Storage.I.LOGS.append(log)
-                # check if report tube command status
-                command.self_report_progress()
-                # continue with next loop item                
-                continue
-            
-            # reset general arguments
-            command.reset_general_arguments()
-            
-            # skip if_run == False cases
-            if command.if_run == False:
-                command.is_skip = True
-                # in order to get key command correct running status
-                # we need this flag to tell it's skipped by if run
-                # if command is skipped by if run, then it will not 
-                # affect the key command status
-                command.is_skip_by_if = True
-                log.status = Storage.I.C_SKIPPED             
-                Storage.I.LOGS.append(log)
-                # log command which is skipped
-                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.content + '\' was skipped since --if condition is False.'
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
-                # check if report tube command status
-                command.self_report_progress()
-                # continue with next loop item
-                continue
-            
-            # --------------------------------------------------------
-            # Begin to run each tube command based on its command type
-            # --------------------------------------------------------
-            if not command.run():
-                pre_command = command
-                continue
-              
-            # support --redo arguments logic
-            if command.is_failed_redo == True and log.status == Storage.I.C_FAILED:
-                TubeCommandUtility.insert_failed_redo_commands(Storage.I.TUBE_RUN, index, command)
-            elif command.is_failed_redo == True and log.status == Storage.I.C_SUCCESSFUL and \
-                 command.redo_steps > 0:
-                TubeCommandUtility.insert_success_redo_commands(Storage.I.TUBE_RUN, index, command)                
-                    
-            # check continue conditional skip steps at the end of each command
-            if command.is_failed_continue:
-                TubeCommandUtility.reset_command_skip(Storage.I.TUBE_RUN, command)        
-            
-            # if command failed and errors then output to log
-            if log.status == Storage.I.C_FAILED:
-                log.write_errors_to_log()
-                
-            # check if report tube command status
-            command.self_report_progress()
-                                
-            # Finnally append the command log
-            Storage.I.LOGS.append(log)
-            pre_command = command            
+        runner = TubeRunner()
+        runner.start(Storage.I.TUBE_RUN)
+                   
     except Exception as e:
-        msg = 'When execute command type: %s, command: %s, exception: %s' % (current_command_type, current_command, str(e))
+        msg = 'Exceptions found within job_start: ' + str(e)
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)  
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
     finally:
