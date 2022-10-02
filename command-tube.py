@@ -1011,6 +1011,8 @@ class TubeCommand():
         self.has_placeholders      = False
         self.is_key_command        = False
         self.results               = []
+        self.self_tube_index       = 0
+        self.self_tube_file        = '' 
         # the follow properties starts with 'tube'
         # are used by RUN_TUBE command
         self.tube                  = None # keep the whole commands
@@ -1020,7 +1022,7 @@ class TubeCommand():
         self.tube_run_times        = None
         self.tube_conditions       = None  
         self.tube_index            = 0
-        self.tube_file             = ''  
+        self.tube_file             = '' 
         self.parent                = None # The parent RUN_TUBE command
         self.loop_index            = -1
         self.is_imported           = False # TODO 
@@ -1075,9 +1077,9 @@ class TubeCommand():
         '''
         command_type = self.cmd_type
         if self.loop_index < 0:
-            command_type += '[%s]' % str(self.tube_index)
+            command_type += '[%s]' % str(self.self_tube_index)
         else:
-            command_type += '[%s-%s]' % (str(self.tube_index), str(self.loop_index))
+            command_type += '[%s-%s]' % (str(self.self_tube_index), str(self.loop_index))
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -1929,9 +1931,9 @@ class TubeCommand():
                         for key in item.keys():
                             sub_command = TubeCommand(key.upper(), item[key])
                             sub_command.is_imported = True
-                            sub_command.tube_index = next_index
-                            sub_command.tube_file = os.path.abspath(file)
-                            Storage.I.TUBE_FILE_LIST[sub_command.tube_index] = sub_command.tube_file                
+                            sub_command.self_tube_index = next_index
+                            sub_command.self_tube_file = os.path.abspath(file)
+                            Storage.I.TUBE_FILE_LIST[sub_command.self_tube_index] = sub_command.self_tube_file                
                             tube_check.append(sub_command)
             else:
                 # the 'TUBE' section doesn't exists from the sub-tube file
@@ -2054,8 +2056,8 @@ class TubeCommand():
         tube_new = convert_tube_to_new(tube_yaml)
         for command in tube_new:
             command.is_imported = True # TODO
-            command.tube_index = tube_index
-            command.tube_file = os.path.abspath(file)            
+            command.self_tube_index = tube_index
+            command.self_tube_file = os.path.abspath(file)            
         return tube_new
     
     def count(self):
@@ -2102,7 +2104,7 @@ class TubeCommand():
                 if skip_count and cmd.cmd_type == Storage.I.C_COUNT:
                     continue
                 # to check if count within current tube only
-                if current_tube and cmd.tube_index != self.tube_index:
+                if current_tube and cmd.self_tube_index != self.self_tube_index:
                     continue
                 # count tube command
                 if cmd.log.status in status_set:
@@ -3419,7 +3421,7 @@ class StorageUtility():
                 forced = ' forced '
             msg = 'Tube variable \'%s\' was%supdated to value: \'%s\'.' % (key, forced, value)
             if command:
-                msg += ' By tube[%s] command: %s' % (str(command.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
+                msg += ' By tube[%s] command: %s' % (str(command.self_tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
@@ -3688,8 +3690,8 @@ class TubeCommandUtility():
         command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
         command_new.is_redo_added = True
         command_new.is_imported = redo_command.is_imported
-        command_new.tube_index = redo_command.tube_index
-        command_new.tube_file = redo_command.tube_file
+        command_new.self_tube_index = redo_command.self_tube_index
+        command_new.self_tube_file = redo_command.self_tube_file
         command_new.original_uuid = redo_command.uuid
         
         tube_run.insert(redo_command_index + 1, command_new ) 
@@ -3710,8 +3712,8 @@ class TubeCommandUtility():
             command_new = TubeCommand(command.cmd_type, command.original_content)
             command_new.is_redo_added = True
             command_new.is_imported = redo_command.is_imported
-            command_new.tube_index = redo_command.tube_index       
-            command_new.tube_file = redo_command.tube_file  
+            command_new.self_tube_index = redo_command.self_tube_index       
+            command_new.self_tube_file = redo_command.self_tube_file  
             command_new.original_uuid = command.uuid      
             back_commands.insert(0, command_new)
             count += 1
@@ -3737,8 +3739,8 @@ class TubeCommandUtility():
             command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
             command_new.is_redo_added = True
             command_new.is_imported = redo_command.is_imported
-            command_new.tube_index = redo_command.tube_index
-            command_new.tube_file = redo_command.tube_file
+            command_new.self_tube_index = redo_command.self_tube_index
+            command_new.self_tube_file = redo_command.self_tube_file
             command_new.original_uuid = redo_command.uuid
         
             tube_run.insert(redo_command_index + i, command_new ) 
@@ -4654,8 +4656,8 @@ def convert_tube_to_new(tube, is_from_job_start=False):
         for key in item.keys():                  
             command = TubeCommand(key.upper(), item[key])
             if is_from_job_start == True:
-                command.tube_file = os.path.abspath(Storage.I.TUBE_YAML_FILE)
-                Storage.I.TUBE_FILE_LIST[command.tube_index] = command.tube_file
+                command.self_tube_file = os.path.abspath(Storage.I.TUBE_YAML_FILE)
+                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = command.self_tube_file
             tube_new.append(command) 
             
     # update max command type length
