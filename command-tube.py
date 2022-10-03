@@ -33,6 +33,7 @@ import shlex
 import shutil
 from random import choice, randrange, paretovariate
 import threading
+from fastapi import File
 
 # -------- CLASSES --------------
 class TDict(dict):
@@ -2003,10 +2004,9 @@ class TubeCommand():
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 else:
-                    next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-                    tube_check = self.create_tube_run(sub_tube, next_index, file)
-                    Storage.I.TUBE_FILE_LIST[next_index] = os.path.abspath(file)
-                    self.tube_index = next_index
+                    tube_index = StorageUtility.get_tube_index(file)
+                    tube_check = self.create_tube_run(sub_tube, tube_index, file)
+                    self.tube_index = tube_index
                     self.tube_file = os.path.abspath(file)
             else:
                 # the 'TUBE' section doesn't exists from the sub-tube file
@@ -3655,7 +3655,19 @@ class StorageUtility():
             Storage.I.C_PRINT_COLOR_ORANGE = 'orange'
             Storage.I.C_PRINT_COLOR_YELLOW = 'yellow'
             Storage.I.C_PRINT_COLOR_STYLE = 'bright'
-  
+    
+    @classmethod
+    def get_tube_index(self, file):
+        index = 0
+        file_full_path = os.path.abspath(file)
+        for key in Storage.I.TUBE_FILE_LIST.keys():
+            value = Storage.I.TUBE_FILE_LIST[key]
+            if value == file_full_path:
+                return key
+        index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
+        Storage.I.TUBE_FILE_LIST[index] = file_full_path
+        return index
+    
 class TubeCommandUtility():
     
     @classmethod
