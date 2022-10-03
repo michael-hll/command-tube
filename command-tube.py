@@ -4288,16 +4288,16 @@ def print_logs(LOGS):
     tprint('-------------------------------')
 
 def check_if_key_command_exists():
-    command: TubeCommand
-    for command in Storage.I.TUBE_RUN:
-        if command.check_if_key_command():
+    for log in Storage.I.LOGS:        
+        if log.command.check_if_key_command():
             return True
     return False
 
 def get_command_result_by_uuid(uuid):
     command: TubeCommand
     status = Storage.I.C_FAILED
-    for command in Storage.I.TUBE_RUN:
+    for log in Storage.I.LOGS:
+        command = log.command
         if command.original_uuid == uuid:
             if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
                 status = Storage.I.C_SKIPPED
