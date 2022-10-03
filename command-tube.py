@@ -462,7 +462,7 @@ Use 'help vars' to print all the given tube variables;
         self.IS_SENT_EMAIL             = False
         self.SERVERS                   = None 
         self.VARIABLES                 = None              
-        self.TUBE                      = None
+        self.TUBE_YAML                 = None
         self.TUBE_YAML_FILE            = None
         self.TUBE_LOG_FILE             = 'tube.log'
         self.IS_LOOP                   = False
@@ -2004,7 +2004,7 @@ class TubeCommand():
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 else:
                     next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-                    tube_check = self.create_sub_tube(sub_tube, next_index, file)
+                    tube_check = self.create_tube_run(sub_tube, next_index, file)
                     Storage.I.TUBE_FILE_LIST[next_index] = os.path.abspath(file)
                     self.tube_index = next_index
                     self.tube_file = os.path.abspath(file)
@@ -2049,7 +2049,15 @@ class TubeCommand():
         
         return retrun_value
 
-    def create_sub_tube(self, tube_yaml, tube_index, file):
+    def create_tube_run(self, tube_yaml, tube_index, file):
+        '''
+        Create a tube command list based on tube yaml list
+        
+        Args:
+            tube_yaml: tube in yaml format
+            tube_index: the tube yaml file index
+            file: the tube yaml file full name
+        '''
         if self.cmd_type != Storage.I.C_RUN_TUBE:
             return []
         tube_new = convert_tube_to_new(tube_yaml)
@@ -3156,6 +3164,18 @@ class TubeRunner():
         self.pre_command      = None
         self.is_main          = is_main
         self.run_tube_command = run_tube_command
+    
+    def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0):
+        # print current while conditions in debug mode        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            conditions = TubeCommand.format_placeholders(tube_conditions)
+            msg = '[LOOP {0}]: The current while condition returns \'{1}\': {2}'.format(
+                str(loop_index+1),
+                str(while_condition),                
+                str(conditions)                   
+                )
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)  
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         
     def __finish_start_again(self):
         
@@ -3173,27 +3193,21 @@ class TubeRunner():
             self.run_tube_command.tube = command_done_list
             
         # clear tube run
-        self.run_tube_command.tube.clear()
+        self.run_tube_command.tube_run.clear()
         
         # check if need run again
         while_condition = Utility.eval_while_condition(self.run_tube_command.tube_conditions)
         # print current while conditions in debug mode
-        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            msg = 'The current while condition returns {0}: {1}'.format(
-                str(while_condition),
-                TubeCommand.format_placeholders(self.run_tube_command.tube_conditions)                   
-                )
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)  
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times)
             
         # run again?
         if while_condition:             
             self.pre_command = None            
-            self.run_tube_command.tube = self.run_tube_command.create_sub_tube(
+            self.run_tube_command.tube_run = self.run_tube_command.create_tube_run(
                 self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file)
-            self.start(self.run_tube_command.tube)
+            self.start(self.run_tube_command.tube_run)
     
-    def start(self, tube):
+    def start(self, tube_run):
         '''
         Run a tube.
         
@@ -3207,7 +3221,7 @@ class TubeRunner():
         
         # Loop each command within the tube and run it    
         command: TubeCommand
-        for index, command in enumerate(tube): 
+        for index, command in enumerate(tube_run): 
             command.index = index + 1  
             # add a link if the tube runner is started a sub tube
             # linke the each sub tube command with the RUN_TUBE command
@@ -3215,7 +3229,7 @@ class TubeRunner():
                 command.parent = self.run_tube_command   
                 command.loop_index = self.run_tube_command.tube_run_times  
 
-            # get log instance
+            # get log instance reference
             log = command.log
             
             # skip command which is skipped by continue arguments
@@ -3272,14 +3286,14 @@ class TubeRunner():
               
             # support --redo arguments logic
             if command.is_failed_redo == True and log.status == Storage.I.C_FAILED:
-                TubeCommandUtility.insert_failed_redo_commands(tube, index, command)
+                TubeCommandUtility.insert_failed_redo_commands(tube_run, index, command)
             elif command.is_failed_redo == True and log.status == Storage.I.C_SUCCESSFUL and \
                  command.redo_steps > 0:
-                TubeCommandUtility.insert_success_redo_commands(tube, index, command)                
+                TubeCommandUtility.insert_success_redo_commands(tube_run, index, command)                
                     
             # check continue conditional skip steps at the end of each command
             if command.is_failed_continue:
-                TubeCommandUtility.reset_command_skip(tube, command)        
+                TubeCommandUtility.reset_command_skip(tube_run, command)        
             
             # if command failed and errors then output to log
             if log.status == Storage.I.C_FAILED:
@@ -3294,7 +3308,9 @@ class TubeRunner():
             
             # Check if it's RUN_TUBE command
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_SUCCESSFUL:
-                while_condition = Utility.eval_while_condition(command.tube_conditions)   
+                while_condition = Utility.eval_while_condition(command.tube_conditions) 
+                # print current while conditions in debug mode
+                self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times)  
                 if while_condition:
                     runner = TubeRunner(False, command)                 
                     runner.start(command.tube_run)
@@ -4143,7 +4159,7 @@ def print_input_parameters():
     tprint('-------------------------------------------------------')
     count = 0
     print_format = '  [%03d] %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's        %s'
-    for item in Storage.I.TUBE:            
+    for item in Storage.I.TUBE_YAML:            
         for key in item.keys():                   
             count += 1
             tprint(print_format %(count, key,  TubeCommand.format_placeholders_no_error(item[key])))
@@ -4634,7 +4650,7 @@ def get_max_tube_command_type_length(tube):
     max_length = len(max(type_list, key=len))
     return max_length + 5
 
-def convert_tube_to_new(tube, is_from_job_start=False):
+def convert_tube_to_new(tube_yaml, is_from_job_start=False):
     '''
     Convert tube from yaml format to TubeCommand list
     
@@ -4646,11 +4662,11 @@ def convert_tube_to_new(tube, is_from_job_start=False):
     tube_new = []
     
     # check empty tube commands
-    if not tube:
+    if not tube_yaml:
         return tube_new
     
     # go through each tube command and imported
-    for item in tube:            
+    for item in tube_yaml:            
         for key in item.keys():                  
             command = TubeCommand(key.upper(), item[key])
             if is_from_job_start == True:
@@ -5134,7 +5150,14 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD.join()
     Storage.I.MATRIX_THREAD = None
             
-def job_start(tube):
+def job_start(tube_yaml):
+    
+    '''
+    Start the Command-Tube job
+    
+    Args:
+        tube_yaml: Tube command list in YAML format
+    '''
     
     # Update TUBE_HOME
     StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR)
@@ -5145,7 +5168,7 @@ def job_start(tube):
         
         # revert tube command list to initial status
         # the new command list Storage.I.TUBE_RUN will be used in each loop
-        Storage.I.TUBE_RUN = convert_tube_to_new(tube, True)
+        Storage.I.TUBE_RUN = convert_tube_to_new(tube_yaml, True)
         
         runner = TubeRunner()
         runner.start(Storage.I.TUBE_RUN)
@@ -5265,7 +5288,7 @@ try:
 
     # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
-        Storage.I.TUBE = data[Storage.I.C_TUBE]
+        Storage.I.TUBE_YAML = data[Storage.I.C_TUBE]
     # Emails
     if Storage.I.C_EMAIL in data.keys():        
         StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
@@ -5364,7 +5387,7 @@ try:
         Storage.I.IS_REPORT_PROGRESS = True
         
     # checking tube command syntax
-    Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE)
+    Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE_YAML)
     has_error, _ = StorageUtility.check_tube_command_arguments(Storage.I.TUBE_RUN, general_command_parser)
     if has_error == True:
         msg = 'Tube has syntax errors, please double check.'
@@ -5451,7 +5474,7 @@ while Storage.I.IS_STOP == False:
             start_matrix_terminal()
         
         # start the job
-        job_start(Storage.I.TUBE) 
+        job_start(Storage.I.TUBE_YAML) 
         
         # stop matrix mode if it's started
         if Storage.I.IS_MATRIX_MODE:
