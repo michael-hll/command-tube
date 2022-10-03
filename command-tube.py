@@ -487,6 +487,7 @@ Use 'help vars' to print all the given tube variables;
         self.KEYS_READONLY_SET          = set() # to store tube variables which are readonly
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
+        self.TUBE                      = []
         self.TUBE_RUN                  = [] 
         self.HOSTS                     = {}
         self.CURR_HOST                 = ''
@@ -2112,7 +2113,9 @@ class TubeCommand():
         elif len(status_set) > 0:
             cmd_count = 0
             cmd: TubeCommand
-            for cmd in Storage.I.TUBE_RUN:
+            log: TubeCommandLog
+            for log in Storage.I.LOGS:
+                cmd = log.command
                 # skip COUNT command itself
                 if skip_count and cmd.cmd_type == Storage.I.C_COUNT:
                     continue
@@ -3075,6 +3078,13 @@ class TubeCommand():
             
         return description
     
+    @classmethod
+    def get_child_commands(self, command, child_commands):
+        if command.tube != None and len(command.tube) > 0:
+            for command in command.tube:
+                child_commands.append(command)
+                TubeCommand.get_child_commands(command, child_commands)                
+    
 class TubeCommandLog:
 
     def __init__(self, command: TubeCommand):
@@ -3695,6 +3705,15 @@ class StorageUtility():
         index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
         Storage.I.TUBE_FILE_LIST[index] = file_full_path
         return index
+    
+    @classmethod
+    def udpate_tube_list(self):
+        Storage.I.TUBE.clear()
+        for command in Storage.I.TUBE_RUN:
+            Storage.I.TUBE.append(command)
+            child_commands = []
+            TubeCommand.get_child_commands(command, child_commands)
+            Storage.I.TUBE.extend(child_commands)
     
 class TubeCommandUtility():
     
