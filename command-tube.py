@@ -1090,7 +1090,7 @@ class TubeCommand():
         Remove the placehoders form the content and return
         '''
         loop_status = ''
-        if self.loop_index > 0:
+        if self.parent != None and self.parent.tube_conditions != None and self.loop_index > 0:
             loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
             if self.__original_content2 == None:
@@ -3191,7 +3191,7 @@ class TubeRunner():
     
     def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0):
         # print current while conditions in debug mode        
-        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+        if tube_conditions != None and Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             conditions = TubeCommand.format_placeholders(tube_conditions)
             msg = '[LOOP {0}]: The current while condition returns \'{1}\': {2}'.format(
                 str(loop_index+1),
