@@ -314,12 +314,14 @@ class Utility():
             return data
     
     @classmethod
-    def eval_while_condition(self, while_condition):
+    def eval_while_condition(self, while_condition, is_main = True):
         result = True
         if while_condition != None: 
             while_condition = TubeCommand.format_placeholders(while_condition)
             conditions = Utility.reset_yes_no_character(while_condition)
             result = eval(next(conditions))   
+        elif while_condition == None and is_main == False:
+            result = False
         return result   
       
 class Storage():
@@ -1002,6 +1004,7 @@ class TubeCommand():
         self.is_fail_skip          = False
         self.is_skip               = False
         self.is_skip_by_if         = False
+        self.is_skip_by_while      = False
         self.is_redo_added         = False
         self.if_run                = True
         self.index                 = None
@@ -1020,7 +1023,7 @@ class TubeCommand():
         self.tube_run              = None # keep the commands in current iteration
         self.tube_yaml             = None # keep the yaml tube format
         self.tube_run_times        = None
-        self.tube_conditions       = None  
+        self.tube_conditions       = None          
         self.tube_index            = 0
         self.tube_file             = '' 
         self.parent                = None # The parent RUN_TUBE command
@@ -1076,10 +1079,7 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        if self.loop_index < 0:
-            command_type += '[%s]' % str(self.self_tube_index)
-        else:
-            command_type += '[%s-%s]' % (str(self.self_tube_index), str(self.loop_index))
+        command_type += '[%s]' % str(self.self_tube_index)
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -1088,12 +1088,15 @@ class TubeCommand():
         '''
         Remove the placehoders form the content and return
         '''
+        loop_status = ''
+        if self.loop_index > 0:
+            loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
             if self.__original_content2 == None:
                 self.__original_content2 = TubeCommand.format_placeholders(self.original_content)
-            return self.__original_content2
+            return loop_status + self.__original_content2
         except Exception as e:
-            return self.original_content
+            return loop_status + self.original_content
     
     def reset_general_arguments(self):
         
@@ -1981,7 +1984,6 @@ class TubeCommand():
         '''
         For command: RUN_TUBE
         '''
-        retrun_value = False
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
         file, conditions = None, None
@@ -1991,63 +1993,67 @@ class TubeCommand():
         if args.conditions:
             conditions = ' '.join(args.conditions)
             self.tube_conditions = conditions
-
-        tube_check = []
-        with open(file, 'r') as f:
-            data = Utility.safe_load_yaml_with_upper_key(f)
-            if Storage.I.C_TUBE in data.keys():            
-                sub_tube = data[Storage.I.C_TUBE] 
-                self.tube_yaml = sub_tube.copy()
-                
-                if not sub_tube or type(sub_tube) != list:
-                    msg = 'Tube file doesnot have any tube commands: ' + file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-                else:
-                    tube_index = StorageUtility.get_tube_index(file)
-                    tube_check = self.create_tube_run(sub_tube, tube_index, file)
-                    self.tube_index = tube_index
-                    self.tube_file = os.path.abspath(file)
-            else:
-                # the 'TUBE' section doesn't exists from the sub-tube file
-                raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
-            
-            if Storage.I.C_SERVERS in data.keys():       
-                # Get servers to hosts
-                StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Servers hosts are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-
-            if Storage.I.C_VARIABLES in data.keys():
-                # Read variables 
-                StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Tube variables are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
-            
-            if Storage.I.C_EMAIL in data.keys():
-                # read emails
-                StorageUtility.read_emails(data[Storage.I.C_EMAIL])
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Email configurations are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-                
-        has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
-        if has_errors == False:
-            self.tube_run = tube_check.copy()
-            Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
-            self.tube_run_times = 0 # initial the tube running times to 0     
-            retrun_value = True
-        else:
-            for err in errors:
-                self.log.add_error(err)
-                self.log.status = Storage.I.C_FAILED       
         
-        return retrun_value
+        # Check if it's RUN_TUBE command
+        while_condition = Utility.eval_while_condition(self.tube_conditions) 
+        if  while_condition:
+            tube_check = []
+            with open(file, 'r') as f:
+                data = Utility.safe_load_yaml_with_upper_key(f)
+                if Storage.I.C_TUBE in data.keys():            
+                    sub_tube = data[Storage.I.C_TUBE] 
+                    self.tube_yaml = sub_tube.copy()
+                    
+                    if not sub_tube or type(sub_tube) != list:
+                        msg = 'Tube file doesnot have any tube commands: ' + file
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                    else:
+                        tube_index = StorageUtility.get_tube_index(file)
+                        tube_check = self.create_tube_run(sub_tube, tube_index, file)
+                        self.tube_index = tube_index
+                        self.tube_file = os.path.abspath(file)
+                else:
+                    # the 'TUBE' section doesn't exists from the sub-tube file
+                    raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
+                
+                if Storage.I.C_SERVERS in data.keys():       
+                    # Get servers to hosts
+                    StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Servers hosts are updated by tube: %s.' % file
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+
+                if Storage.I.C_VARIABLES in data.keys():
+                    # Read variables 
+                    StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Tube variables are updated by tube: %s.' % file
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
+                
+                if Storage.I.C_EMAIL in data.keys():
+                    # read emails
+                    StorageUtility.read_emails(data[Storage.I.C_EMAIL])
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Email configurations are updated by tube: %s.' % file
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                    
+            has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
+            if has_errors == False:
+                self.tube_run = tube_check.copy()
+                Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
+                self.tube_run_times = 0 # initial the tube running times to 0     
+            else:
+                for err in errors:
+                    self.log.add_error(err)
+                    self.log.status = Storage.I.C_FAILED  
+        else:
+            # while condition return False
+            self.log.status = Storage.I.C_SKIPPED   
+            self.is_skip_by_while = True  
 
     def create_tube_run(self, tube_yaml, tube_index, file):
         '''
@@ -2827,10 +2833,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_RUN_TUBE:
             try:
                 log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
-                result = self.run_tube(general_command_parser)
-                if result == True:
-                    log.status = Storage.I.C_SUCCESSFUL
+                log.status = Storage.I.C_SUCCESSFUL
+                self.run_tube(general_command_parser)
                 log.end_datetime = datetime.now()                    
             except Exception as e:
                 log.status = Storage.I.C_FAILED
@@ -3107,10 +3111,20 @@ class TubeCommandLog:
         command_type = self.command.get_formatted_type()
         if duration_in_s >= 60:
             duration_str = '%s MIN' % self.get_total_minutes()
-        return_foramt = '%5s - %10s - %8s - %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's: %s'        
+        return_foramt = '%5s - %10s - %8s - %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's: %s'   
         return return_foramt % \
             ('[' + str(sequence) + ']', self.status, duration_str, command_type, \
              self.command.get_formatted_content())
+    
+    def get_hierarchy_seq(self, command: TubeCommand, full_seq = ''):
+        if command.parent:
+            full_seq = self.get_hierarchy_seq(command.parent, full_seq)
+
+        if full_seq:
+            full_seq += '-' + str(command.index)
+        else:
+            full_seq = str(command.index)
+        return full_seq
     
     def print_log(self, sequence):
         '''
@@ -3196,7 +3210,7 @@ class TubeRunner():
         self.run_tube_command.tube_run.clear()
         
         # check if need run again
-        while_condition = Utility.eval_while_condition(self.run_tube_command.tube_conditions)
+        while_condition = Utility.eval_while_condition(self.run_tube_command.tube_conditions, False)
         # print current while conditions in debug mode
         self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times)
             
@@ -3282,6 +3296,20 @@ class TubeRunner():
             # --------------------------------------------------------
             if not command.run():
                 self.pre_command = command
+                continue
+            
+            # deal with the RUN_TUBE was skipped case
+            if command.cmd_type == Storage.I.C_RUN_TUBE and command.log.status == Storage.I.C_SKIPPED:
+                command.is_skip = True
+                command.is_skip_by_while = True
+                Storage.I.LOGS.append(log)
+                # log command which is skipped
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + TubeCommand.format_placeholders(command.content) + '\' was skipped since --while condition is False.'
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
+                # check if report tube command status
+                command.self_report_progress()
+                # continue with next loop item
                 continue
               
             # support --redo arguments logic
@@ -4301,7 +4329,7 @@ def calculate_success_failed_details(LOGS, is_for_email):
         command: TubeCommand
         for command in Storage.I.TUBE_RUN:
             # we can skip the --if no cases          
-            if command.check_if_key_command() and command.is_skip_by_if == False:
+            if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
                 key_command_result = get_command_result_by_uuid(command.original_uuid)
                 if key_command_result != Storage.I.C_SUCCESSFUL:
                     result_tmp = Storage.I.C_FAILED
