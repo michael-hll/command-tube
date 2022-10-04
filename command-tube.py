@@ -12,7 +12,6 @@ import os
 import sys
 from os import path
 from pathlib import Path
-from tokenize import Number
 import traceback
 import subprocess
 from datetime import datetime, timedelta, date
@@ -33,7 +32,6 @@ import shlex
 import shutil
 from random import choice, randrange, paretovariate
 import threading
-from fastapi import File
 
 # -------- CLASSES --------------
 class TDict(dict):
@@ -345,6 +343,7 @@ class Storage():
         self.C_SUCCESSFUL              = 'SUCCESSFUL'
         self.C_FAILED                  = 'FAILED'
         self.C_SKIPPED                 = 'SKIPPED'
+        self.C_RUNNING                 = 'RUNNING'
         # Tube Command names and parameters
         self.C_LINUX_COMMAND           = 'LINUX_COMMAND'
         self.C_PATH                    = 'PATH'
@@ -1995,7 +1994,7 @@ class TubeCommand():
             conditions = ' '.join(args.conditions)
             self.tube_conditions = conditions
         
-        # Check if it's RUN_TUBE command
+        # Check while condition of RUN_TUBE command
         while_condition = Utility.eval_while_condition(self.tube_conditions) 
         if  while_condition:
             tube_check = []
@@ -2836,7 +2835,7 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_RUN_TUBE:
             try:
                 log.start_datetime = datetime.now()
-                log.status = Storage.I.C_SUCCESSFUL
+                log.status = Storage.I.C_RUNNING
                 self.run_tube(general_command_parser)
                 log.end_datetime = datetime.now()                    
             except Exception as e:
@@ -3230,6 +3229,9 @@ class TubeRunner():
             self.run_tube_command.tube_run = self.run_tube_command.create_tube_run(
                 self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file)
             self.start(self.run_tube_command.tube_run)
+        else:
+            # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
+            self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
     
     def start(self, tube_run):
         '''
@@ -3345,7 +3347,7 @@ class TubeRunner():
             self.pre_command = command
             
             # Check if it's RUN_TUBE command
-            if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_SUCCESSFUL:
+            if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:
                 while_condition = Utility.eval_while_condition(command.tube_conditions) 
                 # print current while conditions in debug mode
                 self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times)  
@@ -4287,26 +4289,59 @@ def print_logs(LOGS):
     tprint('Total Time: %s' % totals)
     tprint('-------------------------------')
 
-def check_if_key_command_exists():
-    for log in Storage.I.LOGS:        
-        if log.command.check_if_key_command():
-            return True
+def check_if_key_command_exists(tube = []):
+    '''
+    Check if key command exists
+    
+    Args:
+        tube: If not provided then check all the log linked commands
+    '''
+    if len(tube) == 0:
+        for log in Storage.I.LOGS:        
+            if log.command.check_if_key_command():
+                return True
+    else:        
+        command: TubeCommand
+        for command in tube:
+            if command.check_if_key_command():
+                return True        
     return False
 
-def get_command_result_by_uuid(uuid):
+def get_command_result_by_uuid(uuid, tube = []):
+    '''
+    Get command result by UUID
+    
+    Args:
+        uuid: The UUID of the command
+        tube: The tube you want to check, if not provided then check all the linked log commands
+    '''
     command: TubeCommand
     status = Storage.I.C_FAILED
-    for log in Storage.I.LOGS:
-        command = log.command
-        if command.original_uuid == uuid:
-            if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
-                status = Storage.I.C_SKIPPED
-            elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
-                status = Storage.I.C_SUCCESSFUL
-                return status
+    if len(tube) == 0:
+        for log in Storage.I.LOGS:
+            command = log.command
+            if command.original_uuid == uuid:
+                if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
+                    status = Storage.I.C_SKIPPED
+                elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
+                    status = Storage.I.C_SUCCESSFUL
+                    return status
+    else:        
+        for command in tube:
+            if command.original_uuid == uuid:
+                if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
+                    status = Storage.I.C_SKIPPED
+                elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
+                    status = Storage.I.C_SUCCESSFUL
+                    return status
     return status
 
 def calculate_success_failed_details(LOGS, is_for_email):
+    
+    '''
+    Calculate overall (main tube) status by log details
+    '''
+    
     success_count = 0
     failed_count = 0    
     skipped_count = 0
@@ -4356,6 +4391,52 @@ def calculate_success_failed_details(LOGS, is_for_email):
         
         # include the loops and details information
         result += result_tmp + loops + newline + details
+
+    return result
+
+def calculate_success_failed_for_tube(tube):
+    
+    '''
+    Get tube success or failed status
+    It doesn't calculete its sub-tube status
+    '''
+    
+    success_count = 0
+    failed_count = 0    
+    skipped_count = 0
+    result = None
+
+    # calcualte success and failed count
+    for command in tube:
+        log = command.log
+        if log.status == Storage.I.C_FAILED:
+            failed_count += 1
+        elif log.status == Storage.I.C_SUCCESSFUL:
+            success_count += 1
+        elif log.status == Storage.I.C_SKIPPED:
+            skipped_count +=1
+
+    # ouput overall status
+    key_command_exists_all = check_if_key_command_exists(tube)    
+    result = Storage.I.C_TUBE_SUCCESSFUL
+    if not key_command_exists_all:
+        # there are no key commands at all
+        if failed_count > 0:
+            result = Storage.I.C_TUBE_FAILED
+    else:
+        result_tmp = Storage.I.C_SUCCESSFUL
+        command: TubeCommand
+        tube_temp = tube.copy()
+        for command in tube:
+            # we can skip the --if no cases          
+            if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
+                key_command_result = get_command_result_by_uuid(command.original_uuid, tube_temp)
+                if key_command_result != Storage.I.C_SUCCESSFUL:
+                    result_tmp = Storage.I.C_FAILED
+                    break
+        
+        # include the loops and details information
+        result = result_tmp
 
     return result
 
