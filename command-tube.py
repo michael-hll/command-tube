@@ -312,16 +312,158 @@ class Utility():
             return data
     
     @classmethod
-    def eval_while_condition(self, while_condition, is_main = True):
+    def eval_while_conditions(self, while_condition: str, is_main = True):
         result = True
         if while_condition != None: 
             while_condition = TubeCommand.format_placeholders(while_condition)
-            conditions = Utility.reset_yes_no_character(while_condition)
-            result = eval(next(conditions))   
+            result = Utility.eval_conditions(while_condition.split(' '))  
         elif while_condition == None and is_main == False:
             result = False
-        return result   
-      
+        return result
+   
+    @classmethod
+    def eval_conditions(self, conditions = []):
+        '''
+        Use python eval method to evaluate the input conditions in list format
+        
+        Args:
+            condtions: []
+        '''
+                        
+        conditions_trim = [TubeCommand.format_placeholders(item.strip()) for item in conditions]
+        conditions_str = ' '.join(conditions_trim)
+        if Utility.if_compare_char_exists(conditions_str): 
+            conditions_trim_new = []
+            for _, item in enumerate(conditions_trim):
+                if Utility.if_compare_char_exists(item):
+                    if len(item) > 2:
+                        # in this case there must be a condition expression
+                        conditions_temp = Utility.split_condition_to_list(item)
+                        if type(conditions_temp) == list:
+                            for val in conditions_temp:
+                                val = Utility.quote_condtion_str(val)
+                                conditions_trim_new.append(val)
+                        else:
+                            conditions_trim_new.append(conditions_temp)    
+                    else:
+                        # in this case it's the simple comparison character
+                        conditions_trim_new.append(item)
+                else:
+                    item = Utility.quote_condtion_str(item)                    
+                    conditions_trim_new.append(item)
+            conditions_str = ' '.join(conditions_trim_new)
+            return eval(conditions_str)
+        else:
+            # for the cases don't contain ==, >, <, != etc
+            if ' ' in conditions_str:
+                # for 'condtion1 condition2 case'
+                for value in conditions_trim:
+                    if Utility.equal_false(value):
+                        return False
+            else:
+                # for 'condition' case
+                if Utility.equal_false(conditions_str):
+                    return False 
+        return True
+    
+    @classmethod
+    def if_compare_char_exists(self, value):
+        '''
+        Check if '=', '!=', '>', '<' exists from a string value
+        '''
+        value = str(value)
+        if '=' in value or '>' in value or \
+           '!=' in value or '<' in value:
+               return True
+        return False
+    
+    @classmethod
+    def equal_false(self, value):
+        '''
+        If value equal 'NO' or 'FALSE' or '0' then return True
+        Otherwise return False
+        '''
+        value = str(value)
+        if value.upper() == 'NO' or value.upper() == 'FALSE' or value == '0':
+            return True
+        return False
+    
+    @classmethod
+    def equal_true(self, value):
+        '''
+        If value equal 'YES' or 'TRUE' or '1' then return True
+        Otherwise return False
+        '''
+        value = str(value)
+        if value.upper() == 'YES' or value.upper() == 'TRUE' or value == '1':
+            return True
+        return False
+    
+    @classmethod
+    def split_condition_to_list(self, condition = ''):
+        condition = str(condition)
+        if '==' in condition:
+            splited = condition.split('==')
+            return [splited[0], '==', splited[1]]
+        elif '!=' in condition:
+            splited = condition.split('!=')
+            return [splited[0], '!=', splited[1]]
+        elif '>' in condition:
+            if '>=' in condition:
+                splited = condition.split('>=')
+                return [splited[0], '>=', splited[1]]
+            else:
+                splited = condition.split('>')
+                return [splited[0], '>', splited[1]]
+            
+        elif '<' in condition:
+            if '<=' in condition:
+                splited = condition.split('<=')
+                return [splited[0], '<=', splited[1]]
+            else:
+                splited = condition.split('<')
+                return [splited[0], '<', splited[1]]
+            
+        else:
+            return condition
+
+    @classmethod
+    def quote_condtion_str(self, item = ''):
+        try:
+            _ = float(item)
+        except Exception:
+            if not Utility.if_compare_char_exists(item) and \
+                item.upper() != 'AND' and \
+                item.upper() != 'OR' and \
+                item.upper() != 'NOT' and \
+                item != '(' and \
+                item != ')' and \
+                '(' not in item and \
+                ')' not in item:
+                item = '\'' + item + '\''
+            elif not Utility.if_compare_char_exists(item) and \
+                '(' in item:
+                item_array = item.split('(')
+                temp = ''
+                for val in item_array:
+                    if val == '':
+                        temp += '('
+                    else:
+                        temp += Utility.quote_condtion_str(val)
+                item = temp
+            elif not Utility.if_compare_char_exists(item) and \
+                ')' in item:
+                item_array = item.split(')')
+                temp = ''
+                for val in item_array:
+                    if val == '':
+                        temp += ')'
+                    else:
+                        temp += Utility.quote_condtion_str(val)
+                item = temp
+                    
+        return item            
+       
 class Storage():
     I = None
     def __init__(self) -> None:
@@ -1164,80 +1306,8 @@ class TubeCommand():
 
         # analyze if parameter
         if args.if_run != None:
-            for value in args.if_run:
-                value = TubeCommand.format_placeholders_no_error(value)
-                
-                # case for normal
-                if '==' not in value and '!=' not in value and \
-                    '<' not in value and '>' not in value:
-                    if value.upper() == 'FALSE' or value.upper() == 'NO':
-                        self.if_run = False
-                        break
-                    
-                # case for equal
-                elif '==' in value:
-                    index = value.index('==')
-                    left = value[:index]
-                    right = value[index+2:]
-                    # check boolean logic    
-                    left, right = Utility.reset_yes_no_character(left,right)                                 
-                    # check for other normal cases
-                    if left != right:
-                        self.if_run = False
-                        break
-                    
-                # case for not equal
-                elif '!=' in value:
-                    index = value.index('!=')
-                    left = value[:index]
-                    right = value[index+2:]
-                    # check boolean logic    
-                    left, right = Utility.reset_yes_no_character(left,right)                                 
-                    # check for other normal cases
-                    if left == right:
-                        self.if_run = False
-                        break
-                
-                # case for greater than 
-                elif '>' in value:
-                    # to check if there is >= case
-                    is_greater_or_equal = True if '>=' in value else False                    
-                    index = value.index('>=') if is_greater_or_equal else value.index('>')
-                    left = value[:index]
-                    right = value[index+2:] if is_greater_or_equal else value[index+1:]
-                    left = float(left)
-                    right = float(right)
-                    if is_greater_or_equal:
-                        # >=
-                        if left < right:
-                            self.if_run = False
-                            break
-                    else:
-                        # >
-                        if left <= right:
-                            self.if_run = False
-                            break
-                
-                # case for less than 
-                elif '<' in value:
-                    # to check if <= case
-                    is_less_or_equal = True if '<=' in value else False                    
-                    index = value.index('<=') if is_less_or_equal else value.index('<')
-                    left = value[:index]
-                    right = value[index+2:] if is_less_or_equal else value[index+1:]
-                    left = float(left)
-                    right = float(right)
-                    if is_less_or_equal:
-                        # <=
-                        if left > right:
-                            self.if_run = False
-                            break
-                    else:
-                        # <
-                        if left >= right:
-                            self.if_run = False
-                            break
-        
+            self.if_run = Utility.eval_conditions(args.if_run)
+              
         # check if it's key command to decide the tube result
         if args.key:
             self.is_key_command = True
@@ -1995,7 +2065,7 @@ class TubeCommand():
             self.tube_conditions = conditions
         
         # Check while condition of RUN_TUBE command
-        while_condition = Utility.eval_while_condition(self.tube_conditions) 
+        while_condition = Utility.eval_while_conditions(self.tube_conditions) 
         if  while_condition:
             tube_check = []
             with open(file, 'r') as f:
@@ -3219,7 +3289,7 @@ class TubeRunner():
         self.run_tube_command.tube_run.clear()
         
         # check if need run again
-        while_condition = Utility.eval_while_condition(self.run_tube_command.tube_conditions, False)
+        while_condition = Utility.eval_while_conditions(self.run_tube_command.tube_conditions, False)
         # print current while conditions in debug mode
         self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times)
             
@@ -3348,7 +3418,7 @@ class TubeRunner():
             
             # Check if it's RUN_TUBE command
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:
-                while_condition = Utility.eval_while_condition(command.tube_conditions) 
+                while_condition = Utility.eval_while_conditions(command.tube_conditions) 
                 # print current while conditions in debug mode
                 self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times)  
                 if while_condition:
