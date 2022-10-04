@@ -4278,7 +4278,7 @@ def print_logs(LOGS):
     # then it's easier for the user to see
     tprint() 
     tprint(Storage.I.C_FINISHED_HEADER, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
-    tprint(calculate_success_failed_details(LOGS, False))
+    tprint(calculate_success_failed_details(False))
     tprint()   
     
     # print total running during time
@@ -4336,7 +4336,7 @@ def get_command_result_by_uuid(uuid, tube = []):
                     return status
     return status
 
-def calculate_success_failed_details(LOGS, is_for_email):
+def calculate_success_failed_details(is_for_email):
     
     '''
     Calculate overall (main tube) status by log details
@@ -4349,7 +4349,9 @@ def calculate_success_failed_details(LOGS, is_for_email):
     result = None
 
     # calcualte success and failed count
-    for log in LOGS:
+    command: TubeCommand
+    for command in Storage.I.TUBE_RUN:
+        log = command.log
         if log.status == Storage.I.C_FAILED:
             failed_count += 1
         elif log.status == Storage.I.C_SUCCESSFUL:
@@ -4368,7 +4370,7 @@ def calculate_success_failed_details(LOGS, is_for_email):
         loops = ' LOOP: (%s/%s)' % (str(Storage.I.CURR_LOOP_ID), str(Storage.I.LOOP_TIMES))
 
     # ouput overall status
-    key_command_exists_all = check_if_key_command_exists()    
+    key_command_exists_all = check_if_key_command_exists(Storage.I.TUBE_RUN)    
     result = '['
     if not key_command_exists_all:
         # there are no key commands at all
@@ -4384,7 +4386,7 @@ def calculate_success_failed_details(LOGS, is_for_email):
         for command in Storage.I.TUBE_RUN:
             # we can skip the --if no cases          
             if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
-                key_command_result = get_command_result_by_uuid(command.original_uuid)
+                key_command_result = get_command_result_by_uuid(command.original_uuid, Storage.I.TUBE_RUN.copy())
                 if key_command_result != Storage.I.C_SUCCESSFUL:
                     result_tmp = Storage.I.C_FAILED
                     break
@@ -4447,7 +4449,7 @@ def write_logs_to_file(LOGS):
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, '')
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, Storage.I.C_FINISHED_HEADER)
 
-    result = calculate_success_failed_details(LOGS, False)
+    result = calculate_success_failed_details(False)
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, result) 
 
     # log failed detail errors 
@@ -4539,7 +4541,7 @@ def prepare_emails_content_and_sent(LOGS):
     has_failed = False
     split_line = '------------------------------- <br><br>'
     # include errors into email
-    result = calculate_success_failed_details(LOGS, True)
+    result = calculate_success_failed_details(True)
     email_body += result + '<br>'
 
     # log failed errors    
