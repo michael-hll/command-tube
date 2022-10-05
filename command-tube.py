@@ -691,7 +691,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Import tube commands from a sub-tube file, servers, variables or emails can also be imported.'
+                self.C_COMMAND_DESCRIPTION: '[Deprecated: Replaced by RUN_TUBE] Import tube commands from a sub-tube file, servers, variables or emails can also be imported.'
             },  
             self.C_RUN_TUBE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -705,8 +705,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Run a tube. With the \'--while\' conditions, \
-                                             \n{0}{1} will only stop once the conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
+                self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
             },                   
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
