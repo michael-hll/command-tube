@@ -401,6 +401,10 @@ class Utility():
     
     @classmethod
     def split_condition_to_list(self, condition = ''):
+        '''
+        Split expression 'v1 condtion v2' to format [v1, condtion, v2]
+        eg: 'abc == def' to ['abc', '==', 'def']
+        '''
         condition = str(condition)
         if '==' in condition:
             splited = condition.split('==')
@@ -429,9 +433,30 @@ class Utility():
 
     @classmethod
     def quote_condtion_str(self, item = ''):
+        '''
+        Description:
+            Add quotes for the character words only.
+            This method will skip the keywords like AND, OR, NOT, (,)
+            Will also skip the nubmers to be quoted. 
+        
+        Why do this:
+            In order to ask the eval replace variables to character comparison
+            the default eval(expression, locals={}) doesn't work for this case.
+            Since the variable name has been replaced by the {variable}, thus the
+            variable itself is already value, not variable name
+        '''
         try:
+            #skip numbers
             _ = float(item)
         except Exception:
+            
+            # to check True/Yes, False/No cases
+            if item.upper() == 'TRUE' or item.upper() == 'YES':
+                item = 'True'
+            
+            if item.upper() == 'FALSE' or item.upper() == 'NO':
+                item = 'False'
+            
             if not Utility.if_compare_char_exists(item) and \
                 item.upper() != 'AND' and \
                 item.upper() != 'OR' and \
