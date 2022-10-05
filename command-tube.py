@@ -312,17 +312,17 @@ class Utility():
             return data
     
     @classmethod
-    def eval_while_conditions(self, while_condition: str, is_main = True):
+    def eval_while_conditions(self, while_condition: str, is_main = True, command = None):
         result = True
         if while_condition != None: 
             while_condition = TubeCommand.format_placeholders(while_condition)
-            result = Utility.eval_conditions(while_condition.split(' '))  
+            result = Utility.eval_conditions(while_condition.split(' '), command)  
         elif while_condition == None and is_main == False:
             result = False
         return result
    
     @classmethod
-    def eval_conditions(self, conditions = []):
+    def eval_conditions(self, conditions = [], command = None):
         '''
         Use python eval method to evaluate the input conditions in list format
         
@@ -352,8 +352,16 @@ class Utility():
                     item = Utility.quote_condtion_str(item)                    
                     conditions_trim_new.append(item)
             conditions_str = ' '.join(conditions_trim_new)
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'The eval parameter is: \'{0}\', running command is \'{1}\'.'.format(conditions_str, command.get_full_content())
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             return eval(conditions_str)
         else:
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'The condition is: \'{0}\', running command is \'{1}\'.'.format(conditions_str, command.get_full_content())
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             # for the cases don't contain ==, >, <, != etc
             if ' ' in conditions_str:
                 # for 'condtion1 condition2 case'
@@ -1264,6 +1272,9 @@ class TubeCommand():
         except Exception as e:
             return loop_status + self.original_content
     
+    def get_full_content(self):
+        return self.get_formatted_type() + ': ' + self.get_formatted_content()
+    
     def reset_general_arguments(self):
         
         # return command with singlie placeholder
@@ -1330,7 +1341,7 @@ class TubeCommand():
 
         # analyze if parameter
         if args.if_run != None:
-            self.if_run = Utility.eval_conditions(args.if_run)
+            self.if_run = Utility.eval_conditions(args.if_run, self)
               
         # check if it's key command to decide the tube result
         if args.key:
@@ -2089,7 +2100,7 @@ class TubeCommand():
             self.tube_conditions = conditions
         
         # Check while condition of RUN_TUBE command
-        while_condition = Utility.eval_while_conditions(self.tube_conditions) 
+        while_condition = Utility.eval_while_conditions(self.tube_conditions, command=self) 
         if  while_condition:
             tube_check = []
             with open(file, 'r') as f:
@@ -3313,7 +3324,7 @@ class TubeRunner():
         self.run_tube_command.tube_run.clear()
         
         # check if need run again
-        while_condition = Utility.eval_while_conditions(self.run_tube_command.tube_conditions, False)
+        while_condition = Utility.eval_while_conditions(self.run_tube_command.tube_conditions, False, command=self.run_tube_command)
         # print current while conditions in debug mode
         self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times)
             
@@ -3442,7 +3453,7 @@ class TubeRunner():
             
             # Check if it's RUN_TUBE command
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:
-                while_condition = Utility.eval_while_conditions(command.tube_conditions) 
+                while_condition = Utility.eval_while_conditions(command.tube_conditions, command=command) 
                 # print current while conditions in debug mode
                 self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times)  
                 if while_condition:
