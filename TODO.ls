@@ -2,10 +2,22 @@ TODO LIST
 
 - FILE 
     exists, delete, copy, move, create. etc
+    FILE_READ: -f|--file file -v|--variable variable
+    FILE_EXIST: -f|--file
+    FILE_DELETE: -f|--file
+    FILE_CREATE: -f|--file
+    FILE_COPY_TO: -f|--file file -t|--to to (file or directory) 
 
 - DIRECTORY
     exists, delete, copy, move, create. etc
-    items?
+    DIRECTORY_EXIST: -d|--directory directory
+    DIRECTORY_DELETE: -d
+    DIRECTORY_CREATE: -d
+    DIRECTORY_COPY_TO: -d directory -t to (directory)
+
+- LIST
+    LIST_FILES: -d|--directory -r|--result file
+    LIST_DIRECTORIES: -d|--directory -r|--result file
 
 - DISCONNECT command ??
 
