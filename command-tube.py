@@ -276,6 +276,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to delete lines from.'],
+                    [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
+                        'The line number you want to delete. 1 is the first line, -1 is the last line.'], 
                     [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
                         'The line begins with character you want to delete.'],
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
@@ -1746,7 +1748,7 @@ class TubeCommand():
         '''
         For command: DELETE_LINE_IN_FILE
         '''
-        file, line_begins, line_contains, delete_empty = '', '', '', False
+        file, line_begins, line_contains, delete_empty, line_number = '', '', '', False, None
         deleted_count = 0
         
         parser = self.tube_argument_parser
@@ -1758,25 +1760,44 @@ class TubeCommand():
             line_contains = ' '.join(args.contains)
         if args.del_empty:
             delete_empty = True
+        if args.number:
+            line_number = args.number[0]
+        
         # if didn't found any conditions then delete nothing
-        if line_begins == '' and line_contains == '' and not delete_empty:
-            raise Exception('No parameters found: -c, -b or -e')        
+        if line_begins == '' and line_contains == '' and not delete_empty and line_number == None:
+            raise Exception('No parameters found: -c, -b or -e')
     
         # replace placeholders
         file = TubeCommand.format_placeholders(file)
         line_begins = TubeCommand.format_placeholders(line_begins)
         line_contains = TubeCommand.format_placeholders(line_contains)    
+        line_number = TubeCommand.format_placeholders(line_number)    
             
         if os.path.exists(file):
             lines = []
             lines_new = []
             is_last_char_new_line = True
+            # get file original lines
             with open(file,'r') as f:
                 lines = f.readlines()
+                # check if last line endswith '\n'
                 if len(lines) > 0:
                     line = lines[len(lines) - 1]
-                    is_last_char_new_line = line.endswith('\n')        
-            for line in lines:
+                    is_last_char_new_line = line.endswith('\n')   
+                    
+            # check line numbers
+            is_asc = True
+            count = len(lines)
+            if line_number != None:
+                line_number = int(line_number)
+                if line_number < 0:
+                    is_asc = False
+                line_number = abs(line_number)
+                if line_number > count:
+                    line_number = count                
+             
+            # go through each line for contains, begins, empty    
+            for i, line in enumerate(lines):
                 is_delete = False         
                 if len(line_begins) > 0 and len(line_contains) == 0 and line.startswith(line_begins): 
                     is_delete = True
@@ -1791,11 +1812,20 @@ class TubeCommand():
                     if (line.strip() == '\n' or line.strip() == '') and delete_empty: 
                         is_delete = True
                         
+                # to check line numbers
+                if line_number != None and is_delete == False:
+                    if is_asc == True and i == (line_number - 1):
+                        is_delete = True
+                    elif is_asc == False:
+                        reverse_i = count - i - 1
+                        if reverse_i == line_number - 1:
+                            is_delete = True
+                        
                 # delte line which meet the conditions
                 if is_delete == False:
                     lines_new.append(line)  
                 else:
-                    deleted_count += 1                    
+                    deleted_count += 1                   
             
             # overwrite new lines into file
             with open(file, 'w') as f:
