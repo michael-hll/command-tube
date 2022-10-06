@@ -128,8 +128,7 @@
             package_name: xxx-app
             cmd_parameters: -l
             # Below two hidden variables are assigned values when tube starts:
-            S: ' ' # Its value is a space char and can't be overridden
-            TUBE_HOME: <tube-running-startup-location-path>
+            TUBE_HOME: <tube-running-startup-location-path>           
 
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
@@ -164,9 +163,11 @@ Support from version: 2.0.1</pre>
 ### 2: COMMAND
 <pre>Description: Run any Windows/MacOS terminal command.
 
-Syntax: - COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - COMMAND: command [--no-shell] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   command:  Any command you want to run.
+   command:      Any command you want to run.
+   --no-shell:   Do not use 'Shell' to run the command. Default no. 
+                 This is used for Mac/Linux OS. For Windows it will always use shell. [2.0.2]
 
 Support from version: 2.0.0</pre>
 ### 3: CONNECT
@@ -192,9 +193,10 @@ Support from version: 2.0.0</pre>
 ### 5: DELETE_LINE_IN_FILE
 <pre>Description: Conditionally delete lines from a file.
 
-Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-b|--begins begins] [-c|--contains contains] [-e|--empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
    -f/--file:     The file you want to delete lines from.
+   -n/--number:   The line number you want to delete. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.
    -b/--begins:   The line begins with character you want to delete.
    -c/--contains: The line contains with character you want to delete.
    -e/--empty:    A flag to tell if delete empty line. Default no.
@@ -212,12 +214,15 @@ Parameters:
 Support from version: 2.0.0</pre>
 ### 7: GET_FILE_KEY_VALUE
 <pre>Description: Read key values from key-value file.                                            
+It also supports to read key-value from Yaml file with simple type: string, number.                                            
 The key-value results will be stored into tube variables.
 
-Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-o|--override] [--force] [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
    -f/--file:     The file you want to get key-value from.
    -k/--keywords: Set the key you can get specific value of a given key.
+   -o/--override: Override the value if the variable already exists. Default no. [2.0.2]
+   --force:       Force update even the variable is readonly. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
 ### 8: GET_XML_TAG_TEXT
@@ -231,7 +236,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: IMPORT_TUBE
-<pre>Description: Import tube commands from a sub-tube file, servers, variables or emails can also be imported.
+<pre>Description: [Deprecated: Replaced by RUN_TUBE] Import tube commands from a sub-tube file, servers, variables or emails can also be imported.
 
 Syntax: - IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
@@ -271,7 +276,17 @@ Parameters:
    name:  The tube variable name. Provide value '*' can print all variable.
 
 Support from version: 2.0.2</pre>
-### 14: REPLACE_CHAR
+### 14: READ_LINE_IN_FILE
+<pre>Description: Read one line by given line number, and save the line content to tube variable.
+
+Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -f/--file:     The file you want to delete lines from.
+   -n/--number:   The line number you want to read. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.
+   -v/--variable: The tube variable name to save the line content.
+
+Support from version: 2.0.2</pre>
+### 15: REPLACE_CHAR
 <pre>Description: Replace file line content which contains/matches given value.
 
 Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -282,7 +297,7 @@ Parameters:
    -c/--count:    The replaced times you want to set. Default no limitation.
 
 Support from version: 2.0.1</pre>
-### 15: REPORT_PROGRESS
+### 16: REPORT_PROGRESS
 <pre>Description: You can use this command to sent current progress via Email.
 
 Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -290,7 +305,17 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 16: SET_FILE_KEY_VALUE
+### 17: RUN_TUBE
+<pre>Description: Run a sub-tube. 
+             With the '--while' conditions provided, RUN_TUBE will continuely run and stop when conditions return false.
+
+Syntax: - RUN_TUBE: -y|--yaml file [-w|--while conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -y/--yaml:   The tube yaml file you want to run.
+   -w/--while:  Set the condtions to run the tube.
+
+Support from version: 2.0.2</pre>
+### 18: SET_FILE_KEY_VALUE
 <pre>Description: Update key-value file.
 
 Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -300,7 +325,7 @@ Parameters:
    -v/--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 17: SET_VARIABLE
+### 19: SET_VARIABLE
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: -n|--name name -v|--value value [-r|--readonly] [-f|--force] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -308,13 +333,13 @@ Parameters:
    -n/--name:     The tube variable name you want to set.
    -v/--value:    The tube variable value you want to set. 
                   Note: The 'eval(expression)' is also supported, eg: 
-                     - SET_VARIABLE: -n dayOfWeek -v eval(datetime.today().weekday()) # Tube variable dayOfWeek will be set to weekday() value. 
-                     - SET_VARIABLE: -n sum -v eval({var1}+{var2}) # Tube variable sum will be set to the result of var1 + var2.
+                     - SET_VARIABLE: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. 
+                     - SET_VARIABLE: -n sum -v {var1}+{var2} # Tube variable sum will be set to the result of var1 + var2.
    -r/--readonly: Mark the variable as readonly after updating. Default no. [2.0.2]
    -f/--force:    Force update even the varialbe is readonly. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 18: SET_XML_TAG_TEXT
+### 20: SET_XML_TAG_TEXT
 <pre>Description: Update XML file tag text using xpath.
 
 Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -324,7 +349,7 @@ Parameters:
    -v/--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 19: SFTP_GET
+### 21: SFTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
 
@@ -334,7 +359,7 @@ Parameters:
    -l/--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 20: SFTP_PUT
+### 22: SFTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
 
@@ -344,7 +369,7 @@ Parameters:
    -r/--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 21: TAIL_FILE
+### 23: TAIL_FILE
 <pre>Description: Print/Log the last N lines of given file.
 
 Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -354,7 +379,7 @@ Parameters:
    -k/--keywords: Output file content only if it contains the given keywords.
 
 Support from version: 2.0.0</pre>
-### 22: WRITE_LINE_IN_FILE
+### 24: WRITE_LINE_IN_FILE
 <pre>Description: Write any characters into a file.                      
 The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
 If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
@@ -365,7 +390,7 @@ Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number numbe
 Parameters:
    -f/--file:     The file you want to update.
    -v/--value:    The character value you want to update in the file.
-   -n/--number:   The line number you want to update.
+   -n/--number:   The line number you want to update. If not provided then append the value to the file.
    -c/--contains: Only update the line if it contains the given characters content.
 
 Support from version: 2.0.0</pre>
