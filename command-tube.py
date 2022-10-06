@@ -87,6 +87,7 @@ class Storage():
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARS'
         self.C_RUN_TUBE                = 'RUN_TUBE'
+        self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -277,7 +278,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to delete lines from.'],
                     [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
-                        'The line number you want to delete. 1 is the first line, -1 is the last line.'], 
+                        'The line number you want to delete. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.'], 
                     [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
                         'The line begins with character you want to delete.'],
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
@@ -290,6 +291,22 @@ Use 'help vars' to print all the given tube variables;
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Conditionally delete lines from a file.'
             },  
+            self.C_READ_LINE_IN_FILE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: READ_LINE_IN_FILE: -f file -n number [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to delete lines from.'],
+                    [False, '-n','--number', 'str', 1, 'number', True, False, '', '',
+                        'The line number you want to read. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.'], 
+                    [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
+                        'The tube variable name to save the line content.'],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Read one line by given line number, and save the line content to tube variable.'
+            }, 
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
@@ -1794,7 +1811,10 @@ class TubeCommand():
                     is_asc = False
                 line_number = abs(line_number)
                 if line_number > count:
-                    line_number = count                
+                    if is_asc == True:
+                        line_number = count    
+                    else:
+                        line_number = 1               
              
             # go through each line for contains, begins, empty    
             for i, line in enumerate(lines):
@@ -1844,6 +1864,63 @@ class TubeCommand():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
         else:
+            raise Exception("file doesn't exist: " + file)
+
+        return True
+    
+    def read_line_in_file(self):
+        '''
+        For command: READ_LINE_IN_FILE
+        '''
+        file, line_number, variable = '', '', ''
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        line_number = args.number[0]
+        variable = args.variable[0]
+        
+        # replace placeholders
+        file = TubeCommand.format_placeholders(file)
+        line_number = TubeCommand.format_placeholders(line_number)
+        variable = TubeCommand.format_placeholders(variable)
+        
+        if os.path.exists(file):
+            line_number = int(line_number)
+            lines = []
+            # read file lines into memory
+            with open(file,'r') as f:
+                lines = f.readlines()
+                
+            # check line numbers
+            is_asc = True
+            count = len(lines)
+            if line_number < 0:
+                is_asc = False
+            line_number = abs(line_number)
+            if line_number > count:
+                if is_asc == True:
+                    line_number = count    
+                else:
+                    line_number = 1
+            
+            # go through file line by line
+            founded_line = None
+            for i, line in enumerate(lines):
+                # to check line numbers
+                if is_asc == True and i == (line_number - 1):
+                    founded_line = line
+                    break
+                elif is_asc == False:
+                    reverse_i = count - i - 1
+                    if reverse_i == line_number - 1:
+                        founded_line = line
+                        break
+            
+            # update tube varialbe with found line
+            if founded_line:
+                StorageUtility.update_key_value_dict(variable, founded_line.replace('\n', ''))
+        else:
+            # file not exists
             raise Exception("file doesn't exist: " + file)
 
         return True
@@ -2823,6 +2900,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 set_value_success = self.delete_line_in_file()  
+                if set_value_success == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_READ_LINE_IN_FILE:
+            try:
+                log.start_datetime = datetime.now()                        
+                set_value_success = self.read_line_in_file()  
                 if set_value_success == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:

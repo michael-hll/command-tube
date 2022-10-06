@@ -1,10 +1,7 @@
 TODO LIST
 
-- Disconnect command ??
-
-- System Test
-
-- READ_LINE_IN_FILE ??
+- READ_LINE_IN_FILE 
+    Read one line from a file
     -f file
     -n line number
 
@@ -14,6 +11,11 @@ TODO LIST
 - DIRECTORY
     exists, delete, copy, move, create. etc
     items?
+
+- DISCONNECT command ??
+
+- System Test
+
 
 DONE LIST
 1. Email content format - done
