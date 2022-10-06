@@ -1,10 +1,5 @@
 TODO LIST
 
-- READ_LINE_IN_FILE 
-    Read one line from a file
-    -f file
-    -n line number
-
 - FILE 
     exists, delete, copy, move, create. etc
 
@@ -47,6 +42,11 @@ DONE LIST
     delete it, since it's replaced by RUN_TUBE
 24. - DELETE_LINE_IN_FILE 
     -n|--number: The line number you want to delete. eg: 1, -1
+25. - READ_LINE_IN_FILE 
+    Read one line from a file
+    -f file
+    -n line number
+    -v variable name
 
 
 
