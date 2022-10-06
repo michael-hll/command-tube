@@ -508,6 +508,7 @@ class Storage():
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
         self.C_CURR_DIR                = os.getcwd()   
         self.C_TUBE_HOME               = 'TUBE_HOME' 
+        self.C_OS_NAME                 = 'OS_NAME'
         self.C_SLEEP_SECONDS           = 1
         self.C_BUILD_SUCCESSFUL        = 'BUILD SUCCESSFUL'
         self.C_BUILD_FAILED            = 'BUILD FAILED'
@@ -658,7 +659,8 @@ Use 'help vars' to print all the given tube variables;
         self.LOGS                      = []
         self.FILE_TAIL_LINES           = []
         self.KEY_VALUES_DICT           = {}
-        self.KEYS_READONLY_SET          = set() # to store tube variables which are readonly
+        self.KEYS_READONLY_SET         = set() # to store tube variables which are readonly
+        self.KEYS_DEFAULT              = set()
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
         self.TUBE                      = []
@@ -2494,7 +2496,7 @@ class TubeCommand():
                 if key in Storage.I.KEYS_READONLY_SET:
                     readonly = ' (readonly)'
                 msg = '%s=%s %s' % (key, value, readonly)
-                if key.upper() == 'S' or key == Storage.I.C_TUBE_HOME:
+                if key in Storage.I.KEYS_DEFAULT:
                     default_vars.append(msg)
                 else:
                     new_vars.append(msg)
@@ -3518,31 +3520,26 @@ class StorageUtility():
 
     @classmethod
     def update_key_value_dict(self, key, value, command: TubeCommand=None, is_force=False, 
-                              is_override=True, override_reason='It\'s not allowed to override this key.'):
+                              is_override=True, override_reason='It\'s not allowed to override this key.',
+                              is_readonly=False):
         '''
         Update storage's key-value pair
         
         if the key already exist, then a warning will be loged into the log file.
         
         Parameters:
-            key: the key you want to update
-            value: the key's value, if None then empty string will be used
-            is_force: If true it will always update the value.
-            is_override: if update value if key already exists. Default Yes.
-            override_reason: the reason user can't update this key.
+            key: The key you want to update
+            value: The key's value, if None then empty string will be used
+            is_force: If true it will always update the value. Default False.
+            is_override: If update value if key already exists. Default True.
+            override_reason: The reason user can't update this key.
+            is_readonly: Set the variable to readonly. Default False. 
             
         '''
         # return for None or empty key
         if not key:
             return False
-        
-        # skip update 's' or 'S' reserved key
-        if key.upper() == 'S':
-            msg = 'It\'s not allowed to update tube reserved variable \'s\' with value: ' + str(value)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
-            return False  
-                
+                        
         # check if force
         if is_force:
             is_override = True
@@ -3574,6 +3571,10 @@ class StorageUtility():
         
         # give an note if the key-value dict was udpated        
         if updated:
+            # if updte the variable in readonly 
+            if is_readonly and not key in Storage.I.KEYS_READONLY_SET:
+                Storage.I.KEYS_READONLY_SET.add(key)
+                
             # give a warning that the key-value was overrode from the memory
             forced = ' '
             if is_force:
@@ -3712,12 +3713,18 @@ class StorageUtility():
         if(not variables or type(variables) is not dict):
             return
         for key in variables.keys():
-            StorageUtility.update_key_value_dict(key, variables[key])
-        
-        # always set key 's' to ' '
-        if 's' not in Storage.I.KEY_VALUES_DICT.keys():
-            Storage.I.KEY_VALUES_DICT['s'] = ' '
-            Storage.I.KEY_VALUES_DICT['S'] = ' '    
+            StorageUtility.update_key_value_dict(key, variables[key])  
+    
+    @classmethod
+    def add_default_variables(self):
+        # Update TUBE_HOME
+        if Storage.I.C_TUBE_HOME not in Storage.I.KEY_VALUES_DICT.keys():            
+            StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR, is_readonly=True)
+            Storage.I.KEYS_DEFAULT.add(Storage.I.C_TUBE_HOME)
+        # Update OS Name
+        if Storage.I.C_OS_NAME not in Storage.I.KEY_VALUES_DICT.keys(): 
+            StorageUtility.update_key_value_dict(Storage.I.C_OS_NAME, os.name, is_readonly=True)
+            Storage.I.KEYS_DEFAULT.add(Storage.I.C_OS_NAME)
         
     @classmethod
     def read_emails(self, emails):     
@@ -5008,8 +5015,7 @@ def print_tube_command_help(parser: ArgumentParser):
             package_name: xxx-app
             cmd_parameters: -l
             # Below two hidden variables are assigned values when tube starts:
-            TUBE_HOME: <tube-running-startup-location-path>
-            S: ' '    # With a spacechar value and can't be overriden.            
+            TUBE_HOME: <tube-running-startup-location-path>           
 
         Then you can reference any variable value via {var-name} in your tube 
         command arguments. eg:
@@ -5283,6 +5289,9 @@ Tube:
                                     var_start = True
                                     continue
                                 if var_start == True and line.startswith(' '):
+                                    # skip comment out lines
+                                    if line.strip().startswith('#'):
+                                        continue
                                     # inorder to print var name/value in different color
                                     if ':' in line:
                                         line = line.strip().replace('\n', '')
@@ -5294,8 +5303,8 @@ Tube:
                                 elif var_start == True and not line.startswith(' '):
                                     break
                             # print default tube variables
-                            tprint(color('TUBE_HOME: ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + Storage.I.C_CURR_DIR)                                                        
-                            tprint(color('S: ' + '\' \'' + ' # S is a readonly tube variable and it holds a space character.', fore=Storage.I.C_PRINT_COLOR_GREY, style=Storage.I.C_PRINT_COLOR_STYLE))
+                            for key in Storage.I.KEYS_DEFAULT:
+                                tprint(color(key + ': ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + str(Storage.I.KEY_VALUES_DICT[key]))                                                        
                         sys.exit()
                     except Exception as e:
                         tprint('Read variables from yaml file errors:' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
@@ -5405,9 +5414,6 @@ def job_start(tube_yaml):
     Args:
         tube_yaml: Tube command list in YAML format
     '''
-    
-    # Update TUBE_HOME
-    StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR)
 
     try:
         # print job start initials into the log
@@ -5447,6 +5453,8 @@ _ = Storage()
 # reset default print colors
 # this is the only place to update constants
 StorageUtility.reset_colors()
+# add default variables
+StorageUtility.add_default_variables()
 parser = ArgumentParser(allow_abbrev=False, formatter_class=RawTextHelpFormatter)    
 general_command_parser = ArgumentParser(allow_abbrev=False)   
 
