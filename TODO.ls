@@ -9,17 +9,18 @@ TODO LIST
     FILE_EXIST: -f|--file
     FILE_DELETE: -f|--file
     FILE_CREATE: -f|--file
-    FILE_COPY_TO: -f|--file file -t|--to to (file or directory) 
+    FILE_COPY: -f|--file file -t|--to to (file or directory) 
+    FILE_MOVE: -f|--file file -t|--to to (file or directory) 
     
 - DIRECTORY
     exists, delete, copy, move, create. etc
     DIRECTORY_EXIST: -d|--directory directory
     DIRECTORY_DELETE: -d
     DIRECTORY_CREATE: -d
-    DIRECTORY_COPY_TO: -d directory -t to (directory)
+    DIRECTORY_COPY: -d directory -t to (directory)
 
 - LIST
-    LIST_FILES: -d|--directory -r|--result file
+    LIST_FILES: -d|--directory -r|--result file [-s|--sort mtime|name|size [asc|desc]]
     LIST_DIRECTORIES: -d|--directory -r|--result file
 
 - DISCONNECT command ??

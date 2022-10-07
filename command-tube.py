@@ -32,6 +32,7 @@ import shlex
 import shutil
 from random import choice, randrange, paretovariate
 import threading
+import glob
 
 # -------- CLASSES --------------
 class Storage():
@@ -88,6 +89,7 @@ class Storage():
         self.C_PRINT_VARIABLES         = 'PRINT_VARS'
         self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
+        self.C_LIST_FILES              = 'LIST_FILES'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -600,6 +602,22 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name. Provide value \'*\' can print all variable.'],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
+            },
+            self.C_LIST_FILES: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: LIST_FILES: -d directory -r result_file [-s time|name|size [asc|desc]] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
+                        'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
+                    [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
+                        'The text file to store the search result.'], 
+                    [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
+                        'Using \'-s time|name|size [asc|desc]\' to set the sort properties. Default uses the file modification time (time asc) to sort the result.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1927,6 +1945,76 @@ class TubeCommand():
 
         return True
 
+    def list_files(self):
+        directory, result, sort, asc = None, None, 'time', 'asc' 
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        directory = ' '.join(args.directory)
+        result = ' '.join(args.file)
+        
+        # replace placeholders and do a basic checks
+        directory = TubeCommand.format_placeholders(directory)
+        result = TubeCommand.format_placeholders(result)
+        if args.sort:
+            if len(args.sort) == 1:
+                s = args.sort[0]
+                s = TubeCommand.format_placeholders(s)
+                if s == 'time' or s == 'name' or s == 'size':
+                    sort = s
+                else:
+                    raise Exception('Sort type could only be time, name or size.')
+            elif len(args.sort) == 2:
+                s = TubeCommand.format_placeholders(args.sort[0])
+                a = TubeCommand.format_placeholders(args.sort[1])
+                if s == 'time' or s == 'name' or s == 'size':
+                    sort = s
+                else:
+                    raise Exception('Sort type could only be time, name or size.')
+                if a.lower() == 'asc' or a.lower() == 'desc':
+                    asc = a
+                else:
+                    raise Exception('The sort can only be sort as asc or desc.')
+            else:
+                raise Exception('Sort argument only supports format: -s time|name|size')
+
+        # get file list
+        basename = path.basename(directory)        
+        if basename == '.':           
+            directory = directory[:-1] + '*.*'
+        
+        # deal with default *.* logic
+        basename = path.basename(directory)    
+        if basename == '' or '.' not in basename:
+            if directory.endswith('/') or directory.endswith('\\'):
+                directory += '*.*'
+            else:
+                if os.name.startswith('nt'):
+                    directory += '\\' + '*.*'
+                else:
+                    directory += '/' + '*.*' 
+        # searching                   
+        list_files = glob.glob(directory)
+        # sortings
+        if sort == 'time':
+            list_files.sort(key=os.path.getmtime)
+        elif sort == 'name':
+            list_files.sort(key=os.path.basename)
+        elif sort == 'size':
+            list_files.sort(key=os.path.getsize)
+        else:
+            list_files.sort(key=os.path.getmtime)
+        
+        # asc, desc
+        if asc == 'desc':
+            list_files.reverse()
+            
+        # writing result
+        with open(result, 'w') as f:
+            for file in list_files:
+                f.write(file + '\n')
+                
+        return True
+        
     def tail_file(self):
         '''
         For command: TAIL_FILE
@@ -2942,6 +3030,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 set_value_success = self.read_line_in_file()  
+                if set_value_success == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+        
+        elif current_command_type == Storage.I.C_LIST_FILES:
+            try:
+                log.start_datetime = datetime.now()                        
+                set_value_success = self.list_files()  
                 if set_value_success == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
