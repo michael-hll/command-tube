@@ -1919,6 +1919,8 @@ class TubeCommand():
             # update tube varialbe with found line
             if founded_line:
                 StorageUtility.update_key_value_dict(variable, founded_line.replace('\n', ''))
+            else:
+                StorageUtility.update_key_value_dict(variable, founded_line)
         else:
             # file not exists
             raise Exception("file doesn't exist: " + file)
@@ -3697,10 +3699,6 @@ class StorageUtility():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
             return False 
-        
-        # If value is None, then udpate it with empty string
-        if value == None:
-            value = ''
         
         # update the key value
         updated = False        
