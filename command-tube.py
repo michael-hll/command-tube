@@ -426,12 +426,12 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'minutes', True, False, '', '',
-                        'The minutes you want to pause.'],
+                        'The minutes you want to pause. You can end it with \'s\' char to pause for xxx seconds.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes.'
+                self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes/seconds.'
             },
             self.C_PATH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2772,10 +2772,35 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_PAUSE:
             try:                        
                 log.start_datetime = datetime.now()
-                self.content = TubeCommand.format_placeholders(self.content)
-                pasued_mins = float(self.content)
-                tprint('Command Tube is paused for ' + str(pasued_mins) + ' minutes.', type=Storage.I.C_PRINT_TYPE_INFO)
-                time.sleep(60 * pasued_mins)
+                self.content = TubeCommand.format_placeholders(self.content).strip().replace(' ', '').upper()
+                is_paused_seconds = False
+                msg = ''
+                paused_mins = 0
+                paused_seconds = 0
+                self.content = self.content.replace('MIN', '').replace('UTE', '')
+                if self.content.endswith('SEC') or \
+                    self.content.endswith('SECOND') or \
+                    self.content.endswith('S'):
+                    self.content = self.content.upper().replace('SEC', '').replace('OND', '').replace('S', '')
+                    is_paused_seconds = True
+                if self.content.endswith('MIN') or \
+                    self.content.endswith('MINUTE') or \
+                    self.content.endswith('M'):
+                    self.content = self.content.upper().replace('MIN', '').replace('UTE', '').replace('M', '')
+                    is_paused_seconds = False
+                    
+                # conver to float
+                if is_paused_seconds:
+                    paused_seconds = float(self.content)
+                    paused_mins = paused_seconds / 60
+                    msg = str(paused_seconds) + ' seconds.'
+                else:
+                    paused_mins = float(self.content)  
+                    paused_seconds = paused_mins * 60
+                    msg = str(paused_mins) + ' minutes.'
+                               
+                tprint('Command Tube is paused for ' + msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                time.sleep(paused_seconds)
                 log.status = Storage.I.C_SUCCESSFUL
                 log.end_datetime = datetime.now()
             except Exception as e:
