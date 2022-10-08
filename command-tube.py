@@ -3865,6 +3865,10 @@ class StorageUtility():
         # return for None or empty key
         if not key:
             return False
+        
+        # check value is None
+        if value == None:
+            value = ''
                         
         # check if force
         if is_force:
