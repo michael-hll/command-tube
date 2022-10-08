@@ -77,7 +77,7 @@ class Storage():
         self.C_PAUSE                   = 'PAUSE'
         self.C_TAIL_FILE               = 'TAIL_FILE'
         self.C_REPORT_PROGRESS         = 'REPORT_PROGRESS'
-        self.C_GET_FILE_KEY_VALUE       = 'GET_FILE_KEY_VALUE'
+        self.C_GET_FILE_KEY_VALUE      = 'GET_FILE_KEY_VALUE'
         self.C_IMPORT_TUBE             = 'IMPORT_TUBE'
         self.C_EMAIL                   = 'EMAIL'
         self.C_COUNT                   = 'COUNT'
