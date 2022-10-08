@@ -19,10 +19,6 @@ TODO LIST
     DIR_CREATE: -d
     DIR_COPY: -d directory -t to (directory)
 
-- LIST
-    LIST_FILES: -d|--directory -r|--result file [-s|--sort time|name|size [asc|desc]] - done
-    LIST_DIRS: -d|--directory -r|--result file [-s|--sort asc|desc] - done
-
 - DISCONNECT command ??
 
 - System Test
@@ -66,6 +62,10 @@ TODO LIST
         -f file
         -n line number
         -v variable name
+    26. 
+        - LIST
+        LIST_FILES: -d|--directory -r|--result file [-s|--sort time|name|size [asc|desc]] - done
+        LIST_DIRS: -d|--directory -r|--result file [-s|--sort asc|desc] - done
 
 
 
