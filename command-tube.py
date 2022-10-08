@@ -940,6 +940,8 @@ class Utility():
         '''
                         
         conditions_trim = [TubeCommand.format_placeholders(item.strip()) for item in conditions]
+        conditions_trim = [('' if item == '""' else item ) for item in conditions_trim]
+        conditions_trim = [('' if item == "''" else item ) for item in conditions_trim]
         conditions_str = ' '.join(conditions_trim)
         if Utility.if_compare_char_exists(conditions_str): 
             conditions_trim_new = []
@@ -962,7 +964,7 @@ class Utility():
                     conditions_trim_new.append(item)
             conditions_str = ' '.join(conditions_trim_new)
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                msg = 'The eval parameter is: \'{0}\', running command is \'{1}\'.'.format(conditions_str, command.get_full_content())
+                msg = 'The eval parameter is: {0}, running command is {1}.'.format(conditions_str, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             return eval(conditions_str)
@@ -1323,7 +1325,13 @@ class TubeCommand():
             loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
             if self.__original_content2 == None:
-                self.__original_content2 = TubeCommand.format_placeholders(self.original_content)
+                # we need to show the readable print/log output
+                # if the key value is an empty string
+                tempDict = Storage.I.KEY_VALUES_DICT.copy()
+                for key in tempDict.keys():
+                    if tempDict[key] == '':
+                        tempDict[key] = "''"
+                self.__original_content2 = TubeCommand.format_placeholders(self.original_content, tempDict)
             return loop_status + self.__original_content2
         except Exception as e:
             return loop_status + self.original_content
@@ -3388,12 +3396,13 @@ class TubeCommand():
     # The best time to format placesholder is when running this command
     # for display command content could use the format_placeholders_no_error method
     @classmethod
-    def format_placeholders(self, value):
+    def format_placeholders(self, value, key_values = None):
         '''
         Replace all placeholders {variable_name} from tube variables
         
         Parameters:
             value: The string you want to replace its all placeholders.
+            key_values: If not provided using the tube key value dict.
         '''
         
         # return for None or empty
@@ -3417,14 +3426,17 @@ class TubeCommand():
         # add format support
         value = value.replace('{0:', '{s:') # to compatible with {0:m} syntax
         # replace placeholders from tube commands
-        tempDict = TDict(Storage.I.KEY_VALUES_DICT)
+        if key_values == None:
+            tempDict = TDict(Storage.I.KEY_VALUES_DICT)
+        else:
+            tempDict = TDict(key_values)
         # using the format_map method will not raise missing key exception
         ret_value = value.format_map(tempDict)
         del tempDict
         return ret_value
 
     @classmethod
-    def format_placeholders_no_error(self, value): 
+    def format_placeholders_no_error(self, value, key_values = None): 
         '''
         Replace all placeholders {variable_name} from tube variables with no error.
         
@@ -3434,7 +3446,7 @@ class TubeCommand():
         
         ret_value = value
         try:
-            ret_value = TubeCommand.format_placeholders(value)
+            ret_value = TubeCommand.format_placeholders(value, key_values)
             return ret_value
         except Exception as e:
             return ret_value    
