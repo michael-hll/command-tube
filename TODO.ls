@@ -12,21 +12,24 @@ TODO LIST
     FILE_COPY: -f|--file file -t|--to to (file or directory) 
     FILE_MOVE: -f|--file file -t|--to to (file or directory) 
     
-- DIRECTORY
+- DIR
     exists, delete, copy, move, create. etc
-    DIRECTORY_EXIST: -d|--directory directory
-    DIRECTORY_DELETE: -d
-    DIRECTORY_CREATE: -d
-    DIRECTORY_COPY: -d directory -t to (directory)
+    DIR_EXIST: -d|--directory directory
+    DIR_DELETE: -d
+    DIR_CREATE: -d
+    DIR_COPY: -d directory -t to (directory)
 
 - LIST
-    LIST_FILES: -d|--directory -r|--result file [-s|--sort mtime|name|size [asc|desc]]
-    LIST_DIRECTORIES: -d|--directory -r|--result file
+    LIST_FILES: -d|--directory -r|--result file [-s|--sort time|name|size [asc|desc]] - done
+    LIST_DIRS: -d|--directory -r|--result file [-s|--sort asc|desc] - done
 
 - DISCONNECT command ??
 
 - System Test
 
+- Refactor run method
+
+- check --rodo log
 
 - DONE LIST
     1. Email content format - done

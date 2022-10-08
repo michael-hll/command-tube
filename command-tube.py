@@ -90,6 +90,7 @@ class Storage():
         self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_LIST_FILES              = 'LIST_FILES'
+        self.C_LIST_DIRS               = 'LIST_DIRS'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -622,7 +623,23 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
+                self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file.'
+            },
+            self.C_LIST_DIRS: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: LIST_DIRS: -d directory -r result_file [-s asc|desc] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
+                        'The directory you want to list its sub directories.'],
+                    [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
+                        'The text file to store the list result.'], 
+                    [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
+                        'It accepts \'asc\' or \'desc\' value for the sorting. Default is \'asc\'.'],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file.'
             },
         }
 
@@ -1958,14 +1975,14 @@ class TubeCommand():
         if args.sort:
             if len(args.sort) == 1:
                 s = args.sort[0]
-                s = TubeCommand.format_placeholders(s)
+                s = TubeCommand.format_placeholders(s).lower()
                 if s == 'time' or s == 'name' or s == 'size':
                     sort = s
                 else:
                     raise Exception('Sort type could only be time, name or size.')
             elif len(args.sort) == 2:
-                s = TubeCommand.format_placeholders(args.sort[0])
-                a = TubeCommand.format_placeholders(args.sort[1])
+                s = TubeCommand.format_placeholders(args.sort[0]).lower()
+                a = TubeCommand.format_placeholders(args.sort[1]).lower()
                 if s == 'time' or s == 'name' or s == 'size':
                     sort = s
                 else:
@@ -2014,7 +2031,49 @@ class TubeCommand():
                 f.write(file + '\n')
                 
         return True
+    
+    def list_dirs(self):
         
+        directory, result, sort = None, None, 'asc'
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        directory = ' '.join(args.directory)
+        result = ' '.join(args.file)
+        
+        # replace placeholders and do a basic checks
+        directory = TubeCommand.format_placeholders(directory)
+        result = TubeCommand.format_placeholders(result)
+        if args.sort:
+            if len(args.sort) == 1:
+                s = args.sort[0]
+                s = TubeCommand.format_placeholders(s).lower()
+                if s == 'asc' or s == 'desc':
+                    sort = s
+                else:
+                    raise Exception('Sort type could only be \'asc\' or \'desc\'.')
+            else:
+                raise Exception('Sort argument only supports \'asc\' or \'desc\'.')
+
+        # check directory exists
+        if not (os.path.exists(directory) and \
+            not os.path.isfile(directory)):
+            raise Exception('The directory: \'{0}\' is not valid.'.format(directory))
+        
+        # get sub directories
+        ls = next(os.walk(directory))[1]
+         
+        # asc, desc
+        ls.sort()
+        if sort == 'desc':
+            ls.reverse()
+            
+        # writing result
+        with open(result, 'w') as f:
+            for file in ls:
+                f.write(file + '\n')
+                
+        return True
+           
     def tail_file(self):
         '''
         For command: TAIL_FILE
@@ -3045,6 +3104,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 set_value_success = self.list_files()  
+                if set_value_success == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+
+        elif current_command_type == Storage.I.C_LIST_DIRS:
+            try:
+                log.start_datetime = datetime.now()                        
+                set_value_success = self.list_dirs()  
                 if set_value_success == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
