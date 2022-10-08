@@ -252,7 +252,27 @@ Parameters:
    --log-detail:   Log command output to tube log file. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 11: PATH
+### 11: LIST_DIRS
+<pre>Description: Got all sub directories for the given directory, and save the result list to a text file.
+
+Syntax: - LIST_DIRS: -d|--directory directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -d/--directory: The directory you want to list its sub directories.
+   -r/--result:    The text file to store the list result.
+   -s/--sort:      It accepts 'asc' or 'desc' value for the sorting. Default is 'asc'.
+
+Support from version: 2.0.2</pre>
+### 12: LIST_FILES
+<pre>Description: Get matched files list and save it to a text file.
+
+Syntax: - LIST_FILES: -d|--directory directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key]
+Parameters:
+   -d/--directory: The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
+   -r/--result:    The text file to store the search result.
+   -s/--sort:      Using '-s time|name|size [asc|desc]' to set the sort properties. Default uses the file modification time (time asc) to sort the result.
+
+Support from version: 2.0.2</pre>
+### 13: PATH
 <pre>Description: Go to specific directory.
 
 Syntax: - PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -260,15 +280,15 @@ Parameters:
    directory:  The directory you want to goto.
 
 Support from version: 2.0.0</pre>
-### 12: PAUSE
-<pre>Description: Command Tube will pause with given minutes.
+### 14: PAUSE
+<pre>Description: Command Tube will pause with given minutes/seconds.
 
 Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]
 Parameters:
-   minutes:  The minutes you want to pause.
+   minutes:  The minutes you want to pause. You can end it with 's' char to pause for xxx seconds.
 
 Support from version: 2.0.0</pre>
-### 13: PRINT_VARS
+### 15: PRINT_VARS
 <pre>Description: Print tube variable values for debugging purpose.
 
 Syntax: - PRINT_VARS: name [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -276,7 +296,7 @@ Parameters:
    name:  The tube variable name. Provide value '*' can print all variable.
 
 Support from version: 2.0.2</pre>
-### 14: READ_LINE_IN_FILE
+### 16: READ_LINE_IN_FILE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -286,7 +306,7 @@ Parameters:
    -v/--variable: The tube variable name to save the line content.
 
 Support from version: 2.0.2</pre>
-### 15: REPLACE_CHAR
+### 17: REPLACE_CHAR
 <pre>Description: Replace file line content which contains/matches given value.
 
 Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -297,7 +317,7 @@ Parameters:
    -c/--count:    The replaced times you want to set. Default no limitation.
 
 Support from version: 2.0.1</pre>
-### 16: REPORT_PROGRESS
+### 18: REPORT_PROGRESS
 <pre>Description: You can use this command to sent current progress via Email.
 
 Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -305,7 +325,7 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 17: RUN_TUBE
+### 19: RUN_TUBE
 <pre>Description: Run a sub-tube. 
              With the '--while' conditions provided, RUN_TUBE will continuely run and stop when conditions return false.
 
@@ -315,7 +335,7 @@ Parameters:
    -w/--while:  Set the condtions to run the tube.
 
 Support from version: 2.0.2</pre>
-### 18: SET_FILE_KEY_VALUE
+### 20: SET_FILE_KEY_VALUE
 <pre>Description: Update key-value file.
 
 Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -325,7 +345,7 @@ Parameters:
    -v/--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 19: SET_VARIABLE
+### 21: SET_VARIABLE
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: -n|--name name -v|--value value [-r|--readonly] [-f|--force] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -339,7 +359,7 @@ Parameters:
    -f/--force:    Force update even the varialbe is readonly. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 20: SET_XML_TAG_TEXT
+### 22: SET_XML_TAG_TEXT
 <pre>Description: Update XML file tag text using xpath.
 
 Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -349,7 +369,7 @@ Parameters:
    -v/--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 21: SFTP_GET
+### 23: SFTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
 
@@ -359,7 +379,7 @@ Parameters:
    -l/--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 22: SFTP_PUT
+### 24: SFTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
 
@@ -369,7 +389,7 @@ Parameters:
    -r/--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 23: TAIL_FILE
+### 25: TAIL_FILE
 <pre>Description: Print/Log the last N lines of given file.
 
 Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]
@@ -379,7 +399,7 @@ Parameters:
    -k/--keywords: Output file content only if it contains the given keywords.
 
 Support from version: 2.0.0</pre>
-### 24: WRITE_LINE_IN_FILE
+### 26: WRITE_LINE_IN_FILE
 <pre>Description: Write any characters into a file.                      
 The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
 If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
