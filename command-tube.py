@@ -1252,6 +1252,7 @@ class TubeCommand():
         self.results               = []
         self.self_tube_index       = 0
         self.self_tube_file        = '' 
+        self.self_tube_name        = 'TUBE'
         # the follow properties starts with 'tube'
         # are used by RUN_TUBE command
         self.tube                  = None # keep the whole commands
@@ -1261,8 +1262,7 @@ class TubeCommand():
         self.tube_conditions       = None          
         self.tube_index            = 0
         self.tube_file             = '' 
-        self.tube_name             = 'TUBE'
-        self.sub_tube_name         = ''
+        self.tube_name             = '' # this is used for RUN_TUBE command
         self.parent                = None # The parent RUN_TUBE command
         self.loop_index            = -1
         self.is_imported           = False # TODO 
@@ -1320,7 +1320,7 @@ class TubeCommand():
                 tube_check = self.create_tube_run(sub_tube, tube_index, file, tube_name)                
                 self.tube_index = tube_index
                 self.tube_file = os.path.abspath(file)
-                self.sub_tube_name = tube_name
+                self.tube_name = tube_name
         else:
             # the 'TUBE' section doesn't exists from the sub-tube file
             raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
@@ -1344,7 +1344,7 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.tube_name)
+        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.self_tube_name)
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -2497,12 +2497,13 @@ class TubeCommand():
         if self.cmd_type != Storage.I.C_RUN_TUBE:
             return []
         tube_new = convert_tube_to_new(tube_yaml)
+        command: TubeCommand
         for command in tube_new:
             command.is_imported = True # TODO
             command.self_tube_index = tube_index
             command.self_tube_file = file    
             if tube_name:
-                command.tube_name = tube_name      
+                command.self_tube_name = tube_name      
         return tube_new
     
     def count(self):
@@ -3734,7 +3735,7 @@ class TubeRunner():
             self.pre_command = None            
             self.run_tube_command.tube_run = self.run_tube_command.create_tube_run(
                 self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
-                self.run_tube_command.sub_tube_name)
+                self.run_tube_command.tube_name)
             self.start(self.run_tube_command.tube_run)
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
@@ -5308,8 +5309,7 @@ def install_3rd_party_packages(args):
 def get_max_tube_command_type_length(tube):
     if tube == None or len(tube) == 0:
         return Storage.I.MAX_TUBE_COMMAND_LENGTH
-    c: TubeCommand
-    type_list = [c.cmd_type + c.tube_name for c in tube]
+    type_list = [c.cmd_type + c.self_tube_name for c in tube]
     max_length = len(max(type_list, key=len))
     return max_length + 5
 
@@ -5873,6 +5873,10 @@ init_arguments()
 # parse user inputs arguments
 try:
     args = parser.parse_args()
+    
+    # if debug
+    if args.debug != None:
+        Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
 except Exception as e:
     # Log start
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
@@ -5914,7 +5918,8 @@ if(args.yaml_config != None):
             else:
                 Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, args.log_file[0])
         # read run mode file yaml file
-        read_run_mode()
+        if Storage.I.RUN_MODE != Storage.I.C_RUN_MODE_DEBUG:
+            read_run_mode()
     else:
         msg = "YAML file doesn't exist: " + Storage.I.TUBE_YAML_FILE
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
@@ -6037,10 +6042,6 @@ try:
     if(args.force != None and (args.force.lower() == 'true' or args.force.lower() == 'yes' or args.force.lower() == 'y' or args.force.lower() == 't')):
         Storage.I.IS_FORCE_RUN = True
         Storage.I.IS_IMMEDIATE = True
-        
-    # if debug
-    if args.debug != None:
-        Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
     
     # matrix mode
     if(args.matrix_mode != None and args.matrix_mode == 'yes'):
