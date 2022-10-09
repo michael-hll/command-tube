@@ -248,8 +248,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
-                    [False, '-y','--yaml', 'str', '+', 'file', True, False, '', '',
-                        'The tube yaml file you want to run.'],    
+                    [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
+                        'The tube you want to run.'],    
                     [False, '-w','--while', 'str', '*', 'conditions', False, False, '', '',
                         'Set the condtions to run the tube.'],  
                 ],
@@ -1258,6 +1258,8 @@ class TubeCommand():
         self.tube_conditions       = None          
         self.tube_index            = 0
         self.tube_file             = '' 
+        self.tube_name             = 'TUBE'
+        self.sub_tube_name         = ''
         self.parent                = None # The parent RUN_TUBE command
         self.loop_index            = -1
         self.is_imported           = False # TODO 
@@ -1294,6 +1296,34 @@ class TubeCommand():
         self.tube_argument_config = TubeCommandArgumentConfig(self.cmd_type, Storage.I.TUBE_ARGS_CONFIG)
         self.tube_argument_parser = TubeArgumentParser.create_argument_parser(self.tube_argument_config)
     
+    def __load_sub_tube(self, data, tube_name, file):
+        '''
+        Args:
+            data: yaml format raw data
+            tube_name: tube key
+            file: the yaml file name
+        '''
+        tube_check = []
+        if tube_name in data.keys():            
+            sub_tube = data[tube_name] 
+            self.tube_yaml = sub_tube.copy()
+            
+            if not sub_tube or type(sub_tube) != list:
+                msg = 'Tube file doesnot have any tube commands: ' + file
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            else:
+                tube_index = StorageUtility.get_tube_index(file)
+                tube_check = self.create_tube_run(sub_tube, tube_index, file, tube_name)                
+                self.tube_index = tube_index
+                self.tube_file = os.path.abspath(file)
+                self.sub_tube_name = tube_name
+        else:
+            # the 'TUBE' section doesn't exists from the sub-tube file
+            raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
+
+        return tube_check
+    
     def get_formatted_status(self) -> str:
         '''
         Return something like: '[0] - status - type - content
@@ -1311,7 +1341,7 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        command_type += '[%s]' % str(self.self_tube_index)
+        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.tube_name)
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -2357,61 +2387,87 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
-        file, conditions = None, None
-        if args.file:
-            file = ' '.join(args.file)
-            file = TubeCommand.format_placeholders(file)
+        tube, conditions = None, None
+        if args.tube:
+            tube = ' '.join(args.tube)
+            tube = TubeCommand.format_placeholders(tube)
         if args.conditions:
             conditions = ' '.join(args.conditions)
             self.tube_conditions = conditions
+
+        # re for switching tube type
+        p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
+        p2 = '[a-zA-Z_0-9]+' # tube
+        p3 = '[a-zA-Z_0-9-]+[.]{1}(yaml|yml)' # file
+        
+        tube_type = 3 # 1: file[tube] 2: tube  3: file
+        p1 = re.compile(p1)
+        p2 = re.compile(p2)
+        p3 = re.compile(p3)
+        
+        # analyze input tube type                
+        if p1.fullmatch(tube) != None:
+            tube_type = 1
+        elif p2.fullmatch(tube) != None:
+            tube_type = 2
+        elif p3.fullmatch(tube) != None:
+            tube_type = 3
+        else:
+            raise Exception('The tube :\'{0}\' doesnot exists.'.format(tube))            
         
         # Check while condition of RUN_TUBE command
         while_condition = Utility.eval_while_conditions(self.tube_conditions, command=self) 
         if  while_condition:
             tube_check = []
-            with open(file, 'r') as f:
-                data = Utility.safe_load_yaml_with_upper_key(f)
-                if Storage.I.C_TUBE in data.keys():            
-                    sub_tube = data[Storage.I.C_TUBE] 
-                    self.tube_yaml = sub_tube.copy()
+            if tube_type == 1: # file[tube]
+                file = tube[:tube.index('[')]
+                tube_name = tube[tube.index('[')+1:-1].upper()
+                exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
+                if exists:
+                    with open(file, 'r') as f:
+                        data = Utility.safe_load_yaml_with_upper_key(f)
+                        tube_check = self.__load_sub_tube(data, tube_name, file)
+                else:    
+                    raise Exception('The tube :\'{0}\' doesnot exists.'.format(file)) 
+            elif tube_type == 2: # tube
+                file = Storage.I.TUBE_YAML_FILE
+                tube_name = tube.upper()
+                exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
+                if exists:
+                    with open(file, 'r') as f:
+                        data = Utility.safe_load_yaml_with_upper_key(f)
+                        tube_check = self.__load_sub_tube(data, tube_name, file)
+                else:    
+                    raise Exception('The tube :\'{0}\' doesnot exists.'.format(file))     
+            elif tube_type == 3: # file.yaml
+                with open(tube, 'r') as f:
+                    data = Utility.safe_load_yaml_with_upper_key(f)
+                    tube_check = self.__load_sub_tube(data, Storage.I.C_TUBE, tube)
                     
-                    if not sub_tube or type(sub_tube) != list:
-                        msg = 'Tube file doesnot have any tube commands: ' + file
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-                    else:
-                        tube_index = StorageUtility.get_tube_index(file)
-                        tube_check = self.create_tube_run(sub_tube, tube_index, file)
-                        self.tube_index = tube_index
-                        self.tube_file = os.path.abspath(file)
-                else:
-                    # the 'TUBE' section doesn't exists from the sub-tube file
-                    raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
-                
-                if Storage.I.C_SERVERS in data.keys():       
-                    # Get servers to hosts
-                    StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
-                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                        msg = 'Servers hosts are updated by tube: %s.' % file
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                    if Storage.I.C_SERVERS in data.keys():       
+                        # Get servers to hosts
+                        StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
+                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                            msg = 'Servers hosts are updated by tube: %s.' % tube
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
 
-                if Storage.I.C_VARIABLES in data.keys():
-                    # Read variables 
-                    StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
-                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                        msg = 'Tube variables are updated by tube: %s.' % file
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
-                
-                if Storage.I.C_EMAIL in data.keys():
-                    # read emails
-                    StorageUtility.read_emails(data[Storage.I.C_EMAIL])
-                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                        msg = 'Email configurations are updated by tube: %s.' % file
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                    if Storage.I.C_VARIABLES in data.keys():
+                        # Read variables 
+                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
+                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                            msg = 'Tube variables are updated by tube: %s.' % tube
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
                     
+                    if Storage.I.C_EMAIL in data.keys():
+                        # read emails
+                        StorageUtility.read_emails(data[Storage.I.C_EMAIL])
+                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                            msg = 'Email configurations are updated by tube: %s.' % tube
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                        
             has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
             if has_errors == False:
                 self.tube_run = tube_check.copy()
@@ -2426,7 +2482,7 @@ class TubeCommand():
             self.log.status = Storage.I.C_SKIPPED   
             self.is_skip_by_while = True  
 
-    def create_tube_run(self, tube_yaml, tube_index, file):
+    def create_tube_run(self, tube_yaml, tube_index, file, tube_name = None):
         '''
         Create a tube command list based on tube yaml list
         
@@ -2441,7 +2497,9 @@ class TubeCommand():
         for command in tube_new:
             command.is_imported = True # TODO
             command.self_tube_index = tube_index
-            command.self_tube_file = file          
+            command.self_tube_file = file    
+            if tube_name:
+                command.tube_name = tube_name      
         return tube_new
     
     def count(self):
@@ -3672,7 +3730,8 @@ class TubeRunner():
         if while_condition:             
             self.pre_command = None            
             self.run_tube_command.tube_run = self.run_tube_command.create_tube_run(
-                self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file)
+                self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
+                self.run_tube_command.sub_tube_name)
             self.start(self.run_tube_command.tube_run)
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
@@ -4148,6 +4207,12 @@ class StorageUtility():
     
     @classmethod
     def get_tube_index(self, file):
+        '''
+        Check if tube file exists from tube file list
+        
+        Args:
+            file: Tube file name
+        '''
         index = 0
         file_full_path = os.path.abspath(file)
         for key in Storage.I.TUBE_FILE_LIST.keys():
@@ -5128,6 +5193,9 @@ def init_arguments():
     parser.add_argument('-y', '--yaml', dest='yaml_config',
                         help='Command Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
                              '\nFor quick you could leave out the file name extension .yaml or .yml') 
+    parser.add_argument('-t', '--tube', dest='yaml_config',
+                        help='Command Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
+                             '\nFor quick you could leave out the file name extension .yaml or .yml') 
     parser.add_argument('-v', '--vars', type=str, dest='variables', nargs='+',
                         help='Pass tube variables into tube: var1=value1 var2=value2')                 
     parser.add_argument('-i', '--immediate', dest='immediate', action='store_const', const='yes',
@@ -5136,7 +5204,7 @@ def init_arguments():
                         help='A flag to run tube at once without confirmation. \nDefault no.') 
     parser.add_argument('-d', '--debug', dest='debug', action='store_const', const='yes',
                         help='A flag to run tube in debug mode. \nDefault no.') 
-    parser.add_argument('-t', '--datetime', dest='datetime',
+    parser.add_argument('--datetime', dest='datetime',
                         help='At what datetime to start this job. \nFORMAT: [mm/dd/yy H:M:S] e.g.: \'03/18/20 6:00:00\'; ' +
                              '\nIt also supports addition format \'n/tXX o\'clock, means next or this XX o\'clock. \ne.g.: \'n7\', means next 7:00 o\'clock; ' + \
                              '\'t7.5\' means this 7:30 o\'clock.')    
