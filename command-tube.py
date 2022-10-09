@@ -5309,7 +5309,7 @@ def get_max_tube_command_type_length(tube):
     if tube == None or len(tube) == 0:
         return Storage.I.MAX_TUBE_COMMAND_LENGTH
     c: TubeCommand
-    type_list = [c.cmd_type for c in tube]
+    type_list = [c.cmd_type + c.tube_name for c in tube]
     max_length = len(max(type_list, key=len))
     return max_length + 5
 
