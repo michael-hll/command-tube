@@ -249,7 +249,10 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
                     [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
-                        'The tube you want to run.'],    
+                        'The tube you want to run. It supports 3 formats: \
+                         \n{0}    - \'file.yaml\': Run TUBE from file.yaml file. \
+                         \n{0}    - \'file[X]\': Run tube X from file.yaml file. \
+                         \n{0}    - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
                     [False, '-w','--while', 'str', '*', 'conditions', False, False, '', '',
                         'Set the condtions to run the tube.'],  
                 ],
