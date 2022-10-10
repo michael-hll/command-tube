@@ -4028,7 +4028,7 @@ class StorageUtility():
             forced = ' '
             if is_force:
                 forced = ' forced '
-            msg = 'Tube variable \'%s\' was%supdated to value: \'%s\'.' % (key, forced, value)
+            msg = 'Tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
             if command:
                 msg += ' By tube[%s] command: %s' % (str(command.self_tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
