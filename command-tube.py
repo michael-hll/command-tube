@@ -5976,7 +5976,7 @@ if(args.yaml_config != None):
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         sys.exit()         
 else:
-    msg = '-y or --yaml parameter is missing. \
+    msg = '-t or --tube parameter is missing. \
           \nUse \'-h\' argument to view the usage of all the parameters.'
     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
     # Log start
