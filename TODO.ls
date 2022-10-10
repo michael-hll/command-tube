@@ -6,7 +6,7 @@ TODO LIST
     FILE_POP: -f file -v variable
     FILE_APPEND: -f file -v value
     FILE_PUSH: -f file -v value
-    FILE_EXIST: -f|--file
+    FILE_EXIST: -f file -v variable                             - done
     FILE_DELETE: -f|--file
     FILE_CREATE: -f|--file
     FILE_COPY: -f|--file file -t|--to to (file or directory) 

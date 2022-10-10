@@ -91,6 +91,7 @@ class Storage():
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_LIST_FILES              = 'LIST_FILES'
         self.C_LIST_DIRS               = 'LIST_DIRS'
+        self.C_FILE_EXIST              = 'FILE_EXIST'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -276,6 +277,20 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print/Log the last N lines of given file.'                
+            },
+            self.C_FILE_EXIST: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file name you want to check.'],
+                    [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
+                        'The tube variable name to store the exist result. (True/False)'],                   
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2114,6 +2129,24 @@ class TubeCommand():
                 f.write(file + '\n')
                 
         return True
+    
+    def file_exist(self):
+        file, var = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        var = ' '.join(args.variable)
+        
+        # replace placeholders 
+        file = TubeCommand.format_placeholders(file)
+        var = TubeCommand.format_placeholders(var)
+        
+        if os.path.exists(file) and os.path.isfile(file):
+            StorageUtility.update_key_value_dict(var, True, is_force = True)
+        else:
+            StorageUtility.update_key_value_dict(var, False, is_force = True)
+            
+        return True
            
     def tail_file(self):
         '''
@@ -3113,8 +3146,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_SET_FILE_KEY_VALUE:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.set_file_key_value()  
-                if set_value_success == True:                      
+                result = self.set_file_key_value()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
@@ -3128,8 +3161,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_WRITE_LINE_IN_FILE:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.write_line_in_file()  
-                if set_value_success == True:                      
+                result = self.write_line_in_file()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
@@ -3143,8 +3176,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_DELETE_LINE_IN_FILE:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.delete_line_in_file()  
-                if set_value_success == True:                      
+                result = self.delete_line_in_file()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
@@ -3158,8 +3191,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_READ_LINE_IN_FILE:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.read_line_in_file()  
-                if set_value_success == True:                      
+                result = self.read_line_in_file()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
@@ -3173,8 +3206,8 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_LIST_FILES:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.list_files()  
-                if set_value_success == True:                      
+                result = self.list_files()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
@@ -3188,8 +3221,23 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_LIST_DIRS:
             try:
                 log.start_datetime = datetime.now()                        
-                set_value_success = self.list_dirs()  
-                if set_value_success == True:                      
+                result = self.list_dirs()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_FILE_EXIST:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_exist()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
