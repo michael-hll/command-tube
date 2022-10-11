@@ -1387,7 +1387,11 @@ class TubeCommand():
     
     def update_sub_tube_key_value(self, key, value):
         if self.cmd_type == Storage.I.C_RUN_TUBE and key:
-            self.tube_KEY_VALUES_DICT[key] = value
+            self.tube_KEY_VALUES_DICT[key] = value            
+            msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+            
             
     def get_formatted_status(self) -> str:
         '''
@@ -4108,7 +4112,7 @@ class StorageUtility():
             forced = ' '
             if is_force:
                 forced = ' forced '
-            msg = 'Tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
+            msg = 'Global tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
             if command:
                 msg += ' By tube[%s] command: %s' % (str(command.self_tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:

@@ -1,6 +1,6 @@
 TODO LIST
 
-- sub tube variable (local/scope tube variable)
+- sub tube variable (local/scope tube variable) - done
   pass tube variable to sub tube
 
 - FILE 
