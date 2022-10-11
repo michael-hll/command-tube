@@ -251,9 +251,9 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [    
                     [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
                         'The tube you want to run. It supports 3 formats: \
-                         \n{0}    - \'file.yaml\': Run TUBE from file.yaml file. \
-                         \n{0}    - \'file[X]\': Run tube X from file.yaml file. \
-                         \n{0}    - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
+                         \n{0}        - \'file.yaml\': Run TUBE from file.yaml file. \
+                         \n{0}        - \'file[X]\': Run tube X from file.yaml file. \
+                         \n{0}        - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
                     [False, '-v','--variables', 'str', '+', 'variables', False, False, '', '',
                         'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = 2'], 
                     [False, '-w','--while', 'str', '+', 'conditions', False, False, '', '',
@@ -1388,13 +1388,18 @@ class TubeCommand():
         return tube_check
     
     def update_sub_tube_key_value(self, key, value):
+        '''
+        Only update when the command type is RUN_TUBE
+        without readonly settings for local variables
+        '''
         if self.cmd_type == Storage.I.C_RUN_TUBE and key:
+            if value == None:
+                value = ''
             self.tube_KEY_VALUES_DICT[key] = value            
             msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
-            
-            
+                  
     def get_formatted_status(self) -> str:
         '''
         Return something like: '[0] - status - type - content
@@ -2472,13 +2477,24 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
-        tube, conditions = None, None
+        tube, conditions, variables = None, None, None
         if args.tube:
             tube = ' '.join(args.tube)
             tube = self.self_format_placeholders(tube)
         if args.conditions:
             conditions = ' '.join(args.conditions)
             self.tube_conditions = conditions
+        key_value_list = None
+        if args.variables:
+            variables = ' '.join(args.variables)
+            variables = self.self_format_placeholders(variables)
+            key_value_list = variables.split(',')
+            for item in key_value_list:
+                item = item.strip().strip('\'').strip('"')
+                if not reUtility.is_matched_equal_expresson(item):
+                    raise Exception('The tube input variables have wrong format: {0}'.format(item))
+            
+            print('variables: ' + variables)
 
         # re for switching tube type
         p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
@@ -2556,6 +2572,22 @@ class TubeCommand():
             has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
             if has_errors == False:
                 self.tube_run = tube_check.copy()
+                # update tube local variables
+                if key_value_list:
+                    for item in key_value_list:
+                        key = item[:item.index('=')].strip().strip('\'').strip('"')
+                        value = item[item.index('=')+1:].strip().strip('\'').strip('"')
+                        if reUtility.is_matched_int(value):
+                            self.update_sub_tube_key_value(key, int(value))
+                        elif reUtility.is_matched_float(value):
+                            self.update_sub_tube_key_value(key, float(value))
+                        elif value.upper() == 'TRUE' or value.upper() == 'YES':
+                            self.update_sub_tube_key_value(key, True)
+                        elif value.upper() == 'FALSE' or value.upper() == 'NO':
+                            self.update_sub_tube_key_value(key, False)
+                        else:
+                            self.update_sub_tube_key_value(key, value)
+                                                        
                 Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
                 self.tube_run_times = 0 # initial the tube running times to 0     
             else:
