@@ -1,8 +1,5 @@
 TODO LIST
 
-- sub tube variable (local/scope tube variable) - done
-  pass tube variable to sub tube
-
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
@@ -78,6 +75,9 @@ TODO LIST
 
     28. - Change RUN_TUBE -y|--yaml parameter to -t|--tube
         Also change it to the command-tube input arguments
+
+    29. - sub tube variable (local/scope tube variable) - done
+        pass tube variable to sub tube - done
 
 
 
