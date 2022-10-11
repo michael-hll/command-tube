@@ -2894,41 +2894,53 @@ class TubeCommand():
         return replaced_count
     
     def print_variables(self):
-        new_vars = []
-        default_vars = []
+
+        # print Global variables
+        msg = '-- Global Variables --'
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         for key in Storage.I.KEY_VALUES_DICT.keys():
             if self.content == '*' or self.content == None or key.upper() in self.content.upper():
                 # get value
                 value = str(Storage.I.KEY_VALUES_DICT[key])
                 if value == ' ':
                     value = '\' \''
+                if value == '':
+                    value = '\'\''
                 # get readonly
                 readonly = ''
                 if key in Storage.I.KEYS_READONLY_SET:
                     readonly = ' (readonly)'
                 msg = '%s=%s %s' % (key, value, readonly)
-                if key in Storage.I.KEYS_DEFAULT:
-                    default_vars.append(msg)
-                else:
-                    new_vars.append(msg)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         
-        if len(default_vars) > 0:
-            msg = '-- Default Variables --'
+        # print tube variabels
+        if self.parent != None:
+            msg = '-- Local Variables --'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            self.print_tube_variables(self.content)                
+    
+    def print_tube_variables(self, names):
+        '''
+        It will print it's parent scope variables and parent's parent
+        '''
+        if self.parent != None:
+            for key in self.parent.tube_KEY_VALUES_DICT.keys():
+                if names == '*' or names == None or key.upper() in names.upper():
+                    # get value
+                    value = str(self.parent.tube_KEY_VALUES_DICT[key])
+                    if value == ' ':
+                        value = '\' \''
+                    if value == '':
+                        value = '\'\''
+                    msg = '[%s] %s=%s' % (self.parent_tube_name, key, value)
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
             
-        for var in default_vars:
-            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var) 
-            
-        if len(new_vars) > 0:
-            msg = '-- User Variables --'
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            
-        for var in new_vars:
-            tprint(var, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', var)
+            # to check if parent's parent has 
+            self.parent.print_tube_variables(names)          
     
     def self_report_progress(self):
         
