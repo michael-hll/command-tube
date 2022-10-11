@@ -254,7 +254,9 @@ Use 'help vars' to print all the given tube variables;
                          \n{0}    - \'file.yaml\': Run TUBE from file.yaml file. \
                          \n{0}    - \'file[X]\': Run tube X from file.yaml file. \
                          \n{0}    - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
-                    [False, '-w','--while', 'str', '*', 'conditions', False, False, '', '',
+                    [False, '-v','--variables', 'str', '+', 'variables', False, False, '', '',
+                        'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = 2'], 
+                    [False, '-w','--while', 'str', '+', 'conditions', False, False, '', '',
                         'Set the condtions to run the tube.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -3827,10 +3829,10 @@ class TubeRunner():
         self.is_main          = is_main
         self.run_tube_command = run_tube_command
     
-    def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0):
+    def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0, command=None):
         # print current while conditions in debug mode        
         if tube_conditions != None and Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            conditions = self.run_tube_command.self_format_placeholders(tube_conditions)
+            conditions = command.self_format_placeholders(tube_conditions)
             msg = '[LOOP {0}]: The current while condition returns \'{1}\': {2}'.format(
                 str(loop_index+1),
                 str(while_condition),                
@@ -3860,7 +3862,7 @@ class TubeRunner():
         # check if need run again
         while_condition = Utility.eval_while_conditions(self.run_tube_command.tube_conditions, False, command=self.run_tube_command)
         # print current while conditions in debug mode
-        self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times)
+        self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times, self.run_tube_command)
             
         # run again?
         if while_condition:             
@@ -3990,7 +3992,7 @@ class TubeRunner():
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:
                 while_condition = Utility.eval_while_conditions(command.tube_conditions, command=command) 
                 # print current while conditions in debug mode
-                self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times)  
+                self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times, command=command)  
                 if while_condition:
                     runner = TubeRunner(False, command)                 
                     runner.start(command.tube_run)
