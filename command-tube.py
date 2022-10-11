@@ -412,6 +412,8 @@ Use 'help vars' to print all the given tube variables;
                         'Mark the variable as readonly after updating. Default no. [2.0.2]'],
                     [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the varialbe is readonly. Default no. [2.0.2]'],
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If set the variable to global (Main TUBE). Within a sub-tube, it will default set the value within the sub tube scope. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -942,7 +944,7 @@ class Utility():
     def eval_while_conditions(self, while_condition: str, is_main = True, command = None):
         result = True
         if while_condition != None: 
-            while_condition = TubeCommand.format_placeholders(while_condition)
+            while_condition = command.self_format_placeholders(while_condition)
             result = Utility.eval_conditions(while_condition.split(' '), command)  
         elif while_condition == None and is_main == False:
             result = False
@@ -957,7 +959,7 @@ class Utility():
             condtions: []
         '''
                         
-        conditions_trim = [TubeCommand.format_placeholders(item.strip()) for item in conditions]
+        conditions_trim = [command.self_format_placeholders(item.strip()) for item in conditions]
         conditions_trim = [('' if item == '""' else item ) for item in conditions_trim]
         conditions_trim = [('' if item == "''" else item ) for item in conditions_trim]
         conditions_str = ' '.join(conditions_trim)
@@ -1125,6 +1127,46 @@ class Utility():
                 item = temp
                     
         return item            
+
+    @classmethod
+    def remove_empty_dict(self, input_dict):
+        '''
+        Replace '' string value to "''" and return a new copy the original dict
+        '''
+        tempDict = input_dict.copy()
+        for key in tempDict.keys():
+            if tempDict[key] == '':
+                tempDict[key] = "''"
+        return tempDict
+    
+class reUtility():
+    
+    @staticmethod
+    def is_matched_equal_expresson(input_value):
+        '''
+        To see if match 'x = y' expression 
+        '''
+        p = '[a-zA-Z_0-9]+[ ]*[=]{1}[ ]*[\S ]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
+    
+    @staticmethod
+    def is_matched_int(input_value):
+        '''
+        To see if match int value
+        '''
+        p = '[1-9]+[0-9]*'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
+    
+    @staticmethod
+    def is_matched_float(input_value):
+        '''
+        To see if match float value
+        '''
+        p = '[1-9]+[.]*[0-9]*|[.]+[0-9]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
  
 class TubeCommandArgument():
     
@@ -1266,10 +1308,9 @@ class TubeCommand():
         self.is_key_command        = False
         self.results               = []
         self.self_tube_index       = 0
-        self.self_tube_file        = '' 
-        self.self_tube_name        = 'TUBE'
+        self.self_tube_file        = ''         
         # the follow properties starts with 'tube'
-        # are used by RUN_TUBE command
+        # are owned by RUN_TUBE command
         self.tube                  = None # keep the whole commands
         self.tube_run              = None # keep the commands in current iteration
         self.tube_yaml             = None # keep the yaml tube format
@@ -1278,7 +1319,9 @@ class TubeCommand():
         self.tube_index            = 0
         self.tube_file             = '' 
         self.tube_name             = '' # this is used for RUN_TUBE command
+        self.tube_KEY_VALUES_DICT  = {} # to store sub tube variables, (locatl/scope variables)
         self.parent                = None # The parent RUN_TUBE command
+        self.parent_tube_name      = 'TUBE'
         self.loop_index            = -1
         self.is_imported           = False # TODO 
         
@@ -1342,6 +1385,10 @@ class TubeCommand():
 
         return tube_check
     
+    def update_sub_tube_key_value(self, key, value):
+        if self.cmd_type == Storage.I.C_RUN_TUBE and key:
+            self.tube_KEY_VALUES_DICT[key] = value
+            
     def get_formatted_status(self) -> str:
         '''
         Return something like: '[0] - status - type - content
@@ -1359,7 +1406,7 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.self_tube_name)
+        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.parent_tube_name)
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -1374,12 +1421,8 @@ class TubeCommand():
         try:
             if self.__original_content2 == None:
                 # we need to show the readable print/log output
-                # if the key value is an empty string
-                tempDict = Storage.I.KEY_VALUES_DICT.copy()
-                for key in tempDict.keys():
-                    if tempDict[key] == '':
-                        tempDict[key] = "''"
-                self.__original_content2 = TubeCommand.format_placeholders(self.original_content, tempDict)
+                # if the key value is an empty string                
+                self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True)
             return loop_status + self.__original_content2
         except Exception as e:
             return loop_status + self.original_content
@@ -1420,7 +1463,7 @@ class TubeCommand():
             # Get redo steps
             if len(args.redo) > 0:
                 # replace placeholders
-                redo_steps_str = TubeCommand.format_placeholders(args.redo[0]) 
+                redo_steps_str = self.self_format_placeholders(args.redo[0]) 
                 self.redo_steps = int(redo_steps_str)
                 
             # reset redo content    
@@ -1436,7 +1479,7 @@ class TubeCommand():
             
             # replace placeholders
             for i, n in enumerate(args.continue_steps):
-                args.continue_steps[i] = int(TubeCommand.format_placeholders(n))
+                args.continue_steps[i] = int(self.self_format_placeholders(n))
                 
             # The first case is for --continue m
             if len(args.continue_steps) == 1 and args.continue_steps[0] > 0:            
@@ -1481,8 +1524,8 @@ class TubeCommand():
         xpath = ' '.join(args.xpath)
             
         # replace placeholders
-        file_name = TubeCommand.format_placeholders(file_name)
-        xpath = TubeCommand.format_placeholders(xpath)    
+        file_name = self.self_format_placeholders(file_name)
+        xpath = self.self_format_placeholders(xpath)    
             
         if(path.exists(file_name)):
             it = ET.iterparse(file_name)
@@ -1519,9 +1562,9 @@ class TubeCommand():
                 raise Exception('Value not found for key: ' + value)
             
         # replace placeholders
-        file_name = TubeCommand.format_placeholders(file_name)
-        xpath = TubeCommand.format_placeholders(xpath)
-        value = TubeCommand.format_placeholders(value)
+        file_name = self.self_format_placeholders(file_name)
+        xpath = self.self_format_placeholders(xpath)
+        value = self.self_format_placeholders(value)
         
         # local variables
         temp_namespace = 'temp_ns_attrib_name'
@@ -1611,9 +1654,9 @@ class TubeCommand():
             end = args.end[0]
                 
             # replace placeholders
-            package = TubeCommand.format_placeholders(package)
-            start = TubeCommand.format_placeholders(start)
-            end = TubeCommand.format_placeholders(end)
+            package = self.self_format_placeholders(package)
+            start = self.self_format_placeholders(start)
+            end = self.self_format_placeholders(end)
 
             url += package + '/versions/%5B' + start + ',' + end + ')'
             source = requests.get(url)
@@ -1644,9 +1687,9 @@ class TubeCommand():
         value = ' '.join(args.value)
             
         # replace placeholders
-        file_name = TubeCommand.format_placeholders(file_name)
-        keywords = TubeCommand.format_placeholders(keywords)    
-        value = TubeCommand.format_placeholders(value)    
+        file_name = self.self_format_placeholders(file_name)
+        keywords = self.self_format_placeholders(keywords)    
+        value = self.self_format_placeholders(value)    
             
         if(path.exists(file_name)):
             
@@ -1746,10 +1789,10 @@ class TubeCommand():
             line_contains = ' '.join(args.contains)    
     
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        line_content = TubeCommand.format_placeholders(line_content)
-        line_contains = TubeCommand.format_placeholders(line_contains)
-        line_no = TubeCommand.format_placeholders(str(line_no))
+        file = self.self_format_placeholders(file)
+        line_content = self.self_format_placeholders(line_content)
+        line_contains = self.self_format_placeholders(line_contains)
+        line_no = self.self_format_placeholders(str(line_no))
         line_no = int(line_no)
         
         # read write content from file or $NLB, $NLA, $DL
@@ -1876,10 +1919,10 @@ class TubeCommand():
             raise Exception('No parameters found: -c, -b or -e')
     
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        line_begins = TubeCommand.format_placeholders(line_begins)
-        line_contains = TubeCommand.format_placeholders(line_contains)    
-        line_number = TubeCommand.format_placeholders(line_number)    
+        file = self.self_format_placeholders(file)
+        line_begins = self.self_format_placeholders(line_begins)
+        line_contains = self.self_format_placeholders(line_contains)    
+        line_number = self.self_format_placeholders(line_number)    
             
         if os.path.exists(file):
             lines = []
@@ -1971,9 +2014,9 @@ class TubeCommand():
         variable = args.variable[0]
         
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        line_number = TubeCommand.format_placeholders(line_number)
-        variable = TubeCommand.format_placeholders(variable)
+        file = self.self_format_placeholders(file)
+        line_number = self.self_format_placeholders(line_number)
+        variable = self.self_format_placeholders(variable)
         
         if os.path.exists(file):
             line_number = int(line_number)
@@ -2026,19 +2069,19 @@ class TubeCommand():
         result = ' '.join(args.file)
         
         # replace placeholders and do a basic checks
-        directory = TubeCommand.format_placeholders(directory)
-        result = TubeCommand.format_placeholders(result)
+        directory = self.self_format_placeholders(directory)
+        result = self.self_format_placeholders(result)
         if args.sort:
             if len(args.sort) == 1:
                 s = args.sort[0]
-                s = TubeCommand.format_placeholders(s).lower()
+                s = self.self_format_placeholders(s).lower()
                 if s == 'time' or s == 'name' or s == 'size':
                     sort = s
                 else:
                     raise Exception('Sort type could only be time, name or size.')
             elif len(args.sort) == 2:
-                s = TubeCommand.format_placeholders(args.sort[0]).lower()
-                a = TubeCommand.format_placeholders(args.sort[1]).lower()
+                s = self.self_format_placeholders(args.sort[0]).lower()
+                a = self.self_format_placeholders(args.sort[1]).lower()
                 if s == 'time' or s == 'name' or s == 'size':
                     sort = s
                 else:
@@ -2097,12 +2140,12 @@ class TubeCommand():
         result = ' '.join(args.file)
         
         # replace placeholders and do a basic checks
-        directory = TubeCommand.format_placeholders(directory)
-        result = TubeCommand.format_placeholders(result)
+        directory = self.self_format_placeholders(directory)
+        result = self.self_format_placeholders(result)
         if args.sort:
             if len(args.sort) == 1:
                 s = args.sort[0]
-                s = TubeCommand.format_placeholders(s).lower()
+                s = self.self_format_placeholders(s).lower()
                 if s == 'asc' or s == 'desc':
                     sort = s
                 else:
@@ -2138,8 +2181,8 @@ class TubeCommand():
         var = ' '.join(args.variable)
         
         # replace placeholders 
-        file = TubeCommand.format_placeholders(file)
-        var = TubeCommand.format_placeholders(var)
+        file = self.self_format_placeholders(file)
+        var = self.self_format_placeholders(var)
         
         if os.path.exists(file) and os.path.isfile(file):
             StorageUtility.update_key_value_dict(var, True, is_force = True)
@@ -2162,9 +2205,9 @@ class TubeCommand():
             keywords = ' '.join(args.keywords)
             
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        keywords = TubeCommand.format_placeholders(keywords)  
-        lines_count = TubeCommand.format_placeholders(str(lines_count))  
+        file = self.self_format_placeholders(file)
+        keywords = self.self_format_placeholders(keywords)  
+        lines_count = self.self_format_placeholders(str(lines_count))  
         lines_count = int(lines_count)
         
         return_lines = []
@@ -2258,9 +2301,9 @@ class TubeCommand():
             is_force = True
         
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
+        file = self.self_format_placeholders(file)
         if args.keywords:
-            keywords = [ TubeCommand.format_placeholders(item) for item in keywords]
+            keywords = [ self.self_format_placeholders(item) for item in keywords]
         
         # check if file is yaml file    
         is_yaml_file = file.endswith('.yaml') or file.endswith('.yml')     
@@ -2324,9 +2367,9 @@ class TubeCommand():
         body = ' '.join(args.body)
         
         # replace placeholders
-        to_list = TubeCommand.format_placeholders(to_list)
-        subject = TubeCommand.format_placeholders(subject)
-        body = TubeCommand.format_placeholders(body)
+        to_list = self.self_format_placeholders(to_list)
+        subject = self.self_format_placeholders(subject)
+        body = self.self_format_placeholders(body)
         
         # to check if emial body is a file
         # if it's a file then read email body from it
@@ -2351,7 +2394,7 @@ class TubeCommand():
         retrun_value = False
         file = self.content
         # replace placeholders
-        file = TubeCommand.format_placeholders(file) 
+        file = self.self_format_placeholders(file) 
         insert_at_index = self.index
         tube_check = []
         with open(file, 'r') as f:
@@ -2426,7 +2469,7 @@ class TubeCommand():
         tube, conditions = None, None
         if args.tube:
             tube = ' '.join(args.tube)
-            tube = TubeCommand.format_placeholders(tube)
+            tube = self.self_format_placeholders(tube)
         if args.conditions:
             conditions = ' '.join(args.conditions)
             self.tube_conditions = conditions
@@ -2518,7 +2561,7 @@ class TubeCommand():
             self.log.status = Storage.I.C_SKIPPED   
             self.is_skip_by_while = True  
 
-    def create_tube_run(self, tube_yaml, tube_index, file, tube_name = None):
+    def create_tube_run(self, tube_yaml, tube_index, file, parent_tube_name = None):
         '''
         Create a tube command list based on tube yaml list
         
@@ -2535,8 +2578,8 @@ class TubeCommand():
             command.is_imported = True # TODO
             command.self_tube_index = tube_index
             command.self_tube_file = file    
-            if tube_name:
-                command.self_tube_name = tube_name      
+            if parent_tube_name:
+                command.parent_tube_name = parent_tube_name      
         return tube_new
     
     def count(self):
@@ -2548,14 +2591,14 @@ class TubeCommand():
         args, _ = parser.parse_known_args(self.content.split())
         if args.file:
             file = ' '.join(args.file)
-            file = TubeCommand.format_placeholders(file)            
+            file = self.self_format_placeholders(file)            
         if args.tube and len(args.tube) > 0:
             status_set_tmp = Utility.convert_arg_values_to_set(args.tube)
             for item in status_set_tmp:
-                status_set.add(TubeCommand.format_placeholders(item))
+                status_set.add(self.self_format_placeholders(item))
                                 
         variable = args.variable[0]
-        variable = TubeCommand.format_placeholders(variable)
+        variable = self.self_format_placeholders(variable)
         
         # check flags arguments
         if args.current_tube:
@@ -2598,7 +2641,7 @@ class TubeCommand():
         '''
         For command: SET_VARIABLE
         '''
-        name, value, is_readonly, is_force = '', '', False, False
+        name, value, is_readonly, is_force, is_global = '', '', False, False, False
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
         if len(args.name) > 0:
@@ -2609,10 +2652,12 @@ class TubeCommand():
             is_readonly = True
         if args.is_force:
             is_force = True
+        if args.is_global:
+            is_global = True
         
-        # replace placeholders
-        name = TubeCommand.format_placeholders(name).strip()
-        value = TubeCommand.format_placeholders(value).strip()
+        # replace placeholders        
+        name = self.self_format_placeholders(name).strip()
+        value = self.self_format_placeholders(value).strip()
 
         # evalulate eval inputs
         try:
@@ -2624,26 +2669,33 @@ class TubeCommand():
         if not name:
             raise Exception('Parameter -n (name) is missing.')
         
-        # check if variable has been updated from console inputs
-        if is_force == False and name in Storage.I.KEYS_READONLY_SET:
-            msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-            return False
-        
-        # update key value dict
-        if is_force:
-            StorageUtility.update_key_value_dict(name, value, is_force=True)
+        if self.parent == None or is_global == True:
+            # this is for the normal tube command case
+            # check if variable has been updated from console inputs
+            if is_force == False and name in Storage.I.KEYS_READONLY_SET:
+                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                return False
+            
+            # update key value dict
+            if is_force:
+                StorageUtility.update_key_value_dict(name, value, is_force=True)
+            else:
+                StorageUtility.update_key_value_dict(name, value)
+            
+            # check if marek variable as readonly
+            if is_readonly == True and not name in Storage.I.KEYS_READONLY_SET:
+                # Flag it has been updated to readonly
+                Storage.I.KEYS_READONLY_SET.add(name)
+                msg = 'Variable (%s:%s) is set to readonly.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
         else:
-            StorageUtility.update_key_value_dict(name, value)
-        
-        # check if marek variable as readonly
-        if is_readonly == True and not name in Storage.I.KEYS_READONLY_SET:
-            # Flag it has been updated to readonly
-            Storage.I.KEYS_READONLY_SET.add(name)
-            msg = 'Variable (%s:%s) is set to readonly.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            # this is for the set_variable within a sub tube
+            parent: TubeCommand 
+            parent = self.parent
+            parent.update_sub_tube_key_value(name, value)
         
         return True
 
@@ -2659,8 +2711,8 @@ class TubeCommand():
         remotepath = args.remotepath[0]
         
         # replace placeholders
-        localpath = TubeCommand.format_placeholders(localpath)
-        remotepath = TubeCommand.format_placeholders(remotepath)
+        localpath = self.self_format_placeholders(localpath)
+        remotepath = self.self_format_placeholders(remotepath)
         
         star_char = '*.'
         copy_count = 0
@@ -2776,9 +2828,9 @@ class TubeCommand():
         result = args.result[0]
         
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        characters = TubeCommand.format_placeholders(characters)
-        result = TubeCommand.format_placeholders(result)
+        file = self.self_format_placeholders(file)
+        characters = self.self_format_placeholders(characters)
+        result = self.self_format_placeholders(result)
         
         found = False
         # read file line by line
@@ -2813,9 +2865,9 @@ class TubeCommand():
             raise Exception('Count parameter is less than 1: %s' % str(count))
         
         # replace placeholders
-        file = TubeCommand.format_placeholders(file)
-        oldvalue = TubeCommand.format_placeholders(oldvalue)
-        newvalue = TubeCommand.format_placeholders(newvalue)
+        file = self.self_format_placeholders(file)
+        oldvalue = self.self_format_placeholders(oldvalue)
+        newvalue = self.self_format_placeholders(newvalue)
         
         # local variables
         replaced_count = 0
@@ -2932,6 +2984,22 @@ class TubeCommand():
             msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+
+    def self_format_placeholders(self, value, is_show_empty = False):
+        '''
+        Recurrencly format placeholder from self and its parent
+        '''
+        if self.parent == None:
+            temp_dict = Storage.I.KEY_VALUES_DICT
+            if is_show_empty:
+                temp_dict = Utility.remove_empty_dict(temp_dict)
+            return TubeCommand.format_placeholders(value, temp_dict)
+        else:
+            temp_dict = self.parent.tube_KEY_VALUES_DICT
+            if is_show_empty:
+                temp_dict = Utility.remove_empty_dict(temp_dict)
+            temp_value = TubeCommand.format_placeholders(value, temp_dict)
+            return self.parent.self_format_placeholders(temp_value, is_show_empty)
     
     def run(self):
         current_command_type = self.cmd_type
@@ -2970,7 +3038,7 @@ class TubeCommand():
             args, _ = parser.parse_known_args(self.content.split())
                             
             # replace placeholders
-            self.content = TubeCommand.format_placeholders(self.content) 
+            self.content = self.self_format_placeholders(self.content) 
             
             # check if log detial
             if args.is_log_detail:
@@ -3011,7 +3079,7 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()
                 # replace placeholders
-                self.content = TubeCommand.format_placeholders(self.content) 
+                self.content = self.self_format_placeholders(self.content) 
                 result = os.chdir(self.content)
                 log.status = Storage.I.C_SUCCESSFUL
                 log.end_datetime = datetime.now()
@@ -3024,7 +3092,7 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_PAUSE:
             try:                        
                 log.start_datetime = datetime.now()
-                self.content = TubeCommand.format_placeholders(self.content).strip().replace(' ', '').upper()
+                self.content = self.self_format_placeholders(self.content).strip().replace(' ', '').upper()
                 is_paused_seconds = False
                 msg = ''
                 paused_mins = 0
@@ -3064,7 +3132,7 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_COMMAND:
             try:
                 # replace placeholders
-                self.content = TubeCommand.format_placeholders(self.content) 
+                self.content = self.self_format_placeholders(self.content) 
                 # check if using shell
                 is_use_shell = True
                 if '--no-shell' in self.content:
@@ -3275,7 +3343,7 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()
                 # replace placeholders
-                self.content = TubeCommand.format_placeholders(self.content) 
+                self.content = self.self_format_placeholders(self.content) 
                 host_name = self.content
                 host: Host = None
                 
@@ -3327,7 +3395,7 @@ class TubeCommand():
                 self.log.status = Storage.I.C_SUCCESSFUL                
                 tprint('Command Tube is reporting progress via e-mail settings... ', type=Storage.I.C_PRINT_TYPE_INFO)
                 # replace placeholders
-                self.content = TubeCommand.format_placeholders(self.content) 
+                self.content = self.self_format_placeholders(self.content) 
                 result = self.report_progress(Storage.I.TUBE_RUN)
                 if result == True:
                     log.status = Storage.I.C_SUCCESSFUL
@@ -3746,7 +3814,7 @@ class TubeRunner():
     def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0):
         # print current while conditions in debug mode        
         if tube_conditions != None and Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            conditions = TubeCommand.format_placeholders(tube_conditions)
+            conditions = self.run_tube_command.self_format_placeholders(tube_conditions)
             msg = '[LOOP {0}]: The current while condition returns \'{1}\': {2}'.format(
                 str(loop_index+1),
                 str(while_condition),                
@@ -3872,7 +3940,7 @@ class TubeRunner():
                 command.is_skip_by_while = True
                 Storage.I.LOGS.append(log)
                 # log command which is skipped
-                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + TubeCommand.format_placeholders(command.content) + '\' was skipped since --while condition is False.'
+                msg = 'SKIP: Tube command \'' + command.cmd_type + ': ' + command.self_format_placeholders(command.content) + '\' was skipped since --while condition is False.'
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO, tcolor=Storage.I.C_PRINT_COLOR_GREY)
                 # check if report tube command status
@@ -4074,7 +4142,7 @@ class StorageUtility():
             
             # check if syntax errors
             if command.tube_argument_parser != None:
-                command_content = TubeCommand.format_placeholders_no_error(command.content)            
+                command_content = command.self_format_placeholders(command.content)            
                 command.tube_argument_parser.parse_args(command_content.split())
                 syntax_errors = command.tube_argument_parser.get_formated_errors()
                 if len(syntax_errors) > 0:
@@ -4090,7 +4158,7 @@ class StorageUtility():
             # check Server exists
             if command.has_syntax_error == False and \
             command.cmd_type == Storage.I.C_CONNECT:
-                command_content = TubeCommand.format_placeholders_no_error(command.content)
+                command_content = command.self_format_placeholders(command.content)
                 _, input_server = continue_redo_parser.parse_known_args(command_content.split())
                 input_server = ' '.join(input_server)
                 host = StorageUtility.get_host(host=input_server,name=input_server)
@@ -5357,7 +5425,7 @@ def install_3rd_party_packages(args):
 def get_max_tube_command_type_length(tube):
     if tube == None or len(tube) == 0:
         return Storage.I.MAX_TUBE_COMMAND_LENGTH
-    type_list = [c.cmd_type + c.self_tube_name for c in tube]
+    type_list = [c.cmd_type + c.parent_tube_name for c in tube]
     max_length = len(max(type_list, key=len))
     return max_length + 5
 
