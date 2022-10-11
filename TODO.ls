@@ -1,5 +1,8 @@
 TODO LIST
 
+- sub tube variable (local/scope tube variable)
+  pass tube variable to sub tube
+
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
