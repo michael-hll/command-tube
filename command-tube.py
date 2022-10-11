@@ -1141,6 +1141,25 @@ class Utility():
                 tempDict[key] = "''"
         return tempDict
     
+    @classmethod
+    def split_equal_expression(self, item):
+        '''
+        Split equal expressions 'key = value'
+        Return (key, value)
+        '''
+        key = item[:item.index('=')].strip().strip('\'').strip('"')
+        value = item[item.index('=')+1:].strip().strip('\'').strip('"')
+        if reUtility.is_matched_int(value):
+            value = int(value)
+        elif reUtility.is_matched_float(value):
+            value = float(value)
+        elif value.upper() == 'TRUE' or value.upper() == 'YES':
+            value = True
+        elif value.upper() == 'FALSE' or value.upper() == 'NO':
+            value = False
+        
+        return (key, value) 
+       
 class reUtility():
     
     @staticmethod
@@ -1395,10 +1414,11 @@ class TubeCommand():
         if self.cmd_type == Storage.I.C_RUN_TUBE and key:
             if value == None:
                 value = ''
-            self.tube_KEY_VALUES_DICT[key] = value            
-            msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+            self.tube_KEY_VALUES_DICT[key] = value   
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:         
+                msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
                   
     def get_formatted_status(self) -> str:
         '''
@@ -2493,8 +2513,6 @@ class TubeCommand():
                 item = item.strip().strip('\'').strip('"')
                 if not reUtility.is_matched_equal_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
-            
-            print('variables: ' + variables)
 
         # re for switching tube type
         p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
@@ -2575,18 +2593,8 @@ class TubeCommand():
                 # update tube local variables
                 if key_value_list:
                     for item in key_value_list:
-                        key = item[:item.index('=')].strip().strip('\'').strip('"')
-                        value = item[item.index('=')+1:].strip().strip('\'').strip('"')
-                        if reUtility.is_matched_int(value):
-                            self.update_sub_tube_key_value(key, int(value))
-                        elif reUtility.is_matched_float(value):
-                            self.update_sub_tube_key_value(key, float(value))
-                        elif value.upper() == 'TRUE' or value.upper() == 'YES':
-                            self.update_sub_tube_key_value(key, True)
-                        elif value.upper() == 'FALSE' or value.upper() == 'NO':
-                            self.update_sub_tube_key_value(key, False)
-                        else:
-                            self.update_sub_tube_key_value(key, value)
+                        key, value = Utility.split_equal_expression(item)
+                        self.update_sub_tube_key_value(key, value)
                                                         
                 Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
                 self.tube_run_times = 0 # initial the tube running times to 0     
@@ -2711,7 +2719,7 @@ class TubeCommand():
             # this is for the normal tube command case
             # check if variable has been updated from console inputs
             if is_force == False and name in Storage.I.KEYS_READONLY_SET:
-                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
+                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable (--force) argument.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 return False
@@ -4129,7 +4137,7 @@ class StorageUtility():
             updated = True
         else:
             if is_force == False:
-                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable command.' % (key, str(Storage.I.KEY_VALUES_DICT[key]))
+                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable (--forece) argument.' % (key, str(Storage.I.KEY_VALUES_DICT[key]))
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
             else:
@@ -4333,20 +4341,19 @@ class StorageUtility():
         if not variables:
             return
         try:
-            for var in variables:
-                if '=' in var:
-                    i = var.index('=')
-                    var_key = var[0:i]
-                    var_value = var[i+1:]
-                    msg = 'Read console variable: \'%s\', value: \'%s\' from console.'                
-                    tprint(msg % (var_key, var_value), type=Storage.I.C_PRINT_TYPE_INFO)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg % (var_key, var_value))
-                    StorageUtility.update_key_value_dict(var_key, var_value)
-                    # Flag it has been udpated by the user console inputs
-                    Storage.I.KEYS_READONLY_SET.add(var_key)
-                    msg = 'Variable (%s:%s) is set to readonly.' % (var_key, str(Storage.I.KEY_VALUES_DICT[var_key]))
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            variables = ' '.join(args.variables)
+            variables = TubeCommand.format_placeholders(variables)
+            key_value_list = variables.split(',')
+            for item in key_value_list:
+                item = item.strip().strip('\'').strip('"')
+                if not reUtility.is_matched_equal_expresson(item):
+                    raise Exception('The tube input variables have wrong format: {0}'.format(item))
+                key, value = Utility.split_equal_expression(item)                
+                StorageUtility.update_key_value_dict(key, value, is_readonly=True) 
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = 'Read console variable: \'%s\', value: \'%s\' from console and set it to readonly.'                
+                    tprint(msg % (key, value), type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg % (key, value))                               
         except Exception as e:
             msg = 'Read variables from console exception: ' + str(e)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
