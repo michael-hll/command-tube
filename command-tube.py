@@ -92,6 +92,7 @@ class Storage():
         self.C_LIST_FILES              = 'LIST_FILES'
         self.C_LIST_DIRS               = 'LIST_DIRS'
         self.C_FILE_EXIST              = 'FILE_EXIST'
+        self.C_FILE_POP                = 'FILE_POP'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -293,6 +294,20 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
+            },
+            self.C_FILE_POP: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_POP: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file name you want to pop.'],
+                    [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the line content result.'],                   
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2134,9 +2149,45 @@ class TubeCommand():
         var = self.self_format_placeholders(var)
         
         if os.path.exists(file) and os.path.isfile(file):
-            StorageUtility.update_key_value_dict(var, True, is_force = True)
+            StorageUtility.update_key_value_dict(var, True, self, is_force = True)
         else:
-            StorageUtility.update_key_value_dict(var, False, is_force = True)
+            StorageUtility.update_key_value_dict(var, False, self, is_force = True)
+            
+        return True
+    
+    def file_pop(self):
+        file, var = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        if args.variable:
+            var = ' '.join(args.variable)
+            # replace placeholders 
+            var = self.self_format_placeholders(var)
+        
+        # replace placeholders 
+        file = self.self_format_placeholders(file)        
+        
+        if os.path.exists(file):
+            lines = None
+            pop_line = None
+            # read file lines into memory
+            with open(file,'r') as f:
+                lines = f.readlines()
+                if len(lines) > 0:
+                    pop_line = lines.pop(0).replace('\n', '')
+            
+            # write lines back to text file
+            with open(file, 'w') as f:
+                for line in lines:
+                    f.write(line)
+                    
+            # update tube variable local ? global ?
+            if var:
+                StorageUtility.update_key_value_dict(var, pop_line, self, is_force=True)
+                    
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
             
         return True
            
@@ -2964,6 +3015,11 @@ class TubeCommand():
     def self_format_placeholders(self, value, is_show_empty = False, is_quoted_str=False):
         '''
         Recurrencly format placeholder from self and its parent
+        
+        Args:
+            value: The characters you want to replace place hoders {x}
+            is_show_empty: When true the empty string will be formated to ''
+            is_quoted_str: This is used for if/while conditions, with quoted string then the eval method could work correctly
         '''
         temp_dict = None
         if self.parent == None:
@@ -3294,6 +3350,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_exist()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+
+        elif current_command_type == Storage.I.C_FILE_POP:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_pop()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
