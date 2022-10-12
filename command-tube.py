@@ -1047,7 +1047,7 @@ class Utility():
         If value equal 'NO' or 'FALSE' or '0' then return True
         Otherwise return False
         '''
-        value = str(value)
+        value = str(value).strip('"').strip('\'')
         if value.upper() == 'NO' or value.upper() == 'FALSE':
             return True
         return False
@@ -1058,7 +1058,7 @@ class Utility():
         If value equal 'YES' or 'TRUE' or '1' then return True
         Otherwise return False
         '''
-        value = str(value)
+        value = str(value).strip('"').strip('\'')
         if value.upper() == 'YES' or value.upper() == 'TRUE':
             return True
         return False
