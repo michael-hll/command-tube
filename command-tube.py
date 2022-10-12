@@ -946,7 +946,7 @@ class Utility():
     def eval_while_conditions(self, while_condition: str, is_main = True, command = None):
         result = True
         if while_condition != None: 
-            while_condition = command.self_format_placeholders(while_condition)
+            while_condition = command.self_format_placeholders(while_condition, is_quoted_str = True)
             result = Utility.eval_conditions(while_condition.split(' '), command)  
         elif while_condition == None and is_main == False:
             result = False
@@ -959,38 +959,26 @@ class Utility():
         
         Args:
             condtions: []
-        '''
-                        
-        conditions_trim = [command.self_format_placeholders(item.strip()) for item in conditions]
-        conditions_trim = [('' if item == '""' else item ) for item in conditions_trim]
-        conditions_trim = [('' if item == "''" else item ) for item in conditions_trim]
+        '''           
+        conditions_trim = [command.self_format_placeholders(item.strip(), is_quoted_str = True) for item in conditions]
+        conditions_trim = ['True' if Utility.equal_true(item) else item for item in conditions_trim]
+        conditions_trim = ['False' if Utility.equal_false(item) else item for item in conditions_trim]
         conditions_str = ' '.join(conditions_trim)
         if Utility.if_compare_char_exists(conditions_str): 
-            conditions_trim_new = []
-            for _, item in enumerate(conditions_trim):
-                if Utility.if_compare_char_exists(item):
-                    if len(item) > 2:
-                        # in this case there must be a condition expression
-                        conditions_temp = Utility.split_condition_to_list(item)
-                        if type(conditions_temp) == list:
-                            for val in conditions_temp:
-                                val = Utility.quote_condtion_str(val)
-                                conditions_trim_new.append(val)
-                        else:
-                            conditions_trim_new.append(conditions_temp)    
-                    else:
-                        # in this case it's the simple comparison character
-                        conditions_trim_new.append(item)
-                else:
-                    item = Utility.quote_condtion_str(item)                    
-                    conditions_trim_new.append(item)
-            conditions_str = ' '.join(conditions_trim_new)
+            # if cound contionds char we use the normal eval method to do check the condition
+            code = compile(conditions_str, '<string>', 'eval')    
+            local_dict = {}
+            # TODO: we need to further check if need below 3 lines logic
+            for name in code.co_names:
+                if not Utility.if_key_exists_in_str(globals().keys(), name):
+                    local_dict[name] = '"' + name + '"'
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The eval parameter is: {0}, running command is {1}.'.format(conditions_str, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            return eval(conditions_str)
+            return eval(conditions_str, globals(),local_dict)
         else:
+            # no conditions char exist case
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The condition is: \'{0}\', running command is \'{1}\'.'.format(conditions_str, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
@@ -1025,7 +1013,7 @@ class Utility():
         Otherwise return False
         '''
         value = str(value)
-        if value.upper() == 'NO' or value.upper() == 'FALSE' or value == '0':
+        if value.upper() == 'NO' or value.upper() == 'FALSE':
             return True
         return False
     
@@ -1036,102 +1024,12 @@ class Utility():
         Otherwise return False
         '''
         value = str(value)
-        if value.upper() == 'YES' or value.upper() == 'TRUE' or value == '1':
+        if value.upper() == 'YES' or value.upper() == 'TRUE':
             return True
         return False
     
     @classmethod
-    def split_condition_to_list(self, condition = ''):
-        '''
-        Split expression 'v1 condtion v2' to format [v1, condtion, v2]
-        eg: 'abc == def' to ['abc', '==', 'def']
-        '''
-        condition = str(condition)
-        if '==' in condition:
-            splited = condition.split('==')
-            return [splited[0], '==', splited[1]]
-        elif '!=' in condition:
-            splited = condition.split('!=')
-            return [splited[0], '!=', splited[1]]
-        elif '>' in condition:
-            if '>=' in condition:
-                splited = condition.split('>=')
-                return [splited[0], '>=', splited[1]]
-            else:
-                splited = condition.split('>')
-                return [splited[0], '>', splited[1]]
-            
-        elif '<' in condition:
-            if '<=' in condition:
-                splited = condition.split('<=')
-                return [splited[0], '<=', splited[1]]
-            else:
-                splited = condition.split('<')
-                return [splited[0], '<', splited[1]]
-            
-        else:
-            return condition
-
-    @classmethod
-    def quote_condtion_str(self, item = ''):
-        '''
-        Description:
-            Add quotes for the character words only.
-            This method will skip the keywords like AND, OR, NOT, (,)
-            Will also skip the nubmers to be quoted. 
-        
-        Why do this:
-            In order to ask the eval replace variables to character comparison
-            the default eval(expression, locals={}) doesn't work for this case.
-            Since the variable name has been replaced by the {variable}, thus the
-            variable itself is already value, not variable name
-        '''
-        try:
-            #skip numbers
-            _ = float(item)
-        except Exception:
-            
-            # to check True/Yes, False/No cases
-            if item.upper() == 'TRUE' or item.upper() == 'YES':
-                item = 'True'
-            
-            if item.upper() == 'FALSE' or item.upper() == 'NO':
-                item = 'False'
-            
-            if not Utility.if_compare_char_exists(item) and \
-                item.upper() != 'AND' and \
-                item.upper() != 'OR' and \
-                item.upper() != 'NOT' and \
-                item != '(' and \
-                item != ')' and \
-                '(' not in item and \
-                ')' not in item:
-                item = '\'' + item + '\''
-            elif not Utility.if_compare_char_exists(item) and \
-                '(' in item:
-                item_array = item.split('(')
-                temp = ''
-                for val in item_array:
-                    if val == '':
-                        temp += '('
-                    else:
-                        temp += Utility.quote_condtion_str(val)
-                item = temp
-            elif not Utility.if_compare_char_exists(item) and \
-                ')' in item:
-                item_array = item.split(')')
-                temp = ''
-                for val in item_array:
-                    if val == '':
-                        temp += ')'
-                    else:
-                        temp += Utility.quote_condtion_str(val)
-                item = temp
-                    
-        return item            
-
-    @classmethod
-    def remove_empty_dict(self, input_dict):
+    def replace_empty_dict(self, input_dict):
         '''
         Replace '' string value to "''" and return a new copy the original dict
         '''
@@ -1159,7 +1057,27 @@ class Utility():
             value = False
         
         return (key, value) 
-       
+    
+    @classmethod
+    def if_key_exists_in_str(self, keys, str_value):
+        '''
+        Iterate each key from keys, if key in str_value then return True
+        '''
+        for key in keys:
+            if key in str_value:
+                return True
+        return False
+    
+    @classmethod
+    def quote_dict_str_value(self, d):
+        d_new = {}
+        for k in d.keys():
+            if type(d[k]) == str and not (d[k].startswith('\'') or d[k].startswith('"')):
+                d_new[k] = '"' + d[k] + '"'   
+            else:
+                d_new[k] = d[k]
+        return d_new
+                
 class reUtility():
     
     @staticmethod
@@ -3042,20 +2960,33 @@ class TubeCommand():
             msg = 'Report progress errors for command: %s' % (self.cmd_type + ': ' + self.content + ' errors: ' + str(e)) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
-
-    def self_format_placeholders(self, value, is_show_empty = False):
+    
+    def self_format_placeholders(self, value, is_show_empty = False, is_quoted_str=False):
         '''
         Recurrencly format placeholder from self and its parent
         '''
+        temp_dict = None
         if self.parent == None:
-            temp_dict = Storage.I.KEY_VALUES_DICT
+            # for checking if/while condition cases we need to add quotes for string type value
+            if is_quoted_str == True:
+                temp_dict = Utility.quote_dict_str_value(Storage.I.KEY_VALUES_DICT)
+            else:
+                temp_dict = Storage.I.KEY_VALUES_DICT
+            
+            # for logging purpose, we need to quoted empty string with ''
             if is_show_empty:
-                temp_dict = Utility.remove_empty_dict(temp_dict)
+                temp_dict = Utility.replace_empty_dict(temp_dict)
             return TubeCommand.format_placeholders(value, temp_dict)
         else:
-            temp_dict = self.parent.tube_KEY_VALUES_DICT
+            # for checking if/while condition cases we need to add quotes for string type value
+            if is_quoted_str == True:
+                temp_dict = Utility.quote_dict_str_value(self.parent.tube_KEY_VALUES_DICT)
+            else:
+                temp_dict = self.parent.tube_KEY_VALUES_DICT
+            
+            # for logging purpose, we need to quoted empty string with ''
             if is_show_empty:
-                temp_dict = Utility.remove_empty_dict(temp_dict)
+                temp_dict = Utility.replace_empty_dict(temp_dict)
             temp_value = TubeCommand.format_placeholders(value, temp_dict)
             return self.parent.self_format_placeholders(temp_value, is_show_empty)
     
