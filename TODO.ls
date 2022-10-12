@@ -1,5 +1,16 @@
 TODO LIST
 
+- Adjust the tube commands that have the ability to store tube variables
+    1. Need to decide if need is_override/is_force argument value
+    2. Need to decide update globally or not?
+    3. Need to rethink of this due to the local tube variables introduced
+
+    Ans: 1. No need for the is_override argument, default override is set to true
+         2. Should provide the is_force argument, to udpate readonly tube variable
+         3. Provide the global argument, if the command is within sub tube, then default
+            update the tube value in sub tube, otherwize or global is true, then
+            update the tube value in global tube variables
+
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable

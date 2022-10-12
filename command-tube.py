@@ -288,7 +288,11 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
-                        'The tube variable name to store the exist result. (True/False)'],                   
+                        'The tube variable name to store the exist result. (True/False)'],
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no. [2.0.2]'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False,
+                        'Force update even the variable is readonly. Default no. [2.0.2]'],                   
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -302,7 +306,11 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to pop.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
-                        'The tube variable name to store the line content result.'],                   
+                        'The tube variable name to store the line content result.'], 
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no.'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no. [2.0.2]'],                 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -391,6 +399,10 @@ Use 'help vars' to print all the given tube variables;
                         'The XML file you want to get tag text.'],
                     [False, '-x','--xpath', 'str', '+', 'xpath', True, False, '', '',
                         'The xpath of the XML tag.'],
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no.'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -564,6 +576,10 @@ Use 'help vars' to print all the given tube variables;
                         'If only count current tube. Default no.'],
                     [False, '-s','--skip', '', '', 'skip_count', False, True, 'store_true', False,
                         'If skip COUNT command. Default no.'],
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no.'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no. [2.0.2]'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -610,6 +626,10 @@ Use 'help vars' to print all the given tube variables;
                         'The characters you want to check.'],
                     [False, '-r','--result', 'str', 1,   'result', True, False, '', '',
                         'The tube variable name to store the checking result.'],
+                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
+                        'Override the value if the variable already exists. Default no.'], 
+                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1352,6 +1372,22 @@ class TubeCommand():
                 msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+    
+    def update_key_value(self, key, value, is_override=True, is_force=False):
+        '''
+        If the command is in sub tube, then udpate the key value into sub tube.
+        Otherwise update the key value into the global tube variables.
+        
+        Args:
+            key: the key you want to update
+            value: the value of the key
+            is_override: For global variable, if override existing variable value. Default Yes.
+            is_force: For global readonly variable if do a update. Default No.
+        '''
+        if self.parent != None:
+            self.parent.update_sub_tube_key_value(key, value)
+        else:
+            StorageUtility.update_key_value_dict(key, value, self, is_override=is_override, is_force=is_force)
                   
     def get_formatted_status(self) -> str:
         '''
@@ -1486,6 +1522,12 @@ class TubeCommand():
         args, _ = parser.parse_known_args(self.content.split())
         file_name = ' '.join(args.file)
         xpath = ' '.join(args.xpath)
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
             
         # replace placeholders
         file_name = self.self_format_placeholders(file_name)
@@ -1504,7 +1546,10 @@ class TubeCommand():
                 raise Exception('xml tag not found: ' + xpath)
         else:
             raise Exception('xml file not found: ' + xpath)
-        return (return_val, file_name, xpath)
+        
+        # update key value
+        self.update_key_value(xpath, return_val, is_override=is_override, is_force=is_force)            
+        return True
     
     def set_xml_tag_text(self):
         '''
@@ -2016,9 +2061,9 @@ class TubeCommand():
             
             # update tube varialbe with found line
             if founded_line:
-                StorageUtility.update_key_value_dict(variable, founded_line.replace('\n', ''))
+                self.update_key_value(variable, founded_line.replace('\n', ''))
             else:
-                StorageUtility.update_key_value_dict(variable, founded_line)
+                self.update_key_value(variable, founded_line)
         else:
             # file not exists
             raise Exception("file doesn't exist: " + file)
@@ -2143,15 +2188,21 @@ class TubeCommand():
         args, _ = parser.parse_known_args(self.content.split())
         file = ' '.join(args.file)
         var = ' '.join(args.variable)
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
         
         # replace placeholders 
         file = self.self_format_placeholders(file)
         var = self.self_format_placeholders(var)
         
         if os.path.exists(file) and os.path.isfile(file):
-            StorageUtility.update_key_value_dict(var, True, self, is_force = True)
+            self.update_key_value(var, True, is_override=is_override, is_force=is_force)
         else:
-            StorageUtility.update_key_value_dict(var, False, self, is_force = True)
+            self.update_key_value(var, False, is_override=is_override, is_force=is_force)
             
         return True
     
@@ -2164,6 +2215,12 @@ class TubeCommand():
             var = ' '.join(args.variable)
             # replace placeholders 
             var = self.self_format_placeholders(var)
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
         
         # replace placeholders 
         file = self.self_format_placeholders(file)        
@@ -2184,7 +2241,7 @@ class TubeCommand():
                     
             # update tube variable local ? global ?
             if var:
-                StorageUtility.update_key_value_dict(var, pop_line, self, is_force=True)
+                self.update_key_value(var, pop_line, is_override=is_override, is_force=is_force)
                     
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
@@ -2621,6 +2678,14 @@ class TubeCommand():
         if args.skip_count:
             skip_count = True
         
+        # get override and force argument
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
+        
         # check input parameter
         if not file and len(status_set) == 0:
             raise Exception('Parameter -f (file) or -t (tube status) is missing.')
@@ -2630,7 +2695,7 @@ class TubeCommand():
             line_count = 0
             with open(file, 'r') as f:
                 line_count = sum(1 for line in f)
-            StorageUtility.update_key_value_dict(variable, line_count)  
+            self.update_key_value(variable, line_count, is_override=is_override, is_force=is_force)
                   
         # case 2: count tube command count by status
         elif len(status_set) > 0:
@@ -2648,7 +2713,7 @@ class TubeCommand():
                 # count tube command
                 if cmd.log.status in status_set:
                     cmd_count += 1
-            StorageUtility.update_key_value_dict(variable, cmd_count)
+            self.update_key_value(variable, cmd_count, is_override=is_override, is_force=is_force)
             
         return True
 
@@ -2699,7 +2764,7 @@ class TubeCommand():
             else:
                 StorageUtility.update_key_value_dict(name, value)
             
-            # check if marek variable as readonly
+            # check if mark variable as readonly
             if is_readonly == True and not name in Storage.I.KEYS_READONLY_SET:
                 # Flag it has been updated to readonly
                 Storage.I.KEYS_READONLY_SET.add(name)
@@ -2708,9 +2773,8 @@ class TubeCommand():
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
         else:
             # this is for the set_variable within a sub tube
-            parent: TubeCommand 
-            parent = self.parent
-            parent.update_sub_tube_key_value(name, value)
+            if self.parent:
+                self.parent.update_sub_tube_key_value(name, value)
         
         return True
 
@@ -2842,6 +2906,13 @@ class TubeCommand():
         characters = ' '.join(args.characters)
         result = args.result[0]
         
+        is_override = False
+        is_force = False
+        if args.is_override:
+            is_override = True 
+        if args.is_force:
+            is_force = True
+        
         # replace placeholders
         file = self.self_format_placeholders(file)
         characters = self.self_format_placeholders(characters)
@@ -2859,6 +2930,7 @@ class TubeCommand():
         finally:
             # update result to tube variables
             StorageUtility.update_key_value_dict(result, found)
+            self.update_key_value(result, found, is_override=is_override,is_force=is_force)
     
     def replace_char(self) -> int:
         '''
@@ -3224,17 +3296,11 @@ class TubeCommand():
         elif current_command_type == Storage.I.C_GET_XML_TAG_TEXT:
             try:
                 log.start_datetime = datetime.now()                        
-                returns = self.get_xml_tag_text()                      
-                if returns != None and len(returns[0]) > 0:
-                    StorageUtility.update_key_value_dict(returns[2], returns[0], self)
-                    self.results.append(returns[0])
-                    log.status = Storage.I.C_SUCCESSFUL
-                    log.end_datetime = datetime.now()
-                else:
-                    log.status = Storage.I.C_FAILED
-                    log.end_datetime = datetime.now()
-                    msg = 'xml tag has no text value.'
-                    log.add_error(msg)
+                result = self.get_xml_tag_text()    
+                log.end_datetime = datetime.now() 
+                log.status = Storage.I.C_SUCCESSFUL  
+                if result != True:               
+                    log.status = Storage.I.C_FAILED  
             except Exception as e:
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                 log.add_error(str(e))
