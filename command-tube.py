@@ -1044,7 +1044,7 @@ class Utility():
     @classmethod
     def equal_false(self, value):
         '''
-        If value equal 'NO' or 'FALSE' or '0' then return True
+        If value equal 'NO' or 'FALSE' then return True
         Otherwise return False
         '''
         value = str(value).strip('"').strip('\'')
@@ -1055,7 +1055,7 @@ class Utility():
     @classmethod
     def equal_true(self, value):
         '''
-        If value equal 'YES' or 'TRUE' or '1' then return True
+        If value equal 'YES' or 'TRUE' then return True
         Otherwise return False
         '''
         value = str(value).strip('"').strip('\'')
