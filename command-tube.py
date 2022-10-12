@@ -971,7 +971,7 @@ class Utility():
             # TODO: we need to further check if need below 3 lines logic
             for name in code.co_names:
                 if not Utility.if_key_exists_in_str(globals().keys(), name):
-                    local_dict[name] = '"' + name + '"'
+                        local_dict[name] = str(name)                       
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The eval parameter is: {0}, running command is {1}.'.format(conditions_str, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
