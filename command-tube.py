@@ -1003,12 +1003,12 @@ class Utility():
             # if cound contionds char we use the normal eval method to do check the condition
             code = compile(conditions_str, '<string>', 'eval')    
             local_dict = {}
-            # TODO: we need to further check if need below 3 lines logic
+            # Add the missing codes into local varialbes as str
             for name in code.co_names:
                 if not Utility.if_key_exists_in_str(globals().keys(), name):
                         local_dict[name] = str(name)                       
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                msg = 'The eval parameter is: {0}, running command is {1}.'.format(conditions_str, command.get_full_content())
+                msg = 'The eval parameter is: {0}, local dict: {1}, running command is {2}.'.format(conditions_str, local_dict, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             return eval(conditions_str, globals(),local_dict)
