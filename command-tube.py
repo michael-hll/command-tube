@@ -2435,7 +2435,7 @@ class TubeCommand():
         # re for switching tube type
         p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
         p2 = '[a-zA-Z_0-9]+' # tube
-        p3 = '[a-zA-Z_0-9-]+[.]{1}(yaml|yml)' # file
+        p3 = '[a-zA-Z_0-9-/\\.]+[.]{1}(yaml|yml)' # file
         
         tube_type = 3 # 1: file[tube] 2: tube  3: file
         p1 = re.compile(p1)
@@ -2988,7 +2988,7 @@ class TubeCommand():
             if is_show_empty:
                 temp_dict = Utility.replace_empty_dict(temp_dict)
             temp_value = TubeCommand.format_placeholders(value, temp_dict)
-            return self.parent.self_format_placeholders(temp_value, is_show_empty)
+            return self.parent.self_format_placeholders(temp_value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str)
     
     def run(self):
         current_command_type = self.cmd_type
@@ -3765,7 +3765,9 @@ class TubeCommandLog:
         elif self.status == Storage.I.C_FAILED:
             tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_RED, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)            
         elif self.status == Storage.I.C_SKIPPED:
-            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)                           
+            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)  
+        elif self.status == Storage.I.C_RUNNING:
+            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)                          
     
     def add_error(self, error):
         '''
