@@ -947,7 +947,7 @@ class Utility():
         result = True
         if while_condition != None: 
             while_condition = command.self_format_placeholders(while_condition, is_quoted_str = True)
-            result = Utility.eval_conditions(while_condition.split(' '), command)  
+            result = Utility.eval_conditions(while_condition.split(' '), command) == True  
         elif while_condition == None and is_main == False:
             result = False
         return result
@@ -1445,7 +1445,7 @@ class TubeCommand():
 
         # analyze if parameter
         if args.if_run != None:
-            self.if_run = Utility.eval_conditions(args.if_run, self)
+            self.if_run = Utility.eval_conditions(args.if_run, self) == True
               
         # check if it's key command to decide the tube result
         if args.key:
