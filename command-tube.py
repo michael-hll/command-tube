@@ -4099,13 +4099,12 @@ class TubeRunner():
             self.pre_command = command
             
             # Check if it's RUN_TUBE command
-            if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:
-                while_condition = Utility.eval_while_conditions(command.tube_conditions, command=command) 
+            if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:                
                 # print current while conditions in debug mode
-                self.__output_while_condition(while_condition, command.tube_conditions, command.tube_run_times, command=command)  
-                if while_condition:
-                    runner = TubeRunner(False, command)                 
-                    runner.start(command.tube_run)
+                self.__output_while_condition(True, command.tube_conditions, command.tube_run_times, command=command)  
+                # start the sub tube runner
+                runner = TubeRunner(False, command)                 
+                runner.start(command.tube_run)
 
         # during the end of sub tube running
         # we need to check while condition again
