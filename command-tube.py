@@ -186,6 +186,7 @@ Use 'help vars' to print all the given tube variables;
         self.TUBE_YAML                 = None
         self.TUBE_YAML_FILE            = None
         self.TUBE_LOG_FILE             = 'tube.log'
+        self.IS_CLEAR_LOG              = False
         self.IS_LOOP                   = False
         self.LOOP_TIMES                = 1024
         self.CURR_LOOP_ID              = 0
@@ -5462,7 +5463,8 @@ def output_log_header():
     # Log start for xxx.yaml.log    
     Storage.I.START_DATE_TIME = datetime.now()
     run_mode = ' (%s)' % Storage.I.RUN_MODE
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 
+    open_file_mode = 'w' if Storage.I.IS_CLEAR_LOG else 'a+'
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, open_file_mode, 
                       Storage.I.C_LOG_HEADER + 
                       Storage.I.START_DATE_TIME.strftime(Storage.I.C_DATETIME_FORMAT) +
                       run_mode)
@@ -5532,6 +5534,8 @@ def init_arguments():
                         help='A flag to report each tube command progress via Email. Defalut no.')
     parser.add_argument('--log', dest='log_file', nargs=1,
                         help='Set log file name. Default is tube file name plus \'.log\'.')
+    parser.add_argument('-c', '--clear-log', dest='clear_log', action='store_const', const='yes',
+                        help='A flag to tell if clear tube log content first. Default no.')
     parser.add_argument('--pip', dest='pip_command',
                         help='To tell which pip command is used. e.g.: pip or pip3. \nWindows system is default pip, and MacOS system is default pip3. ' + \
                               '\nUsually you don\'t need to provide this parameter value, \nexcept in Windows system, it\'s not pip and in MacOS, it\'s not pip3.')                                                    
@@ -6184,6 +6188,9 @@ try:
     # if debug
     if args.debug != None:
         Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
+    # if clear log
+    if args.clear_log:
+        Storage.I.IS_CLEAR_LOG = True
 except Exception as e:
     # Log start
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))

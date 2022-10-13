@@ -1,22 +1,8 @@
 TODO LIST
 
-- Adjust the tube commands that have the ability to store tube variables
-    1. Need to decide if need is_override/is_force argument value
-    2. Need to decide update globally or not?
-    3. Need to rethink of this due to the local tube variables introduced
-
-    Ans: 1. No need for the is_override argument, default override is set to true
-         2. Should provide the is_force argument, to udpate readonly tube variable
-         3. Provide the global argument, if the command is within sub tube, then default
-            update the tube value in sub tube, otherwize or global is true, then
-            update the tube value in global tube variables
 
 - Add notes property for each command: --notes: notes
     Then in the last status of each command, we can add this notes section
-
-- Add console argument -g|--empty-log
-    With this flag provided, then empty the log file content first
-    
 
 - FILE 
     exists, delete, copy, move, create. etc
@@ -25,7 +11,7 @@ TODO LIST
     FILE_APPEND: -f file -v value
     FILE_PUSH: -f file -v value
     FILE_EMPTY: -f file
-    FILE_EXIST: -f file -v variable                             - partilly done, need to support *.ext format also
+    FILE_EXIST: -f file -v variable                             - done
     FILE_DELETE: -f|--file
     FILE_CREATE: -f|--file
     FILE_COPY: -f|--file file -t|--to to (file or directory) 
@@ -97,6 +83,21 @@ TODO LIST
 
     29. - sub tube variable (local/scope tube variable) - done
         pass tube variable to sub tube - done
+
+    30.
+        - Adjust the tube commands that have the ability to store tube variables
+        1. Need to decide if need is_override/is_force argument value
+        2. Need to decide update globally or not?
+        3. Need to rethink of this due to the local tube variables introduced
+
+        Ans: 1. No need for the is_override argument, default override is set to true
+            2. Should provide the is_force argument, to udpate readonly tube variable
+            3. Provide the global argument, if the command is within sub tube, then default
+                update the tube value in sub tube, otherwize or global is true, then
+                update the tube value in global tube variables
+    
+    31. - Add console argument -c|--clear-log
+        With this flag provided, then empty the log file content first
 
 
 
