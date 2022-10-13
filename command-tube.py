@@ -101,6 +101,7 @@ class Storage():
         self.C_REDO_PARAMETER          = '--redo'
         self.C_IF_PARAMETER            = '--if'
         self.C_KEY_PARAMETER           = '--key'
+        self.C_NOTES_PARAMETER         = '--note'
         self.C_INDENTATION             = '    '
         self.C_ANT_DEPLOY_LOG_FILE     = 'build.log'
         self.C_ANT_DEPLOY_ERROR        = 'BUILD FAILED'
@@ -1174,7 +1175,8 @@ class TubeCommandArgumentConfig():
         self.is_support_continue = True
         self.is_support_redo = True
         self.is_support_if_run = True
-        self.is_support_key = True        
+        self.is_support_key = True  
+        self.is_support_notes = True      
         self.syntax = None        
         
         if self.type in config_dict.keys():
@@ -1253,9 +1255,11 @@ class TubeArgumentParser(ArgumentParser):
         if argument_config.is_support_redo:
             new_parser.add_argument(Storage.I.C_REDO_PARAMETER, type=int, nargs='*', required=False)
         if argument_config.is_support_if_run:
-            new_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, nargs='*', required=False)
+            new_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, nargs='+', required=False)
         if argument_config.is_support_key:
             new_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
+        if argument_config.is_support_notes:
+            new_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, nargs='+', required=False)
         
         return new_parser
 
@@ -1268,6 +1272,7 @@ class TubeCommand():
         # contents
         self.content               = content
         self.original_content      = content
+        self.notes                 = ''
         self.redo_content          = None
         # continue & redo properties
         self.is_failed_redo        = False
@@ -1432,6 +1437,10 @@ class TubeCommand():
                 # we need to show the readable print/log output
                 # if the key value is an empty string                
                 self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True)
+                if self.notes:
+                    self.__original_content2 = self.__original_content2.replace(Storage.I.C_NOTES_PARAMETER, '').replace(self.notes, '').strip()
+                    self.__original_content2 = ' '.join(self.__original_content2.split(' '))
+                    self.__original_content2 += '  # => {0}'.format(self.notes)
             return loop_status + self.__original_content2
         except Exception as e:
             return loop_status + self.original_content
@@ -1463,6 +1472,10 @@ class TubeCommand():
         self.redo_steps = 0
         
         self.if_run = True
+        
+        # check notes value
+        if args.notes:
+            self.notes = self.self_format_placeholders(' '.join(args.notes))
         
         # analyze redo parameter
         if args.redo != None:       
@@ -1510,6 +1523,7 @@ class TubeCommand():
         # check if it's key command to decide the tube result
         if args.key:
             self.is_key_command = True
+        
     
     def check_if_key_command(self):
         '''
@@ -3828,7 +3842,7 @@ class TubeCommand():
         '''     
         syntax = 'Syntax: - ' + command_type + ': '
         arg_config = arg_configs[command_type]
-        general_args = '[--continue [m][n]] [--redo [m]] [--if run] [--key]'
+        general_args = '[--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]'
         args = arg_config[Storage.I.C_ARG_ARGS]
         for arg in args:
             if arg[0] is True: # postion argument
@@ -5547,8 +5561,9 @@ def init_arguments():
     # general_command_parser is used to analyze the COMMAND or LINUX_COMMAND arguments
     general_command_parser.add_argument(Storage.I.C_CONTINUE_PARAMETER, dest='continue_steps', type=str, help=argparse.SUPPRESS, nargs='*')   
     general_command_parser.add_argument(Storage.I.C_REDO_PARAMETER, type=str, help=argparse.SUPPRESS, nargs='*')
-    general_command_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, help=argparse.SUPPRESS, nargs='*')
+    general_command_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, help=argparse.SUPPRESS, nargs='+')
     general_command_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
+    general_command_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, help=argparse.SUPPRESS, nargs='+')
     
 def install_3rd_party_packages(args):
     

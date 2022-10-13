@@ -1,9 +1,5 @@
 TODO LIST
 
-
-- Add notes property for each command: --notes: notes
-    Then in the last status of each command, we can add this notes section
-
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
@@ -98,6 +94,9 @@ TODO LIST
     
     31. - Add console argument -c|--clear-log
         With this flag provided, then empty the log file content first
+
+    32. - Add note property for each command: --note: note
+        Then in the last status of each command, we can add this notes section
 
 
 
