@@ -1,5 +1,7 @@
 TODO LIST
 
+- we need to set the tube command status to failed when update global tube variable failed
+
 - check all command debug message
 
 - FILE 
