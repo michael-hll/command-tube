@@ -94,6 +94,7 @@ class Storage():
         self.C_FILE_EXIST              = 'FILE_EXIST'
         self.C_FILE_POP                = 'FILE_POP'
         self.C_FILE_APPEND             = 'FILE_APPEND'
+        self.C_FILE_PUSH               = 'FILE_PUSH'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -334,7 +335,21 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
+                self.C_COMMAND_DESCRIPTION: 'Append the content to the last line of the given text file.'                
+            },
+            self.C_FILE_PUSH: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_PUSH: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The text file name you want to push.'],
+                    [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
+                        'The content you want to push to the text file.'],                
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2349,7 +2364,34 @@ class TubeCommand():
             raise Exception('File doesnot exists: {0}'.format(file))
             
         return True
-         
+    
+    def file_push(self):
+        file, value = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        value = ' '.join(args.value)
+        
+        # replace placeholders 
+        file = self.self_format_placeholders(file)        
+        value = self.self_format_placeholders(value)        
+        
+        if os.path.exists(file):
+            
+            lines = []
+            with open(file, 'r') as f:
+                lines = f.readlines()
+            
+            # write lines back to text file
+            with open(file, 'w') as f:                
+                lines.insert(0, value + '\n')
+                for line in lines:
+                    f.write(line)                    
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
+            
+        return True
+       
     def tail_file(self):
         '''
         For command: TAIL_FILE
@@ -3557,6 +3599,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_pop()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+        
+        elif current_command_type == Storage.I.C_FILE_PUSH:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_push()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:

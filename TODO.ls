@@ -4,7 +4,7 @@ TODO LIST
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
     FILE_POP: -f file [-v variable]                             - done
-    FILE_APPEND: -f file -v value
+    FILE_APPEND: -f file -v value                               - done
     FILE_PUSH: -f file -v value
     FILE_EMPTY: -f file
     FILE_EXIST: -f file -v variable                             - done
