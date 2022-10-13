@@ -95,6 +95,7 @@ class Storage():
         self.C_FILE_POP                = 'FILE_POP'
         self.C_FILE_APPEND             = 'FILE_APPEND'
         self.C_FILE_PUSH               = 'FILE_PUSH'
+        self.C_FILE_EMPTY              = 'FILE_EMPTY'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -350,6 +351,20 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
+            },
+            self.C_FILE_EMPTY: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_EMPTY: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The text file name you want to empty.'],      
+                    [False, '-c','--create', '', '', 'is_create', False, True, 'store_true', False,
+                        'If the give file doesnot exist if create a new empty file. Default No.'],         
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Clear an existing text file or create a new empty file.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2284,7 +2299,13 @@ class TubeCommand():
             StorageUtility.update_key_value_dict(var, value, is_force=is_force)
         else:
             self.update_key_value(var, value, is_force=is_force)
-            
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File {0} exists.'.format(file)
+            if not value:
+                msg = 'File {0} doesnot exist.'.format(file)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
         return True
     
     def file_pop(self):
@@ -2330,6 +2351,11 @@ class TubeCommand():
                     
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File was popped successfully' 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         return True
     
@@ -2359,9 +2385,14 @@ class TubeCommand():
                     f.write('\n' + value)
                 else:
                     f.write(value + is_new_line)
-                    
+       
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File was successfully append content: {0}'.format(value) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         return True
     
@@ -2386,9 +2417,45 @@ class TubeCommand():
             with open(file, 'w') as f:                
                 lines.insert(0, value + '\n')
                 for line in lines:
-                    f.write(line)                    
+                    f.write(line)   
+                             
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File was successfully pushed content: {0}'.format(value)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        return True
+    
+    def file_empty(self):
+        file, value = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        is_create = args.is_create
+        
+        # replace placeholders 
+        file = self.self_format_placeholders(file)           
+        msg = ''
+        if os.path.exists(file):            
+            # write lines back to text file
+            with open(file, 'w') as f:                
+                f.write('')                    
+            msg = 'File {0} was cleared.'.format(file)
+        else:
+            if is_create:
+                # write lines back to text file
+                with open(file, 'w+') as f:                
+                    f.write('')
+                msg = 'File {0} was created.'.format(file)                
+            else:
+                raise Exception('File doesnot exists: {0}'.format(file))
+            
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         return True
        
@@ -3614,6 +3681,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_push()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_FILE_EMPTY:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_empty()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:

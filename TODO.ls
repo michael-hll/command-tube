@@ -1,12 +1,14 @@
 TODO LIST
 
+- check all command debug message
+
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
     FILE_POP: -f file [-v variable]                             - done
     FILE_APPEND: -f file -v value                               - done
-    FILE_PUSH: -f file -v value
-    FILE_EMPTY: -f file
+    FILE_PUSH: -f file -v value                                 - done
+    FILE_EMPTY: -f file                                         - done
     FILE_EXIST: -f file -v variable                             - done
     FILE_DELETE: -f|--file
     FILE_CREATE: -f|--file
