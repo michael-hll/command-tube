@@ -252,13 +252,15 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [    
                     [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
                         'The tube you want to run. It supports 3 formats: \
-                         \n{0}        - \'file.yaml\': Run TUBE from file.yaml file. \
+                         \n{0}        - \'file.yaml\': Run TUBE from file.yaml file. With this format the global variables in file.xml will also be imported. \
                          \n{0}        - \'file[X]\': Run tube X from file.yaml file. \
                          \n{0}        - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
                     [False, '-v','--variables', 'str', '+', 'variables', False, False, '', '',
                         'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = 2'], 
                     [False, '-w','--while', 'str', '+', 'conditions', False, False, '', '',
                         'Set the condtions to run the tube.'],  
+                    [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False,
+                        'If update global readonly variables when --tube argument uses \'file.xml\' format. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -342,11 +344,15 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: READ_LINE_IN_FILE: -f file -n number [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
-                        'The file you want to delete lines from.'],
+                        'The file you want to read a line from.'],
                     [False, '-n','--number', 'str', 1, 'number', True, False, '', '',
                         'The line number you want to read. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.'], 
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to save the line content.'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
+                        'Force update even the varialbe is readonly. Default no.'],
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2015,13 +2021,17 @@ class TubeCommand():
         '''
         For command: READ_LINE_IN_FILE
         '''
-        file, line_number, variable = '', '', ''
+        file, line_number, variable, is_force, is_global = '', '', '', False, False
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
         file = ' '.join(args.file)
         line_number = args.number[0]
         variable = args.variable[0]
-        
+        if args.is_force:
+            is_force = True
+        if args.is_global:
+            is_global = True
+            
         # replace placeholders
         file = self.self_format_placeholders(file)
         line_number = self.self_format_placeholders(line_number)
@@ -2061,9 +2071,14 @@ class TubeCommand():
             
             # update tube varialbe with found line
             if founded_line:
-                self.update_key_value(variable, founded_line.replace('\n', ''))
+                founded_line = founded_line.replace('\n', '')
+            
+            # update tube variables dependantly
+            if self.parent == None or is_global == True:
+                StorageUtility.update_key_value_dict(variable, founded_line, is_force=is_force)
             else:
-                self.update_key_value(variable, founded_line)
+                self.update_key_value(variable, founded_line, is_force=is_force)
+
         else:
             # file not exists
             raise Exception("file doesn't exist: " + file)
@@ -2523,7 +2538,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
-        tube, conditions, variables = None, None, None
+        tube, conditions, variables, is_force = None, None, None, False
         if args.tube:
             tube = ' '.join(args.tube)
             tube = self.self_format_placeholders(tube)
@@ -2539,6 +2554,8 @@ class TubeCommand():
                 item = item.strip().strip('\'').strip('"')
                 if not reUtility.is_matched_equal_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
+        if args.is_force:
+            is_force = True
 
         # re for switching tube type
         p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
@@ -2599,7 +2616,7 @@ class TubeCommand():
 
                     if Storage.I.C_VARIABLES in data.keys():
                         # Read variables 
-                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
+                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES], is_force=is_force) 
                         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                             msg = 'Tube variables are updated by tube: %s.' % tube
                             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
@@ -4349,7 +4366,7 @@ class StorageUtility():
         return None
     
     @classmethod
-    def read_variables(self, variables):
+    def read_variables(self, variables, is_force=False):
         '''
         Read tube variables from tube variable section.
         '''
@@ -4357,7 +4374,7 @@ class StorageUtility():
         if(not variables or type(variables) is not dict):
             return
         for key in variables.keys():
-            StorageUtility.update_key_value_dict(key, variables[key])  
+            StorageUtility.update_key_value_dict(key, variables[key], is_force=is_force)  
     
     @classmethod
     def add_default_variables(self):

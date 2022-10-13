@@ -11,13 +11,21 @@ TODO LIST
             update the tube value in sub tube, otherwize or global is true, then
             update the tube value in global tube variables
 
+- Add notes property for each command: --notes: notes
+    Then in the last status of each command, we can add this notes section
+
+- Add console argument -g|--empty-log
+    With this flag provided, then empty the log file content first
+    
+
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable
     FILE_POP: -f file [-v variable]                             - done
     FILE_APPEND: -f file -v value
     FILE_PUSH: -f file -v value
-    FILE_EXIST: -f file -v variable                             - done
+    FILE_EMPTY: -f file
+    FILE_EXIST: -f file -v variable                             - partilly done, need to support *.ext format also
     FILE_DELETE: -f|--file
     FILE_CREATE: -f|--file
     FILE_COPY: -f|--file file -t|--to to (file or directory) 
