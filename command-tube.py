@@ -405,10 +405,12 @@ Use 'help vars' to print all the given tube variables;
                         'The XML file you want to get tag text.'],
                     [False, '-x','--xpath', 'str', '+', 'xpath', True, False, '', '',
                         'The xpath of the XML tag.'],
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no.'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                    [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the value. [2.0.2]'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no. [2.0.2]'],
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no. [2.0.2]'],                    
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -511,10 +513,10 @@ Use 'help vars' to print all the given tube variables;
                         'The file you want to get key-value from.'],    
                     [False, '-k','--keywords', 'str', '+', 'keywords', False, False, '', '',
                         'Set the key you can get specific value of a given key.'],  
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no. [2.0.2]'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False,
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the variable is readonly. Default no. [2.0.2]'],
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1528,12 +1530,16 @@ class TubeCommand():
         args, _ = parser.parse_known_args(self.content.split())
         file_name = ' '.join(args.file)
         xpath = ' '.join(args.xpath)
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True
         if args.is_force:
             is_force = True
+        variable = None
+        if args.variable:
+            variable = ' '.join(args.variable)
+            variable = self.self_format_placeholders(variable) 
             
         # replace placeholders
         file_name = self.self_format_placeholders(file_name)
@@ -1554,7 +1560,16 @@ class TubeCommand():
             raise Exception('xml file not found: ' + xpath)
         
         # update key value
-        self.update_key_value(xpath, return_val, is_override=is_override, is_force=is_force)            
+        # update tube variables dependantly
+        if variable:
+            key = variable
+        else:
+            key = xpath
+        if self.parent == None or is_global == True:
+            StorageUtility.update_key_value_dict(key, return_val, is_force=is_force)
+        else:
+            self.update_key_value(key, return_val, is_force=is_force)
+           
         return True
     
     def set_xml_tag_text(self):
@@ -2365,10 +2380,10 @@ class TubeCommand():
             
         file = ' '.join(args.file)
         key_values = [] 
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True 
         if args.is_force:
             is_force = True
         
@@ -2390,14 +2405,20 @@ class TubeCommand():
                     value = ''
                 if type(value) != dict and type(value) != list:
                     if len(keywords) == 0:
-                        StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
-                                                             is_override=is_override, override_reason=reason.format(key))
+                        # update tube variables dependantly
+                        if self.parent == None or is_global == True:
+                            StorageUtility.update_key_value_dict(key, value, is_force=is_force)
+                        else:
+                            self.update_key_value(key, value, is_force=is_force)
                         key_values.append(key + '=' + value)                        
                     else:
                         for word in keywords:
                             if key == word:   
-                                StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
-                                                             is_override=is_override, override_reason=reason.format(key))
+                                # update tube variables dependantly
+                                if self.parent == None or is_global == True:
+                                    StorageUtility.update_key_value_dict(key, value, is_force=is_force)
+                                else:
+                                    self.update_key_value(key, value, is_force=is_force)
                                 key_values.append(key + '=' + value)     
             
         else:
