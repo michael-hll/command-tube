@@ -584,10 +584,10 @@ Use 'help vars' to print all the given tube variables;
                         'If only count current tube. Default no.'],
                     [False, '-s','--skip', '', '', 'skip_count', False, True, 'store_true', False,
                         'If skip COUNT command. Default no.'],
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no.'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no. [2.0.2]'], 
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -633,11 +633,11 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-c','--char',  'str', '+',  'characters', True, False, '', '',
                         'The characters you want to check.'],
                     [False, '-r','--result', 'str', 1,   'result', True, False, '', '',
-                        'The tube variable name to store the checking result.'],
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no.'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
-                        'Force update even the variable is readonly. Default no.'], 
+                        'The tube variable name to store the checking result.'], 
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no. [2.0.2]'], 
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2446,14 +2446,20 @@ class TubeCommand():
                         if value == None:
                             value = ''
                         if len(keywords) == 0:
-                            StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
-                                                             is_override=is_override, override_reason=reason.format(key))
+                            # update tube variables dependantly
+                            if self.parent == None or is_global == True:
+                                StorageUtility.update_key_value_dict(key, value, is_force=is_force)
+                            else:
+                                self.update_key_value(key, value, is_force=is_force)
                             key_values.append(key + '=' + value)
                         else:
                             for key in keywords:
                                 if key == key:
-                                    StorageUtility.update_key_value_dict(key, value, self, is_force=is_force, 
-                                                             is_override=is_override, override_reason=reason.format(key))  
+                                    # update tube variables dependantly
+                                    if self.parent == None or is_global == True:
+                                        StorageUtility.update_key_value_dict(key, value, is_force=is_force)
+                                    else:
+                                        self.update_key_value(key, value, is_force=is_force) 
                                     key_values.append(key + '=' + value)
                                                    
 
@@ -2728,10 +2734,10 @@ class TubeCommand():
             skip_count = True
         
         # get override and force argument
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True 
         if args.is_force:
             is_force = True
         
@@ -2744,7 +2750,11 @@ class TubeCommand():
             line_count = 0
             with open(file, 'r') as f:
                 line_count = sum(1 for line in f)
-            self.update_key_value(variable, line_count, is_override=is_override, is_force=is_force)
+            # update tube variables dependantly
+            if self.parent == None or is_global == True:
+                StorageUtility.update_key_value_dict(variable, line_count, is_force=is_force)
+            else:
+                self.update_key_value(variable, line_count, is_force=is_force)
                   
         # case 2: count tube command count by status
         elif len(status_set) > 0:
@@ -2762,7 +2772,11 @@ class TubeCommand():
                 # count tube command
                 if cmd.log.status in status_set:
                     cmd_count += 1
-            self.update_key_value(variable, cmd_count, is_override=is_override, is_force=is_force)
+            # update tube variables dependantly
+            if self.parent == None or is_global == True:
+                StorageUtility.update_key_value_dict(variable, cmd_count, is_force=is_force)
+            else:
+                self.update_key_value(variable, cmd_count, is_force=is_force)
             
         return True
 
@@ -2955,10 +2969,10 @@ class TubeCommand():
         characters = ' '.join(args.characters)
         result = args.result[0]
         
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True 
         if args.is_force:
             is_force = True
         
@@ -2977,9 +2991,11 @@ class TubeCommand():
                         break                       
         
         finally:
-            # update result to tube variables
-            StorageUtility.update_key_value_dict(result, found)
-            self.update_key_value(result, found, is_override=is_override,is_force=is_force)
+            # update tube variables dependantly
+            if self.parent == None or is_global == True:
+                StorageUtility.update_key_value_dict(result, found, is_force=is_force)
+            else:
+                self.update_key_value(result, found, is_force=is_force)
     
     def replace_char(self) -> int:
         '''
