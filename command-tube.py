@@ -4578,7 +4578,7 @@ class StorageUtility():
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 
-        return True
+        return updated
     
     @classmethod
     def check_tube_command_arguments(self, tube_check, continue_redo_parser: TubeArgumentParser, is_check_import=False):
