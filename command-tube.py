@@ -308,11 +308,11 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to pop.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
-                        'The tube variable name to store the line content result.'], 
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no.'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False, 
-                        'Force update even the variable is readonly. Default no. [2.0.2]'],                 
+                        'The tube variable name to store the line content result.'],  
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],               
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2245,10 +2245,10 @@ class TubeCommand():
             var = ' '.join(args.variable)
             # replace placeholders 
             var = self.self_format_placeholders(var)
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True 
         if args.is_force:
             is_force = True
         
@@ -2269,9 +2269,13 @@ class TubeCommand():
                 for line in lines:
                     f.write(line)
                     
-            # update tube variable local ? global ?
+            # update tube variable
             if var:
-                self.update_key_value(var, pop_line, is_override=is_override, is_force=is_force)
+                # update tube variables dependantly
+                if self.parent == None or is_global == True:
+                    StorageUtility.update_key_value_dict(var, pop_line, is_force=is_force)
+                else:
+                    self.update_key_value(var, pop_line, is_force=is_force)
                     
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
