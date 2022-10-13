@@ -93,6 +93,7 @@ class Storage():
         self.C_LIST_DIRS               = 'LIST_DIRS'
         self.C_FILE_EXIST              = 'FILE_EXIST'
         self.C_FILE_POP                = 'FILE_POP'
+        self.C_FILE_APPEND             = 'FILE_APPEND'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -308,13 +309,27 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: FILE_POP: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
-                        'The file name you want to pop.'],
+                        'The text file name you want to pop.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
                         'The tube variable name to store the line content result.'],  
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
                         'If update the variable in global tube variables. Default no.'],               
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
+            },
+            self.C_FILE_APPEND: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_APPEND: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The text file name you want to append.'],
+                    [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
+                        'The content you want to append to the text file.'],                
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1524,7 +1539,6 @@ class TubeCommand():
         if args.key:
             self.is_key_command = True
         
-    
     def check_if_key_command(self):
         '''
         Only check if current command is a key command
@@ -2303,7 +2317,39 @@ class TubeCommand():
             raise Exception('File doesnot exists: {0}'.format(file))
             
         return True
-           
+    
+    def file_append(self):
+        file, value = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        value = ' '.join(args.value)
+        
+        # replace placeholders 
+        file = self.self_format_placeholders(file)        
+        value = self.self_format_placeholders(value)        
+        
+        if os.path.exists(file):
+            
+            is_new_line = '\n'
+            with open(file, 'r') as f:
+                lines = f.readlines()
+                if lines and len(lines) > 0:
+                    if not lines[len(lines)-1].endswith('\n'):
+                        is_new_line = ''
+            
+            # write lines back to text file
+            with open(file, 'a+') as f:
+                if is_new_line == '':
+                    f.write('\n' + value)
+                else:
+                    f.write(value + is_new_line)
+                    
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
+            
+        return True
+         
     def tail_file(self):
         '''
         For command: TAIL_FILE
@@ -3511,6 +3557,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_pop()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_FILE_APPEND:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_append()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
