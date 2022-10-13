@@ -291,10 +291,10 @@ Use 'help vars' to print all the given tube variables;
                         'The file name you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to store the exist result. (True/False)'],
-                    [False, '-o','--override', '', '', 'is_override', False, True, 'store_true', False,
-                        'Override the value if the variable already exists. Default no. [2.0.2]'], 
-                    [False, '-','--force', '', '', 'is_force', False, True, 'store_true', False,
-                        'Force update even the variable is readonly. Default no. [2.0.2]'],                   
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],                    
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2218,10 +2218,10 @@ class TubeCommand():
         args, _ = parser.parse_known_args(self.content.split())
         file = ' '.join(args.file)
         var = ' '.join(args.variable)
-        is_override = False
+        is_global = False
         is_force = False
-        if args.is_override:
-            is_override = True 
+        if args.is_global:
+            is_global = True 
         if args.is_force:
             is_force = True
         
@@ -2229,10 +2229,17 @@ class TubeCommand():
         file = self.self_format_placeholders(file)
         var = self.self_format_placeholders(var)
         
-        if os.path.exists(file) and os.path.isfile(file):
-            self.update_key_value(var, True, is_override=is_override, is_force=is_force)
+        value = False
+        if '*' in path.basename(file) and len(glob.glob(file)) > 0:
+                value = True
         else:
-            self.update_key_value(var, False, is_override=is_override, is_force=is_force)
+            if path.exists(file) and path.isfile(file):
+                value = True
+        # update tube variables dependantly
+        if self.parent == None or is_global == True:
+            StorageUtility.update_key_value_dict(var, value, is_force=is_force)
+        else:
+            self.update_key_value(var, value, is_force=is_force)
             
         return True
     
