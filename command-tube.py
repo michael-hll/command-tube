@@ -3686,6 +3686,45 @@ class TubeCommand():
         
         return True    
     
+    def connect(self):
+        # replace placeholders
+        self.content = self.self_format_placeholders(self.content) 
+        host_name = self.content
+        host: Host = None
+        ssh = None
+        
+        # check if connect host name exists from configruations
+        host = StorageUtility.get_host(host=host_name, name=host_name)
+        if host != None:  
+            if host.is_connected:
+                Host.SSHConnection = host.ssh
+                ssh = host.ssh
+            else:
+                ssh = host.connect()  
+            # update profile command
+            if host.is_connected:
+                Storage.I.CURR_HOST_PROFILE = host.profile
+                Storage.I.CURR_HOST_ROOT = host.root
+                Storage.I.CURR_HOST = host.host
+                
+                # log a message for switching server successfully
+                msg = 'Connected to server: ' + host_name               
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        else:
+            # host name doesn't exist then set ssh to None
+            ssh = None
+            Host.SSHConnection = None
+        
+        # update command status and datetime
+        if host.is_connected == True:
+            return True
+        else:
+            self.log.add_error('Please check your servers configurations.')
+            if host != None:
+                for error in host.errors:
+                    self.log.add_error(error)                        
+    
     def linux_command(self):
         log = self.log
         # Check if we have a valid ssh connection
@@ -4183,53 +4222,19 @@ class TubeCommand():
         
         elif current_command_type == Storage.I.C_CONNECT:
             try:
-                log.start_datetime = datetime.now()
-                # replace placeholders
-                self.content = self.self_format_placeholders(self.content) 
-                host_name = self.content
-                host: Host = None
-                
-                # check if connect host name exists from configruations
-                host = StorageUtility.get_host(host=host_name, name=host_name)
-                if host != None:  
-                    if host.is_connected:
-                        Host.SSHConnection = host.ssh
-                        ssh = host.ssh
-                    else:
-                        ssh = host.connect()  
-                    # update profile command
-                    if host.is_connected:
-                        Storage.I.CURR_HOST_PROFILE = host.profile
-                        Storage.I.CURR_HOST_ROOT = host.root
-                        Storage.I.CURR_HOST = host.host
-                        
-                        # log a message for switching server successfully
-                        msg = 'Connected to server: ' + host_name               
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                else:
-                    # host name doesn't exist then set ssh to None
-                    ssh = None
-                    Host.SSHConnection = None
-                
-                # update command status and datetime
-                if host.is_connected == True:
+                log.start_datetime = datetime.now()                        
+                result = self.connect()  
+                if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
                     log.status = Storage.I.C_FAILED
-                    log.add_error('Please check your servers configurations.')
-                    if host != None:
-                        for error in host.errors:
-                            log.add_error(error)                        
-                log.end_datetime = datetime.now()               
-                
+                log.end_datetime = datetime.now()
             except Exception as e:
-                ssh = None
                 Host.SSHConnection = None
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                 log.add_error(str(e))
                 log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
+                log.end_datetime = datetime.now()              
         
         elif current_command_type == Storage.I.C_REPORT_PROGRESS:
             try:                        
