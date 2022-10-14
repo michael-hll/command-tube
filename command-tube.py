@@ -3653,6 +3653,66 @@ class TubeCommand():
             temp_value = TubeCommand.format_placeholders(value, temp_dict)
             return self.parent.self_format_placeholders(temp_value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str)
     
+    def linux_command(self):
+        log = self.log
+        # Check if we have a valid ssh connection
+        if Host.SSHConnection == None:
+            msg = 'Please check your provide server information, ssh failed to connect to your server.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            log.end_datetime = datetime.now()
+            log.add_error(msg)
+            log.status = Storage.I.C_FAILED
+            Storage.I.LOGS.append(log)
+            # check if report tube command status
+            self.self_report_progress()
+            return False 
+        
+        # Check Linux Server Disk Space, only checking on the first Linux Command
+        check_disk_space(Host.SSHConnection)  
+        
+        # Check command
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+                        
+        # replace placeholders
+        self.content = self.self_format_placeholders(self.content) 
+        
+        # check if log detial
+        if args.is_log_detail:
+            self.content = self.content.replace('--log-detail', '').strip()
+
+        # Execute any linux command
+        Storage.I.GOTO_HOST_ROOT = 'cd %s;' % Storage.I.CURR_HOST_ROOT # update root path    
+        _ , stdout, stderr = Host.SSHConnection.exec_command(Storage.I.CURR_HOST_PROFILE + Storage.I.GOTO_HOST_ROOT + self.content)                    
+        
+        # print linux command outputs
+        while True:
+            line = stdout.readline()
+            if not line:
+                break
+            line = line.replace('\n', '')                    
+            tprint(line)
+            # log details to tube log file
+            if args.is_log_detail:
+                lines = line.split('\r')
+                if len(line) > 0 and len(lines) > 0:
+                    # if the line contains multiple lines
+                    # then we only output the last line
+                    line = lines[len(lines) - 1]
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)    
+
+        # print errors if there are any
+        return_code = stdout.channel.recv_exit_status()
+        errors = stderr.readlines()
+        if return_code != 0:            
+            for error in errors:
+                tprint(error.replace('\n',''), type=Storage.I.C_PRINT_TYPE_ERROR)    
+                log.add_error(error.replace('\n',''))
+            return False
+        
+        return True
+    
     def run(self):
         current_command_type = self.cmd_type
         log = self.log
@@ -3667,65 +3727,16 @@ class TubeCommand():
         # Begin to run each tube command based on its command type
         # --------------------------------------------------------        
         if current_command_type == Storage.I.C_LINUX_COMMAND:
-            log.start_datetime = datetime.now()                
-
-            # Check if we have a valid ssh connection
-            if Host.SSHConnection == None:
-                msg = 'Please check your provide server information, ssh failed to connect to your server.'
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            try:
+                log.start_datetime = datetime.now()
+                result = self.linux_command()
+                log.status = Storage.I.C_SUCCESSFUL
                 log.end_datetime = datetime.now()
-                log.add_error(msg)
+            except Exception as e:
                 log.status = Storage.I.C_FAILED
-                Storage.I.LOGS.append(log)
-                # check if report tube command status
-                self.self_report_progress()
-                return False 
-            
-            # Check Linux Server Disk Space, only checking on the first Linux Command
-            check_disk_space(Host.SSHConnection)  
-            
-            # Check command
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-                            
-            # replace placeholders
-            self.content = self.self_format_placeholders(self.content) 
-            
-            # check if log detial
-            if args.is_log_detail:
-                self.content = self.content.replace('--log-detail', '').strip()
-
-            # Execute any linux command
-            Storage.I.GOTO_HOST_ROOT = 'cd %s;' % Storage.I.CURR_HOST_ROOT # update root path    
-            _ , stdout, stderr = Host.SSHConnection.exec_command(Storage.I.CURR_HOST_PROFILE + Storage.I.GOTO_HOST_ROOT + self.content)                    
-            
-            # print linux command outputs
-            while True:
-                line = stdout.readline()
-                if not line:
-                    break
-                line = line.replace('\n', '')                    
-                tprint(line)
-                # log details to tube log file
-                if args.is_log_detail:
-                    lines = line.split('\r')
-                    if len(line) > 0 and len(lines) > 0:
-                        # if the line contains multiple lines
-                        # then we only output the last line
-                        line = lines[len(lines) - 1]
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)    
-            log.end_datetime = datetime.now()
-            log.status = Storage.I.C_SUCCESSFUL
-
-            # print errors if there are any
-            return_code = stdout.channel.recv_exit_status()
-            errors = stderr.readlines()
-            if return_code != 0:
-                log.status = Storage.I.C_FAILED
-                for error in errors:
-                    tprint(error.replace('\n',''), type=Storage.I.C_PRINT_TYPE_ERROR)    
-                    log.add_error(error.replace('\n',''))
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
+                log.add_error(str(e))
+                log.end_datetime = datetime.now()
 
         elif current_command_type == Storage.I.C_PATH:
             try:
