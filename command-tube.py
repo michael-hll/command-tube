@@ -98,6 +98,7 @@ class Storage():
         self.C_FILE_EMPTY              = 'FILE_EMPTY'
         self.C_FILE_READ               = 'FILE_READ'
         self.C_FILE_DELETE             = 'FILE_DELETE'
+        self.C_FILE_COPY               = 'FILE_COPY'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -392,6 +393,20 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to delete.'],                   
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Delete any files math the file name.'                
+            },
+            self.C_FILE_COPY: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_COPY: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
+                        'The source file name you want to copy.'],  
+                    [False, '-d','--dest', 'str', '+', 'dest', True, False, '', '',
+                        'The target file or folder'],                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2549,7 +2564,7 @@ class TubeCommand():
             raise Exception('File doesnot exists: {0}'.format(file))
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            msg = 'Successfully deleted {0} files:'.format(count)
+            msg = 'Successfully deleted {0} files.'.format(count)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
             if count > 0:
@@ -2557,6 +2572,37 @@ class TubeCommand():
                     msg = file
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
+        return True
+    
+    def file_copy(self):
+        src, dest = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        src = ' '.join(args.src)
+        dest = ' '.join(args.dest)
+        
+        # replace placeholders 
+        src = self.self_format_placeholders(src)
+        dest = self.self_format_placeholders(dest)
+          
+        count = 0   
+        if os.path.exists(src) and path.isfile(src):
+            full_file_name = os.path.abspath(src)
+            shutil.copy(full_file_name, dest)
+            count += 1
+        elif os.path.exists(dest) and not path.isfile(dest):
+            files = glob.glob(src)
+            for file in files:
+                full_file_name = os.path.abspath(file)
+                shutil.copy(full_file_name, dest)
+                count += 1
+        else:
+            raise Exception('The src or dest folder doesnot correct.')
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Successfully copied {0} files.'.format(count)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
         return True
        
     def tail_file(self):
@@ -3834,6 +3880,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_delete()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_FILE_COPY:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_copy()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
