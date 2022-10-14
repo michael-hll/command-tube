@@ -100,6 +100,7 @@ class Storage():
         self.C_FILE_DELETE             = 'FILE_DELETE'
         self.C_FILE_COPY               = 'FILE_COPY'
         self.C_FILE_MOVE               = 'FILE_MOVE'
+        self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -427,6 +428,24 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Move any files to target.'                
+            },
+            self.C_DIR_EXIST: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
+                        'The directory you want to check.'],
+                    [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
+                        'The tube variable name to store the exist result. (True/False)'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],                    
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Check if a directory exists.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2650,6 +2669,36 @@ class TubeCommand():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
         return True
+    
+    def dir_exist(self):
+        directory, var = None, None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        directory = ' '.join(args.directory)
+        var = ' '.join(args.variable)
+        is_global = args.is_global
+        is_force = args.is_force
+        
+        # replace placeholders 
+        directory = self.self_format_placeholders(directory)
+        var = self.self_format_placeholders(var)
+        
+        value = False
+        if path.exists(directory) and not path.isfile(directory):
+            value = True
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Directory {0} exists.'.format(directory)
+            if not value:
+                msg = 'Directory {0} doesnot exist.'.format(directory)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+             
+        # update tube variables dependantly
+        key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(var, value))  
+        return True
        
     def tail_file(self):
         '''
@@ -3956,6 +4005,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_move()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+        
+        elif current_command_type == Storage.I.C_DIR_EXIST:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.dir_exist()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
