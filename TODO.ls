@@ -1,7 +1,5 @@
 TODO LIST
 
-- check all command debug message
-
 - FILE 
     exists, delete, copy, move, create. etc
     FILE_READ: -f|--file file -v|--variable variable            - done
@@ -10,8 +8,7 @@ TODO LIST
     FILE_PUSH: -f file -v value                                 - done
     FILE_EMPTY: -f file                                         - done
     FILE_EXIST: -f file -v variable                             - done
-    FILE_DELETE: -f|--file
-    FILE_CREATE: -f|--file
+    FILE_DELETE: -f|--file                                      - done
     FILE_COPY: -f|--file file -t|--to to (file or directory) 
     FILE_MOVE: -f|--file file -t|--to to (file or directory) 
     
@@ -25,6 +22,8 @@ TODO LIST
 - DISCONNECT command ??
 
 - System Test
+    - auto test each command script
+    - check all command debug message
 
 - Refactor run method
 

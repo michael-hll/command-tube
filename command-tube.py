@@ -97,6 +97,7 @@ class Storage():
         self.C_FILE_PUSH               = 'FILE_PUSH'
         self.C_FILE_EMPTY              = 'FILE_EMPTY'
         self.C_FILE_READ               = 'FILE_READ'
+        self.C_FILE_DELETE             = 'FILE_DELETE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -384,6 +385,18 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
+            },
+            self.C_FILE_DELETE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file name you want to delete.'],                   
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Delete any files math the file name.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2509,6 +2522,42 @@ class TubeCommand():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
         return True
+    
+    def file_delete(self):
+        file = None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        file = ' '.join(args.file)
+        
+        # replace placeholders 
+        file = self.self_format_placeholders(file)
+          
+        count = 0   
+        deleted_files = [] 
+        if '*' in path.basename(file):
+            files = glob.glob(file)
+            for f in files:
+                if path.isfile(f):
+                    os.remove(f)
+                    deleted_files.append(f)
+                    count += 1
+        elif os.path.exists(file) and path.isfile(file):            
+            os.remove(file)
+            deleted_files.append(file)
+            count += 1
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Successfully deleted {0} files:'.format(count)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+            if count > 0:
+                for file in deleted_files:
+                    msg = file
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
+        return True
        
     def tail_file(self):
         '''
@@ -3770,6 +3819,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.file_append()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_FILE_DELETE:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.file_delete()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
