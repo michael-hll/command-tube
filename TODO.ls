@@ -1,11 +1,5 @@
 TODO LIST
 
-   
-- DIR
-    exists, delete, copy, move, create. etc
-    DIR_EXIST: -d|--directory directory         - todo
-    DIR_DELETE: -d
-    DIR_CREATE: -d
 
 - DISCONNECT command ??
 
@@ -98,6 +92,12 @@ TODO LIST
         FILE_DELETE: -f|--file                                      - done
         FILE_COPY: -f|--file file -t|--to to (file or directory)    - done
         FILE_MOVE: -f|--file file -t|--to to (file or directory)    - done
+
+    35. - DIR
+        exists, delete, copy, move, create. etc
+        DIR_EXIST: -d|--directory directory         - done
+        DIR_DELETE: -d                              - done
+        DIR_CREATE: -d                              - done
 
 
 

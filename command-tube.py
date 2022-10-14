@@ -102,6 +102,7 @@ class Storage():
         self.C_FILE_MOVE               = 'FILE_MOVE'
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
+        self.C_DIR_CREATE              = 'DIR_CREATE'
         self.C_TAIL_LINES_HEADER       = '\nTAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -432,7 +433,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DIR_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
                         'The directory you want to check.'],
@@ -447,6 +448,18 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a directory exists.'                
+            },
+            self.C_DIR_CREATE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: DIR_CREATE: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
+                        'The directory you want to check.'],                  
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Create a directory if it doesnot exist.'                
             },
             self.C_DIR_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -2734,6 +2747,24 @@ class TubeCommand():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
                
         return True
+    
+    def dir_create(self):
+        directory = None
+        parser = self.tube_argument_parser
+        args, _ = parser.parse_known_args(self.content.split())
+        directory = ' '.join(args.directory)
+        
+        # replace placeholders 
+        directory = self.self_format_placeholders(directory)
+          
+        os.makedirs(directory)
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Directory created successfully: {0}.'.format(directory)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+               
+        return True
        
     def tail_file(self):
         '''
@@ -4070,6 +4101,21 @@ class TubeCommand():
             try:
                 log.start_datetime = datetime.now()                        
                 result = self.dir_delete()  
+                if result == True:                      
+                    log.status = Storage.I.C_SUCCESSFUL
+                else:
+                    log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+            except Exception as e:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(str(e))
+                log.status = Storage.I.C_FAILED
+                log.end_datetime = datetime.now()
+                
+        elif current_command_type == Storage.I.C_DIR_CREATE:
+            try:
+                log.start_datetime = datetime.now()                        
+                result = self.dir_create()  
                 if result == True:                      
                     log.status = Storage.I.C_SUCCESSFUL
                 else:
