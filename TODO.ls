@@ -1,17 +1,6 @@
 TODO LIST
 
-- FILE 
-    exists, delete, copy, move, create. etc
-    FILE_READ: -f|--file file -v|--variable variable            - done
-    FILE_POP: -f file [-v variable]                             - done
-    FILE_APPEND: -f file -v value                               - done
-    FILE_PUSH: -f file -v value                                 - done
-    FILE_EMPTY: -f file                                         - done
-    FILE_EXIST: -f file -v variable                             - done
-    FILE_DELETE: -f|--file                                      - done
-    FILE_COPY: -f|--file file -t|--to to (file or directory) 
-    FILE_MOVE: -f|--file file -t|--to to (file or directory) 
-    
+   
 - DIR
     exists, delete, copy, move, create. etc
     DIR_EXIST: -d|--directory directory
@@ -100,6 +89,18 @@ TODO LIST
         Then in the last status of each command, we can add this notes section
 
     33. - we need to set the tube command status to failed when update global tube variable failed
+
+    34. - FILE 
+        exists, delete, copy, move, create. etc
+        FILE_READ: -f|--file file -v|--variable variable            - done
+        FILE_POP: -f file [-v variable]                             - done
+        FILE_APPEND: -f file -v value                               - done
+        FILE_PUSH: -f file -v value                                 - done
+        FILE_EMPTY: -f file                                         - done
+        FILE_EXIST: -f file -v variable                             - done
+        FILE_DELETE: -f|--file                                      - done
+        FILE_COPY: -f|--file file -t|--to to (file or directory)    - done
+        FILE_MOVE: -f|--file file -t|--to to (file or directory)    - done
 
 
 
