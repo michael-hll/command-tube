@@ -16,8 +16,6 @@ TODO LIST
 
 - Refactor run method
 
-- check --rodo log
-
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done

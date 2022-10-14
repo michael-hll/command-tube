@@ -386,7 +386,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
+                self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable.'                
             },
             self.C_FILE_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
