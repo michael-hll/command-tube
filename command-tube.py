@@ -3653,6 +3653,39 @@ class TubeCommand():
             temp_value = TubeCommand.format_placeholders(value, temp_dict)
             return self.parent.self_format_placeholders(temp_value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str)
     
+    def pause(self):
+        self.content = self.self_format_placeholders(self.content).strip().replace(' ', '').upper()
+        is_paused_seconds = False
+        msg = ''
+        paused_mins = 0
+        paused_seconds = 0
+        self.content = self.content.replace('MIN', '').replace('UTE', '')
+        if self.content.endswith('SEC') or \
+            self.content.endswith('SECOND') or \
+            self.content.endswith('S'):
+            self.content = self.content.upper().replace('SEC', '').replace('OND', '').replace('S', '')
+            is_paused_seconds = True
+        if self.content.endswith('MIN') or \
+            self.content.endswith('MINUTE') or \
+            self.content.endswith('M'):
+            self.content = self.content.upper().replace('MIN', '').replace('UTE', '').replace('M', '')
+            is_paused_seconds = False
+            
+        # conver to float
+        if is_paused_seconds:
+            paused_seconds = float(self.content)
+            paused_mins = paused_seconds / 60
+            msg = str(paused_seconds) + ' seconds.'
+        else:
+            paused_mins = float(self.content)  
+            paused_seconds = paused_mins * 60
+            msg = str(paused_mins) + ' minutes.'
+                        
+        tprint('Command Tube is paused for ' + msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        time.sleep(paused_seconds)
+        
+        return True    
+    
     def linux_command(self):
         log = self.log
         # Check if we have a valid ssh connection
@@ -3753,42 +3786,14 @@ class TubeCommand():
                 log.end_datetime = datetime.now()
         
         elif current_command_type == Storage.I.C_PAUSE:
-            try:                        
+            try:
                 log.start_datetime = datetime.now()
-                self.content = self.self_format_placeholders(self.content).strip().replace(' ', '').upper()
-                is_paused_seconds = False
-                msg = ''
-                paused_mins = 0
-                paused_seconds = 0
-                self.content = self.content.replace('MIN', '').replace('UTE', '')
-                if self.content.endswith('SEC') or \
-                    self.content.endswith('SECOND') or \
-                    self.content.endswith('S'):
-                    self.content = self.content.upper().replace('SEC', '').replace('OND', '').replace('S', '')
-                    is_paused_seconds = True
-                if self.content.endswith('MIN') or \
-                    self.content.endswith('MINUTE') or \
-                    self.content.endswith('M'):
-                    self.content = self.content.upper().replace('MIN', '').replace('UTE', '').replace('M', '')
-                    is_paused_seconds = False
-                    
-                # conver to float
-                if is_paused_seconds:
-                    paused_seconds = float(self.content)
-                    paused_mins = paused_seconds / 60
-                    msg = str(paused_seconds) + ' seconds.'
-                else:
-                    paused_mins = float(self.content)  
-                    paused_seconds = paused_mins * 60
-                    msg = str(paused_mins) + ' minutes.'
-                               
-                tprint('Command Tube is paused for ' + msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                time.sleep(paused_seconds)
+                result = self.pause()
                 log.status = Storage.I.C_SUCCESSFUL
                 log.end_datetime = datetime.now()
             except Exception as e:
                 log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
                 log.add_error(str(e))
                 log.end_datetime = datetime.now()
 
