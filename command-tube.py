@@ -3746,6 +3746,48 @@ class TubeCommand():
         
         return True
     
+    def command(self):
+        log = self.log
+        # replace placeholders
+        self.content = self.self_format_placeholders(self.content) 
+        # check if using shell
+        is_use_shell = True
+        if '--no-shell' in self.content:
+            is_use_shell = False
+            self.content = self.content.replace('--no-shell', '').strip()
+        command_array = shlex.split(self.content, posix=True)
+        log.start_datetime = datetime.now()
+        result = None
+        if os.name.startswith('nt'):
+            result = subprocess.Popen(self.content, text=True, shell=True,
+                                        stdout=sys.stdout,stderr=subprocess.PIPE, bufsize=1) 
+        else:                        
+            # In Mac Os or Linux
+            if is_use_shell:
+                result = subprocess.Popen(self.content, text=True, shell=True,
+                                            stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)
+            else:
+                result = subprocess.Popen(command_array, text=True, 
+                                            stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1) 
+        
+        # Need to print error to the terminal and the log file
+        while True:
+            line = result.stderr.readline()
+            line = line.replace('\n', '')
+            if not line:
+                break
+            tprint(line)
+            log.errors.append(line)                       
+
+        # terminate the process and get running result 
+        result.communicate()
+        if result.returncode != 0:  
+            return False                           
+        else:
+            log.errors.clear() 
+        
+        return True
+    
     def run(self):
         current_command_type = self.cmd_type
         log = self.log
@@ -3762,8 +3804,10 @@ class TubeCommand():
         if current_command_type == Storage.I.C_LINUX_COMMAND:
             try:
                 log.start_datetime = datetime.now()
-                result = self.linux_command()
+                result = self.linux_command()                
                 log.status = Storage.I.C_SUCCESSFUL
+                if result == False:
+                    log.status = Storage.I.C_FAILED
                 log.end_datetime = datetime.now()
             except Exception as e:
                 log.status = Storage.I.C_FAILED
@@ -3778,6 +3822,8 @@ class TubeCommand():
                 self.content = self.self_format_placeholders(self.content) 
                 result = os.chdir(self.content)
                 log.status = Storage.I.C_SUCCESSFUL
+                if result == False:
+                    log.status = Storage.I.C_FAILED
                 log.end_datetime = datetime.now()
             except Exception as e:
                 log.status = Storage.I.C_FAILED
@@ -3790,6 +3836,8 @@ class TubeCommand():
                 log.start_datetime = datetime.now()
                 result = self.pause()
                 log.status = Storage.I.C_SUCCESSFUL
+                if result == False:
+                    log.status = Storage.I.C_FAILED                
                 log.end_datetime = datetime.now()
             except Exception as e:
                 log.status = Storage.I.C_FAILED
@@ -3799,48 +3847,15 @@ class TubeCommand():
 
         elif current_command_type == Storage.I.C_COMMAND:
             try:
-                # replace placeholders
-                self.content = self.self_format_placeholders(self.content) 
-                # check if using shell
-                is_use_shell = True
-                if '--no-shell' in self.content:
-                    is_use_shell = False
-                    self.content = self.content.replace('--no-shell', '').strip()
-                command_array = shlex.split(self.content, posix=True)
                 log.start_datetime = datetime.now()
-                result = None
-                if os.name.startswith('nt'):
-                    result = subprocess.Popen(self.content, text=True, shell=True,
-                                              stdout=sys.stdout,stderr=subprocess.PIPE, bufsize=1) 
-                else:                        
-                    # In Mac Os or Linux
-                    if is_use_shell:
-                        result = subprocess.Popen(self.content, text=True, shell=True,
-                                                  stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)
-                    else:
-                        result = subprocess.Popen(command_array, text=True, 
-                                                  stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1) 
-                
-                # Need to print error to the terminal and the log file
-                while True:
-                    line = result.stderr.readline()
-                    line = line.replace('\n', '')
-                    if not line:
-                        break
-                    tprint(line)
-                    log.errors.append(line)                       
-
-                # terminate the process and get running result 
-                result.communicate()
+                result = self.command()                
+                log.status = Storage.I.C_SUCCESSFUL
+                if result == False:
+                    log.status = Storage.I.C_FAILED
                 log.end_datetime = datetime.now()
-                if result.returncode != 0:  
-                    log.status = Storage.I.C_FAILED                            
-                else:
-                    log.status = Storage.I.C_SUCCESSFUL  
-                    log.errors.clear()                                                   
             except Exception as e:
                 log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
                 log.add_error(str(e))
                 log.end_datetime = datetime.now()
 
