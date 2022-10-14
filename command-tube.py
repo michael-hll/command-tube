@@ -1330,52 +1330,51 @@ class TubeArgumentParser(ArgumentParser):
 class TubeCommand():
     
     def __init__(self, cmd_type, content) -> None:
-        self.cmd_type              = cmd_type
-        self.uuid                  = str(uuid.uuid4())
-        self.original_uuid         = self.uuid
+        self.cmd_type                   = cmd_type
+        self.uuid                       = str(uuid.uuid4())
+        self.original_uuid              = self.uuid
         # contents
-        self.content               = content
-        self.original_content      = content
-        self.notes                 = ''
-        self.redo_content          = None
+        self.content                    = content
+        self.original_content           = content
+        self.notes                      = ''
+        self.redo_content               = None
         # continue & redo properties
-        self.is_failed_redo        = False
-        self.redo_steps            = 0
-        self.is_failed_continue    = False
-        self.success_skip_steps    = 0 # Success skip steps -> n
-        self.is_success_skip       = False
-        self.fail_skip_steps       = 0 # failed skip steps -> m
-        self.is_fail_skip          = False
-        self.is_skip               = False
-        self.is_skip_by_if         = False
-        self.is_skip_by_while      = False
-        self.is_redo_added         = False
-        self.if_run                = True
-        self.index                 = None
-        self.log                   = None        
-        self.has_syntax_error      = False        
-        self.log                   = TubeCommandLog(self)
-        self.is_single_placeholder = False
-        self.has_placeholders      = False
-        self.is_key_command        = False
-        self.results               = []
-        self.self_tube_index       = 0
-        self.self_tube_file        = ''         
+        self.is_failed_redo             = False
+        self.redo_steps                 = 0
+        self.is_failed_continue         = False
+        self.success_skip_steps         = 0 # Success skip steps -> n
+        self.is_success_skip            = False
+        self.fail_skip_steps            = 0 # failed skip steps -> m
+        self.is_fail_skip               = False
+        self.is_skip                    = False
+        self.is_skip_by_if              = False
+        self.is_skip_by_while           = False
+        self.is_redo_added              = False
+        self.if_run                     = True
+        self.index                      = None       
+        self.has_syntax_error           = False        
+        self.log: TubeCommandLog        = TubeCommandLog(self)
+        self.is_single_placeholder      = False
+        self.has_placeholders           = False
+        self.is_key_command             = False
+        self.results: list              = []
+        self.self_tube_index            = 0
+        self.self_tube_file             = ''         
         # the follow properties starts with 'tube'
         # are owned by RUN_TUBE command
-        self.tube                  = None # keep the whole commands
-        self.tube_run              = None # keep the commands in current iteration
-        self.tube_yaml             = None # keep the yaml tube format
-        self.tube_run_times        = None
-        self.tube_conditions       = None          
-        self.tube_index            = 0
-        self.tube_file             = '' 
-        self.tube_name             = '' # this is used for RUN_TUBE command
-        self.tube_KEY_VALUES_DICT  = {} # to store sub tube variables, (locatl/scope variables)
-        self.parent                = None # The parent RUN_TUBE command
-        self.parent_tube_name      = 'TUBE'
-        self.loop_index            = -1
-        self.is_imported           = False # TODO 
+        self.tube                       = None # keep the whole commands
+        self.tube_run                   = None # keep the commands in current iteration
+        self.tube_yaml                  = None # keep the yaml tube format
+        self.tube_run_times             = None
+        self.tube_conditions            = None          
+        self.tube_index                 = 0
+        self.tube_file                  = '' 
+        self.tube_name                  = '' # this is used for RUN_TUBE command
+        self.tube_KEY_VALUES_DICT: dict = {} # to store sub tube variables, (locatl/scope variables)
+        self.parent: TubeCommand        = None # The parent RUN_TUBE command
+        self.parent_tube_name           = 'TUBE'
+        self.loop_index                 = -1
+        self.is_imported                = False # TODO 
         
         # Private properties
         self.__original_content2   = None # content without place holders        
@@ -1437,7 +1436,7 @@ class TubeCommand():
 
         return tube_check
     
-    def update_sub_tube_key_value(self, key, value):
+    def update_key_value_for_sub(self, key, value):
         '''
         Only update when the command type is RUN_TUBE
         without readonly settings for local variables
@@ -1451,7 +1450,7 @@ class TubeCommand():
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
     
-    def update_key_value(self, key, value, is_override=True, is_force=False):
+    def update_key_value(self, key, value, is_override=True, is_force=False, is_global=False) -> bool:
         '''
         If the command is in sub tube, then udpate the key value into sub tube.
         Otherwise update the key value into the global tube variables.
@@ -1461,11 +1460,13 @@ class TubeCommand():
             value: the value of the key
             is_override: For global variable, if override existing variable value. Default Yes.
             is_force: For global readonly variable if do a update. Default No.
+            is_global: If udpate tube variable globally. Default No.
         '''
-        if self.parent != None:
-            self.parent.update_sub_tube_key_value(key, value)
+        if is_global == True or self.parent == None:
+            return StorageUtility.update_key_value_dict(key, value, self, is_override=is_override, is_force=is_force)
         else:
-            StorageUtility.update_key_value_dict(key, value, self, is_override=is_override, is_force=is_force)
+            self.parent.update_key_value_for_sub(key, value)
+            return True
                   
     def get_formatted_status(self) -> str:
         '''
@@ -1643,10 +1644,10 @@ class TubeCommand():
             key = variable
         else:
             key = xpath
-        if self.parent == None or is_global == True:
-            StorageUtility.update_key_value_dict(key, return_val, is_force=is_force)
-        else:
-            self.update_key_value(key, return_val, is_force=is_force)
+        
+        key_result = self.update_key_value(key, return_val, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(key, return_val))
            
         return True
     
@@ -2167,10 +2168,9 @@ class TubeCommand():
                 founded_line = founded_line.replace('\n', '')
             
             # update tube variables dependantly
-            if self.parent == None or is_global == True:
-                StorageUtility.update_key_value_dict(variable, founded_line, is_force=is_force)
-            else:
-                self.update_key_value(variable, founded_line, is_force=is_force)
+            key_result = self.update_key_value(variable, founded_line, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, founded_line))
 
         else:
             # file not exists
@@ -2313,18 +2313,18 @@ class TubeCommand():
         else:
             if path.exists(file) and path.isfile(file):
                 value = True
-        # update tube variables dependantly
-        if self.parent == None or is_global == True:
-            StorageUtility.update_key_value_dict(var, value, is_force=is_force)
-        else:
-            self.update_key_value(var, value, is_force=is_force)
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File {0} exists.'.format(file)
             if not value:
                 msg = 'File {0} doesnot exist.'.format(file)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+            
+        # update tube variables dependantly
+        key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(var, value))  
         return True
     
     def file_pop(self):
@@ -2363,10 +2363,9 @@ class TubeCommand():
             # update tube variable
             if var:
                 # update tube variables dependantly
-                if self.parent == None or is_global == True:
-                    StorageUtility.update_key_value_dict(var, pop_line, is_force=is_force)
-                else:
-                    self.update_key_value(var, pop_line, is_force=is_force)
+                key_result = self.update_key_value(var, pop_line, is_force=is_force, is_global=is_global)
+                if key_result == False:
+                    raise Exception('Update key-value failed: {0}:{1}'.format(var, pop_line))
                     
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
@@ -2501,10 +2500,9 @@ class TubeCommand():
             raise Exception('File doesnot exists: {0}'.format(file))
 
         # update tube variables dependantly
-        if self.parent == None or is_global == True:
-            StorageUtility.update_key_value_dict(var, value, is_force=is_force)
-        else:
-            self.update_key_value(var, value, is_force=is_force)
+        key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(var, value))
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File content was read successfully: {0}'.format(file)
@@ -2640,19 +2638,17 @@ class TubeCommand():
                 if type(value) != dict and type(value) != list:
                     if len(keywords) == 0:
                         # update tube variables dependantly
-                        if self.parent == None or is_global == True:
-                            StorageUtility.update_key_value_dict(key, value, is_force=is_force)
-                        else:
-                            self.update_key_value(key, value, is_force=is_force)
+                        key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                        if key_result == False:
+                            raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                         key_values.append(key + '=' + value)                        
                     else:
                         for word in keywords:
                             if key == word:   
                                 # update tube variables dependantly
-                                if self.parent == None or is_global == True:
-                                    StorageUtility.update_key_value_dict(key, value, is_force=is_force)
-                                else:
-                                    self.update_key_value(key, value, is_force=is_force)
+                                key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                                if key_result == False:
+                                    raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                                 key_values.append(key + '=' + value)     
             
         else:
@@ -2670,19 +2666,17 @@ class TubeCommand():
                             value = ''
                         if len(keywords) == 0:
                             # update tube variables dependantly
-                            if self.parent == None or is_global == True:
-                                StorageUtility.update_key_value_dict(key, value, is_force=is_force)
-                            else:
-                                self.update_key_value(key, value, is_force=is_force)
+                            key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                            if key_result == False:
+                                raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                             key_values.append(key + '=' + value)
                         else:
                             for key in keywords:
                                 if key == key:
                                     # update tube variables dependantly
-                                    if self.parent == None or is_global == True:
-                                        StorageUtility.update_key_value_dict(key, value, is_force=is_force)
-                                    else:
-                                        self.update_key_value(key, value, is_force=is_force) 
+                                    key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                                    if key_result == False:
+                                        raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
                                     key_values.append(key + '=' + value)
                                                    
 
@@ -2898,7 +2892,7 @@ class TubeCommand():
                 if key_value_list:
                     for item in key_value_list:
                         key, value = Utility.split_equal_expression(item)
-                        self.update_sub_tube_key_value(key, value)
+                        self.update_key_value_for_sub(key, value)
                                                         
                 Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
                 self.tube_run_times = 0 # initial the tube running times to 0     
@@ -2974,10 +2968,9 @@ class TubeCommand():
             with open(file, 'r') as f:
                 line_count = sum(1 for line in f)
             # update tube variables dependantly
-            if self.parent == None or is_global == True:
-                StorageUtility.update_key_value_dict(variable, line_count, is_force=is_force)
-            else:
-                self.update_key_value(variable, line_count, is_force=is_force)
+            key_result = self.update_key_value(variable, line_count, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, line_count))
                   
         # case 2: count tube command count by status
         elif len(status_set) > 0:
@@ -2996,10 +2989,9 @@ class TubeCommand():
                 if cmd.log.status in status_set:
                     cmd_count += 1
             # update tube variables dependantly
-            if self.parent == None or is_global == True:
-                StorageUtility.update_key_value_dict(variable, cmd_count, is_force=is_force)
-            else:
-                self.update_key_value(variable, cmd_count, is_force=is_force)
+            key_result = self.update_key_value(variable, cmd_count, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, cmd_count))
             
         return True
 
@@ -3215,10 +3207,9 @@ class TubeCommand():
         
         finally:
             # update tube variables dependantly
-            if self.parent == None or is_global == True:
-                StorageUtility.update_key_value_dict(result, found, is_force=is_force)
-            else:
-                self.update_key_value(result, found, is_force=is_force)
+            key_result = self.update_key_value(result, found, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(result, found))
     
     def replace_char(self) -> int:
         '''

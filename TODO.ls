@@ -1,7 +1,5 @@
 TODO LIST
 
-- we need to set the tube command status to failed when update global tube variable failed
-
 - check all command debug message
 
 - FILE 
@@ -101,6 +99,8 @@ TODO LIST
 
     32. - Add note property for each command: --note: note
         Then in the last status of each command, we can add this notes section
+
+    33. - we need to set the tube command status to failed when update global tube variable failed
 
 
 
