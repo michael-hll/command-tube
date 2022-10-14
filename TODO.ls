@@ -3,10 +3,9 @@ TODO LIST
    
 - DIR
     exists, delete, copy, move, create. etc
-    DIR_EXIST: -d|--directory directory
+    DIR_EXIST: -d|--directory directory         - todo
     DIR_DELETE: -d
     DIR_CREATE: -d
-    DIR_COPY: -d directory -t to (directory)
 
 - DISCONNECT command ??
 
