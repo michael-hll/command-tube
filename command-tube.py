@@ -112,8 +112,6 @@ class Storage():
         self.C_KEY_PARAMETER           = '--key'
         self.C_NOTES_PARAMETER         = '--note'
         self.C_INDENTATION             = '    '
-        self.C_ANT_DEPLOY_LOG_FILE     = 'build.log'
-        self.C_ANT_DEPLOY_ERROR        = 'BUILD FAILED'
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) before command type means the command is run again.'
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
         self.C_DESC_NEW_LINE_SPACE     = '             '
@@ -5095,39 +5093,6 @@ def install_package(package_name):
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             installed = False
     return installed
-
-def get_ant_build_errors(log: TubeCommandLog):
-    
-    '''
-    Currently this method is not used, it would be helpfule to read additional log errors from other files
-    Keep it here in case some day later to use it.
-    '''
-    
-    found_error = False
-    return_lines = []
-    try:
-        logFile = os.path.join(os.getcwd(), Storage.I.C_ANT_DEPLOY_LOG_FILE)
-        if not path.exists(logFile):
-            return False
-        
-        # return last 50 lines
-        with open(logFile, 'r', encoding='utf8') as f:
-            for line in f:
-                line = line.replace('\n', '')
-                if Storage.I.C_ANT_DEPLOY_ERROR in line:
-                    found_error = True
-                if found_error and len(line) > 0:
-                    return_lines.append(line)
-        # output errors
-        if found_error:
-            log.add_error('THE FOLLOWING ERRORS ARE READ FROM FILE => ' + logFile)
-            for line in return_lines:            
-                log.add_error(line)               
-  
-        return found_error                               
-                    
-    except Exception as e:
-        return False
 
 def check_disk_space(ssh):
     
