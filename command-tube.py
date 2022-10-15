@@ -2980,7 +2980,6 @@ class TubeCommand():
         
         # check if file is yaml file    
         is_yaml_file = file.endswith('.yaml') or file.endswith('.yml')     
-        reason = 'You cannot udpate the tube variable \'{0}\' that already exists.'
         
         if is_yaml_file:
             # yaml file
