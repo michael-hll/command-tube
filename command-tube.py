@@ -467,7 +467,9 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
                         'The directory you want to delete.'],                   
-                ],
+                    [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force delete if the director is not empty. Default no.'],
+                ],                  
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
@@ -2731,13 +2733,18 @@ class TubeCommand():
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(self.content.split())
         directory = ' '.join(args.directory)
+        is_force = args.is_force
         
         # replace placeholders 
         directory = self.self_format_placeholders(directory)
           
         count = 0   
-        if os.path.exists(directory) and not path.isfile(directory):            
+        if os.path.exists(directory) and not path.isfile(directory) and is_force:            
             shutil.rmtree(directory)
+            count += 1
+        elif os.path.exists(directory) and not path.isfile(directory):
+            os.rmdir(directory)
+            count += 1
         else:
             raise Exception('Directory doesnot exists: {0}'.format(directory))
         
