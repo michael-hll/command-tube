@@ -1500,7 +1500,7 @@ class TubeCommand():
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
             else:
-                tube_index = StorageUtility.get_tube_index(file)
+                tube_index = StorageUtility.get_tube_index(file, tube_name)
                 tube_check = self.create_tube_run(sub_tube, tube_index, file, tube_name)                
                 self.tube_index = tube_index
                 self.tube_file = os.path.abspath(file)
@@ -3071,7 +3071,7 @@ class TubeCommand():
                         key, value = Utility.split_equal_expression(item)
                         self.update_key_value_for_sub(key, value)
                                                         
-                Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(self.tube_run)
+                reset_max_tube_command_type_length(self.tube_run)
                 self.tube_run_times = 0 # initial the tube running times to 0     
             else:
                 for err in errors:
@@ -4676,7 +4676,7 @@ class StorageUtility():
             Storage.I.C_PRINT_COLOR_STYLE = 'bright'
     
     @classmethod
-    def get_tube_index(self, file):
+    def get_tube_index(self, file, tube_name):
         '''
         Check if tube file exists from tube file list
         
@@ -4687,10 +4687,10 @@ class StorageUtility():
         file_full_path = os.path.abspath(file)
         for key in Storage.I.TUBE_FILE_LIST.keys():
             value = Storage.I.TUBE_FILE_LIST[key]
-            if value == file_full_path:
+            if value == tube_name + '=' + file_full_path:
                 return key
         index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-        Storage.I.TUBE_FILE_LIST[index] = file_full_path
+        Storage.I.TUBE_FILE_LIST[index] = tube_name + '=' + file_full_path
         return index
     
     @classmethod
@@ -5200,7 +5200,10 @@ def output_tube_file_list(is_print=False, is_write_log=False):
     keys = [k for k in Storage.I.TUBE_FILE_LIST.keys()]
     keys.sort()  
     for k in keys:
-        msg = '* [%s]: %s' % (str(k), Storage.I.TUBE_FILE_LIST[k])
+        item = Storage.I.TUBE_FILE_LIST[k]
+        file = item[item.index('=')+1:]
+        tube_name = item[0:item.index('=')]
+        msg = '* [%s]: %s[%s]' % (str(k), file, tube_name)
         if is_print:
             tprint(msg)
         if is_write_log:
@@ -5746,12 +5749,13 @@ def install_3rd_party_packages(args):
         print(msg)
         sys.exit()
 
-def get_max_tube_command_type_length(tube):
+def reset_max_tube_command_type_length(tube):
     if tube == None or len(tube) == 0:
         return Storage.I.MAX_TUBE_COMMAND_LENGTH
     type_list = [c.cmd_type + c.parent_tube_name for c in tube]
-    max_length = len(max(type_list, key=len))
-    return max_length + 5
+    max_length = len(max(type_list, key=len)) + 5
+    if max_length > Storage.I.MAX_TUBE_COMMAND_LENGTH:
+        Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
 
 def convert_tube_to_new(tube_yaml, is_from_job_start=False):
     '''
@@ -5774,11 +5778,11 @@ def convert_tube_to_new(tube_yaml, is_from_job_start=False):
             command = TubeCommand(key.upper(), item[key])
             if is_from_job_start == True:
                 command.self_tube_file = os.path.abspath(Storage.I.TUBE_YAML_FILE)
-                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = command.self_tube_file
+                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = command.parent_tube_name + '=' + command.self_tube_file
             tube_new.append(command) 
             
     # update max command type length
-    Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(tube_new)
+    reset_max_tube_command_type_length(tube_new)
     return tube_new  
 
 def disconect_all_hosts(hosts):
