@@ -6372,185 +6372,17 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD.stop()
     Storage.I.MATRIX_THREAD.join()
     Storage.I.MATRIX_THREAD = None
-            
-def job_start(tube_yaml):
-    
-    '''
-    Start the Command-Tube job
-    
-    Args:
-        tube_yaml: Tube command list in YAML format
-    '''
 
-    try:
-        # print job start initials into the log
-        init_log_file()
-        
-        # revert tube command list to initial status
-        # the new command list Storage.I.TUBE_RUN will be used in each loop
-        Storage.I.TUBE_RUN = convert_tube_to_new(tube_yaml, True)
-        
-        runner = TubeRunner()
-        runner.start(Storage.I.TUBE_RUN)
-                   
-    except Exception as e:
-        msg = 'Exceptions found within job_start: ' + str(e)
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)  
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
-    finally:
-        try:
-            os.chdir(Storage.I.C_CURR_DIR) # changing dir back if 'PATH' command changed current dir
-        except Exception as e:
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e)) 
+def get_console_inputs():
+    # Read variables from console
+    StorageUtility.read_variables_from_console(args.variables)
 
-        # close all connections         
-        disconect_all_hosts(Storage.I.HOSTS)     
-        Host.SSHConnection = None  
-# --------- END OF FUNCTIONS -----------------
-
-# to check main flow
-if __name__ != '__main__':
-    sys.exit()
-
-# Pyinstaller fix
-multiprocessing.freeze_support()
-
-# global instance to store any user inputs, outputs or variables
-_ = Storage()  
-# reset default print colors
-# this is the only place to update constants
-StorageUtility.reset_colors()
-# add default variables
-StorageUtility.add_default_variables()
-parser = ArgumentParser(allow_abbrev=False, formatter_class=RawTextHelpFormatter)    
-general_command_parser = ArgumentParser(allow_abbrev=False)   
-
-# init Command-Tube arguments and help document
-init_arguments()   
-
-# parse user inputs arguments
-try:
-    args = parser.parse_args()
-    
     # if debug
     if args.debug != None:
         Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
     # if clear log
     if args.clear_log:
         Storage.I.IS_CLEAR_LOG = True
-except Exception as e:
-    # Log start
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 'Command Tube parameters error:' + str(e))
-    sys.exit()
-
-# -------------------------------
-# Install & Import 3rd-party Packages
-# -------------------------------
-install_3rd_party_packages(args)  
-# Import 3rd-party packages
-import paramiko 
-from colr import color
-from bs4 import BeautifulSoup
-import requests
-import yaml 
-
-# check help document system
-print_tube_command_help(parser)
-
-# ------------------------------------------------------------
-# Check log file name
-# if yaml file exists then reset log file name to xxx.yaml.log
-# ------------------------------------------------------------ 
-if(args.yaml_config != None):
-    # if the config file name without extensions
-    # then add '.yaml' or '.yml' ad default and
-    # check if they exists
-    yaml_file = args.yaml_config
-    exists, yaml_file = Utility.check_file_exists(yaml_file, '.yaml', '.yml')       
-    Storage.I.TUBE_YAML_FILE = yaml_file 
-    if(exists == True):
-        if args.log_file == None:
-            Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, Storage.I.TUBE_YAML_FILE + '.log')
-        else:
-            exists_log, log_file = Utility.check_file_exists(args.log_file[0])
-            if exists_log:
-                Storage.I.TUBE_LOG_FILE = os.path.abspath(args.log_file[0])
-            else:
-                Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, args.log_file[0])
-        # read run mode file yaml file
-        if Storage.I.RUN_MODE != Storage.I.C_RUN_MODE_DEBUG:
-            read_run_mode()
-    else:
-        msg = "YAML file doesn't exist: " + Storage.I.TUBE_YAML_FILE
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-        # Log start
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        sys.exit()         
-else:
-    msg = '-t or --tube parameter is missing. \
-          \nUse \'-h\' argument to view the usage of all the parameters.'
-    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-    # Log start
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-    sys.exit()  
-# --------End of Check Log Files -----------------------------
-
-# ------------------------------------------------
-# Read configuration file & user arguments content
-# Overrite input parameters from config file
-# ------------------------------------------------
-try:
-    data = None
-    if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
-        with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
-            data = Utility.safe_load_yaml_with_upper_key(f) 
-    
-    # check if given configuration file is empty        
-    if not data:
-        msg = 'The content of given config file is empty: %s'
-        msg = msg % Storage.I.TUBE_YAML_FILE
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        sys.exit()
-
-    # tprint(json.dumps(data, indent=4))   
-    if Storage.I.C_TUBE in data.keys(): 
-        Storage.I.TUBE_YAML = data[Storage.I.C_TUBE]
-    # Emails
-    if Storage.I.C_EMAIL in data.keys():        
-        StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
-    # Servers
-    if(Storage.I.C_SERVERS in data.keys()):
-        Storage.I.SERVERS = data[Storage.I.C_SERVERS]
-    # Variables
-    if(Storage.I.C_VARIABLES in data.keys()):
-        Storage.I.VARIABLES = data[Storage.I.C_VARIABLES]
-    # YAML Version
-    if Storage.I.C_YAML_VERSION in data.keys():
-        Storage.I.YAML_VERSION = data[Storage.I.C_YAML_VERSION]        
-    del data
-    
-    # log job header
-    output_log_header()
-    
-    # log user inputs from console
-    output_user_console_inputs()
-
-    # ------------------------------------
-    # Begin to deal with all input parameters
-    # ------------------------------------ 
-        
-    # Get servers to hosts
-    StorageUtility.read_hosts(Storage.I.SERVERS)
-    
-    # Read variables 
-    StorageUtility.read_variables(Storage.I.VARIABLES)
-    
-    # Read variables from console
-    StorageUtility.read_variables_from_console(args.variables)
 
     # datetime
     if(args.datetime != None):
@@ -6611,6 +6443,173 @@ try:
     # report progress
     if(args.report_progress != None and args.report_progress == 'yes'):
         Storage.I.IS_REPORT_PROGRESS = True
+
+def job_start(tube_yaml):
+    
+    '''
+    Start the Command-Tube job
+    
+    Args:
+        tube_yaml: Tube command list in YAML format
+    '''
+
+    try:
+        # print job start initials into the log
+        init_log_file()
+        
+        # revert tube command list to initial status
+        # the new command list Storage.I.TUBE_RUN will be used in each loop
+        Storage.I.TUBE_RUN = convert_tube_to_new(tube_yaml, True)
+        
+        runner = TubeRunner()
+        runner.start(Storage.I.TUBE_RUN)
+                   
+    except Exception as e:
+        msg = 'Exceptions found within job_start: ' + str(e)
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)  
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
+    finally:
+        try:
+            os.chdir(Storage.I.C_CURR_DIR) # changing dir back if 'PATH' command changed current dir
+        except Exception as e:
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e)) 
+
+        # close all connections         
+        disconect_all_hosts(Storage.I.HOSTS)     
+        Host.SSHConnection = None  
+# --------- END OF FUNCTIONS -----------------
+
+# to check main flow
+if __name__ != '__main__':
+    sys.exit()
+
+# Pyinstaller fix
+multiprocessing.freeze_support()
+
+# global instance to store any user inputs, outputs or variables
+_ = Storage()  
+# reset default print colors
+# this is the only place to update constants
+StorageUtility.reset_colors()
+# add default variables
+StorageUtility.add_default_variables()
+parser = ArgumentParser(allow_abbrev=False, formatter_class=RawTextHelpFormatter)    
+general_command_parser = ArgumentParser(allow_abbrev=False)   
+
+# init Command-Tube arguments and help document
+init_arguments()   
+
+# parse user inputs arguments from console
+try:
+    args = parser.parse_args()
+    get_console_inputs()
+    
+except Exception as e:
+    # Log start
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', 'Command Tube parameters error:' + str(e))
+    sys.exit()
+
+# -------------------------------
+# Install & Import 3rd-party Packages
+# -------------------------------
+install_3rd_party_packages(args)  
+# Import 3rd-party packages
+import paramiko 
+from colr import color
+from bs4 import BeautifulSoup
+import requests
+import yaml 
+
+# check help document system
+print_tube_command_help(parser)
+
+# ------------------------------------------------------------
+# check input yaml/yml tube file
+# if yaml file exists then reset log file name to xxx.yaml.log
+# ------------------------------------------------------------ 
+if(args.yaml_config != None):
+    # if the config file name without extensions
+    # then add '.yaml' or '.yml' ad default and
+    # check if they exists
+    yaml_file = args.yaml_config
+    exists, yaml_file = Utility.check_file_exists(yaml_file, '.yaml', '.yml')       
+    Storage.I.TUBE_YAML_FILE = yaml_file 
+    if(exists == True):
+        if args.log_file == None:
+            Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, Storage.I.TUBE_YAML_FILE + '.log')
+        else:
+            exists_log, log_file = Utility.check_file_exists(args.log_file[0])
+            if exists_log:
+                Storage.I.TUBE_LOG_FILE = os.path.abspath(args.log_file[0])
+            else:
+                Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, args.log_file[0])
+        # read run mode file yaml file
+        if Storage.I.RUN_MODE != Storage.I.C_RUN_MODE_DEBUG:
+            read_run_mode()
+    else:
+        msg = "YAML file doesn't exist: " + Storage.I.TUBE_YAML_FILE
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+        # Log start
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        sys.exit()         
+else:
+    msg = '-t or --tube parameter is missing. \
+          \nUse \'-h\' argument to view the usage of all the parameters.'
+    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+    # Log start
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', Storage.I.C_LOG_HEADER + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+    sys.exit()  
+# --------End of Check Log Files -----------------------------
+
+# -------------------------------------------------------
+# Read tube file settings: TUBE, Email, Server, Variables
+# Yaml version, and check tube commands syntax
+# -------------------------------------------------------
+try:
+    data = None
+    if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
+        with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
+            data = Utility.safe_load_yaml_with_upper_key(f) 
+    
+    # check if given configuration file is empty        
+    if not data:
+        msg = 'The content of given config file is empty: %s'
+        msg = msg % Storage.I.TUBE_YAML_FILE
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        sys.exit()
+
+    # tprint(json.dumps(data, indent=4))   
+    if Storage.I.C_TUBE in data.keys(): 
+        Storage.I.TUBE_YAML = data[Storage.I.C_TUBE]
+    # Emails
+    if Storage.I.C_EMAIL in data.keys():        
+        StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
+    # Servers
+    if(Storage.I.C_SERVERS in data.keys()):
+        Storage.I.SERVERS = data[Storage.I.C_SERVERS]
+    # Variables
+    if(Storage.I.C_VARIABLES in data.keys()):
+        Storage.I.VARIABLES = data[Storage.I.C_VARIABLES]
+    # YAML Version
+    if Storage.I.C_YAML_VERSION in data.keys():
+        Storage.I.YAML_VERSION = data[Storage.I.C_YAML_VERSION]        
+    del data
+    
+    # log job header
+    output_log_header()
+    
+    # log user inputs from console
+    output_user_console_inputs()
+        
+    # Get servers to hosts
+    StorageUtility.read_hosts(Storage.I.SERVERS)
+    
+    # Read variables 
+    StorageUtility.read_variables(Storage.I.VARIABLES)
         
     # checking tube command syntax
     Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE_YAML)
@@ -6640,6 +6639,7 @@ except Exception as e:
     sys.exit()
 # ----- END Of Reading Configuration --------- 
 
+# ----- Prepare to start the real job ------
 # Print input parameters and ask user to confirm
 if not Storage.I.IS_FORCE_RUN:
     print_input_parameters()
@@ -6649,7 +6649,7 @@ if not confirm('Are those parameters correct [Y/N]? '):
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     sys.exit() 
 
-# ----- Validations on User Inputs ------
+# ----- Validations on running time  ------
 # do a check on the user input datetime
 # the job start datetime must be bigger than current
 if(Storage.I.IS_IMMEDIATE == False and datetime.now() > Storage.I.EXEC_DATETIME):

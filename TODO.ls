@@ -1,8 +1,5 @@
 TODO LIST
 
-
-- DISCONNECT command ??
-
 - System Test
     - auto test each command script
     - check all command debug message
