@@ -1,0 +1,33 @@
+---
+RUN_MODE: DEBUG
+VARIABLES:
+    success_nums: 0
+    skipped_nums: 0
+    failed_nums: 0
+TUBE:
+    - COMMAND: ls --redo
+    - COMMAND: ls2 --redo --continue
+    - COMMAND: ls
+    - COMMAND: ls3 --redo -1 --continue
+    - COMMAND: ls --redo 5
+    - COUNT: -t SUCCESSFUL -v success_nums -cs
+    - COUNT: -t SKIPPED -v skipped_nums -cs
+    - COUNT: -t FAILED -v failed_nums -cs
+    - COMMAND: echo Check Success --if {success_nums}==8
+    - COMMAND: echo Check Failed --if {failed_nums}==4
+    - COMMAND: echo Check Skipped --if {skipped_nums}==0
+     # output testing result
+    - SET_VARIABLE: -n redo_result -v Testing Pass -g --if {success_nums}==8
+    - SET_VARIABLE: -n redo_result -v Testing Failed -g --if {success_nums}!=8
+    - PRINT_VARS: 'redo_result'
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
+
+
+     
+
+
+
+
+
+
+    

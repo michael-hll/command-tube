@@ -1,0 +1,18 @@
+
+Variables:
+    tube_passed: 0
+TUBE:
+    # TESTING VIA SUB TUBES
+    - RUN_TUBE: -t del_line.yaml --continue  --note 1
+    - RUN_TUBE: -t email.yaml --continue  --note 2
+    - RUN_TUBE: -t get_file_key_value.yaml --continue  --note 3
+    - RUN_TUBE: -t set_file_key_value.yaml --continue  --note 4
+    - RUN_TUBE: -t write_line.yaml --continue  --note 5
+    - RUN_TUBE: -t if.yaml --continue  --note 6
+    - RUN_TUBE: -t continue.yaml --continue  --note 7
+    - RUN_TUBE: -t redo.yaml --continue --note 8
+
+    - PRINT_VARS: del_line_result, email_result, get_file_key_value_result, 
+        set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, redo_result
+    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 8
+    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 8

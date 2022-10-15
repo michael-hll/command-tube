@@ -1,0 +1,28 @@
+TUBE:
+    # DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run]
+    # Mac OS version
+    # Prepare data
+    - COMMAND: cp data_0.txt data_del.txt
+    # 1. Test delete an not exists file
+    - DELETE_LINE_IN_FILE: -f not_exits_file -e --continue
+    # 2. Test begins 
+    - DELETE_LINE_IN_FILE: -f data_del.txt -b ABC --continue
+    # 3. Test contains
+    - DELETE_LINE_IN_FILE: -f data_del.txt -c www --continue
+    # 4. Test empty
+    - DELETE_LINE_IN_FILE: -f data_del.txt -e --continue
+    # 5. Test --if
+    - DELETE_LINE_IN_FILE: -f data_del.txt -e --continue --if {del}
+    # 6. Test left lines count
+    - COUNT: -f data_del.txt -v line_count -cs
+    - DELETE_LINE_IN_FILE: -f data_del.txt -e --continue --if {line_count}==3
+    # 7. Remove data_del.txt
+    - COMMAND: rm data_del.txt
+    # 8. Test successful command count
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    # output testing result
+    - SET_VARIABLE: -n del_line_result -v Testing Pass  -g --if {success_nums}==7
+    - SET_VARIABLE: -n del_line_result -v Testing Failed -g --if {success_nums}!=7
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
+    - PRINT_VARS: 'del_line_result'
+

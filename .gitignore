@@ -5,7 +5,8 @@ dist
 tube
 *.spec
 .DS_Store
-test
+test/*.yaml.log
+test/smoke-test
 tube.template.yaml
 test.yaml
 help.txt

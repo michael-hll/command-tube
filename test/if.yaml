@@ -1,0 +1,84 @@
+---
+VARIABLES:
+    index1: 0
+    server1: linux01
+    bool1: yes
+    bool2: true
+    bool3: no
+    bool4: false
+    success_nums: 0
+    x: 1
+    y: a b
+    z: yes
+    u: true
+    c: a = ! ()
+    v: 你好！=><!() 我是！:asdfasdf
+TUBE:
+    - COMMAND: echo Testing conditions --if true
+    - COMMAND: echo Testing conditions --if true false
+    - COMMAND: echo Testing conditions --if false
+    - COMMAND: echo Testing conditions --if true
+    - COMMAND: echo Testing conditions --if yes
+    - COMMAND: echo Testing conditions --if no
+    - COMMAND: echo Testing conditions --if yes no
+    - COMMAND: echo Testing conditions --if no no
+    - COMMAND: echo Testing conditions --if yes == yes
+    - COMMAND: echo Testing conditions --if {server1} == linux01
+    - COMMAND: echo Testing conditions --if {server1} == linux01 and {index1} >= 0
+    - COMMAND: echo Testing conditions --if not ({server1} > linux01 and 0 >= 0)
+    - COMMAND: echo Testing conditions --if {index1} == 0 and {server1} == linux01
+    - COMMAND: echo Testing conditions --if {index1} > 0
+    - COMMAND: echo Testing conditions --if {index1} >= 0
+    - COMMAND: echo Testing conditions --if {index1} != 1
+    - COMMAND: echo Testing conditions --if {index1} < 1
+    - COMMAND: echo Testing conditions --if {bool1} == yes
+    - COMMAND: echo Testing conditions --if {bool1} == true
+    - COMMAND: echo Testing conditions --if {bool2} == yes
+    - COMMAND: echo Testing conditions --if {bool2} == true
+    - COMMAND: echo Testing conditions --if {bool1} == no
+    - COMMAND: echo Testing conditions --if {bool1} == false
+    - COMMAND: echo Testing conditions --if {bool1} == True
+    - COMMAND: echo Testing conditions --if {bool1} == True
+    - COMMAND: echo Testing conditions --if {bool3} == no
+    - COMMAND: echo Testing conditions --if {bool4} == False
+    - COMMAND: echo Testing conditions --if {bool1} and {server1} == linux01
+    - COMMAND: echo Testing conditions --if (({server1}==linux01) and 1>=1)
+    - COMMAND: echo Testing conditions --if no
+    - COMMAND: echo Testing conditions --if ABC==ABC
+    - COMMAND: echo Testing conditions --if ABC==ABCD
+    - COMMAND: echo Testing conditions --if ABC!=ABC
+    - COMMAND: echo Testing conditions --if ABC!=2
+    - COMMAND: ECHO testing --if {y} == 'a b' and {x} != 7
+    - COMMAND: ECHO testing --if 'a b' == 'a b'
+    - COMMAND: ECHO testing --if not ('a c' == 'a b')
+    - COMMAND: ECHO testing --if {y} == 'a b'
+    - COMMAND: ECHO testing --if {y} == "a b"
+    - COMMAND: ECHO testing --if {y} == 'a b' and 2 ==2
+    - COMMAND: ECHO testing --if {y} == 'a b' and {x} < 2
+    - COMMAND: ECHO testing --if {y} == 'a b' and {x} != 2
+    - COMMAND: ECHO testing --if {y} == 'a c' or {x} == 1
+    - COMMAND: ECHO testing --if 'a c' != 'a b'
+    - COMMAND: ECHO testing --if 'a c' != 'a b'
+    - COMMAND: ECHO testing --if ab == ab
+    - COMMAND: ECHO testing --if 'ab' == ab
+    - COMMAND: ECHO testing --if {z} == yes
+    - COMMAND: ECHO testing --if {u} == true
+    - COMMAND: ECHO testing --if no == False
+    - COMMAND: ECHO testing --if 0.5 == 0.5
+    - COMMAND: ECHO testing --if 0.5 > .2 and true == true
+    - COMMAND: ECHO testing --if {c} == 'a = ! ()'
+    - COMMAND: ECHO testing --if datetime.today().weekday() != 7
+    - COMMAND: ECHO testing --if {v} == '你好！=><!() 我是！:asdfasdf'
+    - COUNT: -t SUCCESSFUL -v success_nums -cs
+    - COMMAND: echo Testing Passed --if {success_nums}==44
+    - SET_VARIABLE: -n if_condition_result -v Testing Pass  -g --if {success_nums}==44
+    - SET_VARIABLE: -n if_condition_result -v Testing Failed -g --if {success_nums}!=44
+    - PRINT_VARS: 'if_condition_result'
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==44
+
+
+
+
+
+
+    
