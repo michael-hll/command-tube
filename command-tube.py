@@ -2829,6 +2829,8 @@ class TubeCommand():
         '''
         For command: REPORT_PROGRESS
         '''
+        tprint('Command Tube is reporting progress via e-mail settings... ', type=Storage.I.C_PRINT_TYPE_INFO)
+        self.content = self.self_format_placeholders(self.content)
         email_subject = self.content
         email_body = ''
         new_line = '<br>'
@@ -2975,7 +2977,7 @@ class TubeCommand():
         tprint('Tube is sending email to %s' % (to_list), type=Storage.I.C_PRINT_TYPE_INFO)   
         result = send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, to_list, 
                             subject, body, Storage.I.EMAIL_SMTP_SERVER)
-        return result
+        return result == True
 
     def import_tube(self, continue_redo_parser: TubeArgumentParser):
         '''
@@ -3519,8 +3521,11 @@ class TubeCommand():
                     f.write(line)
         else:
             raise Exception("file doesn't exist: " + file)        
-        
-        return replaced_count
+
+        msg = 'There are \'%s\' items replaced.' % replaced_count
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        return True
     
     def print_variables(self):
 
@@ -3737,15 +3742,7 @@ class TubeCommand():
         # Check if we have a valid ssh connection
         if Host.SSHConnection == None:
             msg = 'Please check your provide server information, ssh failed to connect to your server.'
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            log.end_datetime = datetime.now()
-            log.add_error(msg)
-            log.status = Storage.I.C_FAILED
-            Storage.I.LOGS.append(log)
-            # check if report tube command status
-            self.self_report_progress()
-            return False 
+            raise Exception(msg) 
         
         # Check Linux Server Disk Space, only checking on the first Linux Command
         check_disk_space(Host.SSHConnection)  
@@ -3834,380 +3831,99 @@ class TubeCommand():
         
         return True
     
-    def run(self):
-        current_command_type = self.cmd_type
-        log = self.log
+    def run(self):        
         
-        # Log current running step
-        running_command = ' >>> %s'
-        msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % self.get_formatted_type() + ': ' + \
-                str(self.get_formatted_content())
-        tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
-        # --------------------------------------------------------
-        # Begin to run each tube command based on its command type
-        # --------------------------------------------------------        
-        if current_command_type == Storage.I.C_LINUX_COMMAND:
-            try:
-                log.start_datetime = datetime.now()
-                result = self.linux_command()                
-                log.status = Storage.I.C_SUCCESSFUL
-                if result == False:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
+        try:
+            # Log current running step
+            running_command = ' [%s] >>> %s'
+            msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % \
+                (str(self.index), self.get_formatted_type() + ': ' + str(self.get_formatted_content()))
+            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+            # initial logs
+            log = self.log   
+            log.start_datetime = datetime.now()
+            log.status = Storage.I.C_SUCCESSFUL
+            # --------------------------------------------------------
+            # Begin to run each tube command based on its command type
+            # --------------------------------------------------------        
+            if self.cmd_type == Storage.I.C_LINUX_COMMAND:
+                result = self.linux_command()              
 
-        elif current_command_type == Storage.I.C_PATH:
-            try:
-                log.start_datetime = datetime.now()
-                # replace placeholders
+            elif self.cmd_type == Storage.I.C_PATH:
                 self.content = self.self_format_placeholders(self.content) 
                 result = os.chdir(self.content)
-                log.status = Storage.I.C_SUCCESSFUL
-                if result == False:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_PAUSE:
-            try:
-                log.start_datetime = datetime.now()
+            
+            elif self.cmd_type == Storage.I.C_PAUSE:
                 result = self.pause()
-                log.status = Storage.I.C_SUCCESSFUL
-                if result == False:
-                    log.status = Storage.I.C_FAILED                
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_COMMAND:
-            try:
-                log.start_datetime = datetime.now()
+            elif self.cmd_type == Storage.I.C_COMMAND:
                 result = self.command()                
-                log.status = Storage.I.C_SUCCESSFUL
-                if result == False:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_GET_XML_TAG_TEXT:
-            try:
-                log.start_datetime = datetime.now()                        
-                result = self.get_xml_tag_text()    
-                log.end_datetime = datetime.now() 
-                log.status = Storage.I.C_SUCCESSFUL  
-                if result != True:               
-                    log.status = Storage.I.C_FAILED  
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now() 
+            elif self.cmd_type == Storage.I.C_GET_XML_TAG_TEXT:                      
+                result = self.get_xml_tag_text()     
 
-        elif current_command_type == Storage.I.C_SET_XML_TAG_TEXT:
-            try:
-                log.start_datetime = datetime.now()                        
-                udpate_success = self.set_xml_tag_text()  
-                if udpate_success == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_SET_FILE_KEY_VALUE:
-            try:
-                log.start_datetime = datetime.now()                        
-                result = self.set_file_key_value()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()                                                                     
+            elif self.cmd_type == Storage.I.C_SET_XML_TAG_TEXT:                     
+                result = self.set_xml_tag_text()  
+            
+            elif self.cmd_type == Storage.I.C_SET_FILE_KEY_VALUE:                      
+                result = self.set_file_key_value()                                                                    
 
-        elif current_command_type == Storage.I.C_WRITE_LINE_IN_FILE:
-            try:
-                log.start_datetime = datetime.now()                        
+            elif self.cmd_type == Storage.I.C_WRITE_LINE_IN_FILE:                        
                 result = self.write_line_in_file()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_DELETE_LINE_IN_FILE:
-            try:
-                log.start_datetime = datetime.now()                        
+            elif self.cmd_type == Storage.I.C_DELETE_LINE_IN_FILE:                       
                 result = self.delete_line_in_file()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_READ_LINE_IN_FILE:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_READ_LINE_IN_FILE:                      
                 result = self.read_line_in_file()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_LIST_FILES:
-            try:
-                log.start_datetime = datetime.now()                        
+            
+            elif self.cmd_type == Storage.I.C_LIST_FILES:                       
                 result = self.list_files()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_LIST_DIRS:
-            try:
-                log.start_datetime = datetime.now()                        
+            elif self.cmd_type == Storage.I.C_LIST_DIRS:                      
                 result = self.list_dirs()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_EXIST:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_EXIST:                      
                 result = self.file_exist()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_FILE_POP:
-            try:
-                log.start_datetime = datetime.now()                        
+            elif self.cmd_type == Storage.I.C_FILE_POP:                       
                 result = self.file_pop()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_FILE_PUSH:
-            try:
-                log.start_datetime = datetime.now()                        
+            
+            elif self.cmd_type == Storage.I.C_FILE_PUSH:                      
                 result = self.file_push()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_EMPTY:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_EMPTY:                      
                 result = self.file_empty()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_READ:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_READ:                      
                 result = self.file_read()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_APPEND:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_APPEND:
                 result = self.file_append()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_DELETE:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_DELETE:
                 result = self.file_delete()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_FILE_COPY:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_COPY:
                 result = self.file_copy()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_FILE_MOVE:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_FILE_MOVE:
                 result = self.file_move()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_DIR_EXIST:
-            try:
-                log.start_datetime = datetime.now()                        
+            
+            elif self.cmd_type == Storage.I.C_DIR_EXIST:
                 result = self.dir_exist()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_DIR_DELETE:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_DIR_DELETE:
                 result = self.dir_delete()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-                
-        elif current_command_type == Storage.I.C_DIR_CREATE:
-            try:
-                log.start_datetime = datetime.now()                        
+                    
+            elif self.cmd_type == Storage.I.C_DIR_CREATE:
                 result = self.dir_create()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
 
-        elif current_command_type == Storage.I.C_TAIL_FILE:
-            try:
-                log.start_datetime = datetime.now()
-                results = self.tail_file()                    
+            elif self.cmd_type == Storage.I.C_TAIL_FILE:
+                results = self.tail_file()   
+                # ouput tail line content to tube log file                 
                 tail_lines = results[0]
                 file = results[1]
                 lines_count = results[2]
@@ -4219,210 +3935,84 @@ class TubeCommand():
                     Storage.I.FILE_TAIL_LINES.append(header + file)
                 for line in tail_lines:
                     Storage.I.FILE_TAIL_LINES.append(line)
-                log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_CONNECT:
-            try:
-                log.start_datetime = datetime.now()                        
-                result = self.connect()  
-                if result == True:                      
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                Host.SSHConnection = None
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()              
-        
-        elif current_command_type == Storage.I.C_REPORT_PROGRESS:
-            try:                        
-                log.start_datetime = datetime.now()   
-                self.log.status = Storage.I.C_SUCCESSFUL                
-                tprint('Command Tube is reporting progress via e-mail settings... ', type=Storage.I.C_PRINT_TYPE_INFO)
-                # replace placeholders
-                self.content = self.self_format_placeholders(self.content) 
-                result = self.report_progress(Storage.I.TUBE_RUN)
-                if result == True:
-                    log.status = Storage.I.C_SUCCESSFUL
-                else:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()
-            except Exception as e:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()                    
-        
-        elif current_command_type == Storage.I.C_GET_FILE_KEY_VALUE:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
+                
+                # if no exceptions happen then return True    
+                result = True
+            
+            elif self.cmd_type == Storage.I.C_CONNECT:                                        
+                try:
+                    result = self.connect() 
+                except Exception as e:
+                    Host.SSHConnection = None
+                    raise Exception(e)           
+            
+            elif self.cmd_type == Storage.I.C_REPORT_PROGRESS:              
+                result = self.report_progress(Storage.I.TUBE_RUN)              
+            
+            elif self.cmd_type == Storage.I.C_GET_FILE_KEY_VALUE:
                 result, values = self.get_file_key_value()
-                if result == True:
-                    log.status = Storage.I.C_SUCCESSFUL
-                    for item in values:
-                        self.results.append(item)
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now() 
-        
-        elif current_command_type == Storage.I.C_EMAIL:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
+                # TODO: need to double check the results feature??
+                for item in values:
+                    self.results.append(item) 
+            
+            elif self.cmd_type == Storage.I.C_EMAIL:
                 result = self.send_email_via_command()
-                if result == True:
-                    log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now() 
-        
-        elif current_command_type == Storage.I.C_IMPORT_TUBE:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
-                result = self.import_tube(general_command_parser)
-                if result == True:
-                    log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_RUN_TUBE:
-            try:
-                log.start_datetime = datetime.now()
+            
+            elif self.cmd_type == Storage.I.C_RUN_TUBE:
                 log.status = Storage.I.C_RUNNING
                 self.run_tube(general_command_parser)
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_COUNT:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_SUCCESSFUL
-                result = self.count()
-                if result == False:
-                    log.status = Storage.I.C_FAILED
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_SET_VARIABLE:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_SUCCESSFUL
-                result = self.set_variable()
-                if result == False:
-                    log.status = Storage.I.C_SKIPPED
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_SFTP_GET or \
-                current_command_type == Storage.I.C_SFTP_PUT:
-            # Check if we have a valid ssh connection
-            if Host.SSHConnection == None:
-                msg = 'Please check your provide server information, ssh failed to connect to your server.'
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                log.end_datetime = datetime.now()
-                log.add_error(msg)
-                log.status = Storage.I.C_FAILED
-                Storage.I.LOGS.append(log)
-                return False 
+                result = True                   
             
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
+            elif self.cmd_type == Storage.I.C_COUNT:
+                result = self.count()
+            
+            elif self.cmd_type == Storage.I.C_SET_VARIABLE:
+                result = self.set_variable()
+            
+            elif self.cmd_type == Storage.I.C_SFTP_GET or \
+                    self.cmd_type == Storage.I.C_SFTP_PUT:
+                # Check if we have a valid ssh connection
+                if Host.SSHConnection == None:
+                    msg = 'Please check your provide server information, ssh failed to connect to your server.'
+                    raise Exception(msg)
+                
                 self.sftp_get_put(Host.SSHConnection)
-                log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()
-        
-        elif current_command_type == Storage.I.C_CHECK_CHAR_EXISTS:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
+                result = True 
+            
+            elif self.cmd_type == Storage.I.C_CHECK_CHAR_EXISTS:
                 self.check_char_exists()
-                log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()  
-        
-        elif current_command_type == Storage.I.C_REPLACE_CHAR:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
-                replaced_count = self.replace_char()
-                msg = 'There are \'%s\' items replaced.' % replaced_count
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-                log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now()   
-        
-        elif current_command_type == Storage.I.C_PRINT_VARIABLES:
-            try:
-                log.start_datetime = datetime.now()
-                log.status = Storage.I.C_FAILED
+                result = True                 
+            
+            elif self.cmd_type == Storage.I.C_REPLACE_CHAR:
+                result = self.replace_char()
+            
+            elif self.cmd_type == Storage.I.C_PRINT_VARIABLES:
                 self.print_variables()
-                log.status = Storage.I.C_SUCCESSFUL
-                log.end_datetime = datetime.now()                    
-            except Exception as e:
-                log.status = Storage.I.C_FAILED
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
-                log.add_error(str(e))
-                log.end_datetime = datetime.now() 
-                    
-        # not supported command found then log errors and continue next          
-        else:
-            log.status = Storage.I.C_FAILED 
-            self.is_failed_continue = True
-            msg = 'Not supported tube command found: ' + log.command.cmd_type
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-            log.add_error(msg)
-            Storage.I.LOGS.append(log)
-            return False
+                result = True                   
+                        
+            # not supported command found then log errors and continue next          
+            else:
+                log.status = Storage.I.C_FAILED 
+                self.is_failed_continue = True
+                msg = 'Not supported tube command found: ' + log.command.cmd_type
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
+                log.add_error(msg)
+                Storage.I.LOGS.append(log)
+                return False
 
-        return True
+            # ending the log status
+            if result == False:
+                log.status = Storage.I.C_FAILED
+            log.end_datetime = datetime.now()
+            
+            # set the final result of running method
+            return True
+        except Exception as e:
+            log.status = Storage.I.C_FAILED
+            tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
+            log.add_error(str(e))
+            log.end_datetime = datetime.now()
+            return True
         
     # ---- IMPORTANT RULE ------
     # The best time to format placesholder is when running this command
