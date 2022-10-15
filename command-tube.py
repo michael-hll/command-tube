@@ -8,6 +8,7 @@
 #     Email: michael_hll@outlook.com
 # Copyright: @2021 @2022 
 # ----------------------------------------------------------------
+from ctypes.wintypes import MSG
 import os
 import sys
 from os import path
@@ -1723,7 +1724,16 @@ class TubeCommand():
         key_result = self.update_key_value(key, return_val, is_force=is_force, is_global=is_global)
         if key_result == False:
             raise Exception('Update key-value failed: {0}:{1}'.format(key, return_val))
-           
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Get xml tag value: ' + str(return_val) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Get xml tag value successfully.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+
         return True
     
     def set_xml_tag_text(self):
@@ -1822,42 +1832,21 @@ class TubeCommand():
             # finally, write all contents to file
             with open(file_name, 'w') as f:
                 for line in lines:
-                    f.write(line)                  
+                    f.write(line)  
+
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'Set xml tag value successfully: ' + str(value)
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            else:
+                msg = 'Set xml tag value successfully.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+                
             return True
         else:
             raise Exception('XML file doesnot exist: ' + file_name)
-        return False
     
-    def get_package_version(self, url):
-        try:
-            package, start, end = '', '', ''
-            parser = self.tube_argument_parser
-            args, _ = parser.parse_known_args(self.content.split())
-            package = args.package[0]
-            start = args.start[0]
-            end = args.end[0]
-                
-            # replace placeholders
-            package = self.self_format_placeholders(package)
-            start = self.self_format_placeholders(start)
-            end = self.self_format_placeholders(end)
-
-            url += package + '/versions/%5B' + start + ',' + end + ')'
-            source = requests.get(url)
-            soup = BeautifulSoup(source.text, 'lxml')
-            resources = soup.find('resources')
-            resource_array = resources.find_all('resource')
-            if len(resource_array) > 0:
-                name = resource_array[0]['name']
-                return (package, name[len(package)+1:])
-            else:
-                return None
-        except Exception as e:
-            msg = 'Get package version failed:' + 'package=' + package
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            return None
-
     def set_file_key_value(self):
         '''
         For command: SET_FILE_KEY_VALUE
@@ -1941,13 +1930,20 @@ class TubeCommand():
                             f.write('\n' + line)
                         else:
                             f.write(line)
-                            
+                           
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 try:                    
                     file_content = Utility.read_file_content(file_name)
-                    tprint('File (%s) content: \n' % file_name + file_content, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    msg = 'File (%s) content: \n%s' % (file_name, file_content)
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 except Exception as ed:
                     tprint(str(ed), type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(ed))
+            else:
+                msg = 'Set file key value successfully.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             return_val = True    
         else:
             raise Exception('file not found: ' + file_name)   
@@ -2071,9 +2067,14 @@ class TubeCommand():
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 try:                    
                     file_content = Utility.read_file_content(file)
-                    tprint('File (%s) content: \n' % file + file_content, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    msg = 'File (%s) content: \n%s' % (file, file_content)
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 except Exception as ed:
-                    tprint(str(ed), type=Storage.I.C_PRINT_TYPE_DEBUG)              
+                    tprint(str(ed), type=Storage.I.C_PRINT_TYPE_DEBUG)    
+            else:
+                msg = 'Write line in file successfully:' + file
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)          
         else:
             raise Exception("file doesn't exist: " + file)
 
@@ -2178,9 +2179,14 @@ class TubeCommand():
                     f.write(line)                
         
             # log how many lines deleted
-            msg = 'Deleted %s lines.' % (str(deleted_count))
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'Deleted %s lines.' % (str(deleted_count))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+            else:
+                msg = 'Deleted %s lines.' % (str(deleted_count))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
         else:
             raise Exception("file doesn't exist: " + file)
 
@@ -2246,6 +2252,15 @@ class TubeCommand():
             key_result = self.update_key_value(variable, founded_line, is_force=is_force, is_global=is_global)
             if key_result == False:
                 raise Exception('Update key-value failed: {0}:{1}'.format(variable, founded_line))
+            
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'Read line in file successfully: ' + str(founded_line) 
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            else:
+                msg = 'Read line in file successfully.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
         else:
             # file not exists
@@ -2320,7 +2335,16 @@ class TubeCommand():
         with open(result, 'w') as f:
             for file in list_files:
                 f.write(file + '\n')
-                
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'List files successfully: ' + str(list_files) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'List files successfully.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)       
+
         return True
     
     def list_dirs(self):
@@ -2362,7 +2386,16 @@ class TubeCommand():
         with open(result, 'w') as f:
             for file in ls:
                 f.write(file + '\n')
-                
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'List directories successfully: ' + str(ls) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'List directories successfully.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+
         return True
     
     def file_exist(self):
@@ -2393,13 +2426,20 @@ class TubeCommand():
             msg = 'File {0} exists.'.format(file)
             if not value:
                 msg = 'File {0} doesnot exist.'.format(file)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        else:
+            msg = 'File {0} exists.'.format(file)
+            if not value:
+                msg = 'File {0} doesnot exist.'.format(file)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         # update tube variables dependantly
         key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
         if key_result == False:
             raise Exception('Update key-value failed: {0}:{1}'.format(var, value))  
+
         return True
     
     def file_pop(self):
@@ -2421,6 +2461,7 @@ class TubeCommand():
         # replace placeholders 
         file = self.self_format_placeholders(file)        
         
+        pop_line = None
         if os.path.exists(file):
             lines = None
             pop_line = None
@@ -2446,7 +2487,11 @@ class TubeCommand():
             raise Exception('File doesnot exists: {0}'.format(file))
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            msg = 'File was popped successfully' 
+            msg = 'File was popped successfully: ' + str(pop_line) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        else:
+            msg = 'File was popped successfully.'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
@@ -2482,8 +2527,12 @@ class TubeCommand():
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
         
-        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG: 
             msg = 'File was successfully append content: {0}'.format(value) 
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        else:
+            msg = 'File was successfully appended.'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
@@ -2517,6 +2566,10 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File was successfully pushed content: {0}'.format(value)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'File was successfully pushed.'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
@@ -2545,10 +2598,10 @@ class TubeCommand():
                 msg = 'File {0} was created.'.format(file)                
             else:
                 raise Exception('File doesnot exists: {0}'.format(file))
-            
-        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
+        # LOG message    
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         return True
     
@@ -2581,8 +2634,12 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File content was read successfully: {0}'.format(file)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
+        else:
+            msg = 'File content was read successfully.'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
         return True
     
     def file_delete(self):
@@ -2612,13 +2669,18 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} files.'.format(count)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
             if count > 0:
                 for file in deleted_files:
                     msg = file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+        else:
+            msg = 'Successfully deleted {0} files.'.format(count)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+
         return True
     
     def file_copy(self):
@@ -2648,8 +2710,13 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully copied {0} files.'.format(count)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+        else:
+            msg = 'Successfully copied {0} files.'.format(count)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
         return True
     
     def file_move(self):
@@ -2679,8 +2746,13 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully moved {0} files.'.format(count)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Successfully moved {0} files.'.format(count)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)     
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+
         return True
     
     def dir_exist(self):
@@ -2704,9 +2776,15 @@ class TubeCommand():
             msg = 'Directory {0} exists.'.format(directory)
             if not value:
                 msg = 'Directory {0} doesnot exist.'.format(directory)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
-             
+        else:
+            msg = 'Directory {0} exists.'.format(directory)
+            if not value:
+                msg = 'Directory {0} doesnot exist.'.format(directory)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+
         # update tube variables dependantly
         key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
         if key_result == False:
@@ -2735,9 +2813,13 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} directory: {1}.'.format(count, directory)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
-               
+        else:
+            msg = 'Successfully deleted {0} directory: {1}.'.format(count, directory)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+
         return True
     
     def dir_create(self):
@@ -2753,9 +2835,13 @@ class TubeCommand():
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Directory created successfully: {0}.'.format(directory)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:  
+            msg = 'Directory created successfully: {0}.'.format(directory)
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
-               
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+
         return True
        
     def tail_file(self):
@@ -2804,6 +2890,15 @@ class TubeCommand():
             
             if found_keyword == False:
                 return_lines = []
+
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'Tail file lines successfully: ' + return_lines
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            else:
+                msg = 'Tail file lines successfully.'
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
             return (return_lines, file, lines_count, keywords)
 
@@ -2839,7 +2934,16 @@ class TubeCommand():
                             Storage.I.EMAIL_RECEIVER_ADDRESS,
                             subject,
                             email_body,
-                            Storage.I.EMAIL_SMTP_SERVER)   
+                            Storage.I.EMAIL_SMTP_SERVER) 
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Report progress result: ' + str(result)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Report progress result: ' + str(result)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
         return result  
 
     def get_file_key_value(self):
@@ -2929,6 +3033,14 @@ class TubeCommand():
                                         raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
                                     key_values.append(key + '=' + value)
                                                    
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Get file key values successfully:\n' + str(key_values)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Get file key values successfully.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
         return True, key_values    
 
@@ -2962,6 +3074,15 @@ class TubeCommand():
         tprint('Tube is sending email to %s' % (to_list), type=Storage.I.C_PRINT_TYPE_INFO)   
         result = send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, to_list, 
                             subject, body, Storage.I.EMAIL_SMTP_SERVER)
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Sent email result: ' + str(result)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Sent email result: ' + str(result)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         return result == True
 
     def run_tube(self, continue_redo_parser: TubeArgumentParser):
@@ -2989,6 +3110,7 @@ class TubeCommand():
         if args.is_force:
             is_force = True
 
+        msg = ''
         # re for switching tube type
         p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
         p2 = '[a-zA-Z_0-9]+' # tube
@@ -3072,15 +3194,22 @@ class TubeCommand():
                         self.update_key_value_for_sub(key, value)
                                                         
                 reset_max_tube_command_type_length(self.tube_run)
-                self.tube_run_times = 0 # initial the tube running times to 0     
+                self.tube_run_times = 0 # initial the tube running times to 0    
+                msg = 'Run tube successfully: ' + tube 
             else:
                 for err in errors:
                     self.log.add_error(err)
                     self.log.status = Storage.I.C_FAILED  
+                msg = 'Run tube failed: ' + tube 
         else:
             # while condition return False
             self.log.status = Storage.I.C_SKIPPED   
             self.is_skip_by_while = True  
+            msg = 'Run tube was skipped: ' + tube 
+        
+        # print log message
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
     def create_tube_run(self, tube_yaml, tube_index, file, parent_tube_name = None):
         '''
@@ -3148,6 +3277,7 @@ class TubeCommand():
             key_result = self.update_key_value(variable, line_count, is_force=is_force, is_global=is_global)
             if key_result == False:
                 raise Exception('Update key-value failed: {0}:{1}'.format(variable, line_count))
+            msg = 'Count successfully: ' + str(line_count)
                   
         # case 2: count tube command count by status
         elif len(status_set) > 0:
@@ -3169,6 +3299,15 @@ class TubeCommand():
             key_result = self.update_key_value(variable, cmd_count, is_force=is_force, is_global=is_global)
             if key_result == False:
                 raise Exception('Update key-value failed: {0}:{1}'.format(variable, cmd_count))
+            msg = 'Count successfully: ' + str(cmd_count)
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'Count successfully.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
         return True
 
@@ -3292,14 +3431,15 @@ class TubeCommand():
                         # copy to local
                         sftp.get(afile, localfile_path)   
                         copy_count += 1
-                        msg = 'Remote file \'%s\' is transferred to local \'%s\' ' % (afile, localfile_path)
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
+                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                            msg = 'Remote file \'%s\' is transferred to local \'%s\' ' % (afile, localfile_path)
+                            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)    
                 
                 # log total copied files
                 msg = '%s files are copied to local.' % str(copy_count)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                                   
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                     
             elif self.cmd_type == Storage.I.C_SFTP_PUT:
                 if not star_char in localpath:
@@ -3334,10 +3474,11 @@ class TubeCommand():
                             else:
                                 remote_file_fullpath = remotepath + '/' + lfile
                             sftp.put(local_file_fullpath, remote_file_fullpath)   
-                            copy_count += 1                            
-                            msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (local_file_fullpath, remote_file_fullpath)
-                            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                            copy_count += 1     
+                            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:                       
+                                msg = 'Local file \'%s\' is transferred to remote \'%s\' ' % (local_file_fullpath, remote_file_fullpath)
+                                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                 
                 # log total copied files
                 msg = '%s files are copied to server.' % str(copy_count)
@@ -3387,6 +3528,10 @@ class TubeCommand():
             key_result = self.update_key_value(result, found, is_force=is_force, is_global=is_global)
             if key_result == False:
                 raise Exception('Update key-value failed: {0}:{1}'.format(result, found))
+
+        msg = 'Checking characters result: ' + str(found)
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     
     def replace_char(self) -> int:
         '''
