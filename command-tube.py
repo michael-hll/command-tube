@@ -78,7 +78,6 @@ class Storage():
         self.C_TAIL_FILE               = 'TAIL_FILE'
         self.C_REPORT_PROGRESS         = 'REPORT_PROGRESS'
         self.C_GET_FILE_KEY_VALUE      = 'GET_FILE_KEY_VALUE'
-        self.C_IMPORT_TUBE             = 'IMPORT_TUBE'
         self.C_EMAIL                   = 'EMAIL'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
@@ -245,19 +244,7 @@ Use 'help vars' to print all the given tube variables;
         # 8: action
         # 9: default 
         # LAST: description
-        self.TUBE_ARGS_CONFIG = { 
-            self.C_IMPORT_TUBE: {
-                self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ARG_SYNTAX: 'Syntax: IMPORT_TUBE: file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', '+', 'file', True, False, '', '',
-                        'Sub tube file with YAML format.'],
-                ],
-                self.C_CONTINUE_PARAMETER: True,
-                self.C_REDO_PARAMETER: True,
-                self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: '[Deprecated: Replaced by RUN_TUBE] Import tube commands from a sub-tube file, servers, variables or emails can also be imported.'
-            },  
+        self.TUBE_ARGS_CONFIG = {  
             self.C_RUN_TUBE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
@@ -2978,79 +2965,6 @@ class TubeCommand():
         result = send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, to_list, 
                             subject, body, Storage.I.EMAIL_SMTP_SERVER)
         return result == True
-
-    def import_tube(self, continue_redo_parser: TubeArgumentParser):
-        '''
-        For command: IMPORT_TUBE
-        '''
-        retrun_value = False
-        file = self.content
-        # replace placeholders
-        file = self.self_format_placeholders(file) 
-        insert_at_index = self.index
-        tube_check = []
-        with open(file, 'r') as f:
-            data = Utility.safe_load_yaml_with_upper_key(f)
-            if Storage.I.C_TUBE in data.keys():            
-                sub_tube = data[Storage.I.C_TUBE] 
-                
-                if not sub_tube or type(sub_tube) != list:
-                    msg = 'Tube file doesnot have any tube commands: ' + file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-                else:              
-                    # there is a bug here if imported tube for multiple times, like using --redo
-                    # the next_index is calculated wrong
-                    next_index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
-                    for item in sub_tube:
-                        for key in item.keys():
-                            sub_command = TubeCommand(key.upper(), item[key])
-                            sub_command.is_imported = True
-                            sub_command.self_tube_index = next_index
-                            sub_command.self_tube_file = os.path.abspath(file)
-                            Storage.I.TUBE_FILE_LIST[sub_command.self_tube_index] = sub_command.self_tube_file                
-                            tube_check.append(sub_command)
-            else:
-                # the 'TUBE' section doesn't exists from the sub-tube file
-                raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
-            
-            if Storage.I.C_SERVERS in data.keys():       
-                # Get servers to hosts
-                StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Servers hosts are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-
-            if Storage.I.C_VARIABLES in data.keys():
-                # Read variables 
-                StorageUtility.read_variables(data[Storage.I.C_VARIABLES]) 
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Tube variables are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
-            
-            if Storage.I.C_EMAIL in data.keys():
-                # read emails
-                StorageUtility.read_emails(data[Storage.I.C_EMAIL])
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Email configurations are updated by tube: %s.' % file
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-                
-        has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
-        if has_errors == False:
-            for sub_command in tube_check:
-                Storage.I.TUBE_RUN.insert(insert_at_index, sub_command)
-                insert_at_index += 1
-            Storage.I.MAX_TUBE_COMMAND_LENGTH = get_max_tube_command_type_length(Storage.I.TUBE_RUN)        
-            retrun_value = True
-        else:
-            for err in errors:
-                self.log.add_error(err)
-                self.log.status = Storage.I.C_FAILED       
-        
-        return retrun_value
 
     def run_tube(self, continue_redo_parser: TubeArgumentParser):
         '''
@@ -6126,7 +6040,7 @@ Tube:
     # Read key-value from a file and store them into tube variables
     - GET_FILE_KEY_VALUE: -f config.ini
     # Example of import commands from a sub tube 
-    - IMPORT_TUBE: sub-tube.yaml
+    - RUN_TUBE: sub-tube.yaml
     # Run a linux command, make sure the server is connected by CONNECT command
     - LINUX_COMMAND: ls
     # Example of go to a directory
