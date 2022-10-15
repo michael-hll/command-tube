@@ -7,8 +7,6 @@ TODO LIST
     - auto test each command script
     - check all command debug message
 
-- Refactor run method
-
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done
@@ -98,6 +96,8 @@ TODO LIST
         DIR_EXIST: -d|--directory directory         - done
         DIR_DELETE: -d                              - done
         DIR_CREATE: -d                              - done
+
+    36. - Refactor run method
 
 
 
