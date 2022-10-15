@@ -2,7 +2,7 @@ TODO LIST
 
 - System Test
     - auto test each command script
-    - check all command debug message
+    - check all command debug message       - done
 
 - DONE LIST
     1. Email content format - done

@@ -1262,7 +1262,15 @@ class Utility():
             else:
                 d_new[k] = d[k]
         return d_new
-                
+
+    @classmethod
+    def quoted_all_space_characters(self, value):
+        if value == None or value == '':
+            return '\'\''
+        if len(value) > 0 and value.strip() == 0:
+            return '\'' + value + '\''
+        else:
+            return value
 class reUtility():
     
     @staticmethod
@@ -1521,7 +1529,8 @@ class TubeCommand():
             if value == None:
                 value = ''
             self.tube_KEY_VALUES_DICT[key] = value   
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:         
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:     
+                value = Utility.quoted_all_space_characters(value)   
                 msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
@@ -3169,9 +3178,9 @@ class TubeCommand():
 
                     if Storage.I.C_VARIABLES in data.keys():
                         # Read variables 
-                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES], is_force=is_force) 
+                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES], command=self) 
                         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                            msg = 'Tube variables are updated by tube: %s.' % tube
+                            msg = 'Tube local variables are updated by tube: %s.' % tube
                             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                             write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
                     
@@ -3194,17 +3203,17 @@ class TubeCommand():
                                                         
                 reset_max_tube_command_type_length(self.tube_run)
                 self.tube_run_times = 0 # initial the tube running times to 0    
-                msg = 'Run tube successfully: ' + tube 
+                msg = 'Start sub tube successfully: ' + tube 
             else:
                 for err in errors:
                     self.log.add_error(err)
                     self.log.status = Storage.I.C_FAILED  
-                msg = 'Run tube failed: ' + tube 
+                msg = 'Start tube failed: ' + tube 
         else:
             # while condition return False
             self.log.status = Storage.I.C_SKIPPED   
             self.is_skip_by_while = True  
-            msg = 'Run tube was skipped: ' + tube 
+            msg = 'Sub tube was skipped: ' + tube 
         
         # print log message
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
@@ -3584,26 +3593,32 @@ class TubeCommand():
         return True
     
     def print_variables(self):
+        '''
+        Print global variables and it's tube variables
+        '''
 
         # print Global variables
         msg = '-- Global Variables --'
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        variables  = self.self_format_placeholders(self.content)
+        variables = variables.split(',')
+        variables = [var.strip() for var in variables]
+        
+        # print global variables
         for key in Storage.I.KEY_VALUES_DICT.keys():
-            if self.content == '*' or self.content == None or key.upper() in self.content.upper():
-                # get value
-                value = str(Storage.I.KEY_VALUES_DICT[key])
-                if value == ' ':
-                    value = '\' \''
-                if value == '':
-                    value = '\'\''
-                # get readonly
-                readonly = ''
-                if key in Storage.I.KEYS_READONLY_SET:
-                    readonly = ' (readonly)'
-                msg = '%s=%s %s' % (key, value, readonly)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            for var in variables:
+                if var == '*' or var.upper() == key.upper():
+                    # get value
+                    value = str(Storage.I.KEY_VALUES_DICT[key])
+                    value = Utility.quoted_all_space_characters(value)
+                    # get readonly
+                    readonly = ''
+                    if key in Storage.I.KEYS_READONLY_SET:
+                        readonly = ' (readonly)'
+                    msg = '%s=%s %s' % (key, value, readonly)
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         
         # print tube variabels
         if self.parent != None:
@@ -3612,25 +3627,23 @@ class TubeCommand():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             self.print_tube_variables(self.content)                
     
-    def print_tube_variables(self, names):
+    def print_tube_variables(self, variables):
         '''
         It will print it's parent scope variables and parent's parent
         '''
         if self.parent != None:
             for key in self.parent.tube_KEY_VALUES_DICT.keys():
-                if names == '*' or names == None or key.upper() in names.upper():
-                    # get value
-                    value = str(self.parent.tube_KEY_VALUES_DICT[key])
-                    if value == ' ':
-                        value = '\' \''
-                    if value == '':
-                        value = '\'\''
-                    msg = '[%s] %s=%s' % (self.parent_tube_name, key, value)
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+                for var in variables:
+                    if var == '*' or var.upper() == key.upper():
+                        # get value
+                        value = str(self.parent.tube_KEY_VALUES_DICT[key])
+                        value = Utility.quoted_all_space_characters(value)
+                        msg = '[%s] %s=%s' % (self.parent_tube_name, key, value)
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
             
             # to check if parent's parent has 
-            self.parent.print_tube_variables(names)          
+            self.parent.print_tube_variables(variables)          
     
     def self_report_progress(self):
         
@@ -4717,15 +4730,24 @@ class StorageUtility():
         return None
     
     @classmethod
-    def read_variables(self, variables, is_force=False):
+    def read_variables(self, variables, is_force=False, command: TubeCommand=None):
         '''
         Read tube variables from tube variable section.
+
+        Args:
+            varialbes: The variables from yaml config file
+            is_force: If update global tube variable force
+            command: If command is RUN_TUBE command then pass it, otherwise leave it None
         '''
         
         if(not variables or type(variables) is not dict):
             return
-        for key in variables.keys():
-            StorageUtility.update_key_value_dict(key, variables[key], is_force=is_force)  
+        if command == None or command.cmd_type != Storage.I.C_RUN_TUBE: # For global variables cases
+            for key in variables.keys():
+                StorageUtility.update_key_value_dict(key, variables[key], is_force=False)  
+        else: # For sub tube variables (local variables case)
+            for key in variables.keys():
+                command.update_key_value_for_sub(key, variables[key])
     
     @classmethod
     def add_default_variables(self):
