@@ -3845,6 +3845,7 @@ class TubeCommand():
             log = self.log   
             log.start_datetime = datetime.now()
             log.status = Storage.I.C_SUCCESSFUL
+            result = True
             # --------------------------------------------------------
             # Begin to run each tube command based on its command type
             # --------------------------------------------------------        
@@ -3935,9 +3936,6 @@ class TubeCommand():
                     Storage.I.FILE_TAIL_LINES.append(header + file)
                 for line in tail_lines:
                     Storage.I.FILE_TAIL_LINES.append(line)
-                
-                # if no exceptions happen then return True    
-                result = True
             
             elif self.cmd_type == Storage.I.C_CONNECT:                                        
                 try:
@@ -3961,7 +3959,6 @@ class TubeCommand():
             elif self.cmd_type == Storage.I.C_RUN_TUBE:
                 log.status = Storage.I.C_RUNNING
                 self.run_tube(general_command_parser)
-                result = True                   
             
             elif self.cmd_type == Storage.I.C_COUNT:
                 result = self.count()
@@ -3977,18 +3974,15 @@ class TubeCommand():
                     raise Exception(msg)
                 
                 self.sftp_get_put(Host.SSHConnection)
-                result = True 
             
             elif self.cmd_type == Storage.I.C_CHECK_CHAR_EXISTS:
                 self.check_char_exists()
-                result = True                 
             
             elif self.cmd_type == Storage.I.C_REPLACE_CHAR:
                 result = self.replace_char()
             
             elif self.cmd_type == Storage.I.C_PRINT_VARIABLES:
                 self.print_variables()
-                result = True                   
                         
             # not supported command found then log errors and continue next          
             else:
