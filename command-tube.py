@@ -4975,15 +4975,18 @@ class MatrixThread (threading.Thread):
 # -------- END OF CLASSES -------
 
 # --------- FUNCTIONS --------------------
-def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, splitchar=': '):
+def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, tcolor_back=None, splitchar=': '):
     
     '''
-    line: the string to output to the console
-    prefix: Any character print at the begining
-    type: it could be 'INFO', 'WARNING', 'ERROR' or ''
-    tcolor: the color of the main printed string
-    
-    return: prefix + type + line
+    Args:
+        line: the string to output to the console
+        prefix: Any character print at the begining
+        type: it could be 'INFO', 'WARNING', 'ERROR' or ''
+        tcolor: the color of the main printed string
+        tcolor_stype: the color style: ex: 'bright'
+        tcolor_back: color back end
+
+        output: prefix + type + line
     '''
     
     # return if in matrix terminal mode
@@ -4994,33 +4997,33 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, spli
     if os.name.startswith('nt') and not tcolor_style:
         tcolor_style = 'bright'
     
-    # deal with type color
+    # set default color type and prefix
     if type == Storage.I.C_PRINT_TYPE_WARNING:
-        type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_ORANGE, style=tcolor_style)
-        if not prefix:
+        type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_ORANGE, style=tcolor_style, back=tcolor_back)
+        if prefix:
             prefix = Storage.I.C_PRINT_PREFIX
     elif type == Storage.I.C_PRINT_TYPE_ERROR:
-        type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_RED, style=tcolor_style)
-        if not prefix:
+        type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_RED, style=tcolor_style, back=tcolor_back)
+        if prefix:
             prefix = Storage.I.C_PRINT_PREFIX
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             traces = traceback.format_exc()
             if not traces.startswith('NoneType'):
                 line += '\n' + traces
     elif type == Storage.I.C_PRINT_TYPE_INFO:
-        type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_BLUE, style=tcolor_style)
-        if not prefix:
+        type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_BLUE, style=tcolor_style, back=tcolor_back)
+        if prefix:
             prefix = Storage.I.C_PRINT_PREFIX
     elif type == Storage.I.C_PRINT_TYPE_DEBUG:
-        type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_PURPLE, style=tcolor_style)
-        if not prefix:
+        type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_PURPLE, style=tcolor_style, back=tcolor_back)
+        if prefix:
             prefix = Storage.I.C_PRINT_PREFIX
     else:
         type = Storage.I.C_PRINT_TYPE_EMPTY
     
     # deal with main color
     if tcolor:
-        line = color(line, fore=tcolor, style=tcolor_style)
+        line = color(line, fore=tcolor, style=tcolor_style, back=tcolor_back)
     
     # combine type + str    
     line = type + line
