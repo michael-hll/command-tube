@@ -12,6 +12,24 @@ TUBE:
     - RUN_TUBE: -t continue.yaml --continue  --note 7
     - RUN_TUBE: -t redo.yaml --continue --note 8
 
+    # TODO
+    # TAIL_FILE
+    # SFTP_PUT
+    # SFTP_GET
+    # SET_VARIABLE
+    # RUN_TUBE
+    # REPLACE_CHAR
+    # READ_LINE_IN_FILE
+    # PRINT_VARS
+    # LIST_FILES
+    # LIST_DIRS
+    # LINUX_COMMAND
+    # COMMAND
+    # FILE_READ, PUSH, POP, MOVE, EXIST, EMPTY, DELETE, COPY, APPEND
+    # DIR_EXIST, DELETE, CREATE
+    # CONNECT
+    # CHECK_CHAR_EXIST
+
     - PRINT_VARS: del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, redo_result
     - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 8

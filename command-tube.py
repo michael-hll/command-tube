@@ -103,7 +103,7 @@ class Storage():
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
-        self.C_TAIL_LINES_HEADER       = '\nTAIL '
+        self.C_TAIL_LINES_HEADER       = 'TAIL '
         self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
@@ -274,7 +274,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-l','--lines', 'str', 1, 'lines', True, False, '', '',
                         'The lines count you want to output.'],
                     [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
-                        'Output file content only if it contains the given keywords.'],                    
+                        'Output start from the given keywords.'],                    
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2864,52 +2864,59 @@ class TubeCommand():
         file = ' '.join(args.file)
         lines_count = args.lines[0]
         if args.keywords != None:
-            keywords = ' '.join(args.keywords)
+            keywords = [k.strip() for k in args.keywords]
+            keywords = ' '.join(keywords)            
             
         # replace placeholders
         file = self.self_format_placeholders(file)
-        keywords = self.self_format_placeholders(keywords)  
+        if keywords:
+            keywords = self.self_format_placeholders(keywords) 
+        
         lines_count = self.self_format_placeholders(str(lines_count))  
         lines_count = int(lines_count)
         
         return_lines = []
+        temp_lines = []
         try:
             if not path.exists(file):
                 raise Exception("File doesn't exist: " + file)
+            # get temp lines which has the same size of lines_count (if the source is big enough)
             with open(file, 'r', encoding='utf8') as f:
                 for line in f:
                     line = line.replace('\n', '')
                     if len(line) > 0:
-                        return_lines.append(line)
-                    if len(return_lines) > lines_count:
-                        return_lines.pop(0)
+                        temp_lines.append(line)
+                    if len(temp_lines) > lines_count:
+                        temp_lines.pop(0)
 
-            found_keyword = False
+            # get the first line that has of of the keywords
+            found_line = -1
             if keywords != None and len(keywords) > 0:
                 keywords_array = keywords.split(',')
-                for line in return_lines:
+                for i, line in enumerate(temp_lines):
                     for keyword in keywords_array:
                         if keyword.upper() in line.upper():
-                            found_keyword = True
+                            found_line = i
                             break
-                    if found_keyword == True:
+                    if found_line >= 0:
                         break
-            else:
-                found_keyword = True
             
-            if found_keyword == False:
-                return_lines = []
-
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                msg = 'Tail file lines successfully: ' + return_lines
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+            # decide returned lines
+            if found_line >= 0:
+                return_lines = temp_lines[i:]
             else:
-                msg = 'Tail file lines successfully.'
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+                return_lines = temp_lines
             
-            return (return_lines, file, lines_count, keywords)
+            if len(return_lines) > 0:
+                header = Storage.I.C_TAIL_LINES_HEADER + str(lines_count) + ' LINES FROM FILE [KEYWORDS:' + keywords + '] => '
+                tprint(header, prefix='')
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', header)
+                Storage.I.FILE_TAIL_LINES.append(header)
+            for line in return_lines:
+                tprint(line, prefix='')
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)
+                Storage.I.FILE_TAIL_LINES.append(line)            
+            return True
 
         except Exception as e:
             raise e
@@ -3992,19 +3999,7 @@ class TubeCommand():
                 result = self.dir_create()  
 
             elif self.cmd_type == Storage.I.C_TAIL_FILE:
-                results = self.tail_file()   
-                # ouput tail line content to tube log file                 
-                tail_lines = results[0]
-                file = results[1]
-                lines_count = results[2]
-                keywords = results[3]
-                if keywords == None:
-                    keywords = ''
-                if len(tail_lines) > 0:
-                    header = Storage.I.C_TAIL_LINES_HEADER + str(lines_count) + ' LINES FROM FILE [KEYWORDS: ' + keywords + ' ] => '
-                    Storage.I.FILE_TAIL_LINES.append(header + file)
-                for line in tail_lines:
-                    Storage.I.FILE_TAIL_LINES.append(line)
+                result = self.tail_file()   
             
             elif self.cmd_type == Storage.I.C_CONNECT:                                        
                 try:
@@ -5161,27 +5156,19 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, tcol
     if os.name.startswith('nt') and not tcolor_style:
         tcolor_style = 'bright'
     
-    # set default color type and prefix
+    # set default color type
     if type == Storage.I.C_PRINT_TYPE_WARNING:
         type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_ORANGE, style=tcolor_style, back=tcolor_back)
-        if prefix:
-            prefix = Storage.I.C_PRINT_PREFIX
     elif type == Storage.I.C_PRINT_TYPE_ERROR:
         type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_RED, style=tcolor_style, back=tcolor_back)
-        if prefix:
-            prefix = Storage.I.C_PRINT_PREFIX
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             traces = traceback.format_exc()
             if not traces.startswith('NoneType'):
                 line += '\n' + traces
     elif type == Storage.I.C_PRINT_TYPE_INFO:
         type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_BLUE, style=tcolor_style, back=tcolor_back)
-        if prefix:
-            prefix = Storage.I.C_PRINT_PREFIX
     elif type == Storage.I.C_PRINT_TYPE_DEBUG:
         type = color(type + splitchar,fore=Storage.I.C_PRINT_COLOR_PURPLE, style=tcolor_style, back=tcolor_back)
-        if prefix:
-            prefix = Storage.I.C_PRINT_PREFIX
     else:
         type = Storage.I.C_PRINT_TYPE_EMPTY
     
@@ -5193,8 +5180,12 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, tcol
     line = type + line
     
     # deal with prefix
-    if prefix:
-        line = prefix + splitchar + line        
+    if prefix == None:
+        line = Storage.I.C_PRINT_PREFIX + splitchar + line
+    elif prefix == '':
+        line = line      
+    else:
+        line = prefix + splitchar + line  
     
     # finally print it 
     print(line)
@@ -5371,15 +5362,15 @@ def output_tube_file_list(is_print=False, is_write_log=False):
         tube_name = item[0:item.index('=')]
         msg = '* [%s]: %s[%s]' % (str(k), file, tube_name)
         if is_print:
-            tprint(msg)
+            tprint(msg, prefix='')
         if is_write_log:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)            
 
 def print_logs(LOGS):
-    tprint()    
+    tprint(prefix='')    
     
     # print status of each command
-    tprint('----- Status of Each Command -----')    
+    tprint('----- Status of Each Command -----', prefix='')    
     seq = 0
     total_minutes = 0
     total_seconds = 0
@@ -5400,18 +5391,18 @@ def print_logs(LOGS):
     
     # print overall tube logs at the end
     # then it's easier for the user to see
-    tprint() 
-    tprint(Storage.I.C_FINISHED_HEADER, tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
-    tprint(calculate_success_failed_details(False))
-    tprint()   
+    tprint(prefix='') 
+    tprint(Storage.I.C_FINISHED_HEADER, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, prefix='')
+    tprint(calculate_success_failed_details(False), prefix='')
+    tprint(prefix='')   
     
     # print total running during time
     totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
     if total_seconds < 60:
         totals = '%s seconds' % str(total_seconds)
-    tprint('-------------------------------')
-    tprint('Total Time: %s' % totals)
-    tprint('-------------------------------')
+    tprint('-------------------------------', prefix='')
+    tprint('Total Time: %s' % totals, prefix='')
+    tprint('-------------------------------', prefix='')
 
 def check_if_key_command_exists(tube = []):
     '''
@@ -5730,7 +5721,7 @@ def prepare_emails_content_and_sent(LOGS):
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     msg = '--------------------------------'
-    tprint(msg)
+    tprint(msg, prefix='')
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
 def calculate_progress_status(commands) -> str:
@@ -5745,16 +5736,6 @@ def calculate_progress_status(commands) -> str:
             finished_count += 1
     
     return 'PROGRESS: (%s/%s)' % (str(finished_count), str(total_count))
-         
-def output_tail_lines(lines):
-    for line in lines:
-        if line.startswith(Storage.I.C_TAIL_LINES_HEADER):
-            tprint(line, type=Storage.I.C_PRINT_COLOR_ORANGE)
-        else:
-            tprint(line)
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)
-    if len(lines) > 0:
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', '-------------- END OF TAIL LINES --------------')
 
 def output_log_header():
     # Log start for xxx.yaml.log    
@@ -6254,14 +6235,14 @@ Tube:
                 found_match = False
                 if command_name == '' or command_name.upper() == 'ALL':
                     # print all help
-                    tprint(help_all)
+                    tprint(help_all ,prefix='')
                     for eg in command_examples:
-                        tprint(eg)  
-                    tprint(add_notes)                         
+                        tprint(eg ,prefix='')  
+                    tprint(add_notes ,prefix='')                         
                     sys.exit()
                 elif command_name.upper() == 'COMMANDS':
                     for eg in command_examples:
-                        tprint(eg)
+                        tprint(eg, prefix='')
                     sys.exit()
                 elif command_name.upper() == 'TEMPLATE':
                     # print template and write it to a file
@@ -6270,8 +6251,8 @@ Tube:
                         file = 'tube.template.yaml'
                         with open(file, 'w') as f:
                             f.write(template)
-                        tprint(template)
-                        tprint('# ' + file + ' is generated.')
+                        tprint(template,prefix='')
+                        tprint('# ' + file + ' is generated.',prefix='')
                     except Exception as e:
                         tprint('Generated template exception: ' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR) 
                 elif command_name.upper() == 'HELP':
@@ -6284,7 +6265,7 @@ Tube:
                             for eg in command_examples:
                                 f.write(eg + '\n')
                             f.write(add_notes)
-                        tprint(file + ' is generated.')
+                        tprint(file + ' is generated.' ,prefix='')
                     except Exception as e:
                         tprint('Generated readme exception: ' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR) 
                 elif command_name.upper() == 'VARS':
@@ -6317,13 +6298,13 @@ Tube:
                                         i = line.index(':')
                                         var_name = line[:i+1]
                                         var_value = line[i+1:]
-                                        tprint(color(var_name, fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + var_value)
+                                        tprint(color(var_name, fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + var_value, prefix='')
                                     continue
                                 elif var_start == True and not line.startswith(' '):
                                     break
                             # print default tube variables
                             for key in Storage.I.KEYS_DEFAULT:
-                                tprint(color(key + ': ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + str(Storage.I.KEY_VALUES_DICT[key]))                                                        
+                                tprint(color(key + ': ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + str(Storage.I.KEY_VALUES_DICT[key]) ,prefix='')                                                        
                         sys.exit()
                     except Exception as e:
                         tprint('Read variables from yaml file errors:' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
@@ -6358,23 +6339,23 @@ Tube:
                         if command_name.upper() in key:
                             found_match = True        
                             index += 1        
-                            tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
-                            tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n')
-                            tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG))                   
-                            tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG))
-                            tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])                            
-                            tprint(Storage.I.C_STATUS_LINE)
+                            tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW ,prefix='')
+                            tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n' ,prefix='')
+                            tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')                   
+                            tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')
+                            tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION] ,prefix='')                            
+                            tprint(Storage.I.C_STATUS_LINE ,prefix='')
                     if found_match == True:
-                        tprint(add_notes)
+                        tprint(add_notes ,prefix='')
                 # found nothing match from help system
                 # then raise error
                 if found_match == False:                    
                     tprint('The command: %s doesnot found matched.' % (command_name), type=Storage.I.C_PRINT_TYPE_WARNING)
-                    tprint(Storage.I.C_HELP)
+                    tprint(Storage.I.C_HELP ,prefix='')
                 
             else:
                 # help arguments count is not correct or not equal to HELP
-                tprint(Storage.I.C_HELP)
+                tprint(Storage.I.C_HELP ,prefix='')
                 tprint('You entered value for help system: ' + str(args.help), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
 
             sys.exit()
@@ -6763,7 +6744,6 @@ while Storage.I.IS_STOP == False:
         if Storage.I.IS_SENT_EMAIL:
             prepare_emails_content_and_sent(Storage.I.LOGS)
         output_disk_space_check()
-        output_tail_lines(Storage.I.FILE_TAIL_LINES)
         
         # In loop mode, we need to update the next run time
         # do this time updates just on each iteration is fully done
