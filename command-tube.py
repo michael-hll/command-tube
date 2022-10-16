@@ -100,6 +100,7 @@ class Storage():
         self.C_FILE_DELETE             = 'FILE_DELETE'
         self.C_FILE_COPY               = 'FILE_COPY'
         self.C_FILE_MOVE               = 'FILE_MOVE'
+        self.C_FILE_CREATE             = 'FILE_CREATE'
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
@@ -356,6 +357,18 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Clear an existing text file or create a new empty file.'                
+            },
+            self.C_FILE_CREATE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: FILE_CREATE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The text file name you want to create.'],            
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Create an empty file.'                
             },
             self.C_FILE_READ: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -2544,7 +2557,7 @@ class TubeCommand():
         return True
     
     def file_empty(self):
-        file, value = None, None
+        file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
@@ -2572,6 +2585,27 @@ class TubeCommand():
             
         return True
     
+    def file_create(self):
+        file = None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(inputs.split())
+        file = ' '.join(args.file)
+                 
+        msg = ''
+        if not os.path.exists(file):            
+            with open(file, 'w+') as f:                
+                f.write('')                   
+            msg = 'File {0} was created.'.format(file)
+        else:            
+            raise Exception('File already exists: {0}'.format(file))
+
+        # LOG message    
+        tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        return True
+
     def file_read(self):
         file, var = None, None
         parser = self.tube_argument_parser
@@ -3081,7 +3115,7 @@ class TubeCommand():
                 else:    
                     raise Exception('The tube :\'{0}\' doesnot exists.'.format(file)) 
             elif tube_type == 2: # tube
-                file = Storage.I.TUBE_YAML_FILE
+                file = self.self_tube_file
                 tube_name = tube.upper()
                 exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
                 if exists:
@@ -3296,7 +3330,7 @@ class TubeCommand():
         else:
             # this is for the set_variable within a sub tube
             if self.parent:
-                self.parent.update_sub_tube_key_value(name, value)
+                self.parent.update_key_value_for_sub(name, value)
         
         return True
 
@@ -3871,6 +3905,9 @@ class TubeCommand():
                     
             elif self.cmd_type == Storage.I.C_FILE_EMPTY:                      
                 result = self.file_empty()  
+            
+            elif self.cmd_type == Storage.I.C_FILE_CREATE:                      
+                result = self.file_create()  
                     
             elif self.cmd_type == Storage.I.C_FILE_READ:                      
                 result = self.file_read()  

@@ -1,5 +1,7 @@
 TODO LIST
 
+
+
 - System Test
     - auto test each command script
     - check all command debug message       - done
@@ -87,6 +89,7 @@ TODO LIST
         FILE_DELETE: -f|--file                                      - done
         FILE_COPY: -f|--file file -t|--to to (file or directory)    - done
         FILE_MOVE: -f|--file file -t|--to to (file or directory)    - done
+        FILE_CREATE: -f file                                        - done                                    
 
     35. - DIR
         exists, delete, copy, move, create. etc
