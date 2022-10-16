@@ -1767,14 +1767,6 @@ class TubeCommand():
         xpath = ' '.join(args.xpath)
         value = ' '.join(args.value)
         
-        # get value from dict
-        if value.startswith('$'):
-            if value[1:] in Storage.I.KEY_VALUES_DICT.keys():
-                value = value[1:]            
-                value = Storage.I.KEY_VALUES_DICT[value]   
-            else:
-                raise Exception('Value not found for key: ' + value)
-        
         # local variables
         temp_namespace = 'temp_ns_attrib_name'
         
