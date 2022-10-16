@@ -1986,10 +1986,13 @@ class TubeCommand():
         # write line content to file
         if os.path.exists(file):
             lines = []
+            is_new_line = '\n'
             # If not in append mode, then read original lines into memory
-            if is_append_mode == False:
-                with open(file,'r') as f:
-                    lines = f.readlines()
+            with open(file,'r') as f:
+                lines = f.readlines()
+                if lines and len(lines) > 0:
+                    if not lines[len(lines)-1].endswith('\n'):
+                        is_new_line = ''
             if is_append_mode == False and lines and len(lines) > 0:                      
                 no = 0
                 updated = False
@@ -2036,7 +2039,7 @@ class TubeCommand():
                     else:                    
                         lines.append('\n' + line_content)                
             else:
-                # appand to an empty file
+                # appand mode
                 lines = []
                 if line_content == Storage.I.C_NEW_LINE_AFTER or \
                 line_content == Storage.I.C_NEW_LINE_BEFORE:
@@ -2044,7 +2047,11 @@ class TubeCommand():
                 elif line_content == Storage.I.C_DELETE_LINE:
                     return True
                 else:
-                    lines.append('\n' + line_content)
+                    if is_new_line == '':
+                        line_content = '\n' + line_content
+                    else:
+                        line_content = line_content + is_new_line
+                    lines.append(line_content)
             
             # overwrite new lines into file
             with open(file, write_mode) as f:

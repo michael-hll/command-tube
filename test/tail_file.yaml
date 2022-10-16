@@ -1,0 +1,9 @@
+Tube:
+    - SET_VARIABLE: -n i -v 0 -g
+    - FILE_EMPTY: -f tail.txt -c
+    - RUN_TUBE: -t CREATE_TEST_FILE -w {i} < 10
+    
+
+CREATE_TEST_FILE:
+    - SET_VARIABLE: -n i -v {i} + 1 -g
+    - WRITE_LINE_IN_FILE: -f tail.txt -v line {i}
