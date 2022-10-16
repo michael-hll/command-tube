@@ -877,22 +877,22 @@ class Utility():
         '''
         *exts: if file doesn't exist than check if file+ext exits
         
-        Return (exists, file)
+        Return (exists, file_full_path)
         '''
         f = file
         # exists
         if path.exists(f) and not path.isdir(f):
-            return (True, f)
+            return (True, os.path.abspath(f))
         if path.exists(f) and path.isdir(f):
             # then try exts
             for ext in exts:
                 if path.exists(f + ext) and not path.isdir(f + ext):
-                    return(True, f + ext)
+                    return(True, os.path.abspath(f + ext))
         # not exists
         if not path.exists(f):
             for ext in exts:
                 if path.exists(f + ext) and not path.isdir(f + ext):
-                    return(True, f + ext)        
+                    return(True, os.path.abspath(f + ext))
         return (False, f)
 
     @classmethod
@@ -1458,7 +1458,7 @@ class TubeCommand():
         self.self_tube_file             = ''         
         # the follow properties starts with 'tube'
         # are owned by RUN_TUBE command
-        self.tube                       = None # keep the whole commands
+        self.tube: Tube                 = None # keep the whole commands
         self.tube_run                   = None # keep the commands in current iteration
         self.tube_yaml                  = None # keep the yaml tube format
         self.tube_run_times             = None
@@ -1547,23 +1547,25 @@ class TubeCommand():
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
     
-    def update_key_value(self, key, value, is_override=True, is_force=False, is_global=False) -> bool:
+    def update_key_value(self, key, value, is_override=True, is_force=False, is_readonly=False, is_global=False) -> bool:
         '''
-        If the command is in sub tube, then udpate the key value into sub tube.
-        Otherwise update the key value into the global tube variables.
+        If is_global is true, then udpate the key,value in global 
+        Otherwise update the key,value in current command's tube scope
         
         Args:
-            key: the key you want to update
-            value: the value of the key
-            is_override: For global variable, if override existing variable value. Default Yes.
-            is_force: For global readonly variable if do a update. Default No.
-            is_global: If udpate tube variable globally. Default No.
+            key: The key you want to update
+            value: The value of the key
+            is_override: Is override existing key.
+            is_force: Is update readonly key.
+            is_readonly: Is set the key as readonly in its scope.
+            is_global: If update the key,value in global scope.
         '''
-        if is_global == True or self.parent == None:
-            return StorageUtility.update_key_value_dict(key, value, self, is_override=is_override, is_force=is_force)
+        if is_global == True:
+            return StorageUtility.update_key_value_dict(key, value, 
+                    command=self, is_override=is_override, is_force=is_force, is_readonly=is_readonly)
         else:
-            self.parent.update_key_value_for_sub(key, value)
-            return True
+            return self.tube.update_key_value(key, value, 
+                    is_force=is_force, is_readonly=is_readonly, is_override=is_override)
                   
     def get_formatted_status(self) -> str:
         '''
@@ -3302,38 +3304,7 @@ class TubeCommand():
         except Exception as e:
             pass
 
-        # check input parameter
-        if not name:
-            raise Exception('Parameter -n (name) is missing.')
-        
-        if self.parent == None or is_global == True:
-            # this is for the normal tube command case
-            # check if variable has been updated from console inputs
-            if is_force == False and name in Storage.I.KEYS_READONLY_SET:
-                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable (--force) argument.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-                return False
-            
-            # update key value dict
-            if is_force:
-                StorageUtility.update_key_value_dict(name, value, is_force=True)
-            else:
-                StorageUtility.update_key_value_dict(name, value)
-            
-            # check if mark variable as readonly
-            if is_readonly == True and not name in Storage.I.KEYS_READONLY_SET:
-                # Flag it has been updated to readonly
-                Storage.I.KEYS_READONLY_SET.add(name)
-                msg = 'Variable (%s:%s) is set to readonly.' % (name, str(Storage.I.KEY_VALUES_DICT[name]))
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-        else:
-            # this is for the set_variable within a sub tube
-            if self.parent:
-                self.parent.update_key_value_for_sub(name, value)
-        
-        return True
+        return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
     def sftp_get_put(self, ssh):
         '''
@@ -3777,7 +3748,7 @@ class TubeCommand():
             if not line:
                 break
             line = line.replace('\n', '')                    
-            tprint(line)
+            tprint(line, prefix='')
             # log details to tube log file
             if args.is_log_detail:
                 lines = line.split('\r')
@@ -3828,7 +3799,7 @@ class TubeCommand():
             line = line.replace('\n', '')
             if not line:
                 break
-            tprint(line)
+            tprint(line, prefix='')
             log.errors.append(line)                       
 
         # terminate the process and get running result 
@@ -4243,29 +4214,68 @@ class Tube():
     KEY_VALUES_DICT = {} 
     KEYS_READONLY_SET = ()
 
-    def __init__(self, file, name, index, parent=None):
+    def __init__(self, file, name, index, tube_yaml, parent=None):
+        '''
+        Args:
+            file: Tube full file name
+            name: Tube name within that file
+            index: Tube index
+            tube_yaml: Tube commands with YAML format
+            parent: Parent tube instance
+        '''
         self.tube_file      = file
         self.tube_name      = name
         self.tube_index     = index
         self.parent         = parent
-        self.tube_run       = []     
-        self.tube_yaml      = []
+        self.tube_yaml      = tube_yaml
+        self.tube_run       = self.__gen_tube_run()
 
-    def update_key_value(self, key, value):
-        pass
-          
+    def __gen_tube_run(self, tube_yaml=None):
+        '''
+        Convert tube from yaml format to TubeCommand list
+        
+        args:
+            tube_yaml: the tube command list from yaml file
+        '''
+        
+        tube_new = []
+        
+        # check empty tube commands
+        if not self.tube_yaml:
+            return tube_new
+        
+        # go through each tube command and added
+        for item in self.tube_yaml:            
+            for key in item.keys():                  
+                command = TubeCommand(key.upper(), item[key])
+                command.self_tube_file = self.tube_file
+                command.self_tube_index = self.tube_index
+                command.tube = self
+                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = self.tube_name + '=' + self.tube_file
+                tube_new.append(command) 
+                
+        # update max command type length
+        reset_max_tube_command_type_length(tube_new)
+        return tube_new 
+
+    def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False):
+        StorageUtility.update_key_value_dict(key, value, 
+            tube=self, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+       
 class TubeRunner():
     
-    def __init__(self, is_main = True, run_tube_command = None):
+    def __init__(self, is_main = True, run_tube_command: TubeCommand = None, tube: Tube = None):
         '''
         Args:
             is_main: If the runner starts from main job. Default Yes.
             run_tube_command: The RUN_TUBE command reference that starts this runner
+            tube: The tube instance runner could run
         '''
         
-        self.pre_command      = None
-        self.is_main          = is_main
-        self.run_tube_command = run_tube_command
+        self.pre_command: TubeCommand      = None
+        self.is_main                       = is_main
+        self.run_tube_command: TubeCommand = run_tube_command
+        self.tube: Tube                    = tube
     
     def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0, command=None):
         # print current while conditions in debug mode        
@@ -4313,12 +4323,9 @@ class TubeRunner():
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
             self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
     
-    def start(self, tube_run):
+    def start(self, tube_run=None):
         '''
-        Run a tube.
-        
-        Args:
-            tube: The TubeCommand list that you want to run            
+        Run a tube.          
         '''
         
         # increase the total interation times
@@ -4327,7 +4334,7 @@ class TubeRunner():
         
         # Loop each command within the tube and run it    
         command: TubeCommand
-        for index, command in enumerate(tube_run): 
+        for index, command in enumerate(self.tube.tube_run): 
             command.index = index + 1  
             # add a link if the tube runner is started a sub tube
             # linke the each sub tube command with the RUN_TUBE command
@@ -6457,10 +6464,10 @@ def job_start(tube_yaml):
         
         # revert tube command list to initial status
         # the new command list Storage.I.TUBE_RUN will be used in each loop
-        Storage.I.TUBE_RUN = convert_tube_to_new(tube_yaml, True)
+        tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, tube_yaml, None)
         
-        runner = TubeRunner()
-        runner.start(Storage.I.TUBE_RUN)
+        runner = TubeRunner(is_main=True, run_tube_command=None, tube=tube)
+        runner.start()
                    
     except Exception as e:
         msg = 'Exceptions found within job_start: ' + str(e)
@@ -6532,7 +6539,7 @@ if(args.yaml_config != None):
     # check if they exists
     yaml_file = args.yaml_config
     exists, yaml_file = Utility.check_file_exists(yaml_file, '.yaml', '.yml')       
-    Storage.I.TUBE_YAML_FILE = yaml_file 
+    Storage.I.TUBE_YAML_FILE = yaml_file
     if(exists == True):
         if args.log_file == None:
             Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, Storage.I.TUBE_YAML_FILE + '.log')
