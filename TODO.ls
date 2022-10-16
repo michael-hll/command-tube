@@ -1,6 +1,10 @@
 TODO LIST
 
+- SET_VARIABLE
+    local variable should be available in itself and its parent tube
 
+- TAIL_FILE
+    should support -r|--result argument to store the tail lines into result file    
 
 - System Test
     - auto test each command script

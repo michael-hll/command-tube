@@ -4,15 +4,15 @@ Variables:
 TUBE:
     - PATH: /Volumes/MacDrive/Projects/tube/test
     # TESTING VIA SUB TUBES
-    # - RUN_TUBE: -t del_line.yaml --continue  --note 1
-    # - RUN_TUBE: -t email.yaml --continue  --note 2
-    # - RUN_TUBE: -t get_file_key_value.yaml --continue  --note 3
-    # - RUN_TUBE: -t set_file_key_value.yaml --continue  --note 4
-    # - RUN_TUBE: -t write_line.yaml --continue  --note 5
-    # - RUN_TUBE: -t if.yaml --continue  --note 6
-    # - RUN_TUBE: -t continue.yaml --continue  --note 7
-    # - RUN_TUBE: -t redo.yaml --continue --note 8
-    - RUN_TUBE: -t tail_file.yaml --continue --note 9
+    - RUN_TUBE: -t del_line.yaml --continue  --note 1
+    - RUN_TUBE: -t email.yaml --continue  --note 2
+    - RUN_TUBE: -t get_file_key_value.yaml --continue  --note 3
+    - RUN_TUBE: -t set_file_key_value.yaml --continue  --note 4
+    - RUN_TUBE: -t write_line.yaml --continue  --note 5
+    - RUN_TUBE: -t if.yaml --continue  --note 6
+    - RUN_TUBE: -t continue.yaml --continue  --note 7
+    - RUN_TUBE: -t redo.yaml --continue --note 8
+    #- RUN_TUBE: -t tail_file.yaml --continue --note 9
 
     # TODO
     # TAIL_FILE

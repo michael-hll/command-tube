@@ -2,9 +2,11 @@ Tube:
     - SET_VARIABLE: -n tmp_file -v tail.txt
     - SET_VARIABLE: -n i -v 0 -g
     - FILE_EMPTY: -f {tmp_file} -c
-    - RUN_TUBE: -t CREATE_TEST_FILE -w {i} < 10
+    - RUN_TUBE: -t CREATE_TEST_FILE -w {i} < 2
     - FILE_DELETE: -f {tmp_file}
-    
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    - SET_VARIABLE: -n tail_file -v Testing Pass  -g --if {success_nums}==5
+    - SET_VARIABLE: -n tail_file -v Testing Failed -g --if {success_nums}!=5    
 
 CREATE_TEST_FILE:
     - SET_VARIABLE: -n i -v {i} + 1 -g

@@ -1282,6 +1282,7 @@ class Utility():
             return '\'' + value + '\''
         else:
             return value
+            
 class reUtility():
     
     @staticmethod
@@ -4237,6 +4238,22 @@ class TubeCommandLog:
         for err in self.errors:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', err)          
 
+class Tube():
+
+    KEY_VALUES_DICT = {} 
+    KEYS_READONLY_SET = ()
+
+    def __init__(self, file, name, index, parent=None):
+        self.tube_file      = file
+        self.tube_name      = name
+        self.tube_index     = index
+        self.parent         = parent
+        self.tube_run       = []     
+        self.tube_yaml      = []
+
+    def update_key_value(self, key, value):
+        pass
+          
 class TubeRunner():
     
     def __init__(self, is_main = True, run_tube_command = None):
@@ -4474,7 +4491,7 @@ class Host():
 class StorageUtility():
 
     @classmethod
-    def update_key_value_dict(self, key, value, command: TubeCommand=None, is_force=False, 
+    def update_key_value_dict(self, key, value, command: TubeCommand=None, tube: Tube=None, is_force=False, 
                               is_override=True, override_reason='It\'s not allowed to override this key.',
                               is_readonly=False):
         '''
@@ -4485,6 +4502,8 @@ class StorageUtility():
         Parameters:
             key: The key you want to update
             value: The key's value, if None then empty string will be used
+            command: The command triger this update
+            tube: Which tube to update the key value
             is_force: If true it will always update the value. Default False.
             is_override: If update value if key already exists. Default True.
             override_reason: The reason user can't update this key.
@@ -4498,37 +4517,48 @@ class StorageUtility():
         # check value is None
         if value == None:
             value = ''
+
+        # reference the right key-value dict
+        key_values_dict = None
+        keys_readonly_set = None
+        if tube == None:
+            key_values_dict = Storage.I.KEY_VALUES_DICT
+            keys_readonly_set = Storage.I.KEYS_READONLY_SET
+        else:
+            key_values_dict = tube.KEY_VALUES_DICT
+            keys_readonly_set = tube.KEYS_READONLY_SET
                         
         # check if force
         if is_force:
             is_override = True
         
         # check override
-        if is_override == False and key in Storage.I.KEY_VALUES_DICT.keys():
+        if is_override == False and key in key_values_dict.keys():
             msg = override_reason
             tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
             return False 
         
         # update the key value
-        updated = False        
-        if not key in Storage.I.KEYS_READONLY_SET:
-            Storage.I.KEY_VALUES_DICT[key] = value
+        updated = False   
+        # If not in the readonly set then udpate directly     
+        if not key in keys_readonly_set:
+            key_values_dict[key] = value
             updated = True
         else:
             if is_force == False:
-                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable (--forece) argument.' % (key, str(Storage.I.KEY_VALUES_DICT[key]))
+                msg = 'Variable (%s:%s) is readonly, you cannot update except use the set_variable (--forece) argument.' % (key, str(key_values_dict[key]))
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
             else:
-                Storage.I.KEY_VALUES_DICT[key] = value
+                key_values_dict[key] = value
                 updated = True        
         
         # give an note if the key-value dict was udpated        
         if updated:
             # if updte the variable in readonly 
-            if is_readonly and not key in Storage.I.KEYS_READONLY_SET:
-                Storage.I.KEYS_READONLY_SET.add(key)
+            if is_readonly and not key in keys_readonly_set:
+                keys_readonly_set.add(key)
                 
             # give a warning that the key-value was overrode from the memory
             forced = ' '
