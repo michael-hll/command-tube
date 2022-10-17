@@ -12,7 +12,7 @@ TUBE:
     - RUN_TUBE: -t if.yaml --continue  --note 6
     - RUN_TUBE: -t continue.yaml --continue  --note 7
     - RUN_TUBE: -t redo.yaml --continue --note 8
-    #- RUN_TUBE: -t tail_file.yaml --continue --note 9
+    - RUN_TUBE: -t tail_file.yaml --continue --note 9
 
     # TODO
     # TAIL_FILE
@@ -34,6 +34,7 @@ TUBE:
     # SFTP_GET
 
     - PRINT_VARS: del_line_result, email_result, get_file_key_value_result, 
-        set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, redo_result
-    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 8
-    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 8
+        set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
+        redo_result, tail_file
+    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 9
+    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 9

@@ -1522,6 +1522,9 @@ class TubeCommand():
             # if found exists parent tubes has this key, then update the first found tube
             if exists:
                 return tube_temp.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+            else:
+                # else we set the global key-value to the root tube
+                return Storage.I.TUBE_LIST[0].update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
 
         # if not found from parent tubes, then update the key-value in current tube
         return self.tube.update_key_value(key, value, 
@@ -4329,14 +4332,14 @@ class TubeRunner():
               
             # support --redo arguments logic
             if command.is_failed_redo == True and log.status == Storage.I.C_FAILED:
-                TubeCommandUtility.insert_failed_redo_commands(tube_run, index, command)
+                TubeCommandUtility.insert_failed_redo_commands(self.tube.tube_run, index, command)
             elif command.is_failed_redo == True and log.status == Storage.I.C_SUCCESSFUL and \
                  command.redo_steps > 0:
-                TubeCommandUtility.insert_success_redo_commands(tube_run, index, command)                
+                TubeCommandUtility.insert_success_redo_commands(self.tube.tube_run, index, command)                
                     
             # check continue conditional skip steps at the end of each command
             if command.is_failed_continue:
-                TubeCommandUtility.reset_command_skip(tube_run, command)        
+                TubeCommandUtility.reset_command_skip(self.tube.tube_run, command)        
             
             # if command failed and errors then output to log
             if log.status == Storage.I.C_FAILED:
@@ -4795,8 +4798,9 @@ class TubeCommandUtility():
         # insert redo command first
         command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
         command_new.is_redo_added = True
-        command_new.is_imported = redo_command.is_imported
         command_new.original_uuid = redo_command.uuid
+        command_new.tube = redo_command.tube
+        command_new.sub_tube = redo_command.sub_tube 
         
         tube_run.insert(redo_command_index + 1, command_new ) 
         
@@ -4815,8 +4819,9 @@ class TubeCommandUtility():
                 continue
             command_new = TubeCommand(command.cmd_type, command.original_content)
             command_new.is_redo_added = True
-            command_new.is_imported = redo_command.is_imported
-            command_new.original_uuid = command.uuid      
+            command_new.original_uuid = command.uuid 
+            command_new.tube = command.tube
+            command_new.sub_tube = command.sub_tube   
             back_commands.insert(0, command_new)
             count += 1
             if count >= back_steps:
@@ -4840,8 +4845,9 @@ class TubeCommandUtility():
         for i in range(1, redo_command.redo_steps):
             command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
             command_new.is_redo_added = True
-            command_new.is_imported = redo_command.is_imported
             command_new.original_uuid = redo_command.uuid
+            command_new.tube = redo_command.tube
+            command_new.sub_tube = redo_command.sub_tube
         
             tube_run.insert(redo_command_index + i, command_new ) 
 
