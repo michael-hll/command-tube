@@ -1460,18 +1460,7 @@ class TubeCommand():
         # are owned by RUN_TUBE command
         self.tube: Tube                 = None # The current command's tube container
         self.sub_tube: Tube             = None # The RUN_TUBE command points to the sub tube
-        self.tube_run                   = None # keep the commands in current iteration
-        self.tube_yaml                  = None # keep the yaml tube format
-        self.tube_run_times             = None
-        self.tube_conditions            = None          
-        self.tube_index                 = 0
-        self.tube_file                  = '' 
-        self.tube_name                  = '' # this is used for RUN_TUBE command
-        self.tube_KEY_VALUES_DICT: dict = {} # to store sub tube variables, (locatl/scope variables)
-        self.parent: TubeCommand        = None # The parent RUN_TUBE command
-        self.parent_tube_name           = 'TUBE'
         self.loop_index                 = -1
-        self.is_imported                = False # TODO 
         
         # Private properties
         self.__original_content2   = None # content without place holders        
@@ -1567,7 +1556,7 @@ class TubeCommand():
         Remove the placehoders form the content and return
         '''
         loop_status = ''
-        if self.parent != None and self.parent.tube_conditions != None and self.loop_index > 0:
+        if self.tube != None and self.tube.tube_conditions != None and self.loop_index > 0:
             loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
             if self.__original_content2 == None:
@@ -3734,6 +3723,7 @@ class TubeCommand():
     
     def run(self):        
         
+        log = self.log 
         try:
             # Log current running step
             running_command = ' [%s] >>> %s'
@@ -3742,8 +3732,7 @@ class TubeCommand():
             tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
-            # initial logs
-            log = self.log   
+            # initial logs             
             log.start_datetime = datetime.now()
             log.status = Storage.I.C_SUCCESSFUL
             result = True
@@ -4273,8 +4262,7 @@ class TubeRunner():
             # add a link if the tube runner is started a sub tube
             # linke the each sub tube command with the RUN_TUBE command
             if self.is_main == False:
-                command.parent = self.run_tube_command   
-                command.loop_index = self.run_tube_command.tube_run_times  
+                command.loop_index = self.tube.tube_run_times  
 
             # get log instance reference
             log = command.log
@@ -4373,7 +4361,7 @@ class TubeRunner():
                 self.__output_while_condition(True, command.sub_tube.tube_conditions, command.sub_tube.tube_run_times, command=command)  
                 # start the sub tube runner
                 runner = TubeRunner(False, command, command.sub_tube)                 
-                runner.start(command.tube_run)
+                runner.start()
 
         # during the end of sub tube running
         # we need to check while condition again
@@ -5793,10 +5781,10 @@ def install_3rd_party_packages(args):
         print(msg)
         sys.exit()
 
-def reset_max_tube_command_type_length(tube):
-    if tube == None or len(tube) == 0:
+def reset_max_tube_command_type_length(tube_command_list):
+    if tube_command_list == None or len(tube_command_list) == 0:
         return Storage.I.MAX_TUBE_COMMAND_LENGTH
-    type_list = [c.cmd_type + c.parent_tube_name for c in tube]
+    type_list = [c.cmd_type + c.tube.tube_name for c in tube_command_list]
     max_length = len(max(type_list, key=len)) + 5
     if max_length > Storage.I.MAX_TUBE_COMMAND_LENGTH:
         Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
