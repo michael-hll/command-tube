@@ -1456,8 +1456,6 @@ class TubeCommand():
         self.has_placeholders           = False
         self.is_key_command             = False
         self.results: list              = []       
-        # the follow properties starts with 'tube'
-        # are owned by RUN_TUBE command
         self.tube: Tube                 = None # The current command's tube container
         self.sub_tube: Tube             = None # The RUN_TUBE command points to the sub tube
         self.loop_index                 = -1
@@ -1501,7 +1499,7 @@ class TubeCommand():
                 raise Exception('Tube {0} doesnot exist from or no commands list: {1}.'.format(tube_name, file))
             tube_index = StorageUtility.get_tube_index(file, tube_name)
             self.sub_tube = Tube(file, tube_name, tube_index, sub_tube_yaml, self.tube)
-            self.tube_conditions = conditions
+            self.sub_tube.tube_conditions = conditions
         else:
             # the 'TUBE' section doesn't exists from the sub-tube file
             raise Exception('\'{0}\' section doesnot exists from tube file: {1}'.format(tube_name, file))
@@ -4137,19 +4135,17 @@ class Tube():
         self.tube_name         = name
         self.tube_index        = index
         self.parent            = parent
-        self.tube_yaml         = tube_yaml
-        self.tube_run          = self.__gen_tube_run()
+        self.tube_yaml         = tube_yaml        
+        self.tube_run          = []
         self.tube_run_all      = []
         self.tube_conditions   = None
         self.tube_run_times    = None
-        Storage.I.TUBE_LIST.append(self)
+        self.gen_tube_run()
+        Storage.I.TUBE_LIST.append(self)        
 
-    def __gen_tube_run(self, tube_yaml=None):
+    def gen_tube_run(self):
         '''
         Convert tube from yaml format to TubeCommand list
-        
-        args:
-            tube_yaml: the tube command list from yaml file
         '''
         
         tube_new = []
@@ -4168,7 +4164,7 @@ class Tube():
                 
         # update max command type length
         reset_max_tube_command_type_length(tube_new)
-        return tube_new 
+        self.tube_run = tube_new
 
     def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False) -> bool:
         '''
@@ -4236,17 +4232,14 @@ class TubeRunner():
             
         # run again?
         if while_condition:             
-            self.pre_command = None            
-            # TODO
-            # self.tube.tube_run = self.run_tube_command.create_tube_run(
-            #     self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
-            #     self.run_tube_command.tube_name)
-            self.start(self.run_tube_command.tube_run)
+            self.pre_command = None       
+            self.tube.gen_tube_run()     
+            self.start()
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
             self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
     
-    def start(self, tube_run=None):
+    def start(self):
         '''
         Run a tube.          
         '''
