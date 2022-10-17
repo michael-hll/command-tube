@@ -3444,7 +3444,7 @@ class TubeCommand():
         tprint(msg, prefix='')
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         self.print_tube_variables(variables, self.tube)   
-        output_tube_file_list(is_print=True)             
+        output_tube_file_list(is_print=True, indexes=self.tube.get_parent_tube_indexes())             
     
     def print_tube_variables(self, variables, tube):
         '''
@@ -4188,6 +4188,17 @@ class Tube():
         if self.parent:
             return self.parent.find_key_from_tubes(key)
         return (False, None)
+
+    def get_parent_tube_indexes(self, indexes=None):
+        '''
+        Return all tube and its parents index set
+        '''
+        if indexes == None:
+            indexes = set()
+        indexes.add(self.tube_index)
+        if tube.parent:
+            self.get_parent_tube_indexes(indexes)
+        return indexes
        
 class TubeRunner():
     
@@ -5238,10 +5249,12 @@ def confirm(question):
         answer = input(question).lower() 
     return answer == 'y'
 
-def output_tube_file_list(is_print=False, is_write_log=False):
+def output_tube_file_list(is_print=False, is_write_log=False, indexes=None):
     keys = [k for k in Storage.I.TUBE_FILE_LIST.keys()]
     keys.sort()  
     for k in keys:
+        if indexes and not k in indexes:
+            continue
         item = Storage.I.TUBE_FILE_LIST[k]
         file = item[item.index('=')+1:]
         tube_name = item[0:item.index('=')]
