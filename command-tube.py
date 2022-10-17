@@ -273,7 +273,9 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-l','--lines', 'str', 1, 'lines', True, False, '', '',
                         'The lines count you want to output.'],
                     [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
-                        'Output start from the given keywords.'],                    
+                        'Output start from the given keywords.'],       
+                    [False, '-r','--result', 'str', '+', 'result_file', False, False, '', '',
+                        'The text file to store the tail result.'],              
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2789,7 +2791,7 @@ class TubeCommand():
         '''
         For command: TAIL_FILE
         '''
-        file, lines_count, keywords = '', 0, ''
+        file, lines_count, keywords, r_file = '', 0, '', ''
 
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
@@ -2798,7 +2800,9 @@ class TubeCommand():
         lines_count = args.lines[0]
         if args.keywords != None:
             keywords = [k.strip() for k in args.keywords]
-            keywords = ' '.join(keywords)            
+            keywords = ' '.join(keywords) 
+        if args.result_file:
+            r_file = ' '.join(args.result_file)           
     
         lines_count = int(lines_count)        
         return_lines = []
@@ -2841,7 +2845,15 @@ class TubeCommand():
             for line in return_lines:
                 tprint(line, prefix='')
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)
-                Storage.I.FILE_TAIL_LINES.append(line)            
+                Storage.I.FILE_TAIL_LINES.append(line)    
+
+            # write result to result file
+            if r_file:
+                with open(r_file, 'w') as f:
+                    for line in return_lines:
+                        f.write(line + '\n')
+                    if len(return_lines) == 0:
+                        f.write('')            
             return True
 
         except Exception as e:
