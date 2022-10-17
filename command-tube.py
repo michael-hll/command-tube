@@ -1455,9 +1455,7 @@ class TubeCommand():
         self.is_single_placeholder      = False
         self.has_placeholders           = False
         self.is_key_command             = False
-        self.results: list              = []
-        self.self_tube_index            = 0
-        self.self_tube_file             = ''         
+        self.results: list              = []       
         # the follow properties starts with 'tube'
         # are owned by RUN_TUBE command
         self.tube: Tube                 = None # The current command's tube container
@@ -1559,7 +1557,7 @@ class TubeCommand():
         Return something like: * COMMAND_TYPE[0]
         '''
         command_type = self.cmd_type
-        command_type += '[{0}:{1}]'.format(str(self.self_tube_index), self.parent_tube_name)
+        command_type += '[{0}:{1}]'.format(str(self.tube.tube_index), self.tube.tube_name)
         if self.is_redo_added == True:
             command_type = '* ' + command_type
         return command_type
@@ -3141,27 +3139,6 @@ class TubeCommand():
         # print log message
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-
-    def create_tube_run(self, tube_yaml, tube_index, file, parent_tube_name = None):
-        '''
-        Create a tube command list based on tube yaml list
-        
-        Args:
-            tube_yaml: tube in yaml format
-            tube_index: the tube yaml file index
-            file: the tube yaml file full name
-        '''
-        if self.cmd_type != Storage.I.C_RUN_TUBE:
-            return []
-        tube_new = convert_tube_to_new(tube_yaml)
-        command: TubeCommand
-        for command in tube_new:
-            command.is_imported = True # TODO
-            command.self_tube_index = tube_index
-            command.self_tube_file = file    
-            if parent_tube_name:
-                command.parent_tube_name = parent_tube_name      
-        return tube_new
     
     def count(self):
         '''
@@ -3220,7 +3197,7 @@ class TubeCommand():
                 if skip_count and cmd.cmd_type == Storage.I.C_COUNT:
                     continue
                 # to check if count within current tube only
-                if current_tube and cmd.self_tube_index != self.self_tube_index:
+                if current_tube and cmd.tube.tube_index != self.tube.tube_index:
                     continue
                 # count tube command
                 if cmd.log.status in status_set:
@@ -4196,10 +4173,8 @@ class Tube():
         for item in self.tube_yaml:            
             for key in item.keys():                  
                 command = TubeCommand(key.upper(), item[key])
-                command.self_tube_file = self.tube_file
-                command.self_tube_index = self.tube_index
                 command.tube = self
-                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = self.tube_name + '=' + self.tube_file
+                Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file
                 tube_new.append(command) 
                 
         # update max command type length
@@ -4273,9 +4248,10 @@ class TubeRunner():
         # run again?
         if while_condition:             
             self.pre_command = None            
-            self.tube.tube_run = self.run_tube_command.create_tube_run(
-                self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
-                self.run_tube_command.tube_name)
+            # TODO
+            # self.tube.tube_run = self.run_tube_command.create_tube_run(
+            #     self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
+            #     self.run_tube_command.tube_name)
             self.start(self.run_tube_command.tube_run)
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
@@ -4529,9 +4505,9 @@ class StorageUtility():
             forced = ' '
             if is_force:
                 forced = ' forced '
-            msg = 'Global tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
+            msg = 'Tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
             if command:
-                msg += ' By tube[%s] command: %s' % (str(command.self_tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
+                msg += ' By tube[%s] command: %s' % (str(command.tube.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
@@ -4838,8 +4814,6 @@ class TubeCommandUtility():
         command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
         command_new.is_redo_added = True
         command_new.is_imported = redo_command.is_imported
-        command_new.self_tube_index = redo_command.self_tube_index
-        command_new.self_tube_file = redo_command.self_tube_file
         command_new.original_uuid = redo_command.uuid
         
         tube_run.insert(redo_command_index + 1, command_new ) 
@@ -4860,8 +4834,6 @@ class TubeCommandUtility():
             command_new = TubeCommand(command.cmd_type, command.original_content)
             command_new.is_redo_added = True
             command_new.is_imported = redo_command.is_imported
-            command_new.self_tube_index = redo_command.self_tube_index       
-            command_new.self_tube_file = redo_command.self_tube_file  
             command_new.original_uuid = command.uuid      
             back_commands.insert(0, command_new)
             count += 1
@@ -4887,8 +4859,6 @@ class TubeCommandUtility():
             command_new = TubeCommand(redo_command.cmd_type, redo_command.redo_content)
             command_new.is_redo_added = True
             command_new.is_imported = redo_command.is_imported
-            command_new.self_tube_index = redo_command.self_tube_index
-            command_new.self_tube_file = redo_command.self_tube_file
             command_new.original_uuid = redo_command.uuid
         
             tube_run.insert(redo_command_index + i, command_new ) 
@@ -5831,34 +5801,6 @@ def reset_max_tube_command_type_length(tube):
     if max_length > Storage.I.MAX_TUBE_COMMAND_LENGTH:
         Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
 
-def convert_tube_to_new(tube_yaml, is_from_job_start=False):
-    '''
-    Convert tube from yaml format to TubeCommand list
-    
-    args:
-        tube: the tube command list from yaml file
-        is_from_job_start: If true then udpate the command tube file to the main yaml file. Default No.
-    '''
-    
-    tube_new = []
-    
-    # check empty tube commands
-    if not tube_yaml:
-        return tube_new
-    
-    # go through each tube command and imported
-    for item in tube_yaml:            
-        for key in item.keys():                  
-            command = TubeCommand(key.upper(), item[key])
-            if is_from_job_start == True:
-                command.self_tube_file = os.path.abspath(Storage.I.TUBE_YAML_FILE)
-                Storage.I.TUBE_FILE_LIST[command.self_tube_index] = command.parent_tube_name + '=' + command.self_tube_file
-            tube_new.append(command) 
-            
-    # update max command type length
-    reset_max_tube_command_type_length(tube_new)
-    return tube_new  
-
 def disconect_all_hosts(hosts):
     try:
         for host_name in hosts.keys():
@@ -6572,7 +6514,7 @@ try:
     StorageUtility.read_variables(Storage.I.VARIABLES, tube)
         
     # checking tube command syntax
-    Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE_YAML) # TODO
+    Storage.I.TUBE_RUN = tube.tube_run
     has_error, _ = StorageUtility.check_tube_command_arguments(tube.tube_run, general_command_parser)
     if has_error == True:
         msg = 'Tube has syntax errors, please double check.'
