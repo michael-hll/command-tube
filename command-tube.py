@@ -3239,9 +3239,20 @@ class TubeCommand():
 
         # evalulate eval inputs
         try:
-            value = eval(value)
+            # if cound contionds char we use the normal eval method to do check the condition
+            code = compile(value, '<string>', 'eval')    
+            local_dict = {}
+            # Add the missing codes into local varialbes as str
+            for name in code.co_names:
+                kv = self.tube.get_first_key_value(name)
+                if kv != None:
+                    local_dict[name] = kv
+                    continue
+                if not Utility.if_key_exists_in_str(globals().keys(), name):
+                        local_dict[name] = str(name)                       
+            value = eval(value, globals(), local_dict)
         except Exception as e:
-            pass
+            tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
