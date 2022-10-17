@@ -3055,6 +3055,7 @@ class TubeCommand():
         while_condition = Utility.eval_while_conditions(conditions, command=self) 
         if  while_condition:
             tube_name = ''
+            file = tube
             if tube_type == 1: # file[tube]
                 file = tube[:tube.index('[')]
                 tube_name = tube[tube.index('[')+1:-1].upper()                 
