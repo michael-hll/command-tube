@@ -1577,16 +1577,14 @@ class TubeCommand():
             is_global: If update the key,value in global scope.
         '''
         if is_global == True:
-            return StorageUtility.update_key_value_dict(key, value, 
-                    command=self, is_override=is_override, is_force=is_force, is_readonly=is_readonly)
-        else:
             exists, tube_temp = self.tube.find_key_from_tubes(key)
-            # if found exists parent tubes has this key, then update the first
+            # if found exists parent tubes has this key, then update the first found tube
             if exists:
                 return tube_temp.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
-            # if not found from parent tubes, then update the key-value in current tube
-            return self.tube.update_key_value(key, value, 
-                    is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+
+        # if not found from parent tubes, then update the key-value in current tube
+        return self.tube.update_key_value(key, value, 
+                is_force=is_force, is_readonly=is_readonly, is_override=is_override)
                   
     def get_formatted_status(self) -> str:
         '''
@@ -3513,34 +3511,16 @@ class TubeCommand():
         Print global variables and it's tube variables
         '''
 
-        # print Global variables
-        msg = '=== Global Variables ==='
-        tprint(msg, prefix='')
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         variables  = self.self_format_placeholders(self.content)
         variables = variables.split(',')
         variables = [var.strip() for var in variables]
         
-        # print global variables
-        for key in Storage.I.KEY_VALUES_DICT.keys():
-            for var in variables:
-                if var == '*' or var.upper() == key.upper():
-                    # get value
-                    value = str(Storage.I.KEY_VALUES_DICT[key])
-                    value = Utility.quoted_with_space_characters(value)
-                    # get readonly
-                    readonly = ''
-                    if key in Storage.I.KEYS_READONLY_SET:
-                        readonly = ' (readonly)'
-                    msg = '%s=%s %s' % (key, value, readonly)
-                    tprint(msg, prefix='')
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        
         # print tube variabels
-        msg = '\n=== Tube Variables ==='
+        msg = '=== Tube Variables ==='
         tprint(msg, prefix='')
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        self.print_tube_variables(variables, self.tube)                
+        self.print_tube_variables(variables, self.tube)   
+        output_tube_file_list(is_print=True)             
     
     def print_tube_variables(self, variables, tube):
         '''
@@ -4230,6 +4210,7 @@ class Tube():
         '''
         self.KEY_VALUES_DICT   = {} 
         self.KEYS_READONLY_SET = set()
+        self.KEYS_DEFAULT      = set()
         self.tube_file         = file
         self.tube_name         = name
         self.tube_index        = index
@@ -4735,15 +4716,15 @@ class StorageUtility():
             tube.update_key_value(key, variables[key], is_force=is_force)
     
     @classmethod
-    def add_default_variables(self):
+    def add_default_variables(self, tube: Tube):
         # Update TUBE_HOME
-        if Storage.I.C_TUBE_HOME not in Storage.I.KEY_VALUES_DICT.keys():            
-            StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR, is_readonly=True)
-            Storage.I.KEYS_DEFAULT.add(Storage.I.C_TUBE_HOME)
+        if Storage.I.C_TUBE_HOME not in tube.KEY_VALUES_DICT.keys():            
+            StorageUtility.update_key_value_dict(Storage.I.C_TUBE_HOME, Storage.I.C_CURR_DIR, tube=tube, is_readonly=True)
+            tube.KEYS_DEFAULT.add(Storage.I.C_TUBE_HOME)
         # Update OS Name
-        if Storage.I.C_OS_NAME not in Storage.I.KEY_VALUES_DICT.keys(): 
-            StorageUtility.update_key_value_dict(Storage.I.C_OS_NAME, os.name, is_readonly=True)
-            Storage.I.KEYS_DEFAULT.add(Storage.I.C_OS_NAME)
+        if Storage.I.C_OS_NAME not in tube.KEY_VALUES_DICT.keys(): 
+            StorageUtility.update_key_value_dict(Storage.I.C_OS_NAME, os.name, tube=tube, is_readonly=True)
+            tube.KEYS_DEFAULT.add(Storage.I.C_OS_NAME)
         
     @classmethod
     def read_emails(self, emails):     
@@ -6511,8 +6492,6 @@ _ = Storage()
 # reset default print colors
 # this is the only place to update constants
 StorageUtility.reset_colors()
-# add default variables
-StorageUtility.add_default_variables()
 parser = ArgumentParser(allow_abbrev=False, formatter_class=RawTextHelpFormatter)    
 general_command_parser = ArgumentParser(allow_abbrev=False)   
 
@@ -6630,6 +6609,8 @@ try:
 
     # Instance a new tube
     tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, Storage.I.TUBE_YAML, None)
+    # add default variables
+    StorageUtility.add_default_variables(tube)
     
     # Read variables 
     StorageUtility.read_variables(Storage.I.VARIABLES, tube)
