@@ -4211,6 +4211,16 @@ class Tube():
         if tube.parent:
             self.get_parent_tube_indexes(indexes)
         return indexes
+
+    def get_first_key_value(self, key):
+        '''
+        Return the first value found in the tube parents list
+        '''
+        if key in self.KEY_VALUES_DICT.keys():
+            return self.KEY_VALUES_DICT[key]
+        if self.parent:
+            return self.parent.get_first_key_value(key)
+        return None
        
 class TubeRunner():
     
