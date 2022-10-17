@@ -3166,7 +3166,6 @@ class TubeCommand():
                         key, value = Utility.split_equal_expression(item)
                         self.sub_tube.update_key_value(key, value, is_force=True, is_readonly=True)
                                                         
-                reset_max_tube_command_type_length(self.sub_tube.tube_run)
                 self.sub_tube.tube_run_times = 0 # initial the tube running times to 0    
                 msg = 'Start sub tube successfully: ' + tube 
             else:
@@ -3536,29 +3535,29 @@ class TubeCommand():
         msg = '\n=== Tube Variables ==='
         tprint(msg, prefix='')
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        self.print_tube_variables(self.content)                
+        self.print_tube_variables(variables, self.tube)                
     
-    def print_tube_variables(self, variables):
+    def print_tube_variables(self, variables, tube):
         '''
         It will print it's parent scope variables and parent's parent
         '''
-        for key in self.tube.KEY_VALUES_DICT.keys():
+        for key in tube.KEY_VALUES_DICT.keys():
             for var in variables:
                 if var == '*' or var.upper() == key.upper():
                     # get value
-                    value = str(self.tube.KEY_VALUES_DICT[key])
+                    value = str(tube.KEY_VALUES_DICT[key])
                     value = Utility.quoted_with_space_characters(value)
                     # get readonly
                     readonly = ''
-                    if key in self.tube.KEYS_READONLY_SET:
+                    if key in tube.KEYS_READONLY_SET:
                         readonly = ' (readonly)'
-                    msg = '[%s:%s] %s=%s %s' % (self.tube.tube_index, self.tube.tube_name, key, value, readonly)
+                    msg = '[%s:%s] %s=%s %s' % (tube.tube_index, tube.tube_name, key, value, readonly)
                     tprint(msg, prefix='')
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
             
         # to check if parent is None
-        if self.tube.parent:
-            self.tube.parent.print_tube_variables(variables)          
+        if tube.parent:
+            self.print_tube_variables(variables, self.tube.parent)          
     
     def self_report_progress(self):
         
@@ -4213,10 +4212,7 @@ class TubeCommandLog:
         for err in self.errors:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', err)          
 
-class Tube():
-
-    KEY_VALUES_DICT = {} 
-    KEYS_READONLY_SET = set()
+class Tube():    
 
     def __init__(self, file, name, index, tube_yaml, parent=None):
         '''
@@ -4227,15 +4223,17 @@ class Tube():
             tube_yaml: Tube commands with YAML format
             parent: Parent tube instance
         '''
-        self.tube_file       = file
-        self.tube_name       = name
-        self.tube_index      = index
-        self.parent          = parent
-        self.tube_yaml       = tube_yaml
-        self.tube_run        = self.__gen_tube_run()
-        self.tube_run_all    = []
-        self.tube_conditions = None
-        self.tube_run_times  = None
+        self.KEY_VALUES_DICT   = {} 
+        self.KEYS_READONLY_SET = set()
+        self.tube_file         = file
+        self.tube_name         = name
+        self.tube_index        = index
+        self.parent            = parent
+        self.tube_yaml         = tube_yaml
+        self.tube_run          = self.__gen_tube_run()
+        self.tube_run_all      = []
+        self.tube_conditions   = None
+        self.tube_run_times    = None
         Storage.I.TUBE_LIST.append(self)
 
     def __gen_tube_run(self, tube_yaml=None):
