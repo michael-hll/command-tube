@@ -1580,6 +1580,11 @@ class TubeCommand():
             return StorageUtility.update_key_value_dict(key, value, 
                     command=self, is_override=is_override, is_force=is_force, is_readonly=is_readonly)
         else:
+            exists, tube_temp = self.tube.find_key_from_tubes(key)
+            # if found exists parent tubes has this key, then update the first
+            if exists:
+                return tube_temp.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+            # if not found from parent tubes, then update the key-value in current tube
             return self.tube.update_key_value(key, value, 
                     is_force=is_force, is_readonly=is_readonly, is_override=is_override)
                   
@@ -4264,9 +4269,24 @@ class Tube():
         reset_max_tube_command_type_length(tube_new)
         return tube_new 
 
-    def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False):
-        StorageUtility.update_key_value_dict(key, value, 
+    def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False) -> bool:
+        '''
+        Update key-value in current tube only
+        '''
+        return StorageUtility.update_key_value_dict(key, value, 
             tube=self, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+
+    def find_key_from_tubes(self, key):
+        '''
+        Find if a key exists from tube and it's all parents
+
+        Return (Exists: bool, Tube)
+        '''
+        if key in self.KEY_VALUES_DICT.keys():
+            return (True, self)
+        if self.parent:
+            return self.parent.find_key_from_tubes(key)
+        return (False, None)
        
 class TubeRunner():
     
