@@ -218,6 +218,7 @@ Use 'help vars' to print all the given tube variables;
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
         self.TUBE                      = []
+        self.TUBE_LIST                 = []
         self.TUBE_RUN                  = [] 
         self.HOSTS                     = {}
         self.CURR_HOST                 = ''
@@ -1460,7 +1461,8 @@ class TubeCommand():
         self.self_tube_file             = ''         
         # the follow properties starts with 'tube'
         # are owned by RUN_TUBE command
-        self.tube: Tube                 = None # keep the whole commands
+        self.tube: Tube                 = None # The current command's tube container
+        self.sub_tube: Tube             = None # The RUN_TUBE command points to the sub tube
         self.tube_run                   = None # keep the commands in current iteration
         self.tube_yaml                  = None # keep the yaml tube format
         self.tube_run_times             = None
@@ -1534,6 +1536,18 @@ class TubeCommand():
 
         return tube_check
     
+    def __create_sub_tube(self, data, tube_name, file, conditions):
+        if tube_name in data.keys():
+            sub_tube_yaml = data[tube_name]
+            if not sub_tube_yaml or type(sub_tube_yaml) != list:
+                raise Exception('Tube {0} doesnot exist from or no commands list: {1}.'.format(tube_name, file))
+            tube_index = StorageUtility.get_tube_index(file, tube_name)
+            self.sub_tube = Tube(file, tube_name, tube_index, sub_tube_yaml, self.tube)
+            self.tube_conditions = conditions
+        else:
+            # the 'TUBE' section doesn't exists from the sub-tube file
+            raise Exception('\'{0}\' section doesnot exists from tube file: {1}'.format(tube_name, file))
+
     def update_key_value_for_sub(self, key, value):
         '''
         Only update when the command type is RUN_TUBE
@@ -3065,29 +3079,25 @@ class TubeCommand():
             tube = self.self_format_placeholders(tube)
         if args.conditions:
             conditions = ' '.join(args.conditions)
-            self.tube_conditions = conditions
         key_value_list = None
         if args.variables:
             variables = ' '.join(args.variables)
             variables = self.self_format_placeholders(variables)
             key_value_list = variables.split(',')
+            # to check if the expression match the expression v1 = a1, v2 = a2
             for item in key_value_list:
                 item = item.strip().strip('\'').strip('"')
                 if not reUtility.is_matched_equal_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
 
         msg = ''
-        # re for switching tube type
-        p1 = '[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]' # file[tube]
-        p2 = '[a-zA-Z_0-9]+' # tube
-        p3 = '[a-zA-Z_0-9-/\\.]+[.]{1}(yaml|yml)' # file
+        # Define re pattern for switching tube type 
+        p1 = re.compile('[a-zA-Z_0-9-]+\[[a-zA-Z_0-9]+\]') # file[tube]
+        p2 = re.compile('[a-zA-Z_0-9]+') # tube
+        p3 = re.compile('[a-zA-Z_0-9-/\\.]+[.]{1}(yaml|yml)') # file.yaml
         
-        tube_type = 3 # 1: file[tube] 2: tube  3: file
-        p1 = re.compile(p1)
-        p2 = re.compile(p2)
-        p3 = re.compile(p3)
-        
-        # analyze input tube type                
+        # analyze input tube type   
+        # tube_type = 3 # 1: file[tube] 2: tube  3: file             
         if p1.fullmatch(tube) != None:
             tube_type = 1
         elif p2.fullmatch(tube) != None:
@@ -3098,69 +3108,66 @@ class TubeCommand():
             raise Exception('The tube :\'{0}\' doesnot exists.'.format(tube))            
         
         # Check while condition of RUN_TUBE command
-        while_condition = Utility.eval_while_conditions(self.tube_conditions, command=self) 
+        while_condition = Utility.eval_while_conditions(conditions, command=self) 
         if  while_condition:
-            tube_check = []
+            tube_name = ''
             if tube_type == 1: # file[tube]
                 file = tube[:tube.index('[')]
-                tube_name = tube[tube.index('[')+1:-1].upper()
-                exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
-                if exists:
-                    with open(file, 'r') as f:
-                        data = Utility.safe_load_yaml_with_upper_key(f)
-                        tube_check = self.__load_sub_tube(data, tube_name, file)
-                else:    
-                    raise Exception('The tube :\'{0}\' doesnot exists.'.format(file)) 
+                tube_name = tube[tube.index('[')+1:-1].upper()                 
             elif tube_type == 2: # tube
-                file = self.self_tube_file
-                tube_name = tube.upper()
-                exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
-                if exists:
-                    with open(file, 'r') as f:
-                        data = Utility.safe_load_yaml_with_upper_key(f)
-                        tube_check = self.__load_sub_tube(data, tube_name, file)
-                else:    
-                    raise Exception('The tube :\'{0}\' doesnot exists.'.format(file))     
+                file = self.tube.tube_file
+                tube_name = tube.upper()     
             elif tube_type == 3: # file.yaml
-                with open(tube, 'r') as f:
-                    data = Utility.safe_load_yaml_with_upper_key(f)
-                    tube_check = self.__load_sub_tube(data, Storage.I.C_TUBE, tube)
-                    
-                    if Storage.I.C_SERVERS in data.keys():       
-                        # Get servers to hosts
-                        StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
-                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                            msg = 'Servers hosts are updated by tube: %s.' % tube
-                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                tube_name = Storage.I.C_TUBE
 
-                    if Storage.I.C_VARIABLES in data.keys():
-                        # Read variables 
-                        StorageUtility.read_variables(data[Storage.I.C_VARIABLES], command=self) 
-                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                            msg = 'Tube local variables are updated by tube: %s.' % tube
-                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)                                   
-                    
-                    if Storage.I.C_EMAIL in data.keys():
-                        # read emails
-                        StorageUtility.read_emails(data[Storage.I.C_EMAIL])
-                        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                            msg = 'Email configurations are updated by tube: %s.' % tube
-                            tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                            write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
-                        
-            has_errors, errors = StorageUtility.check_tube_command_arguments(tube_check, continue_redo_parser)
+            # create sub tube instance
+            exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
+            data = None
+            if exists:
+                with open(file, 'r') as f:
+                    data = Utility.safe_load_yaml_with_upper_key(f)
+                    self.__create_sub_tube(data, tube_name, file, conditions)
+            else:    
+                raise Exception('The tube :\'{0}\' doesnot exists.'.format(file))                
+
+            # for read whole yaml file case, we need to load
+            # email, server, variables as well
+            if tube_type == 3:                
+                if Storage.I.C_SERVERS in data.keys():       
+                    # Get servers to hosts
+                    StorageUtility.read_hosts(data[Storage.I.C_SERVERS])
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Servers hosts are updated by tube: %s.' % tube
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+                
+                if Storage.I.C_EMAIL in data.keys():
+                    # read emails
+                    StorageUtility.read_emails(data[Storage.I.C_EMAIL])
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Email configurations are updated by tube: %s.' % tube
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg)
+
+                if Storage.I.C_VARIABLES in data.keys():
+                    # Read variables 
+                    StorageUtility.read_variables(data[Storage.I.C_VARIABLES], tube=self.sub_tube) 
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Tube local variables are updated by tube: %s.' % tube
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, line=msg) 
+
+            # checking sub tube command syntax            
+            has_errors, errors = StorageUtility.check_tube_command_arguments(self.sub_tube.tube_run, continue_redo_parser)
             if has_errors == False:
-                self.tube_run = tube_check.copy()
-                # update tube local variables
+                # update tube local variables from RUN_TUBE arguments
                 if key_value_list:
                     for item in key_value_list:
                         key, value = Utility.split_equal_expression(item)
-                        self.update_key_value_for_sub(key, value)
+                        self.sub_tube.update_key_value(key, value, is_force=True, is_readonly=True)
                                                         
-                reset_max_tube_command_type_length(self.tube_run)
-                self.tube_run_times = 0 # initial the tube running times to 0    
+                reset_max_tube_command_type_length(self.sub_tube.tube_run)
+                self.sub_tube.tube_run_times = 0 # initial the tube running times to 0    
                 msg = 'Start sub tube successfully: ' + tube 
             else:
                 for err in errors:
@@ -4220,12 +4227,16 @@ class Tube():
             tube_yaml: Tube commands with YAML format
             parent: Parent tube instance
         '''
-        self.tube_file      = file
-        self.tube_name      = name
-        self.tube_index     = index
-        self.parent         = parent
-        self.tube_yaml      = tube_yaml
-        self.tube_run       = self.__gen_tube_run()
+        self.tube_file       = file
+        self.tube_name       = name
+        self.tube_index      = index
+        self.parent          = parent
+        self.tube_yaml       = tube_yaml
+        self.tube_run        = self.__gen_tube_run()
+        self.tube_run_all    = []
+        self.tube_conditions = None
+        self.tube_run_times  = None
+        Storage.I.TUBE_LIST.append(self)
 
     def __gen_tube_run(self, tube_yaml=None):
         '''
@@ -4292,27 +4303,22 @@ class TubeRunner():
         if self.is_main:
             return
         
-        self.run_tube_command : TubeCommand
-        
         # copy done list to the 'tube' that contains the whole sub command list
-        command_done_list = self.run_tube_command.tube_run.copy()
-        if self.run_tube_command.tube:
-            self.run_tube_command.tube.extend(command_done_list)
-        else:
-            self.run_tube_command.tube = command_done_list
+        command_done_list = self.tube.tube_run.copy()
+        self.tube.tube_run_all.extend(command_done_list)
             
         # clear tube run
-        self.run_tube_command.tube_run.clear()
+        self.tube.tube_run.clear()
         
         # check if need run again
-        while_condition = Utility.eval_while_conditions(self.run_tube_command.tube_conditions, False, command=self.run_tube_command)
+        while_condition = Utility.eval_while_conditions(self.tube.tube_conditions, False, command=self.run_tube_command)
         # print current while conditions in debug mode
-        self.__output_while_condition(while_condition, self.run_tube_command.tube_conditions, self.run_tube_command.tube_run_times, self.run_tube_command)
+        self.__output_while_condition(while_condition, self.tube.tube_conditions, self.tube.tube_run_times, self.run_tube_command)
             
         # run again?
         if while_condition:             
             self.pre_command = None            
-            self.run_tube_command.tube_run = self.run_tube_command.create_tube_run(
+            self.tube.tube_run = self.run_tube_command.create_tube_run(
                 self.run_tube_command.tube_yaml, self.run_tube_command.tube_index, self.run_tube_command.tube_file,
                 self.run_tube_command.tube_name)
             self.start(self.run_tube_command.tube_run)
@@ -4327,7 +4333,7 @@ class TubeRunner():
         
         # increase the total interation times
         if self.is_main == False:
-            self.run_tube_command.tube_run_times += 1
+            self.tube.tube_run_times += 1
         
         # Loop each command within the tube and run it    
         command: TubeCommand
@@ -4433,9 +4439,9 @@ class TubeRunner():
             # Check if it's RUN_TUBE command
             if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:                
                 # print current while conditions in debug mode
-                self.__output_while_condition(True, command.tube_conditions, command.tube_run_times, command=command)  
+                self.__output_while_condition(True, command.sub_tube.tube_conditions, command.sub_tube.tube_run_times, command=command)  
                 # start the sub tube runner
-                runner = TubeRunner(False, command)                 
+                runner = TubeRunner(False, command, command.sub_tube)                 
                 runner.start(command.tube_run)
 
         # during the end of sub tube running
@@ -4694,24 +4700,21 @@ class StorageUtility():
         return None
     
     @classmethod
-    def read_variables(self, variables, is_force=False, command: TubeCommand=None):
+    def read_variables(self, variables, tube:Tube, is_force=False):
         '''
         Read tube variables from tube variable section.
 
         Args:
-            varialbes: The variables from yaml config file
-            is_force: If update global tube variable force
-            command: If command is RUN_TUBE command then pass it, otherwise leave it None
+            varialbes: The variables from yaml config file            
+            tube: The tube to store these variables
+            is_force: If update tube variable force
         '''
         
-        if(not variables or type(variables) is not dict):
+        if(not variables or type(variables) is not dict or not tube):
             return
-        if command == None or command.cmd_type != Storage.I.C_RUN_TUBE: # For global variables cases
-            for key in variables.keys():
-                StorageUtility.update_key_value_dict(key, variables[key], is_force=False)  
-        else: # For sub tube variables (local variables case)
-            for key in variables.keys():
-                command.update_key_value_for_sub(key, variables[key])
+        
+        for key in variables.keys():
+            tube.update_key_value(key, variables[key], is_force=is_force)
     
     @classmethod
     def add_default_variables(self):
@@ -6458,12 +6461,9 @@ def job_start(tube_yaml):
     try:
         # print job start initials into the log
         init_log_file()
-        
-        # revert tube command list to initial status
-        # the new command list Storage.I.TUBE_RUN will be used in each loop
-        tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, tube_yaml, None)
-        
-        runner = TubeRunner(is_main=True, run_tube_command=None, tube=tube)
+
+        # Instance a new TubeRunner and ask it to run the tube
+        runner = TubeRunner(is_main=True, run_tube_command=None, tube=Storage.I.TUBE_LIST[0])
         runner.start()
                    
     except Exception as e:
@@ -6609,13 +6609,16 @@ try:
         
     # Get servers to hosts
     StorageUtility.read_hosts(Storage.I.SERVERS)
+
+    # Instance a new tube
+    tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, Storage.I.TUBE_YAML, None)
     
     # Read variables 
-    StorageUtility.read_variables(Storage.I.VARIABLES)
+    StorageUtility.read_variables(Storage.I.VARIABLES, tube)
         
     # checking tube command syntax
-    Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE_YAML)
-    has_error, _ = StorageUtility.check_tube_command_arguments(Storage.I.TUBE_RUN, general_command_parser)
+    Storage.I.TUBE_RUN = convert_tube_to_new(Storage.I.TUBE_YAML) # TODO
+    has_error, _ = StorageUtility.check_tube_command_arguments(tube.tube_run, general_command_parser)
     if has_error == True:
         msg = 'Tube has syntax errors, please double check.'
         tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
