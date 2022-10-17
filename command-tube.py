@@ -8,7 +8,6 @@
 #     Email: michael_hll@outlook.com
 # Copyright: @2021 @2022 
 # ----------------------------------------------------------------
-from ctypes.wintypes import MSG
 import os
 import sys
 from os import path
@@ -1508,34 +1507,6 @@ class TubeCommand():
         self.tube_argument_config = TubeCommandArgumentConfig(self.cmd_type, Storage.I.TUBE_ARGS_CONFIG)
         self.tube_argument_parser = TubeArgumentParser.create_argument_parser(self.tube_argument_config)
     
-    def __load_sub_tube(self, data, tube_name, file):
-        '''
-        Args:
-            data: yaml format raw data
-            tube_name: tube key
-            file: the yaml file name
-        '''
-        tube_check = []
-        if tube_name in data.keys():            
-            sub_tube = data[tube_name] 
-            self.tube_yaml = sub_tube.copy()
-            
-            if not sub_tube or type(sub_tube) != list:
-                msg = 'Tube file doesnot have any tube commands: ' + file
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_WARNING)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
-            else:
-                tube_index = StorageUtility.get_tube_index(file, tube_name)
-                tube_check = self.create_tube_run(sub_tube, tube_index, file, tube_name)                
-                self.tube_index = tube_index
-                self.tube_file = os.path.abspath(file)
-                self.tube_name = tube_name
-        else:
-            # the 'TUBE' section doesn't exists from the sub-tube file
-            raise Exception('\'TUBE\' section doesnot exists from tube file: %s' % file)
-
-        return tube_check
-    
     def __create_sub_tube(self, data, tube_name, file, conditions):
         if tube_name in data.keys():
             sub_tube_yaml = data[tube_name]
@@ -1548,21 +1519,6 @@ class TubeCommand():
             # the 'TUBE' section doesn't exists from the sub-tube file
             raise Exception('\'{0}\' section doesnot exists from tube file: {1}'.format(tube_name, file))
 
-    def update_key_value_for_sub(self, key, value):
-        '''
-        Only update when the command type is RUN_TUBE
-        without readonly settings for local variables
-        '''
-        if self.cmd_type == Storage.I.C_RUN_TUBE and key:
-            if value == None:
-                value = ''
-            self.tube_KEY_VALUES_DICT[key] = value   
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:     
-                value = Utility.quoted_with_space_characters(value)   
-                msg = '[{0}] local variable \'{1}\' was updated to: {2}'.format(self.tube_name, key, value)
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
-    
     def update_key_value(self, key, value, is_override=True, is_force=False, is_readonly=False, is_global=False) -> bool:
         '''
         If is_global is true, then udpate the key,value in global 
@@ -3599,7 +3555,7 @@ class TubeCommand():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
     
-    def self_format_placeholders(self, value, is_show_empty = False, is_quoted_str=False):
+    def self_format_placeholders(self, value, is_show_empty = False, is_quoted_str=False, tube=None):
         '''
         Recurrencly format placeholder from self and its parent
         
@@ -3608,30 +3564,30 @@ class TubeCommand():
             is_show_empty: When true the empty string will be formated to ''
             is_quoted_str: This is used for if/while conditions, with quoted string then the eval method could work correctly
         '''
+        # make sure the tube input are has value
+        if tube == None:
+            tube = self.tube
+
+        # prepare the temp_dict for placeholder using    
         temp_dict = None
-        if self.parent == None:
-            # for checking if/while condition cases we need to add quotes for string type value
-            if is_quoted_str == True:
-                temp_dict = Utility.quote_dict_str_value(Storage.I.KEY_VALUES_DICT)
-            else:
-                temp_dict = Storage.I.KEY_VALUES_DICT
-            
-            # for logging purpose, we need to quoted empty string with ''
-            if is_show_empty:
-                temp_dict = Utility.replace_empty_dict(temp_dict)
-            return TubeCommand.format_placeholders(value, temp_dict)
+        # for checking if/while condition cases we need to add quotes for string type value
+        if is_quoted_str == True:
+            temp_dict = Utility.quote_dict_str_value(tube.KEY_VALUES_DICT)
         else:
-            # for checking if/while condition cases we need to add quotes for string type value
-            if is_quoted_str == True:
-                temp_dict = Utility.quote_dict_str_value(self.parent.tube_KEY_VALUES_DICT)
-            else:
-                temp_dict = self.parent.tube_KEY_VALUES_DICT
-            
-            # for logging purpose, we need to quoted empty string with ''
-            if is_show_empty:
-                temp_dict = Utility.replace_empty_dict(temp_dict)
-            temp_value = TubeCommand.format_placeholders(value, temp_dict)
-            return self.parent.self_format_placeholders(temp_value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str)
+            temp_dict = tube.KEY_VALUES_DICT
+        
+        # for logging purpose, we need to quoted empty string with ''
+        if is_show_empty:
+            temp_dict = Utility.replace_empty_dict(temp_dict)
+
+        # replace with current tube k-v dict
+        value = TubeCommand.format_placeholders(value, temp_dict)
+
+        # continue replace with its parent tubes k-v dict
+        if tube.parent:
+            value = self.self_format_placeholders(value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str, tube=tube.parent)    
+        
+        return value
     
     def pause(self):
         self.content = self.self_format_placeholders(self.content).strip().replace(' ', '').upper()
