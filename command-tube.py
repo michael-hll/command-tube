@@ -4767,15 +4767,6 @@ class StorageUtility():
         Storage.I.TUBE_FILE_LIST[index] = tube_name + '=' + file_full_path
         return index
     
-    @classmethod
-    def udpate_tube_list(self):
-        Storage.I.TUBE.clear()
-        for command in Storage.I.TUBE_RUN:
-            Storage.I.TUBE.append(command)
-            child_commands = []
-            TubeCommand.get_child_commands(command, child_commands)
-            Storage.I.TUBE.extend(child_commands)
-    
 class TubeCommandUtility():
     
     @classmethod
