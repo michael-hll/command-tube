@@ -210,9 +210,6 @@ Use 'help vars' to print all the given tube variables;
         self.EMAIL_SUBJECT             = 'Command Tube Result'
         # global variables
         self.LOGS                      = []
-        self.KEY_VALUES_DICT           = {}
-        self.KEYS_READONLY_SET         = set() # to store tube variables which are readonly
-        self.KEYS_DEFAULT              = set()
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
         self.TUBE                      = []
@@ -1831,15 +1828,7 @@ class TubeCommand():
             
         if(path.exists(file_name)):
             
-            is_file_endswith_newline = False
-
-            # get value from dict
-            if value.startswith('@') or value.startswith('$'):
-                if value[1:] in Storage.I.KEY_VALUES_DICT.keys():
-                    value = value[1:]            
-                    value = Storage.I.KEY_VALUES_DICT[value]   
-                else:
-                    raise Exception('Value not found for key: ' + value)         
+            is_file_endswith_newline = False       
             new_lines = []  
             key_found = False    
             # reset value      
@@ -3927,7 +3916,7 @@ class TubeCommand():
         '''
         
         # return for None or empty
-        if not value:
+        if not value or not key_values:
             return value  
         
         # We need to check if the command content only contains one {variable} case
@@ -3947,10 +3936,7 @@ class TubeCommand():
         # add format support
         value = value.replace('{0:', '{s:') # to compatible with {0:m} syntax
         # replace placeholders from tube commands
-        if key_values == None:
-            tempDict = TDict(Storage.I.KEY_VALUES_DICT)
-        else:
-            tempDict = TDict(key_values)
+        tempDict = TDict(key_values)
         # using the format_map method will not raise missing key exception
         ret_value = value.format_map(tempDict)
         del tempDict
@@ -4480,7 +4466,7 @@ class StorageUtility():
             
         '''
         # return for None or empty key
-        if not key:
+        if not key or not tube:
             return False
         
         # check value is None
@@ -4490,12 +4476,8 @@ class StorageUtility():
         # reference the right key-value dict
         key_values_dict = None
         keys_readonly_set = None
-        if tube == None:
-            key_values_dict = Storage.I.KEY_VALUES_DICT
-            keys_readonly_set = Storage.I.KEYS_READONLY_SET
-        else:
-            key_values_dict = tube.KEY_VALUES_DICT
-            keys_readonly_set = tube.KEYS_READONLY_SET
+        key_values_dict = tube.KEY_VALUES_DICT
+        keys_readonly_set = tube.KEYS_READONLY_SET
                         
         # check if force
         if is_force:
@@ -6196,9 +6178,7 @@ Tube:
                                     continue
                                 elif var_start == True and not line.startswith(' '):
                                     break
-                            # print default tube variables
-                            for key in Storage.I.KEYS_DEFAULT:
-                                tprint(color(key + ': ', fore=Storage.I.C_PRINT_COLOR_BLUE, style=Storage.I.C_PRINT_COLOR_STYLE) + str(Storage.I.KEY_VALUES_DICT[key]) ,prefix='')                                                        
+                                                     
                         sys.exit()
                     except Exception as e:
                         tprint('Read variables from yaml file errors:' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
