@@ -3240,7 +3240,8 @@ class TubeCommand():
                         local_dict[name] = str(name)                       
             value = eval(value, globals(), local_dict)
         except Exception as e:
-            tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
