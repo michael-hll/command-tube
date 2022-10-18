@@ -4,6 +4,8 @@ TODO LIST
     - auto test each command script
     - check all command debug message       - done
 
+- Output Command.results to Email content    
+
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done

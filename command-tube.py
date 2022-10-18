@@ -210,7 +210,6 @@ Use 'help vars' to print all the given tube variables;
         self.EMAIL_SUBJECT             = 'Command Tube Result'
         # global variables
         self.LOGS                      = []
-        self.FILE_TAIL_LINES           = []
         self.KEY_VALUES_DICT           = {}
         self.KEYS_READONLY_SET         = set() # to store tube variables which are readonly
         self.KEYS_DEFAULT              = set()
@@ -2841,11 +2840,11 @@ class TubeCommand():
                 header = Storage.I.C_TAIL_LINES_HEADER + str(lines_count) + ' LINES FROM FILE [KEYWORDS:' + keywords + '] => '
                 tprint(header, prefix='')
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', header)
-                Storage.I.FILE_TAIL_LINES.append(header)
+                self.results.append(header)
             for line in return_lines:
                 tprint(line, prefix='')
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)
-                Storage.I.FILE_TAIL_LINES.append(line)    
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', line)  
+                self.results.append(header)
 
             # write result to result file
             if r_file:
@@ -5635,14 +5634,6 @@ def prepare_emails_content_and_sent(LOGS):
             email_body += line + '<br>'
         if len(Storage.I.DISK_SPACE_STATUS) > 0:
             email_body += '----- End of Checking Linux Disk Space -----<br>'
-
-    # tail file lines
-    for line in Storage.I.FILE_TAIL_LINES:
-        if Storage.I.C_TAIL_LINES_HEADER in line:
-            line = line
-            email_body += '<br><b>' + line + '</b><br>'
-        else:
-            email_body += line.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;').replace('<','&lt;').replace('>','&gt;') + '<br>'
     
     # prepare to sent email
     result = send_email(Storage.I.EMAIL_SENDER_ADDRESS, Storage.I.EMAIL_SENDER_PASSWORD, Storage.I.EMAIL_RECEIVER_ADDRESS, 
@@ -6622,7 +6613,6 @@ while Storage.I.IS_STOP == False:
             # In loop mode    
             # clear memories                           
             Storage.I.LOGS.clear() 
-            Storage.I.FILE_TAIL_LINES = []
             Storage.I.DISK_SPACE_STATUS = {}
             Storage.I.TUBE_FILE_LIST = {}
             # calculate loop times
