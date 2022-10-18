@@ -4808,7 +4808,7 @@ class StorageUtility():
         Storage.I.HAS_EMAIL_SETTINGS = True
     
     @classmethod
-    def read_variables_from_console(self, variables):
+    def read_variables_from_console(self, variables, tube: Tube):
         '''
         Read tube variables from user inputs.
         If variable was updated from console, then it 
@@ -4825,7 +4825,7 @@ class StorageUtility():
                 if not reUtility.is_matched_equal_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
                 key, value = Utility.split_equal_expression(item)                
-                StorageUtility.update_key_value_dict(key, value, is_readonly=True) 
+                StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
                 if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                     msg = 'Read console variable: \'%s\', value: \'%s\' from console and set it to readonly.'                
                     tprint(msg % (key, value), type=Storage.I.C_PRINT_TYPE_INFO)
@@ -6380,9 +6380,7 @@ def stop_matrix_terminal():
     Storage.I.MATRIX_THREAD.join()
     Storage.I.MATRIX_THREAD = None
 
-def get_console_inputs():
-    # Read variables from console
-    StorageUtility.read_variables_from_console(args.variables)
+def get_console_inputs():    
 
     # if debug
     if args.debug != None:
@@ -6612,6 +6610,9 @@ try:
 
     # Instance a new tube
     tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, Storage.I.TUBE_YAML, None)
+
+    # Read variables from console
+    StorageUtility.read_variables_from_console(args.variables, tube)
     # add default variables
     StorageUtility.add_default_variables(tube)
 
