@@ -1,0 +1,23 @@
+TUBE:
+    # number testing
+    - SET_VARIABLE: -n i -v 1
+    - COMMAND: echo i was set to 1 --if {i} == 1
+    - RUN_TUBE: -t SubTube1
+    - COMMAND: echo i was still equal to 1 --if {i} == 1
+    - RUN_TUBE: -t SubTube2
+    - COMMAND: echo i was still equal to 2 --if {i} == 2
+
+    # character testing
+    - SET_VARIABLE: -n s -v 'hello mac'
+    - RUN_TUBE: -t SubTube3
+
+SubTube1:
+    - SET_VARIABLE: -n i -v i + 1
+    - COMMAND: echo a new i was set to 2 locally --if {i} == 2 --key
+
+SubTube2:
+    - SET_VARIABLE: -n i -v i + 1 -g
+    - COMMAND: echo global i was set to 2 --if {i} == 2 --key
+
+SubTube3:
+    - COMMAND: ECHO {s} --if {s}=='hello mac' --key

@@ -4,7 +4,9 @@ TODO LIST
     - auto test each command script
     - check all command debug message       - done
 
-- Output Command.results to Email content    
+- Output Command.results to Email content   
+
+- DEL_VARIABLE -n name -g
 
 - DONE LIST
     1. Email content format - done

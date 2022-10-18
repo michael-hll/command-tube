@@ -3745,6 +3745,12 @@ class TubeCommand():
                 (str(self.index), self.get_formatted_type() + ': ' + str(self.get_formatted_content()))
             tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
+            # checking log if has errors
+            if log.has_errors():
+                # since errors already exist from log.errors
+                # then just throw empty exceptions
+                raise Exception()
             
             # initial logs             
             log.start_datetime = datetime.now()
@@ -3897,9 +3903,13 @@ class TubeCommand():
             # set the final result of running method
             return True
         except Exception as e:
-            log.status = Storage.I.C_FAILED
-            tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)                    
-            log.add_error(str(e))
+            log.status = Storage.I.C_FAILED            
+            if e and len(str(e)) > 0:                   
+                log.add_error(str(e))
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR) 
+            else:
+                for msg in log.errors:
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR) 
             log.end_datetime = datetime.now()
             return True
         
@@ -4130,6 +4140,12 @@ class TubeCommandLog:
         for err in self.errors:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', err)          
 
+    def has_errors(self):
+        return len(self.errors) > 0
+
+    def clear(self):
+        self.errors.clear()
+
 class Tube():    
 
     def __init__(self, file, name, index, tube_yaml, parent=None):
@@ -4318,10 +4334,13 @@ class TubeRunner():
                 continue
             
             # reset general arguments
-            command.reset_general_arguments()
+            try:
+                command.reset_general_arguments()
+            except Exception as e:
+                log.add_error(str(e))
             
             # skip if_run == False cases
-            if command.if_run == False:
+            if command.if_run == False and not log.has_errors():
                 command.is_skip = True
                 # in order to get key command correct running status
                 # we need this flag to tell it's skipped by if run
