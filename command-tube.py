@@ -1182,14 +1182,14 @@ class Utility():
             local_dict = {}
             # Add the missing codes into local varialbes as str
             for name in code.co_names:
+                kv = command.tube.get_first_key_value(name)
+                if kv != None:
+                    local_dict[name] = kv
+                    continue
+                if name in Storage.I.EVAL_CODE_SET:
+                    continue
                 if not Utility.if_key_exists_in_str(globals().keys(), name):
-                    kv = command.tube.get_first_key_value(name)
-                    if kv != None:
-                        local_dict[name] = kv
-                        continue
-                    if name in Storage.I.EVAL_CODE_SET:
-                        continue
-                    local_dict[name] = name                       
+                    local_dict[name] = str(name)                        
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The eval parameter is: {0}, local dict: {1}, running command is {2}.'.format(conditions_str, local_dict, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
