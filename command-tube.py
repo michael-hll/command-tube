@@ -212,9 +212,9 @@ Use 'help vars' to print all the given tube variables;
         self.LOGS                      = []
         self.DISK_SPACE_STATUS         = {} 
         self.INSTALLED_PACKAGES        = []
-        self.TUBE                      = []
-        self.TUBE_LIST                 = []
-        self.TUBE_RUN                  = [] 
+        self.TUBE                      = None # Reference to the main tube instance
+        self.TUBE_RUN                  = []  # Reference the main tube tube run list
+        self.TUBE_LIST                 = []  # Hold all the instanced tube list        
         self.HOSTS                     = {}
         self.CURR_HOST                 = ''
         self.CURR_HOST_PROFILE         = ''
@@ -1522,7 +1522,7 @@ class TubeCommand():
                 return tube_temp.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
             else:
                 # else we set the global key-value to the root tube
-                return Storage.I.TUBE_LIST[0].update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+                return Storage.I.TUBE.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
 
         # if not found from parent tubes, then update the key-value in current tube
         return self.tube.update_key_value(key, value, 
@@ -6356,7 +6356,7 @@ def job_start(tube_yaml):
         init_log_file()
 
         # Instance a new TubeRunner and ask it to run the tube
-        runner = TubeRunner(is_main=True, run_tube_command=None, tube=Storage.I.TUBE_LIST[0])
+        runner = TubeRunner(is_main=True, run_tube_command=None, tube=Storage.I.TUBE)
         runner.start()
                    
     except Exception as e:
@@ -6510,6 +6510,7 @@ try:
     StorageUtility.read_variables(Storage.I.VARIABLES, tube)
         
     # checking tube command syntax
+    Storage.I.TUBE = tube
     Storage.I.TUBE_RUN = tube.tube_run
     has_error, _ = StorageUtility.check_tube_command_arguments(tube.tube_run, general_command_parser)
     if has_error == True:
