@@ -6,8 +6,6 @@ TODO LIST
 
 - Output Command.results to Email content   
 
-- DEL_VARIABLE -n name -g
-
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done
@@ -106,6 +104,8 @@ TODO LIST
 
     38. - TAIL_FILE
         should support -r|--result argument to store the tail lines into result file  
+
+    39. - DEL_VARIABLE -n name -g 
 
 
 

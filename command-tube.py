@@ -81,6 +81,7 @@ class Storage():
         self.C_EMAIL                   = 'EMAIL'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
+        self.C_DEL_VARIABLE            = 'DEL_VARIABLE'
         self.C_SFTP_GET                = 'SFTP_GET'
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
@@ -607,6 +608,22 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
+            },
+            self.C_DEL_VARIABLE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ARG_SYNTAX: 'Syntax: DEL_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
+                        'The tube variable name you want to delete from current tube.'],
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'With --global parameter you can delete it from current and its parent tubes.'],
+                    [False, '-a','--all', '', '', 'is_del_all', False, True, 'store_true', False,
+                        'With --all parameter you can delete it from all tubes.'],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Delete tube variables.'
             },
             self.C_CONNECT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -1516,10 +1533,10 @@ class TubeCommand():
             is_global: If update the key,value in global scope.
         '''
         if is_global == True:
-            exists, tube_temp = self.tube.find_key_from_tubes(key)
+            exists, tube_first = self.tube.find_key_from_tubes(key)
             # if found exists parent tubes has this key, then update the first found tube
             if exists:
-                return tube_temp.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
+                return tube_first.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
             else:
                 # else we set the global key-value to the root tube
                 return Storage.I.TUBE.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_override=is_override)
@@ -2693,6 +2710,45 @@ class TubeCommand():
 
         return True
     
+    def del_variable(self):
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(inputs.split())
+        name = ' '.join(args.name)
+        is_global = args.is_global
+        is_del_all = args.is_del_all
+
+        deleted = []
+
+        # delete current
+        key = self.tube.KEY_VALUES_DICT.pop(name, None)
+        self.tube.KEYS_READONLY_SET.discard(name)
+        if key:
+            deleted.append('{0} was deleted from tube: {1}'.format(name, self.tube.tube_name))
+        # delete global
+        t: Tube
+        if is_global:
+            parents = self.tube.get_parent_tube_list()
+            for t in parents:
+                key = t.KEY_VALUES_DICT.pop(name, None)
+                t.KEYS_READONLY_SET.discard(name)
+                if key:
+                    deleted.append('{0} was deleted from tube: {1}'.format(name, self.tube.tube_name))
+        # delete all
+        if is_del_all:
+            for t in Storage.I.TUBE_LIST:
+                key = t.KEY_VALUES_DICT.pop(name, None)
+                t.KEYS_READONLY_SET.discard(name)
+                if key:
+                    deleted.append('{0} was deleted from tube: {1}'.format(name, self.tube.tube_name))
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            for msg in deleted:
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
+
+        return True
+
     def dir_exist(self):
         directory, var = None, None
         parser = self.tube_argument_parser
@@ -3866,6 +3922,9 @@ class TubeCommand():
             
             elif self.cmd_type == Storage.I.C_SET_VARIABLE:
                 result = self.set_variable()
+
+            elif self.cmd_type == Storage.I.C_DEL_VARIABLE:
+                result = self.del_variable()
             
             elif self.cmd_type == Storage.I.C_SFTP_GET or \
                     self.cmd_type == Storage.I.C_SFTP_PUT:
@@ -4163,7 +4222,7 @@ class Tube():
         self.tube_file         = file
         self.tube_name         = name
         self.tube_index        = index
-        self.parent            = parent
+        self.parent: Tube      = parent
         self.tube_yaml         = tube_yaml        
         self.tube_run          = []
         self.tube_run_all      = []
@@ -4234,7 +4293,18 @@ class Tube():
         if self.parent:
             return self.parent.get_first_key_value(key)
         return None
-       
+
+    def get_parent_tube_list(self, parents=None):
+        '''
+        Get current and its all parent tube list
+        '''
+        if parents == None:
+            parents = []
+        parents.append(self)
+        if self.parent:
+            return self.parent.get_parent_tube_list(parents)
+        return parents
+
 class TubeRunner():
     
     def __init__(self, is_main = True, run_tube_command: TubeCommand = None, tube: Tube = None):
