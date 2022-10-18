@@ -3213,12 +3213,12 @@ class TubeCommand():
         '''
         For command: SET_VARIABLE
         '''
-        name, value, is_readonly, is_force, is_global = '', '', False, False, False
+        key, value, is_readonly, is_force, is_global = '', '', False, False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         if len(args.name) > 0:
-            name = args.name[0]
+            key = args.name[0]
         if args.value:
             value = ' '.join(args.value)
         is_readonly = args.is_readonly
@@ -3243,7 +3243,7 @@ class TubeCommand():
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
-        return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
+        return self.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
     def sftp_get_put(self, ssh):
         '''
