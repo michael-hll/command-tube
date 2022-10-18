@@ -17,13 +17,10 @@ TUBE:
     - RUN_TUBE: -t run_tube.yaml --continue --note 11
 
     # TODO
-    # RUN_TUBE
     # REPLACE_CHAR
     # READ_LINE_IN_FILE
-    # PRINT_VARS
     # LIST_FILES
     # LIST_DIRS
-    # COMMAND
     # FILE_READ, PUSH, POP, MOVE, EXIST, EMPTY, DELETE, COPY, APPEND
     # DIR_EXIST, DELETE, CREATE
     # CHECK_CHAR_EXIST

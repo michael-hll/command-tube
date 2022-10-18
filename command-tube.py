@@ -229,6 +229,7 @@ Use 'help vars' to print all the given tube variables;
         self.MATRIX_THREAD             = None
         self.IS_REPORT_PROGRESS        = False
         self.HAS_EMAIL_SETTINGS        = False
+        self.EVAL_CODE_SET    = set()
         # Tube Command argument configurations design details
         # 0: Is postion arguments
         # 1: -  Short argument name. eg: -f (if you want leave it empty, then only put '-' value)
@@ -1182,12 +1183,18 @@ class Utility():
             # Add the missing codes into local varialbes as str
             for name in code.co_names:
                 if not Utility.if_key_exists_in_str(globals().keys(), name):
-                        local_dict[name] = str(name)                       
+                    kv = command.tube.get_first_key_value(name)
+                    if kv != None:
+                        local_dict[name] = kv
+                        continue
+                    if name in Storage.I.EVAL_CODE_SET:
+                        continue
+                    local_dict[name] = name                       
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The eval parameter is: {0}, local dict: {1}, running command is {2}.'.format(conditions_str, local_dict, command.get_full_content())
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            return eval(conditions_str, globals(),local_dict)
+            return eval(conditions_str, globals(), local_dict)
         else:
             # no conditions char exist case
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
@@ -1299,7 +1306,17 @@ class Utility():
             return '\'' + value + '\''
         else:
             return value
-            
+
+    @classmethod
+    def gen_eval_code_set(self):
+        Storage.I.EVAL_CODE_SET = set.union(
+            set(dir(__builtins__)),
+            set(dir(str)),
+            set(dir(int)),
+            set(dir(float)),
+            set(dir(bool)),
+            set(dir(datetime)))
+
 class reUtility():
     
     @staticmethod
@@ -3291,6 +3308,8 @@ class TubeCommand():
                 kv = self.tube.get_first_key_value(name)
                 if kv != None:
                     local_dict[name] = kv
+                    continue
+                if name in Storage.I.EVAL_CODE_SET:
                     continue
                 if not Utility.if_key_exists_in_str(globals().keys(), name):
                         local_dict[name] = str(name)                       
@@ -6595,6 +6614,9 @@ try:
     tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, Storage.I.TUBE_YAML, None)
     # add default variables
     StorageUtility.add_default_variables(tube)
+
+    # generate the eval code set
+    Utility.gen_eval_code_set()
     
     # Read variables 
     StorageUtility.read_variables(Storage.I.VARIABLES, tube)

@@ -69,12 +69,49 @@ TUBE:
     - COMMAND: ECHO testing --if {c} == 'a = ! ()'
     - COMMAND: ECHO testing --if datetime.today().weekday() != 7
     - COMMAND: ECHO testing --if {v} == '你好！=><!() 我是！:asdfasdf'
+    # additional testing
+    - SET_VARIABLE: -n x -v 1
+    - SET_VARIABLE: -n y -v 2
+    - SET_VARIABLE: -n c1 -v 'abc'
+    - SET_VARIABLE: -n c2 -v 'a b'
+    - COMMAND: ECHO HELLO --if 'a b' == 'a b'
+    - COMMAND: ECHO HELLO --if ab == ab
+    - COMMAND: ECHO HELLO --if {c1} == abc
+    - COMMAND: ECHO HELLO --if {c1} == 'abc'
+    - COMMAND: ECHO HELLO --if {c2} == {c2}
+    - SET_VARIABLE: -n x -v 1
+    - COMMAND: ECHO HELLO --if {x} == {y} - 1
+    - COMMAND: ECHO HELLO --if len({c1}) == 3
+    - SET_VARIABLE: -n z -v datetime.today().weekday()
+    - COMMAND: ECHO HELLO --if {z} == datetime.today().weekday()
+    - SET_VARIABLE: -n x -v len({c1})
+    - COMMAND: ECHO HELLO --if {x} == 3
+    - SET_VARIABLE: -n year -v datetime.today().year
+    - COMMAND: ECHO HELLO --if {year} >= 2022
+    - COMMAND: ECHO HELLO --if {c1}[:1] == a
+    - COMMAND: ECHO EHLLO --if {c1}.startswith('a')
+    - COMMAND: ECHO HELLO --if 'a b' == 'a b'
+    - COMMAND: ECHO HELLO --if ab == ab
+    - COMMAND: ECHO HELLO --if c1 == abc
+    - COMMAND: ECHO HELLO --if c1 == 'abc'
+    - COMMAND: ECHO HELLO --if c2 == c2
+    - SET_VARIABLE: -n x -v 1
+    - COMMAND: ECHO HELLO --if x == y - 1
+    - COMMAND: ECHO HELLO --if len(c1) == 3
+    - SET_VARIABLE: -n z -v datetime.today().weekday()
+    - COMMAND: ECHO HELLO --if z == datetime.today().weekday()
+    - SET_VARIABLE: -n x -v len(c1)
+    - COMMAND: ECHO HELLO --if x == 3
+    - SET_VARIABLE: -n year -v datetime.today().year
+    - COMMAND: ECHO HELLO --if year >= 2022
+    - COMMAND: ECHO HELLO --if c1[:1] == a
+    - COMMAND: ECHO EHLLO --if c1.startswith('a')
     - COUNT: -t SUCCESSFUL -v success_nums -cs
-    - COMMAND: echo Testing Passed --if {success_nums}==44
-    - SET_VARIABLE: -n if_condition_result -v Testing Pass  -g --if {success_nums}==44
-    - SET_VARIABLE: -n if_condition_result -v Testing Failed -g --if {success_nums}!=44
+    - COMMAND: echo Testing Passed --if {success_nums}==80
+    - SET_VARIABLE: -n if_condition_result -v Testing Pass  -g --if {success_nums}==80
+    - SET_VARIABLE: -n if_condition_result -v Testing Failed -g --if {success_nums}!=80
     - PRINT_VARS: 'if_condition_result'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==44
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==80
 
 
 
