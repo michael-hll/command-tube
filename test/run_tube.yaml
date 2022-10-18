@@ -1,0 +1,15 @@
+Tube:
+    - SET_VARIABLE: -n i -v 0
+    - RUN_TUBE: -t SubTube -v x=100, y='Hello World' -w {i} < 2
+
+    # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==2
+    - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=2
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==2
+
+SubTube:
+    - SET_VARIABLE: -n i -v {i} + 1 -g
+    - COMMAND: ECHO you passing variables are {x},{y} --key
+    - SET_VARIABLE: -n x -v x + 1 --key
+    - PRINT_VARS: '*'
