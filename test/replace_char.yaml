@@ -1,0 +1,18 @@
+Tube:
+    - SET_VAR: -n i -v 0
+    - SET_VAR: -n file -v replace_test.txt
+    - FILE_EMPTY: -f {file} -c
+    - RUN_TUBE: -t LOOP -w i < 5
+    - REPLACE_CHAR: -f {file} -o line -n new line
+    - REPLACE_CHAR: -f {file} -o line -n hello mac -c 100
+    - FILE_DELETE: -f {file}
+
+     # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    - SET_VARIABLE: -n replace_char_result -v Testing Pass  -g --if {success_nums}==7 --key
+    - SET_VARIABLE: -n replace_char_result -v Testing Failed -g --if {success_nums}!=7
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
+
+LOOP:
+    - SET_VAR: -n i -v i + 1 -g
+    - WRITE_LINE: -f {file} -v line{i}

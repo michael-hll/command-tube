@@ -871,7 +871,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-n','--newvalue', 'str', '+',   'newvalue', True, False, '', '',
                         'The newvalue to replace.'],
                     [False, '-c','--count', 'str', 1,   'count', False, False, '', '',
-                        'The replaced times you want to set. Default no limitation.'],
+                        'The replaced times you want to set. Default 1.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -3562,7 +3562,7 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file, oldvalue, newvalue, count = '', '', '', sys.maxsize
+        file, oldvalue, newvalue, count = '', '', '', 1
         
         # get user inputs
         file = ' '.join(args.file)
@@ -3587,7 +3587,7 @@ class TubeCommand():
             for line in lines:
                 while re.search(oldvalue, line) is not None and replaced_count < count:
                     line = re.sub(oldvalue, newvalue, line, 1)
-                    replaced_count += 1
+                    replaced_count += 1                
                 lines_new.append(line)
             
             # write replaced lines back to file
