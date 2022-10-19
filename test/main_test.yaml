@@ -14,6 +14,7 @@
 Variables:
     tube_passed: 0
     test_folder: /Volumes/MacDrive/Projects/tube/test
+    del_log: yes
 TUBE:
     - PATH: {test_folder}
     # TESTING VIA SUB TUBES
@@ -49,5 +50,6 @@ TUBE:
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
         redo_result, tail_file, set_variable_result, run_tube_result, alias_result
 
+    - FILE_DELETE: -f *.yaml.log --if del_log --continue
     - COMMAND: ECHO TESTING FAILED --if tube_passed != 13
     - COMMAND: ECHO TESTING PASSED --if tube_passed == 13 --key
