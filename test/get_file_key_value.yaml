@@ -8,7 +8,7 @@ TUBE:
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COMMAND: echo Testing Passed --if {success_nums}==4
     # output testing result
-    - SET_VARIABLE: -n get_file_key_value_result -v Testing Pass -g --if {success_nums}==4
+    - SET_VARIABLE: -n get_file_key_value_result -v Testing Pass -g --if {success_nums}==4 --key
     - SET_VARIABLE: -n get_file_key_value_result -v Testing Failed -g --if {success_nums}!=4
     - PRINT_VARS: 'get_file_key_value_result'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==4

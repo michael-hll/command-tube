@@ -21,7 +21,7 @@ TUBE:
     # 8. Test successful command count
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     # output testing result
-    - SET_VARIABLE: -n del_line_result -v Testing Pass  -g --if {success_nums}==7
+    - SET_VARIABLE: -n del_line_result -v Testing Pass  -g --if {success_nums}==7 --key
     - SET_VARIABLE: -n del_line_result -v Testing Failed -g --if {success_nums}!=7
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
     - PRINT_VARS: 'del_line_result'

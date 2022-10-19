@@ -19,7 +19,7 @@ TUBE:
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COMMAND: echo Testing Passed --if {success_nums}==2
     # output testing result
-    - SET_VARIABLE: -n email_result -v Testing Pass -g --if {success_nums}==2
+    - SET_VARIABLE: -n email_result -v Testing Pass -g --if {success_nums}==2 --key
     - SET_VARIABLE: -n email_result -v Testing Failed -g --if {success_nums}!=2
     - PRINT_VARS: 'email_result'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==2

@@ -8,6 +8,10 @@ TODO LIST
 
 - DELETE_LINE_IN_FILE: -v|variable to store the deleted content
 
+- COMMAND alias
+
+- ENHANCE help
+
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done

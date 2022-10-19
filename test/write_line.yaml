@@ -15,7 +15,7 @@ TUBE:
     - COMMAND: rm data_w.txt
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     - COMMAND: echo Testing Passed --if {success_nums}==6
-    - SET_VARIABLE: -n write_line_in_file -v Testing Pass -g --if {success_nums}==6
+    - SET_VARIABLE: -n write_line_in_file -v Testing Pass -g --if {success_nums}==6 --key
     - SET_VARIABLE: -n write_line_in_file -v Testing Failed -g --if {success_nums}!=6
     - PRINT_VARS: 'write_line_in_file'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6

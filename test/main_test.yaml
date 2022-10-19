@@ -1,5 +1,6 @@
 
 # TESTING STEPS
+# Changing the 'test_folder' variable value to the correct one
 # From terminal enter the following command using tube:
 # >>> tube -t test/main_test -fc -v cs1=100, cs2=yes, cs3='hello mac'
 # Or from terminal enter the following command using source code:
@@ -12,8 +13,9 @@
 
 Variables:
     tube_passed: 0
+    test_folder: /Volumes/MacDrive/Projects/tube/test
 TUBE:
-    - PATH: /Volumes/MacDrive/Projects/tube/test
+    - PATH: {test_folder}
     # TESTING VIA SUB TUBES
     - RUN_TUBE: -t del_line.yaml --continue  --note 1
     - RUN_TUBE: -t email.yaml --continue  --note 2
