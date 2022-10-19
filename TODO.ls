@@ -1,8 +1,6 @@
 TODO LIST
 
-- System Test
-    - auto test each command script
-    - check all command debug message       - done
+- position arguments for each commands?
 
 - Output Command.results to Email content   
 
@@ -117,6 +115,10 @@ TODO LIST
     42. - PRINT_VARS: '*' -r|--result result
 
     43. - DELETE_LINE_IN_FILE: -r|--result to store the deleted content
+
+    44. - System Test
+        - auto test each command script         - done
+        - check all command debug message       - done
 
 
 

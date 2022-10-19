@@ -35,12 +35,6 @@ TUBE:
     - RUN_TUBE: -t check_char.yaml --continue --note 15
     - RUN_TUBE: -t file_sys.yaml --continue --note 16
 
-    # TODO
-    # CONNECT
-    # LINUX_COMMAND
-    # SFTP_PUT
-    # SFTP_GET
-
     - PRINT_VARS: tube_passed, del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
         redo_result, tail_file, set_variable_result,run_tube_result, alias_result,
