@@ -511,6 +511,8 @@ Use 'help vars' to print all the given tube variables;
                         'The line contains with character you want to delete.'],
                     [False, '-e','--empty', '', '', 'del_empty', False, True, 'store_true', False,
                         'A flag to tell if delete empty line. Default no.'],
+                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                        'The text file to store deleted directory result.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2150,6 +2152,9 @@ class TubeCommand():
             delete_empty = True
         if args.number:
             line_number = args.number[0]
+        result = None
+        if args.result:
+            result = ' '.join(args.result)
         
         # if didn't found any conditions then delete nothing
         if line_begins == '' and line_contains == '' and not delete_empty and line_number == None:
@@ -2158,6 +2163,7 @@ class TubeCommand():
         if os.path.exists(file):
             lines = []
             lines_new = []
+            deleted_lines = []
             is_last_char_new_line = True
             # get file original lines
             with open(file,'r') as f:
@@ -2210,7 +2216,8 @@ class TubeCommand():
                 if is_delete == False:
                     lines_new.append(line)  
                 else:
-                    deleted_count += 1                   
+                    deleted_count += 1     
+                    deleted_lines.append(line)              
             
             # overwrite new lines into file
             with open(file, 'w') as f:
@@ -2222,7 +2229,11 @@ class TubeCommand():
                             line += '\n'
                         elif is_last_char_new_line == False and line.endswith('\n'):
                             line = line[:-1]
-                    f.write(line)                
+                    f.write(line)     
+
+            # write deleted lines to file
+            if result:
+                Utility.write_result_to_file(result, deleted_lines)           
         
             # log how many lines deleted
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:

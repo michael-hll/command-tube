@@ -6,8 +6,6 @@ TODO LIST
 
 - Output Command.results to Email content   
 
-- DELETE_LINE_IN_FILE: -v|variable to store the deleted content
-
 - ENHANCE help
 
 - DONE LIST
@@ -117,6 +115,8 @@ TODO LIST
         - DIR_DELETE: -r|--result result
 
     42. - PRINT_VARS: '*' -r|--result result
+
+    43. - DELETE_LINE_IN_FILE: -r|--result to store the deleted content
 
 
 
