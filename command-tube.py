@@ -81,7 +81,7 @@ class Storage():
         self.C_EMAIL                   = 'EMAIL'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
-        self.C_DEL_VARIABLE            = 'DEL_VARIABLE'
+        self.C_DELETE_VARIABLE         = 'DELETE_VARIABLE'
         self.C_SFTP_GET                = 'SFTP_GET'
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
@@ -250,7 +250,7 @@ Use 'help vars' to print all the given tube variables;
         self.TUBE_ARGS_CONFIG = {  
             self.C_RUN_TUBE: {                
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'RUN'},
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
                     [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
@@ -270,7 +270,7 @@ Use 'help vars' to print all the given tube variables;
             },                   
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'TAIL'},
                 self.C_ARG_SYNTAX: 'Syntax: TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -289,7 +289,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -308,7 +308,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_POP: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_POP'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_POP: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -327,7 +327,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_APPEND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_APPEND'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_APPEND: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -342,7 +342,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_PUSH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_PUSH'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_PUSH: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -357,7 +357,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_EMPTY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_EMPTY'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_EMPTY: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -372,7 +372,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_CREATE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_CREATE'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_CREATE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -385,7 +385,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_READ: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_READ'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_READ: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -404,7 +404,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_DELETE'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -419,7 +419,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_COPY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_COPY'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_COPY: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
@@ -434,7 +434,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_MOVE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'F_MOVE'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_MOVE: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
@@ -449,7 +449,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DIR_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'D_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
@@ -468,7 +468,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DIR_CREATE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'D_CREATE'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_CREATE: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
@@ -481,7 +481,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DIR_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'D_DELETE'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
@@ -643,10 +643,10 @@ Use 'help vars' to print all the given tube variables;
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
             },
-            self.C_DEL_VARIABLE: {
+            self.C_DELETE_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'DEL_VAR'},
-                self.C_ARG_SYNTAX: 'Syntax: DEL_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ALIAS: {'DELETE_VAR'},
+                self.C_ARG_SYNTAX: 'Syntax: DELETE_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name you want to delete from current tube.'],
@@ -662,7 +662,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_CONNECT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'CONN'},
                 self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'host', True, False, '', '',
@@ -675,7 +675,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_REPORT_PROGRESS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'REPORT_PRO'},
                 self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'subject', True, False, '', '',
@@ -688,7 +688,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'PAUSE'},
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'minutes', True, False, '', '',
@@ -701,7 +701,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PATH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'CD'},
                 self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'directory', True, False, '', '',
@@ -735,7 +735,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_EMAIL: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'MAIL'},
                 self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-t','--to', 'str', '+', 'to', True, False, '', '',
@@ -783,7 +783,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_COUNT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'COUNT'},
                 self.C_ARG_SYNTAX: 'Syntax: COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', False, False, '', '',
@@ -808,7 +808,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_SFTP_GET: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'FTP_GET'},
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-r','--remotepath', 'str',  1,  'remotepath', True, False, '', '',
@@ -824,7 +824,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_SFTP_PUT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'FTP_PUT'},
                 self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-l','--localpath',  'str',  1,  'localpath', True, False, '', '',
@@ -840,7 +840,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_CHECK_CHAR_EXISTS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'CHECK_CHAR'},
                 self.C_ARG_SYNTAX: 'Syntax: CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
@@ -861,7 +861,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_REPLACE_CHAR: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'REPLACE'},
                 self.C_ARG_SYNTAX: 'Syntax: REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
@@ -895,7 +895,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_LIST_FILES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'LIST_F'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_FILES: -d directory -r result_file [-s time|name|size [asc|desc]] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
@@ -912,7 +912,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_LIST_DIRS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'LIST_D'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_DIRS: -d directory -r result_file [-s asc|desc] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
@@ -2815,7 +2815,7 @@ class TubeCommand():
 
         return True
     
-    def del_variable(self):
+    def delete_variable(self):
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
@@ -4054,8 +4054,8 @@ class TubeCommand():
             elif command_type == Storage.I.C_SET_VARIABLE:
                 result = self.set_variable()
 
-            elif command_type == Storage.I.C_DEL_VARIABLE:
-                result = self.del_variable()
+            elif command_type == Storage.I.C_DELETE_VARIABLE:
+                result = self.delete_variable()
             
             elif command_type == Storage.I.C_SFTP_GET or \
                     command_type == Storage.I.C_SFTP_PUT:
