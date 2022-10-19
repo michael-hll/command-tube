@@ -86,7 +86,7 @@ class Storage():
         self.C_SFTP_PUT                = 'SFTP_PUT'
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
-        self.C_PRINT_VARIABLES         = 'PRINT_VARS'
+        self.C_PRINT_VARIABLES         = 'PRINT_VARIABLES'
         self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_LIST_FILES              = 'LIST_FILES'
@@ -490,7 +490,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'DELETE_LINE'},
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -511,7 +511,7 @@ Use 'help vars' to print all the given tube variables;
             },  
             self.C_READ_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'READ_LINE'},
                 self.C_ARG_SYNTAX: 'Syntax: READ_LINE_IN_FILE: -f file -n number [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -532,7 +532,7 @@ Use 'help vars' to print all the given tube variables;
             }, 
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'WRITE_LINE'},
                 self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -555,7 +555,7 @@ Use 'help vars' to print all the given tube variables;
             },    
             self.C_SET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'SET_KEY'},
                 self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -572,7 +572,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_GET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'GET_XML_TAG'},
                 self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -594,7 +594,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_SET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'SET_XML_TAG'},
                 self.C_ARG_SYNTAX: 'Syntax: SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -611,7 +611,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_SET_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'SET_VAR'},
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
@@ -635,7 +635,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DEL_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'DEL_VAR'},
                 self.C_ARG_SYNTAX: 'Syntax: DEL_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
@@ -704,7 +704,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_GET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'GET_KEYS'},
                 self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -742,7 +742,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'CMD'},
                 self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
@@ -758,7 +758,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_LINUX_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'LCMD','SSHCMD'},
                 self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
@@ -870,7 +870,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PRINT_VARIABLES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {},
+                self.C_ALIAS: {'PRINT_VARS'}, # TODO change the original to PRINT_VARIABLES
                 self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: name [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
@@ -1501,6 +1501,7 @@ class TubeCommand():
     
     def __init__(self, cmd_type, content) -> None:
         self.cmd_type                   = cmd_type
+        self.command_type               = StorageUtility.get_command_type(cmd_type)
         self.uuid                       = str(uuid.uuid4())
         self.original_uuid              = self.uuid
         # contents
@@ -1533,7 +1534,7 @@ class TubeCommand():
         self.loop_index                 = -1
         
         # Private properties
-        self.__original_content2   = None # content without place holders        
+        self.__original_content2   = None # content without place holders  
         
         # return if content is empty
         if self.content == None:
@@ -1561,7 +1562,7 @@ class TubeCommand():
                 self.has_placeholders = True            
                 
         # init command type    
-        self.tube_argument_config = TubeCommandArgumentConfig(self.cmd_type, Storage.I.TUBE_ARGS_CONFIG)
+        self.tube_argument_config = TubeCommandArgumentConfig(self.command_type, Storage.I.TUBE_ARGS_CONFIG)
         self.tube_argument_parser = TubeArgumentParser.create_argument_parser(self.tube_argument_config)
     
     def __create_sub_tube(self, data, tube_name, file, conditions):
@@ -3873,120 +3874,121 @@ class TubeCommand():
             result = True
             # --------------------------------------------------------
             # Begin to run each tube command based on its command type
-            # --------------------------------------------------------        
-            if self.cmd_type == Storage.I.C_LINUX_COMMAND:
+            # --------------------------------------------------------     
+            command_type = self.command_type
+            if command_type == Storage.I.C_LINUX_COMMAND:
                 result = self.linux_command()              
 
-            elif self.cmd_type == Storage.I.C_PATH:
+            elif command_type == Storage.I.C_PATH:
                 self.content = self.self_format_placeholders(self.content) 
                 result = os.chdir(self.content)
             
-            elif self.cmd_type == Storage.I.C_PAUSE:
+            elif command_type == Storage.I.C_PAUSE:
                 result = self.pause()
 
-            elif self.cmd_type == Storage.I.C_COMMAND:
+            elif command_type == Storage.I.C_COMMAND:
                 result = self.command()                
 
-            elif self.cmd_type == Storage.I.C_GET_XML_TAG_TEXT:                      
+            elif command_type == Storage.I.C_GET_XML_TAG_TEXT:                      
                 result = self.get_xml_tag_text()     
 
-            elif self.cmd_type == Storage.I.C_SET_XML_TAG_TEXT:                     
+            elif command_type == Storage.I.C_SET_XML_TAG_TEXT:                     
                 result = self.set_xml_tag_text()  
             
-            elif self.cmd_type == Storage.I.C_SET_FILE_KEY_VALUE:                      
+            elif command_type == Storage.I.C_SET_FILE_KEY_VALUE:                      
                 result = self.set_file_key_value()                                                                    
 
-            elif self.cmd_type == Storage.I.C_WRITE_LINE_IN_FILE:                        
+            elif command_type == Storage.I.C_WRITE_LINE_IN_FILE:                        
                 result = self.write_line_in_file()  
 
-            elif self.cmd_type == Storage.I.C_DELETE_LINE_IN_FILE:                       
+            elif command_type == Storage.I.C_DELETE_LINE_IN_FILE:                       
                 result = self.delete_line_in_file()  
                     
-            elif self.cmd_type == Storage.I.C_READ_LINE_IN_FILE:                      
+            elif command_type == Storage.I.C_READ_LINE_IN_FILE:                      
                 result = self.read_line_in_file()  
             
-            elif self.cmd_type == Storage.I.C_LIST_FILES:                       
+            elif command_type == Storage.I.C_LIST_FILES:                       
                 result = self.list_files()  
 
-            elif self.cmd_type == Storage.I.C_LIST_DIRS:                      
+            elif command_type == Storage.I.C_LIST_DIRS:                      
                 result = self.list_dirs()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_EXIST:                      
+            elif command_type == Storage.I.C_FILE_EXIST:                      
                 result = self.file_exist()  
 
-            elif self.cmd_type == Storage.I.C_FILE_POP:                       
+            elif command_type == Storage.I.C_FILE_POP:                       
                 result = self.file_pop()  
             
-            elif self.cmd_type == Storage.I.C_FILE_PUSH:                      
+            elif command_type == Storage.I.C_FILE_PUSH:                      
                 result = self.file_push()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_EMPTY:                      
+            elif command_type == Storage.I.C_FILE_EMPTY:                      
                 result = self.file_empty()  
             
-            elif self.cmd_type == Storage.I.C_FILE_CREATE:                      
+            elif command_type == Storage.I.C_FILE_CREATE:                      
                 result = self.file_create()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_READ:                      
+            elif command_type == Storage.I.C_FILE_READ:                      
                 result = self.file_read()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_APPEND:
+            elif command_type == Storage.I.C_FILE_APPEND:
                 result = self.file_append()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_DELETE:
+            elif command_type == Storage.I.C_FILE_DELETE:
                 result = self.file_delete()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_COPY:
+            elif command_type == Storage.I.C_FILE_COPY:
                 result = self.file_copy()  
                     
-            elif self.cmd_type == Storage.I.C_FILE_MOVE:
+            elif command_type == Storage.I.C_FILE_MOVE:
                 result = self.file_move()  
             
-            elif self.cmd_type == Storage.I.C_DIR_EXIST:
+            elif command_type == Storage.I.C_DIR_EXIST:
                 result = self.dir_exist()  
                     
-            elif self.cmd_type == Storage.I.C_DIR_DELETE:
+            elif command_type == Storage.I.C_DIR_DELETE:
                 result = self.dir_delete()  
                     
-            elif self.cmd_type == Storage.I.C_DIR_CREATE:
+            elif command_type == Storage.I.C_DIR_CREATE:
                 result = self.dir_create()  
 
-            elif self.cmd_type == Storage.I.C_TAIL_FILE:
+            elif command_type == Storage.I.C_TAIL_FILE:
                 result = self.tail_file()   
             
-            elif self.cmd_type == Storage.I.C_CONNECT:                                        
+            elif command_type == Storage.I.C_CONNECT:                                        
                 try:
                     result = self.connect() 
                 except Exception as e:
                     Host.SSHConnection = None
                     raise Exception(e)           
             
-            elif self.cmd_type == Storage.I.C_REPORT_PROGRESS:              
+            elif command_type == Storage.I.C_REPORT_PROGRESS:              
                 result = self.report_progress(Storage.I.TUBE_RUN)              
             
-            elif self.cmd_type == Storage.I.C_GET_FILE_KEY_VALUE:
+            elif command_type == Storage.I.C_GET_FILE_KEY_VALUE:
                 result, values = self.get_file_key_value()
                 # TODO: need to double check the results feature??
                 for item in values:
                     self.results.append(item) 
             
-            elif self.cmd_type == Storage.I.C_EMAIL:
+            elif command_type == Storage.I.C_EMAIL:
                 result = self.send_email_via_command()
             
-            elif self.cmd_type == Storage.I.C_RUN_TUBE:
+            elif command_type == Storage.I.C_RUN_TUBE:
                 log.status = Storage.I.C_RUNNING
                 self.run_tube(general_command_parser)
             
-            elif self.cmd_type == Storage.I.C_COUNT:
+            elif command_type == Storage.I.C_COUNT:
                 result = self.count()
             
-            elif self.cmd_type == Storage.I.C_SET_VARIABLE:
+            elif command_type == Storage.I.C_SET_VARIABLE:
                 result = self.set_variable()
 
-            elif self.cmd_type == Storage.I.C_DEL_VARIABLE:
+            elif command_type == Storage.I.C_DEL_VARIABLE:
                 result = self.del_variable()
             
-            elif self.cmd_type == Storage.I.C_SFTP_GET or \
-                    self.cmd_type == Storage.I.C_SFTP_PUT:
+            elif command_type == Storage.I.C_SFTP_GET or \
+                    command_type == Storage.I.C_SFTP_PUT:
                 # Check if we have a valid ssh connection
                 if Host.SSHConnection == None:
                     msg = 'Please check your provide server information, ssh failed to connect to your server.'
@@ -3994,13 +3996,13 @@ class TubeCommand():
                 
                 self.sftp_get_put(Host.SSHConnection)
             
-            elif self.cmd_type == Storage.I.C_CHECK_CHAR_EXISTS:
+            elif command_type == Storage.I.C_CHECK_CHAR_EXISTS:
                 self.check_char_exists()
             
-            elif self.cmd_type == Storage.I.C_REPLACE_CHAR:
+            elif command_type == Storage.I.C_REPLACE_CHAR:
                 result = self.replace_char()
             
-            elif self.cmd_type == Storage.I.C_PRINT_VARIABLES:
+            elif command_type == Storage.I.C_PRINT_VARIABLES:
                 self.print_variables()
                         
             # not supported command found then log errors and continue next          
@@ -4158,6 +4160,18 @@ class TubeCommand():
             
         return description
     
+    @classmethod
+    def get_command_alias(self, command_type, arg_configs) -> str:
+        arg_config = arg_configs[command_type]
+        alias = 'Alias: '
+        if len(arg_config[Storage.I.C_ALIAS]) > 0:
+            
+            for item in arg_config[Storage.I.C_ALIAS]:
+                alias += item + ', '
+            alias = alias.strip().rstrip(',')
+            return alias
+        return alias
+
     @classmethod
     def get_child_commands(self, command, child_commands):
         if command.tube != None and len(command.tube) > 0:
@@ -4495,7 +4509,7 @@ class TubeRunner():
                 continue
             
             # deal with the RUN_TUBE was skipped case
-            if command.cmd_type == Storage.I.C_RUN_TUBE and command.log.status == Storage.I.C_SKIPPED:
+            if command.command_type == Storage.I.C_RUN_TUBE and command.log.status == Storage.I.C_SKIPPED:
                 command.is_skip = True
                 command.is_skip_by_while = True
                 Storage.I.LOGS.append(log)
@@ -4531,7 +4545,7 @@ class TubeRunner():
             self.pre_command = command
             
             # Check if it's RUN_TUBE command
-            if command.cmd_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:                
+            if command.command_type == Storage.I.C_RUN_TUBE and log.status == Storage.I.C_RUNNING:                
                 # print current while conditions in debug mode
                 self.__output_while_condition(True, command.sub_tube.tube_conditions, command.sub_tube.tube_run_times, command=command)  
                 # start the sub tube runner
@@ -4685,16 +4699,14 @@ class StorageUtility():
         for command in tube_check:
             
             # skip COMMAND & LINUX_COMMAND
-            if command.cmd_type == Storage.I.C_COMMAND or \
-            command.cmd_type == Storage.I.C_LINUX_COMMAND:
+            if command.command_type == Storage.I.C_COMMAND or \
+            command.command_type == Storage.I.C_LINUX_COMMAND:
                 continue
             
             # check invalid command type
-            if command.cmd_type not in Storage.I.TUBE_ARGS_CONFIG.keys():
+            if command.command_type == '':
                 has_errors = True            
                 msg = 'Command: %s doesnot support now.' % command.cmd_type
-                if command.cmd_type.upper() in Storage.I.TUBE_ARGS_CONFIG.keys():
-                    msg = 'Command: %s is only support in upper case.' % command.cmd_type
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
                 errors_return.append(msg)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
@@ -4725,7 +4737,7 @@ class StorageUtility():
             
             # check Server exists
             if command.has_syntax_error == False and \
-            command.cmd_type == Storage.I.C_CONNECT:
+            command.command_type == Storage.I.C_CONNECT:
                 command_content = command.self_format_placeholders(command.content)
                 _, input_server = continue_redo_parser.parse_known_args(command_content.split())
                 input_server = ' '.join(input_server)
@@ -4915,7 +4927,16 @@ class StorageUtility():
         index = max([i for i in Storage.I.TUBE_FILE_LIST.keys()]) + 1
         Storage.I.TUBE_FILE_LIST[index] = tube_name + '=' + file_full_path
         return index
-    
+
+    @classmethod
+    def get_command_type(self, cmd_type):
+        for key in Storage.I.TUBE_ARGS_CONFIG.keys():
+            if cmd_type.upper() == key:
+                return key
+            for alias in Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ALIAS]:
+                if cmd_type.upper() == alias:
+                    return key
+        return ''   
 class TubeCommandUtility():
     
     @classmethod
@@ -6232,9 +6253,11 @@ Tube:
                 for index, key in enumerate(keys):
                     if is_for_readme:
                         command_examples.append('### %s: %s' % (str(index+1), key))
+                        command_examples.append('#### %s' % TubeCommand.get_command_alias(key, Storage.I.TUBE_ARGS_CONFIG))
                         command_examples.append('<pre>%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
                     else:
                         command_examples.append('[%s]: %s' % (str(index+1), key))                        
+                        command_examples.append(TubeCommand.get_command_alias(key, Storage.I.TUBE_ARGS_CONFIG))                      
                         command_examples.append('%s\n' % TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG)) 
                     
                     command_examples.append('%s' % TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG)) 
@@ -6354,6 +6377,7 @@ Tube:
                             found_match = True        
                             index += 1        
                             tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW ,prefix='')
+                            tprint(TubeCommand.get_command_alias(key, Storage.I.TUBE_ARGS_CONFIG) + '' ,prefix='')
                             tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n' ,prefix='')
                             tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')                   
                             tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')

@@ -29,6 +29,7 @@ TUBE:
     - RUN_TUBE: -t set_variable.yaml --continue --note 10
     - RUN_TUBE: -t run_tube.yaml --continue --note 11
     - RUN_TUBE: -t read_console.yaml --continue --note 12 Needs console inputs #: -v cs1 = 100, cs2 = yes, cs3='hello mac'
+    - RUN_TUBE: -t alias.yaml --continue --note 13
 
     # TODO
     # REPLACE_CHAR
@@ -46,7 +47,7 @@ TUBE:
 
     - PRINT_VARS: del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
-        redo_result, tail_file, set_variable_result, run_tube_result
+        redo_result, tail_file, set_variable_result, run_tube_result, alias_result
 
-    - COMMAND: ECHO TESTING FAILED --if tube_passed != 12
-    - COMMAND: ECHO TESTING PASSED --if tube_passed == 12 --key
+    - COMMAND: ECHO TESTING FAILED --if tube_passed != 13
+    - COMMAND: ECHO TESTING PASSED --if tube_passed == 13 --key

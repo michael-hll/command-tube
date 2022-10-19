@@ -8,8 +8,6 @@ TODO LIST
 
 - DELETE_LINE_IN_FILE: -v|variable to store the deleted content
 
-- COMMAND alias
-
 - ENHANCE help
 
 - DONE LIST
@@ -112,6 +110,8 @@ TODO LIST
         should support -r|--result argument to store the tail lines into result file  
 
     39. - DEL_VARIABLE -n name -g 
+
+    40. - COMMAND alias
 
 
 
