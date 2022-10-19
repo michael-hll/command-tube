@@ -883,6 +883,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name. Provide value \'*\' can print all variable.'],
+                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                        'The text file to store deleted files result.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1364,6 +1366,17 @@ class Utility():
             set(dir(float)),
             set(dir(bool)),
             set(dir(datetime)))
+
+    @classmethod
+    def write_result_to_file(self, file, lines):
+        with open(file, 'w') as f:
+            if len(lines) == 0:
+                f.write('')
+            for i, line in enumerate(lines):
+                if i == 0:
+                    f.write(line)
+                else:
+                    f.write('\n' + line)
 
 class reUtility():
     
@@ -2358,8 +2371,7 @@ class TubeCommand():
             
         # writing result
         with open(result, 'w') as f:
-            for file in list_files:
-                f.write(file + '\n')
+            Utility.write_result_to_file(result, list_files)
 
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List files successfully: ' + str(list_files) 
@@ -2410,8 +2422,7 @@ class TubeCommand():
             
         # writing result
         with open(result, 'w') as f:
-            for file in ls:
-                f.write(file + '\n')
+            Utility.write_result_to_file(result, ls)
 
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List directories successfully: ' + str(ls) 
@@ -2699,14 +2710,7 @@ class TubeCommand():
 
         # write deleted files to file
         if result:
-            with open(result, 'w') as f:
-                if len(deleted_files) == 0:
-                    f.write('')
-                for i, line in enumerate(deleted_files):
-                    if i == 0:
-                        f.write(line)
-                    else:
-                        f.write('\n' + line)
+            Utility.write_result_to_file(result, deleted_files)
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} files.'.format(count)
@@ -2888,14 +2892,7 @@ class TubeCommand():
         
         # write deleted files to file
         if result:
-            with open(result, 'w') as f:
-                if count == 0:
-                    f.write('')
-                for i, line in enumerate(deleted_dirs):
-                    if i == 0:
-                        f.write(line)
-                    else:
-                        f.write('\n' + line)
+            Utility.write_result_to_file(result, deleted_dirs)
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} directory: {1}.'.format(count, directory)
@@ -2990,11 +2987,8 @@ class TubeCommand():
 
             # write result to result file
             if r_file:
-                with open(r_file, 'w') as f:
-                    for line in return_lines:
-                        f.write(line + '\n')
-                    if len(return_lines) == 0:
-                        f.write('')            
+                Utility.write_result_to_file(r_file, return_lines)      
+
             return True
 
         except Exception as e:
@@ -3602,21 +3596,33 @@ class TubeCommand():
         Print global variables and it's tube variables
         '''
 
-        variables  = self.self_format_placeholders(self.content)
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(inputs.split())
+        variables = ''.join(args.inputs)
         variables = variables.split(',')
         variables = [var.strip() for var in variables]
+        result = None
+        if args.result:
+            result = ' '.join(args.result)
         
         # print tube variabels
         msg = '=== Tube Variables ==='
         tprint(msg, prefix='')
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        self.print_tube_variables(variables, self.tube)   
-        output_tube_file_list(is_print=True, indexes=self.tube.get_parent_tube_indexes())             
+        lines = self.print_tube_variables(variables, self.tube)   
+        output_tube_file_list(is_print=True, indexes=self.tube.get_parent_tube_indexes(), lines=lines)  
+
+        # output to file
+        if result:
+            Utility.write_result_to_file(result, lines)           
     
-    def print_tube_variables(self, variables, tube):
+    def print_tube_variables(self, variables, tube, lines=None):
         '''
         It will print it's parent scope variables and parent's parent
         '''
+        if lines == None:
+            lines = []
         for key in tube.KEY_VALUES_DICT.keys():
             for var in variables:
                 if var == '*' or var.upper() == key.upper():
@@ -3630,10 +3636,13 @@ class TubeCommand():
                     msg = '[%s:%s] %s=%s %s' % (tube.tube_index, tube.tube_name, key, value, readonly)
                     tprint(msg, prefix='')
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+                    lines.append(msg)
             
         # to check if parent is None
         if tube.parent:
-            self.print_tube_variables(variables, tube.parent)          
+            return self.print_tube_variables(variables, tube.parent, lines)       
+
+        return lines   
     
     def self_report_progress(self):
         
@@ -5463,7 +5472,7 @@ def confirm(question):
         answer = input(question).lower() 
     return answer == 'y'
 
-def output_tube_file_list(is_print=False, is_write_log=False, indexes=None):
+def output_tube_file_list(is_print=False, is_write_log=False, indexes=None, lines=None):
     keys = [k for k in Storage.I.TUBE_FILE_LIST.keys()]
     keys.sort()  
     for k in keys:
@@ -5473,10 +5482,12 @@ def output_tube_file_list(is_print=False, is_write_log=False, indexes=None):
         file = item[item.index('=')+1:]
         tube_name = item[0:item.index('=')]
         msg = '* [%s]: %s[%s]' % (str(k), file, tube_name)
+        if lines:
+            lines.append(msg)
         if is_print:
             tprint(msg, prefix='')
         if is_write_log:
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)            
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
 
 def print_logs(LOGS):
     tprint(prefix='')    

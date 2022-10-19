@@ -8,8 +8,6 @@ TODO LIST
 
 - DELETE_LINE_IN_FILE: -v|variable to store the deleted content
 
-- PRINT_VARS: '*' -r|--result result
-
 - ENHANCE help
 
 - DONE LIST
@@ -117,6 +115,8 @@ TODO LIST
 
     41. - FILE_DELETE: -r|--result result
         - DIR_DELETE: -r|--result result
+
+    42. - PRINT_VARS: '*' -r|--result result
 
 
 
