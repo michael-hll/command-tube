@@ -4226,7 +4226,7 @@ class TubeCommand():
             for command in command.tube:
                 child_commands.append(command)
                 TubeCommand.get_child_commands(command, child_commands)                
-    
+
 class TubeCommandLog:
 
     def __init__(self, command: TubeCommand):
@@ -4985,6 +4985,7 @@ class StorageUtility():
                 if cmd_type.upper() == alias:
                     return key
         return ''   
+
 class TubeCommandUtility():
     
     @classmethod
