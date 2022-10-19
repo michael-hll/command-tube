@@ -1,0 +1,15 @@
+Email: tube-config.yaml
+Servers: tube-config.yaml
+
+TUBE:
+    - PATH: test
+    - connect: '{server1} --continue'
+    - lcmd: ls --continue
+    - FILE_CREATE: -f tmp.txt --continue
+    - SFTP_PUT: -l tmp.txt -r tmp.txt --continue
+    - lcmd: ls /home/mfg --continue
+    - sftp_get: -r /home/mfg/tmp.txt -l tmp2.txt --continue
+    - lcmd: rm /home/mfg/tmp.txt --continue
+    - lcmd: ls /home/mfg --continue
+    - FILE_DELETE: -f tmp.txt --continue
+    - FILE_DELETE: -f tmp2.txt --continue

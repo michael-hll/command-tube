@@ -3824,7 +3824,8 @@ class TubeCommand():
             self.log.add_error('Please check your servers configurations.')
             if host != None:
                 for error in host.errors:
-                    self.log.add_error(error)                        
+                    self.log.add_error(error) 
+            return False                       
     
     def linux_command(self):
         log = self.log
