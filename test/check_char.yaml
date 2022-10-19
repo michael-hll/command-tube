@@ -1,0 +1,20 @@
+Tube:
+    - SET_VAR: -n i -v 0
+    - SET_VAR: -n file -v check_char.txt
+    - FILE_EMPTY: -f {file} -c
+    - RUN_TUBE: -t LOOP -w i < 5
+    - CHECK_CHAR_EXISTS: -f {file} -c line6 -r exists
+    - CMD: echo hello testing --if not exists
+    - CHECK_CHAR_EXISTS: -f {file} -c line5 -r exists
+    - CMD: echo hello testing --if exists
+    - FILE_DELETE: -f {file}
+
+     # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    - SET_VARIABLE: -n check_char_result -v Testing Pass  -g --if {success_nums}==9 --key
+    - SET_VARIABLE: -n check_char_result -v Testing Failed -g --if {success_nums}!=9
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
+
+LOOP:
+    - SET_VAR: -n i -v i + 1 -g
+    - WRITE_LINE: -f {file} -v line{i}

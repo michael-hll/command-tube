@@ -1223,7 +1223,9 @@ class Utility():
         
         Args:
             condtions: []
-        '''           
+        '''       
+        is_holder_exists = [ True if '{' in item else False for item in conditions]    
+        is_holder_exists = True in is_holder_exists
         conditions_trim = [command.self_format_placeholders(item.strip(), is_quoted_str = True) for item in conditions]
         conditions_trim = ['True' if Utility.equal_true(item) else item for item in conditions_trim]
         conditions_trim = ['False' if Utility.equal_false(item) else item for item in conditions_trim]
@@ -1257,10 +1259,16 @@ class Utility():
             if ' ' in conditions_str:
                 # for 'condtion1 condition2 case'
                 for value in conditions_trim:
+                    if is_holder_exists == False:
+                        kv = command.tube.get_first_key_value(value) 
+                        value = kv if kv != None else value
                     if Utility.equal_false(value):
                         return False
             else:
                 # for 'condition' case
+                if is_holder_exists == False:
+                    kv = command.tube.get_first_key_value(conditions_str) 
+                    conditions_str = kv if kv != None else conditions_str
                 if Utility.equal_false(conditions_str):
                     return False 
         return True
@@ -1272,7 +1280,9 @@ class Utility():
         '''
         value = str(value)
         if '=' in value or '>' in value or \
-           '!=' in value or '<' in value:
+           '!=' in value or '<' in value or \
+            'not' in value.lower() or \
+            'and' in value.lower():
                return True
         return False
     
@@ -3587,7 +3597,7 @@ class TubeCommand():
             for line in lines:
                 while re.search(oldvalue, line) is not None and replaced_count < count:
                     line = re.sub(oldvalue, newvalue, line, 1)
-                    replaced_count += 1                
+                    replaced_count += 1
                 lines_new.append(line)
             
             # write replaced lines back to file
