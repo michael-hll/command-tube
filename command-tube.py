@@ -5511,7 +5511,7 @@ def print_logs(LOGS):
     output_tube_file_list(is_print=True)   
     # If output note for * before command type    
     if has_retried_command == True:
-        tprint(Storage.I.C_RETRIED_COMMAND_NOTE) 
+        tprint(Storage.I.C_RETRIED_COMMAND_NOTE, prefix='') 
     
     # print overall tube logs at the end
     # then it's easier for the user to see
