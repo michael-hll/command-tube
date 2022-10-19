@@ -33,25 +33,19 @@ TUBE:
     - RUN_TUBE: -t alias.yaml --continue --note 13
     - RUN_TUBE: -t replace_char.yaml --continue --note 14
     - RUN_TUBE: -t check_char.yaml --continue --note 15
+    - RUN_TUBE: -t file_sys.yaml --continue --note 16
 
     # TODO
-    # READ_LINE_IN_FILE
-    # LIST_FILES
-    # LIST_DIRS
-    # FILE_READ, PUSH, POP, MOVE, EXIST, EMPTY, DELETE, COPY, APPEND
-    # DIR_EXIST, DELETE, CREATE
-    # CHECK_CHAR_EXIST
-
     # CONNECT
     # LINUX_COMMAND
     # SFTP_PUT
     # SFTP_GET
 
-    - PRINT_VARS: del_line_result, email_result, get_file_key_value_result, 
+    - PRINT_VARS: tube_passed, del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
-        redo_result, tail_file, set_variable_result, run_tube_result, alias_result,
-        read_console_result, replace_char_result,tube_passed, check_char_result
+        redo_result, tail_file, set_variable_result,run_tube_result, alias_result,
+        read_console_result, replace_char_result, check_char_result, file_sys_result
 
     - FILE_DELETE: -f *.yaml.log --if del_log --continue
-    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 15
-    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 15 --key
+    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 16
+    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 16 --key

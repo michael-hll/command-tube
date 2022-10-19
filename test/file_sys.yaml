@@ -1,0 +1,39 @@
+Tube: 
+    - DIR_EXIST: -d file_sys -v exists
+    - DIR_DELETE: -d file_sys -f --if exists
+    - DIR_CREATE: -d file_sys --continue
+    - DIR_CREATE: -d file_sys/tmp/tmp2 --continue
+    - FILE_CREATE: -f file_sys/tmp.txt
+    - FILE_APPEND: -f file_sys/tmp.txt -v hello mac
+    - DIR_CREATE: -d file_sys --continue
+    - FILE_CREATE: -f file_sys/tmp.txt --continue
+    - FILE_EXIST: -f file_sys/tmp.txt -v exists
+    - FILE_DELETE: -f file_sys/tmp.txt --if exists
+    - SET_VAR: -n i -v 0
+    - RUN_TUBE: -t CR_FILES -w {i} < 10
+    - LIST_FILES: -d file_sys/file_*.txt -r file_sys/files_list.txt -s time
+    - FILE_POP: -f file_sys/files_list.txt -v pop_line
+    - FILE_PUSH: -f file_sys/files_list.txt -v {pop_line}
+    - COUNT: -f file_sys/files_list.txt -v files_count
+    - FILE_COPY: -s file_sys/files_list.txt -d file_sys/tmp2.txt 
+    - FILE_MOVE: -s file_sys/tmp2.txt -d file_sys/tmp3.txt
+    - FILE_READ: -f file_sys/tmp3.txt -v read_content
+    - PRINT_VARS: read_content
+    - FILE_EMPTY: -f file_sys/tmp3.txt
+    - COUNT: -f file_sys/tmp3.txt -v lines_count
+    - FILE_DELETE: -f file_sys/tmp3.txt --if lines_count == 0
+    - FILE_DELETE: -f file_sys/files_list.txt --if files_count == 10
+    - LIST_DIRS: -d file_sys -r file_sys/dir_results.txt
+    - COUNT: -f file_sys/dir_results.txt -v dir_count
+    - FILE_DELETE: -f file_sys/dir_results.txt --if dir_count == 1
+    - DIR_DELETE: -d file_sys -f
+
+     # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -c --note Count current success count
+    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==25 --key
+    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=25
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==25
+
+CR_FILES:
+    - SET_VAR: -n i -v i + 1 -g
+    - FILE_CREATE: -f file_sys/file_{i}.txt 
