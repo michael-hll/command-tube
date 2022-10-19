@@ -231,6 +231,10 @@ Use 'help vars' to print all the given tube variables;
         self.IS_REPORT_PROGRESS        = False
         self.HAS_EMAIL_SETTINGS        = False
         self.EVAL_CODE_SET    = set()
+
+        self.__gen_tube_args()
+        
+    def __gen_tube_args(self):
         # Tube Command argument configurations design details
         # 0: Is postion arguments
         # 1: -  Short argument name. eg: -f (if you want leave it empty, then only put '-' value)
