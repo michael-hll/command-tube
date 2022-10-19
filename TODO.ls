@@ -10,10 +10,6 @@ TODO LIST
 
 - PRINT_VARS: '*' -r|--result result
 
-- FILE_DELETE: -r|--result result
-
-- DIR_DELETE: -r|--result result
-
 - ENHANCE help
 
 - DONE LIST
@@ -118,6 +114,9 @@ TODO LIST
     39. - DEL_VARIABLE -n name -g 
 
     40. - COMMAND alias
+
+    41. - FILE_DELETE: -r|--result result
+        - DIR_DELETE: -r|--result result
 
 
 

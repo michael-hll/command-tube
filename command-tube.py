@@ -408,7 +408,9 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
-                        'The file name you want to delete.'],                   
+                        'The file name you want to delete.'], 
+                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                        'The text file to store deleted files result.'],                   
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -486,6 +488,8 @@ Use 'help vars' to print all the given tube variables;
                         'The directory you want to delete.'],                   
                     [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force delete if the director is not empty. Default no.'],
+                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                        'The text file to store deleted directory result.'], 
                 ],                  
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2673,6 +2677,9 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         file = ' '.join(args.file)
+        result = None
+        if args.result:
+            result = ' '.join(args.result)
           
         count = 0   
         deleted_files = [] 
@@ -2689,6 +2696,17 @@ class TubeCommand():
             count += 1
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
+
+        # write deleted files to file
+        if result:
+            with open(result, 'w') as f:
+                if len(deleted_files) == 0:
+                    f.write('')
+                for i, line in enumerate(deleted_files):
+                    if i == 0:
+                        f.write(line)
+                    else:
+                        f.write('\n' + line)
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} files.'.format(count)
@@ -2851,16 +2869,33 @@ class TubeCommand():
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
         is_force = args.is_force
+        result = None
+        if args.result:
+            result = ' '.join(args.result)
           
         count = 0   
+        deleted_dirs = []
         if os.path.exists(directory) and not path.isfile(directory) and is_force:            
             shutil.rmtree(directory)
+            deleted_dirs.append(directory)
             count += 1
         elif os.path.exists(directory) and not path.isfile(directory):
             os.rmdir(directory)
+            deleted_dirs.append(directory)
             count += 1
         else:
             raise Exception('Directory doesnot exists: {0}'.format(directory))
+        
+        # write deleted files to file
+        if result:
+            with open(result, 'w') as f:
+                if count == 0:
+                    f.write('')
+                for i, line in enumerate(deleted_dirs):
+                    if i == 0:
+                        f.write(line)
+                    else:
+                        f.write('\n' + line)
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Successfully deleted {0} directory: {1}.'.format(count, directory)
