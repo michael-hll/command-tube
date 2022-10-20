@@ -759,9 +759,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
                         'Any command you want to run.'],     
-                    [False, '-','--no-shell', '', '', 'no_shell', False, True, 'store_true', False,
-                        'Do not use \'Shell\' to run the command. Default no. \n \
-                This is used for Mac/Linux OS. For Windows it will always use shell. [2.0.2]'],             
+                    [False, '-','--tube-result', 'str', 1, 'file', False, False, '', '',
+                        'The text file to store command outputs. [2.0.2]'],            
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -3883,27 +3882,25 @@ class TubeCommand():
     
     def command(self):
         log = self.log
-        # replace placeholders
-        self.content = self.self_format_placeholders(self.content) 
-        # check if using shell
-        is_use_shell = True
-        if '--no-shell' in self.content:
-            is_use_shell = False
-            self.content = self.content.replace('--no-shell', '').strip()
-        command_array = shlex.split(self.content, posix=True)
-        log.start_datetime = datetime.now()
+        outputfile = None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(inputs.split())
+        if args.file:
+            outputfile = args.file[0]
+            inputs = re.sub('--tube-result[ ]*' + outputfile, '', inputs, 1).strip()
+
         result = None
-        if os.name.startswith('nt'):
-            result = subprocess.Popen(self.content, text=True, shell=True,
-                                        stdout=sys.stdout,stderr=subprocess.PIPE, bufsize=1) 
-        else:                        
-            # In Mac Os or Linux
-            if is_use_shell:
-                result = subprocess.Popen(self.content, text=True, shell=True,
-                                            stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)
-            else:
-                result = subprocess.Popen(command_array, text=True, 
-                                            stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1) 
+        if outputfile:
+            # write outputs to log file
+            with open(outputfile, 'w') as log_file:
+                result = subprocess.Popen(inputs, text=True, shell=True,
+                         stdout=log_file, stderr=subprocess.PIPE, bufsize=1) 
+    
+        else:
+            # write outputs to terminal console
+            result = subprocess.Popen(inputs, text=True, shell=True,
+                     stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)  
         
         # Need to print error to the terminal and the log file
         while True:
@@ -3914,13 +3911,19 @@ class TubeCommand():
             tprint(line, prefix='')
             log.errors.append(line)                       
 
-        # terminate the process and get running result 
+        # wait the process and get running result 
         result.communicate()
         if result.returncode != 0:  
             return False                           
         else:
             log.errors.clear() 
         
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            if outputfile:
+                msg = 'Command outputs are written to file: {0}'.format(os.path.abspath(outputfile))
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
         return True
     
     def run(self):        

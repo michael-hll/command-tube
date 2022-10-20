@@ -15,11 +15,14 @@ Variables:
     tube_passed: 0
     test_folder: /Volumes/MacDrive/Projects/tube/test
     del_log: yes
+    email: no
+    result: 15
 TUBE:
     - PATH: {test_folder}
+    - SET_VAR: result = result + 1 --if email
     # TESTING VIA SUB TUBES
     - RUN_TUBE: del_line.yaml --continue  --note 1
-    #- RUN_TUBE: email.yaml --continue  --note 2
+    - RUN_TUBE: email.yaml --continue  --if email --note 2
     - RUN_TUBE: get_file_key_value.yaml --continue  --note 3
     - RUN_TUBE: set_file_key_value.yaml --continue  --note 4
     - RUN_TUBE: write_line.yaml --continue  --note 5
@@ -41,5 +44,5 @@ TUBE:
         read_console_result, replace_char_result, check_char_result, file_sys_result
 
     - FILE_DELETE: '*.yaml.log --if del_log --continue'
-    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != 15
-    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == 15 --key
+    - COMMAND: ECHO TESTING FAILED --if tube_passed != result
+    - COMMAND: ECHO TESTING PASSED --if tube_passed == result --key
