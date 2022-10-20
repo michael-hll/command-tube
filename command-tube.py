@@ -105,7 +105,7 @@ class Storage():
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
         self.C_TAIL_LINES_HEADER       = 'TAIL '
-        self.C_LOG_HEADER              = '\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
+        self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
         self.C_CONTINUE_PARAMETER      = '--continue'
@@ -5882,6 +5882,7 @@ def output_log_header():
     Storage.I.START_DATE_TIME = datetime.now()
     run_mode = ' (%s)' % Storage.I.RUN_MODE
     open_file_mode = 'w' if Storage.I.IS_CLEAR_LOG else 'a+'
+    header = Storage.I.C_LOG_HEADER if open_file_mode == 'w' else '\n' + Storage.I.C_LOG_HEADER
     write_line_to_log(Storage.I.TUBE_LOG_FILE, open_file_mode, 
                       Storage.I.C_LOG_HEADER + 
                       Storage.I.START_DATE_TIME.strftime(Storage.I.C_DATETIME_FORMAT) +
@@ -6588,13 +6589,10 @@ def get_console_inputs():
     if(args.report_progress != None and args.report_progress == 'yes'):
         Storage.I.IS_REPORT_PROGRESS = True
 
-def job_start(tube_yaml):
+def job_start():
     
     '''
     Start the Command-Tube job
-    
-    Args:
-        tube_yaml: Tube command list in YAML format
     '''
 
     try:
@@ -6850,7 +6848,7 @@ while Storage.I.IS_STOP == False:
             start_matrix_terminal()
         
         # start the job
-        job_start(Storage.I.TUBE_YAML) 
+        job_start() 
         
         # stop matrix mode if it's started
         if Storage.I.IS_MATRIX_MODE:
