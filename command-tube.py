@@ -252,8 +252,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'RUN'},
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [    
-                    [False, '-t','--tube', 'str', '+', 'tube', True, False, '', '',
+                self.C_ARG_ARGS: [
+                    [True, '-','--', 'str', '+', 'tube', False, False, '', '',
                         'The tube you want to run. It supports 3 formats: \
                          \n{0}        - \'file.yaml\': Run TUBE from file.yaml file. With this format the global variables in file.xml will also be imported. \
                          \n{0}        - \'file[X]\': Run tube X from file.yaml file. \
@@ -1496,7 +1496,7 @@ class TubeArgumentParser(ArgumentParser):
         argument: TubeCommandArgument
         for argument in argument_config.tube_command_arguments:
             if argument.is_inputs:                
-                new_parser.add_argument('inputs',
+                new_parser.add_argument(argument.dest,
                                          type=type(argument.type),
                                          nargs=argument.nargs)
             else:
@@ -3187,7 +3187,7 @@ class TubeCommand():
         For command: RUN_TUBE
         '''
         parser = self.tube_argument_parser
-        args, _ = parser.parse_known_args(self.content.split())
+        args, unknow = parser.parse_known_args(self.content.split())
         tube, conditions, variables  = None, None, None
         if args.tube:
             tube = ' '.join(args.tube)
@@ -3620,7 +3620,7 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        variables = ''.join(args.inputs)
+        variables = ''.join(args.name)
         variables = variables.split(',')
         variables = [var.strip() for var in variables]
         result = None

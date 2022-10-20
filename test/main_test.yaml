@@ -18,22 +18,22 @@ Variables:
 TUBE:
     - PATH: {test_folder}
     # TESTING VIA SUB TUBES
-    - RUN_TUBE: -t del_line.yaml --continue  --note 1
-    - RUN_TUBE: -t email.yaml --continue  --note 2
-    - RUN_TUBE: -t get_file_key_value.yaml --continue  --note 3
-    - RUN_TUBE: -t set_file_key_value.yaml --continue  --note 4
-    - RUN_TUBE: -t write_line.yaml --continue  --note 5
-    - RUN_TUBE: -t if.yaml --continue  --note 6
-    - RUN_TUBE: -t continue.yaml --continue  --note 7
-    - RUN_TUBE: -t redo.yaml --continue --note 8
-    - RUN_TUBE: -t tail_file.yaml --continue --note 9
-    - RUN_TUBE: -t set_variable.yaml --continue --note 10
-    - RUN_TUBE: -t run_tube.yaml --continue --note 11
-    - RUN_TUBE: -t read_console.yaml --continue --note 12 Needs console inputs #: -v cs1 = 100, cs2 = yes, cs3='hello mac'
-    - RUN_TUBE: -t alias.yaml --continue --note 13
-    - RUN_TUBE: -t replace_char.yaml --continue --note 14
-    - RUN_TUBE: -t check_char.yaml --continue --note 15
-    - RUN_TUBE: -t file_sys.yaml --continue --note 16
+    - RUN_TUBE: del_line.yaml --continue  --note 1
+    - RUN_TUBE: email.yaml --continue  --note 2
+    - RUN_TUBE: get_file_key_value.yaml --continue  --note 3
+    - RUN_TUBE: set_file_key_value.yaml --continue  --note 4
+    - RUN_TUBE: write_line.yaml --continue  --note 5
+    - RUN_TUBE: if.yaml --continue  --note 6
+    - RUN_TUBE: continue.yaml --continue  --note 7
+    - RUN_TUBE: redo.yaml --continue --note 8
+    - RUN_TUBE: tail_file.yaml --continue --note 9
+    - RUN_TUBE: set_variable.yaml --continue --note 10
+    - RUN_TUBE: run_tube.yaml --continue --note 11
+    - RUN_TUBE: read_console.yaml --continue --note 12 Needs console inputs #: -v cs1 = 100, cs2 = yes, cs3='hello mac'
+    - RUN_TUBE: alias.yaml --continue --note 13
+    - RUN_TUBE: replace_char.yaml --continue --note 14
+    - RUN_TUBE: check_char.yaml --continue --note 15
+    - RUN_TUBE: file_sys.yaml --continue --note 16
 
     - PRINT_VARS: tube_passed, del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 

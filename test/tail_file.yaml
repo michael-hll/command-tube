@@ -2,7 +2,7 @@ Tube:
     - SET_VARIABLE: -n tmp_file -v tail.txt
     - SET_VARIABLE: -n i -v 0
     - FILE_EMPTY: -f {tmp_file} -c
-    - RUN_TUBE: -t CREATE_TEST_FILE -w {i} < 10 --note write 10 lines to tail.txt
+    - RUN_TUBE: CREATE_TEST_FILE -w {i} < 10 --note write 10 lines to tail.txt
     - TAIL_FILE: -f {tmp_file} -l 5 -k line 8 -r tail2.txt
     - COUNT: -f tail2.txt -v tail_lines
     - COMMAND: echo tail successfull --if {tail_lines} == 3

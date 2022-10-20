@@ -2,19 +2,19 @@ TUBE:
     # number testing
     - SET_VARIABLE: -n i -v 1
     - COMMAND: echo i was set to 1 --if {i} == 1
-    - RUN_TUBE: -t SubTube1 --continue
+    - RUN_TUBE: SubTube1 --continue
     - COMMAND: echo i was still equal to 1 --if {i} == 1
-    - RUN_TUBE: -t SubTube2 --continue
+    - RUN_TUBE: SubTube2 --continue
     - COMMAND: echo i was still equal to 2 --if {i} == 2
 
     # character testing
     - SET_VARIABLE: -n s -v 'hello mac'
-    - RUN_TUBE: -t SubTube3 --continue
+    - RUN_TUBE: SubTube3 --continue
 
     # delete variables
     - DELETE_VARIABLE: -n i -g
     - COMMAND: ECHO i was deleted --if {i} != 2
-    - RUN_TUBE: -t SubTube4 --continue
+    - RUN_TUBE: SubTube4 --continue
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count

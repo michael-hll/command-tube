@@ -1,6 +1,6 @@
 Tube:
     - SET_VARIABLE: -n i -v 0
-    - RUN_TUBE: -t SubTube -v x=100, y='Hello World' -w {i} < 2
+    - RUN_TUBE: SubTube -v x=100, y='Hello World' -w {i} < 2
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
