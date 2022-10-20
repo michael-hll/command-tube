@@ -1,6 +1,6 @@
 TODO LIST
 
-- position arguments for each commands?
+
 
 - Output Command.results to Email content   
 
@@ -119,6 +119,8 @@ TODO LIST
     44. - System Test
         - auto test each command script         - done
         - check all command debug message       - done
+
+    45. - position arguments for each commands?
 
 
 
