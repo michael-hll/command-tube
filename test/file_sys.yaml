@@ -1,11 +1,11 @@
 Tube: 
     - DIR_EXIST: -d file_sys -v exists
     - DIR_DELETE: -d file_sys -f --if exists
-    - DIR_CREATE: -d file_sys --continue
-    - DIR_CREATE: -d file_sys/tmp/tmp2 --continue
+    - DIR_CREATE: file_sys --continue
+    - DIR_CREATE: file_sys/tmp/tmp2 --continue
     - FILE_CREATE: -f file_sys/tmp.txt
     - FILE_APPEND: -f file_sys/tmp.txt -v hello mac
-    - DIR_CREATE: -d file_sys --continue
+    - DIR_CREATE: file_sys --continue
     - FILE_CREATE: -f file_sys/tmp.txt --continue
     - FILE_EXIST: -f file_sys/tmp.txt -v exists
     - FILE_DELETE: -f file_sys/tmp.txt --if exists

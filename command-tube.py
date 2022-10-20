@@ -471,7 +471,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'D_CREATE'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_CREATE: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to check.'],                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
