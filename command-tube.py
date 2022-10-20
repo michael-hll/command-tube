@@ -452,7 +452,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'D_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to store the exist result. (True/False)'],
@@ -484,7 +484,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'D_DELETE'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-d','--dir', 'str', '+', 'directory', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to delete.'],                   
                     [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force delete if the director is not empty. Default no.'],
@@ -898,7 +898,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'LIST_F'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_FILES: -d directory -r result_file [-s time|name|size [asc|desc]] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
                     [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
                         'The text file to store the search result.'], 
@@ -915,7 +915,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'LIST_D'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_DIRS: -d directory -r result_file [-s asc|desc] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-d','--directory', 'str', '+', 'directory', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to list its sub directories.'],
                     [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
                         'The text file to store the list result.'], 
