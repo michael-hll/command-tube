@@ -759,7 +759,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
                         'Any command you want to run.'],     
-                    [False, '-','--tube-result', 'str', 1, 'file', False, False, '', '',
+                    [False, '-','--result', 'str', 1, 'file', False, False, '', '',
                         'The text file to store command outputs. [2.0.2]'],            
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -1486,27 +1486,27 @@ class TubeArgumentParser(ArgumentParser):
         # add arguments
         argument: TubeCommandArgument
         for argument in argument_config.tube_command_arguments:
-            if argument.is_inputs:                
+            if argument.is_inputs:   
+                # position arguments             
                 new_parser.add_argument(argument.dest,
                                          type=type(argument.type),
                                          nargs=argument.nargs)
             else:
+                # optional arguments
                 if not argument.has_action:
                     # without action
-                    new_parser.add_argument(argument.short_flag, 
-                                        argument.long_flag,
-                                        type=type(argument.type),
-                                        nargs=argument.nargs,
-                                        required=argument.required,
-                                        dest=argument.dest)
+                    if argument.short_flag == '-':
+                        new_parser.add_argument(argument.long_flag, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
+                    else:
+                        new_parser.add_argument(argument.short_flag, argument.long_flag, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
                 else:
                     # store value to action
-                    new_parser.add_argument(argument.short_flag,
-                                            argument.long_flag,
-                                            dest=argument.dest,
-                                            action=argument.action,
-                                            default=argument.default,
-                                            required=argument.required)
+                    if argument.short_flag == '-':
+                        new_parser.add_argument(argument.long_flag, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
+                    else:
+                        new_parser.add_argument(argument.short_flag, argument.long_flag, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
+
+
         # check general arguments
         if argument_config.is_support_continue:
             new_parser.add_argument(Storage.I.C_CONTINUE_PARAMETER, dest='continue_steps', type=int, nargs='*', required=False)
@@ -3888,7 +3888,7 @@ class TubeCommand():
         args, _ = parser.parse_known_args(inputs.split())
         if args.file:
             outputfile = args.file[0]
-            inputs = re.sub('--tube-result[ ]*' + outputfile, '', inputs, 1).strip()
+            inputs = re.sub('--result[ ]*' + outputfile, '', inputs, 1).strip()
 
         result = None
         if outputfile:
