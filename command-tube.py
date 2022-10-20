@@ -623,10 +623,12 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'SET_VAR'},
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
+                self.C_ARG_ARGS: [   
+                    [True, '-','--', 'str', '*', 'expression', False, False, '', '',
+                        'Assign variable value with format: var_name = <value expression>; Or you can use --name, --value arguments to set the variable value explicitly.'],     
+                    [False, '-n','--name', 'str', '+', 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
-                    [False, '-v','--value', 'str', '*', 'value', True, False, '', '',
+                    [False, '-v','--value', 'str', '*', 'value', False, False, '', '',
                         'The tube variable value you want to set. \n  \
                 Note: The \'eval(expression)\' is also supported, eg: \n \
                     - SET_VARIABLE: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. \n \
@@ -1242,7 +1244,7 @@ class Utility():
                     continue
                 if name in Storage.I.EVAL_CODE_SET:
                     continue
-                if not Utility.if_key_exists_in_str(globals().keys(), name):
+                if not name in globals().keys():
                     local_dict[name] = str(name)                        
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 msg = 'The eval parameter is: {0}, local dict: {1}, running command is {2}.'.format(conditions_str, local_dict, command.get_full_content())
@@ -1337,17 +1339,7 @@ class Utility():
             value = False
         
         return (key, value) 
-    
-    @classmethod
-    def if_key_exists_in_str(self, keys, str_value):
-        '''
-        Iterate each key from keys, if key in str_value then return True
-        '''
-        for key in keys:
-            if key in str_value:
-                return True
-        return False
-    
+        
     @classmethod
     def quote_dict_str_value(self, d):
         d_new = {}
@@ -3385,10 +3377,19 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        if len(args.name) > 0:
+        if args.name and len(args.name) > 0:
             key = args.name[0]
         if args.value:
             value = ' '.join(args.value)
+        # check if expressions given
+        if args.expression:
+            expression = ' '.join(args.expression)
+            # to check if the expression match the expression v1 = a1
+            if not reUtility.is_matched_equal_expresson(expression):
+                raise Exception('The set variable has wrong format: {0}'.format(expression))
+            # override the key, value from expression to the --name, --value arguements
+            key, value = Utility.split_equal_expression(expression)
+            value = str(value)
         is_readonly = args.is_readonly
         is_force = args.is_force
         is_global = args.is_global
@@ -3406,7 +3407,7 @@ class TubeCommand():
                     continue
                 if name in Storage.I.EVAL_CODE_SET:
                     continue
-                if not Utility.if_key_exists_in_str(globals().keys(), name):
+                if not name in globals().keys():
                         local_dict[name] = str(name)                       
             value = eval(value, globals(), local_dict)
         except Exception as e:
