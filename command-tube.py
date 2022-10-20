@@ -253,7 +253,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'RUN'},
                 self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [
-                    [True, '-','--', 'str', '+', 'tube', False, False, '', '',
+                    [True, '-','--', 'str', '+', 'tube', True, False, '', '',
                         'The tube you want to run. It supports 3 formats: \
                          \n{0}        - \'file.yaml\': Run TUBE from file.yaml file. With this format the global variables in file.xml will also be imported. \
                          \n{0}        - \'file[X]\': Run tube X from file.yaml file. \
@@ -647,8 +647,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'DELETE_VAR'},
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    [False, '-n','--name', 'str', '+', 'name', True, False, '', '',
+                self.C_ARG_ARGS: [      
+                    [True, '-','--', 'str', '+', 'name', True, False, '', '',  
                         'The tube variable name you want to delete from current tube.'],
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
                         'With --global parameter you can delete it from current and its parent tubes.'],

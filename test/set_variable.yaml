@@ -12,7 +12,7 @@ TUBE:
     - RUN_TUBE: SubTube3 --continue
 
     # delete variables
-    - DELETE_VARIABLE: -n i -g
+    - DELETE_VARIABLE: i -g
     - COMMAND: ECHO i was deleted --if {i} != 2
     - RUN_TUBE: SubTube4 --continue
 
@@ -34,5 +34,5 @@ SubTube3:
     - COMMAND: ECHO {s} --if {s}=='hello mac' --key
 
 SubTube4:
-    - DELETE_VARIABLE: -n s -a
+    - DELETE_VARIABLE: s -a
     - COMMAND: Echo s was deleted from all tubes. --if {s} != 'hello mac' --key
