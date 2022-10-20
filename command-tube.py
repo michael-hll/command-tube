@@ -1238,8 +1238,8 @@ class Utility():
             local_dict = {}
             # Add the missing codes into local varialbes as str
             for name in code.co_names:
-                kv = command.tube.get_first_key_value(name)
-                if kv != None:
+                kv = command.tube.get_first_key_value(name) if is_holder_exists == False else None
+                if is_holder_exists == False and kv != None:
                     local_dict[name] = kv
                     continue
                 if name in Storage.I.EVAL_CODE_SET:
@@ -3375,6 +3375,7 @@ class TubeCommand():
         '''
         key, value, is_readonly, is_force, is_global = '', '', False, False, False
         parser = self.tube_argument_parser
+        is_holder_exists = True if '{' in self.content else False
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         if args.name and len(args.name) > 0:
@@ -3401,8 +3402,8 @@ class TubeCommand():
             local_dict = {}
             # Add the missing codes into local varialbes as str
             for name in code.co_names:
-                kv = self.tube.get_first_key_value(name)
-                if kv != None:
+                kv = self.tube.get_first_key_value(name) if is_holder_exists == False else None
+                if is_holder_exists == False and kv != None:
                     local_dict[name] = kv
                     continue
                 if name in Storage.I.EVAL_CODE_SET:
