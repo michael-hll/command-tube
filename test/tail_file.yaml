@@ -1,13 +1,13 @@
 Tube:
     - SET_VARIABLE: -n tmp_file -v tail.txt
     - SET_VARIABLE: -n i -v 0
-    - FILE_EMPTY: -f {tmp_file} -c
+    - FILE_EMPTY: '{tmp_file} -c'
     - RUN_TUBE: CREATE_TEST_FILE -w {i} < 10 --note write 10 lines to tail.txt
     - TAIL_FILE: -f {tmp_file} -l 5 -k line 8 -r tail2.txt
     - COUNT: -f tail2.txt -v tail_lines
     - COMMAND: echo tail successfull --if {tail_lines} == 3
-    - FILE_DELETE: -f {tmp_file}
-    - FILE_DELETE: -f tail2.txt
+    - FILE_DELETE: {tmp_file}
+    - FILE_DELETE: tail2.txt
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     - SET_VARIABLE: -n tail_file -v Testing Pass  -g --if {success_nums}==8 --key
     - SET_VARIABLE: -n tail_file -v Testing Failed -g --if {success_nums}!=8 

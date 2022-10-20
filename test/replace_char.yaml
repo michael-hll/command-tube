@@ -1,11 +1,11 @@
 Tube:
     - SET_VAR: -n i -v 0
     - SET_VAR: -n file -v replace_test.txt
-    - FILE_EMPTY: -f {file} -c
+    - FILE_EMPTY: '{file} -c'
     - RUN_TUBE: LOOP -w i < 5
     - REPLACE_CHAR: -f {file} -o line -n new line
     - REPLACE_CHAR: -f {file} -o line -n hello mac -c 100
-    - FILE_DELETE: -f {file}
+    - FILE_DELETE: {file}
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count

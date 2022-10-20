@@ -3,29 +3,29 @@ Tube:
     - DIR_DELETE: file_sys -f --if exists
     - DIR_CREATE: file_sys --continue
     - DIR_CREATE: file_sys/tmp/tmp2 --continue
-    - FILE_CREATE: -f file_sys/tmp.txt
+    - FILE_CREATE: file_sys/tmp.txt
     - FILE_APPEND: -f file_sys/tmp.txt -v hello mac
     - DIR_CREATE: file_sys --continue
-    - FILE_CREATE: -f file_sys/tmp.txt --continue
-    - FILE_EXIST: -f file_sys/tmp.txt -v exists
-    - FILE_DELETE: -f file_sys/tmp.txt --if exists
+    - FILE_CREATE: file_sys/tmp.txt --continue
+    - FILE_EXIST: file_sys/tmp.txt -v exists
+    - FILE_DELETE: file_sys/tmp.txt --if exists
     - SET_VAR: -n i -v 0
     - RUN_TUBE: CR_FILES -w {i} < 10
     - LIST_FILES: file_sys/file_*.txt -r file_sys/files_list.txt -s time
-    - FILE_POP: -f file_sys/files_list.txt -v pop_line
-    - FILE_PUSH: -f file_sys/files_list.txt -v {pop_line}
+    - FILE_POP: file_sys/files_list.txt -v pop_line
+    - FILE_PUSH: file_sys/files_list.txt -v {pop_line}
     - COUNT: -f file_sys/files_list.txt -v files_count
     - FILE_COPY: -s file_sys/files_list.txt -d file_sys/tmp2.txt 
     - FILE_MOVE: -s file_sys/tmp2.txt -d file_sys/tmp3.txt
     - FILE_READ: -f file_sys/tmp3.txt -v read_content
     - PRINT_VARS: read_content
-    - FILE_EMPTY: -f file_sys/tmp3.txt
+    - FILE_EMPTY: file_sys/tmp3.txt
     - COUNT: -f file_sys/tmp3.txt -v lines_count
-    - FILE_DELETE: -f file_sys/tmp3.txt --if lines_count == 0
-    - FILE_DELETE: -f file_sys/files_list.txt --if files_count == 10
+    - FILE_DELETE: file_sys/tmp3.txt --if lines_count == 0
+    - FILE_DELETE: file_sys/files_list.txt --if files_count == 10
     - LIST_DIRS: file_sys -r file_sys/dir_results.txt
     - COUNT: -f file_sys/dir_results.txt -v dir_count
-    - FILE_DELETE: -f file_sys/dir_results.txt --if dir_count == 1
+    - FILE_DELETE: file_sys/dir_results.txt --if dir_count == 1
     - DIR_DELETE: file_sys -f
 
      # output testing result
@@ -36,4 +36,4 @@ Tube:
 
 CR_FILES:
     - SET_VAR: -n i -v i + 1 -g
-    - FILE_CREATE: -f file_sys/file_{i}.txt 
+    - FILE_CREATE: file_sys/file_{i}.txt 

@@ -292,7 +292,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to store the exist result. (True/False)'],
@@ -311,7 +311,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_POP'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_POP: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to pop.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
                         'The tube variable name to store the line content result.'],  
@@ -345,7 +345,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_PUSH'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_PUSH: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to push.'],
                     [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
                         'The content you want to push to the text file.'],                
@@ -360,7 +360,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_EMPTY'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_EMPTY: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to empty.'],      
                     [False, '-c','--create', '', '', 'is_create', False, True, 'store_true', False,
                         'If the give file doesnot exist if create a new empty file. Default No.'],         
@@ -375,7 +375,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_CREATE'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_CREATE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to create.'],            
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -407,7 +407,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_DELETE'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to delete.'], 
                     [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
                         'The text file to store deleted files result.'],                   
