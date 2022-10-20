@@ -1326,15 +1326,16 @@ class Utility():
         Split equal expressions 'key = value'
         Return (key, value)
         '''
-        key = item[:item.index('=')].strip().strip('\'').strip('"')
-        value = item[item.index('=')+1:].strip().strip('\'').strip('"')
-        if reUtility.is_matched_int(value):
-            value = int(value)
-        elif reUtility.is_matched_float(value):
-            value = float(value)
-        elif value.upper() == 'TRUE' or value.upper() == 'YES':
+        key = item[:item.index('=')].strip()
+        value = item[item.index('=')+1:].strip()
+        value_temp = value.strip('\'').strip('"')
+        if reUtility.is_matched_int(value_temp):
+            value = int(value_temp)
+        elif reUtility.is_matched_float(value_temp):
+            value = float(value_temp)
+        elif value_temp.upper() == 'TRUE' or value_temp.upper() == 'YES':
             value = True
-        elif value.upper() == 'FALSE' or value.upper() == 'NO':
+        elif value_temp.upper() == 'FALSE' or value_temp.upper() == 'NO':
             value = False
         
         return (key, value) 
@@ -3055,16 +3056,16 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         # replace , from the keys  
-        keywords = []
+        keywords = set()
         if args.keywords:
             # replace ',' to ''
             for i, k in enumerate(args.keywords): 
                 if ',' in k:
                     keys_temp = args.keywords[i].split(',')
                     for temp in keys_temp:
-                        keywords.append(temp)           
+                        keywords.add(temp)           
                 else:
-                    keywords.append(k)
+                    keywords.add(k)
             
         file = ' '.join(args.file)
         key_values = [] 
@@ -3089,13 +3090,12 @@ class TubeCommand():
                             raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                         key_values.append(key + '=' + value)                        
                     else:
-                        for word in keywords:
-                            if key == word:   
-                                # update tube variables dependantly
-                                key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
-                                if key_result == False:
-                                    raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
-                                key_values.append(key + '=' + value)     
+                        if key in keywords:  
+                            # update tube variables dependantly
+                            key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                            if key_result == False:
+                                raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
+                            key_values.append(key + '=' + value)     
             
         else:
             # key value file
@@ -3117,13 +3117,12 @@ class TubeCommand():
                                 raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                             key_values.append(key + '=' + value)
                         else:
-                            for key in keywords:
-                                if key == key:
-                                    # update tube variables dependantly
-                                    key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
-                                    if key_result == False:
-                                        raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
-                                    key_values.append(key + '=' + value)
+                            if key in keywords:
+                                # update tube variables dependantly
+                                key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                                if key_result == False:
+                                    raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
+                                key_values.append(key + '=' + value)
                                                    
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Get file key values successfully:\n' + str(key_values)
