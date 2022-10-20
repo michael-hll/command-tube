@@ -16,11 +16,21 @@ TUBE:
     - COMMAND: ECHO i was deleted --if {i} != 2
     - RUN_TUBE: SubTube4 --continue
 
+    # test expressions
+    - SET_VAR: x = 2
+    - SET_VAR: y = x + 2
+    - SET_VAR: y = {x} + 2
+    - SET_VAR: s1 = 'abcdef'
+    - SET_VAR: s2 = a b
+    - COMMAND: ECHO HELLO --if s1 == abcdef
+    - SET_VAR: z = datetime.today().weekday()
+    - COMMAND: ECHO EHLLO --if datetime.today().weekday() == 3
+
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n set_variable_result -v Testing Pass  -g --if {success_nums}==11 --key
-    - SET_VARIABLE: -n set_variable_result -v Testing Failed -g --if {success_nums}!=11
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11
+    - SET_VARIABLE: -n set_variable_result -v Testing Pass  -g --if {success_nums}==19 --key
+    - SET_VARIABLE: -n set_variable_result -v Testing Failed -g --if {success_nums}!=19
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==19
 
 SubTube1:
     - SET_VARIABLE: -n i -v i + 1
