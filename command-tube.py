@@ -4398,7 +4398,7 @@ class Tube():
                 tube_new.append(command) 
                 
         # update max command type length
-        reset_max_tube_command_type_length(tube_new)
+        StorageUtility.reset_max_tube_command_type_length(tube_new)
         self.tube_run = tube_new
 
     def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False) -> bool:
@@ -4802,10 +4802,15 @@ class StorageUtility():
                 if len(syntax_errors) > 0:
                     command.has_syntax_error = True
                     has_errors = True                
-                    for err in syntax_errors:
-                        msg = '%s: %s' % (command.cmd_type, err)
-                        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                        errors_return.append(msg)                    
+                    for i, err in enumerate(syntax_errors):
+                        msg = ''
+                        if i == 0:
+                            msg = 'In tube ({0}) command >>> {1} found {2}'.format(
+                                command.tube.tube_name, command.cmd_type + ': ' + command.get_formatted_content(), str(err))
+                        else:
+                            msg = 'It has {0}'.format(str(err))
+                        errors_return.append(msg) 
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)                                           
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                    
                 command.tube_argument_parser.argument_error.clear() 
             
@@ -5011,6 +5016,34 @@ class StorageUtility():
                 if cmd_type.upper() == alias:
                     return key
         return ''   
+
+    @classmethod
+    def reset_max_tube_command_type_length(self, tube_command_list):
+        if tube_command_list == None or len(tube_command_list) == 0:
+            return Storage.I.MAX_TUBE_COMMAND_LENGTH
+        type_list = [c.cmd_type + c.tube.tube_name for c in tube_command_list]
+        max_length = len(max(type_list, key=len)) + 5
+        if max_length > Storage.I.MAX_TUBE_COMMAND_LENGTH:
+            Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
+
+    @classmethod
+    def check_if_key_command_exists(self, tube = []):
+        '''
+        Check if key command exists
+        
+        Args:
+            tube: If not provided then check all the log linked commands
+        '''
+        if not tube or len(tube) == 0:
+            for log in Storage.I.LOGS:        
+                if log.command.check_if_key_command():
+                    return True
+        else:        
+            command: TubeCommand
+            for command in tube:
+                if command.check_if_key_command():
+                    return True        
+        return False
 
 class TubeCommandUtility():
     
@@ -5554,24 +5587,6 @@ def print_logs(LOGS):
     tprint('Total Time: %s' % totals, prefix='')
     tprint('-------------------------------', prefix='')
 
-def check_if_key_command_exists(tube = []):
-    '''
-    Check if key command exists
-    
-    Args:
-        tube: If not provided then check all the log linked commands
-    '''
-    if len(tube) == 0:
-        for log in Storage.I.LOGS:        
-            if log.command.check_if_key_command():
-                return True
-    else:        
-        command: TubeCommand
-        for command in tube:
-            if command.check_if_key_command():
-                return True        
-    return False
-
 def get_command_result_by_uuid(uuid, tube = []):
     '''
     Get command result by UUID
@@ -5635,7 +5650,7 @@ def calculate_success_failed_details(is_for_email):
         loops = ' LOOP: (%s/%s)' % (str(Storage.I.CURR_LOOP_ID), str(Storage.I.LOOP_TIMES))
 
     # ouput overall status
-    key_command_exists_all = check_if_key_command_exists(Storage.I.TUBE_RUN)    
+    key_command_exists_all = StorageUtility.check_if_key_command_exists(Storage.I.TUBE_RUN)    
     result = '['
     if not key_command_exists_all:
         # there are no key commands at all
@@ -5684,7 +5699,7 @@ def calculate_success_failed_for_tube(tube):
             skipped_count +=1
 
     # ouput overall status
-    key_command_exists_all = check_if_key_command_exists(tube)    
+    key_command_exists_all = StorageUtility.check_if_key_command_exists(tube)    
     result = Storage.I.C_TUBE_SUCCESSFUL
     if not key_command_exists_all:
         # there are no key commands at all
@@ -6038,14 +6053,6 @@ def install_3rd_party_packages(args):
         msg = 'ERROR: Install/Check 3-rd party packages failed with exception: ' + str(e2)
         print(msg)
         sys.exit()
-
-def reset_max_tube_command_type_length(tube_command_list):
-    if tube_command_list == None or len(tube_command_list) == 0:
-        return Storage.I.MAX_TUBE_COMMAND_LENGTH
-    type_list = [c.cmd_type + c.tube.tube_name for c in tube_command_list]
-    max_length = len(max(type_list, key=len)) + 5
-    if max_length > Storage.I.MAX_TUBE_COMMAND_LENGTH:
-        Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
 
 def disconect_all_hosts(hosts):
     try:
