@@ -558,10 +558,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.  \
-                    \nThe written characters also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL\' (DELETE_LINE). \
-                    \nIf you need more than two space characters in the value content, you can use {s:m} (m > 0) formular. \
-                    \nThe \'m\' means how many spaces you want to write. \
-                    \neg: -v {s:5}hello => will be translated to 5 space chars plus hello: \'     hello\''                    
+                    \nThe written characters also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL\' (DELETE_LINE).'                    
             },    
             self.C_SET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
