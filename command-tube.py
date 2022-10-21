@@ -635,7 +635,7 @@ Use 'help vars' to print all the given tube variables;
                     - SET_VARIABLE: -n sum -v {var1}+{var2} # Tube variable sum will be set to the result of var1 + var2.'],
                     [False, '-r','--readonly', '', '', 'is_readonly', False, True, 'store_true', False,
                         'Mark the variable as readonly after updating. Default no. [2.0.2]'],
-                    [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False,
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the varialbe is readonly. Default no. [2.0.2]'],
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
                         'If set the variable to global (Main TUBE). Within a sub-tube, it will default set the value within the sub tube scope. Default no. [2.0.2]'],
