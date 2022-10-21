@@ -279,7 +279,7 @@ Use 'help vars' to print all the given tube variables;
                         'The lines count you want to output.'],
                     [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
                         'Output start from the given keywords.'],       
-                    [False, '-r','--result', 'str', '+', 'result_file', False, False, '', '',
+                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
                         'The text file to store the tail result.'],              
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -292,7 +292,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                    [False, '-f','--file', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to store the exist result. (True/False)'],
@@ -345,7 +345,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'F_PUSH'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_PUSH: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                    [False, '-f','--file', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to push.'],
                     [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
                         'The content you want to push to the text file.'],                
@@ -451,8 +451,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'D_EXIST'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
+                self.C_ARG_ARGS: [    
+                    [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',    
                         'The directory you want to check.'],
                     [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
                         'The tube variable name to store the exist result. (True/False)'],
@@ -512,7 +512,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-e','--empty', '', '', 'del_empty', False, True, 'store_true', False,
                         'A flag to tell if delete empty line. Default no.'],
                     [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
-                        'The text file to store deleted directory result.'], 
+                        'The text file to store deleted result.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -848,7 +848,7 @@ Use 'help vars' to print all the given tube variables;
                         'The file you want to check.'],                    
                     [False, '-c','--char',  'str', '+',  'characters', True, False, '', '',
                         'The characters you want to check.'],
-                    [False, '-r','--result', 'str', 1,   'result', True, False, '', '',
+                    [False, '-v','--variable', 'str', 1,   'variable', True, False, '', '',
                         'The tube variable name to store the checking result.'], 
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no. [2.0.2]'], 
@@ -898,8 +898,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'LIST_F'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_FILES: -d directory -r result_file [-s time|name|size [asc|desc]] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
-                self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
+                self.C_ARG_ARGS: [      
+                    [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',  
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
                     [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
                         'The text file to store the search result.'], 
@@ -916,7 +916,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'LIST_D'},
                 self.C_ARG_SYNTAX: 'Syntax: LIST_DIRS: -d directory -r result_file [-s asc|desc] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'directory', True, False, '', '',
+                    [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '', 
                         'The directory you want to list its sub directories.'],
                     [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
                         'The text file to store the list result.'], 
@@ -2952,8 +2952,8 @@ class TubeCommand():
         if args.keywords != None:
             keywords = [k.strip() for k in args.keywords]
             keywords = ' '.join(keywords) 
-        if args.result_file:
-            r_file = ' '.join(args.result_file)           
+        if args.result:
+            r_file = ' '.join(args.result)           
     
         lines_count = int(lines_count)        
         return_lines = []
@@ -3535,12 +3535,12 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file, characters, result = '', '', False
+        file, characters, variable = '', '', False
         
         # get user inputs
         file = ' '.join(args.file)
         characters = ' '.join(args.characters)
-        result = args.result[0]
+        variable = args.variable[0]
         
         is_global = args.is_global
         is_force = args.is_force
@@ -3556,9 +3556,9 @@ class TubeCommand():
         
         finally:
             # update tube variables dependantly
-            key_result = self.update_key_value(result, found, is_force=is_force, is_global=is_global)
+            key_result = self.update_key_value(variable, found, is_force=is_force, is_global=is_global)
             if key_result == False:
-                raise Exception('Update key-value failed: {0}:{1}'.format(result, found))
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, found))
 
         msg = 'Checking characters result: ' + str(found)
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)

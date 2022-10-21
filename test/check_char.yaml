@@ -3,9 +3,9 @@ Tube:
     - SET_VAR: -n file -v check_char.txt
     - FILE_EMPTY: '{file} -c'
     - RUN_TUBE: LOOP -w i < 5
-    - CHECK_CHAR_EXISTS: -f {file} -c line6 -r exists
+    - CHECK_CHAR_EXISTS: -f {file} -c line6 -v exists
     - CMD: echo hello testing --if not exists
-    - CHECK_CHAR_EXISTS: -f {file} -c line5 -r exists
+    - CHECK_CHAR_EXISTS: -f {file} -c line5 -v exists
     - CMD: echo hello testing --if exists
     - FILE_DELETE: {file}
 
