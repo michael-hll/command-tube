@@ -29,3 +29,4 @@ qq.py
 steps.txt
 test.txt
 result
+*.code-workspace
