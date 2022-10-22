@@ -21,7 +21,7 @@ Variables:
     case: 0
 TUBE:
     - PATH: {test_folder}
-    - SET_VAR: result = result + 1 --if email
+    - SET_VARIABLE: result = result + 1 --if email
     # TESTING VIA SUB TUBES
     - RUN_TUBE: del_line.yaml --continue  --note 1 
                 --if all or case == 1

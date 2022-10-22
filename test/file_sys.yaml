@@ -9,7 +9,7 @@ Tube:
     - FILE_CREATE: file_sys/tmp.txt --continue
     - FILE_EXIST: -f file_sys/tmp.txt -v exists
     - FILE_DELETE: file_sys/tmp.txt --if exists
-    - SET_VAR: -n i -v 0
+    - SET_VARIABLE: -n i -v 0
     - RUN_TUBE: CR_FILES -w {i} < 10
     - LIST_FILES: -d file_sys/file_*.txt -r file_sys/files_list.txt -s time
     - FILE_POP: file_sys/files_list.txt -v pop_line
@@ -46,5 +46,5 @@ Tube:
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==35
 
 CR_FILES:
-    - SET_VAR: -n i -v i + 1 -g
+    - SET_VARIABLE: -n i -v i + 1 -g
     - FILE_CREATE: file_sys/file_{i}.txt 

@@ -17,13 +17,13 @@ TUBE:
     - RUN_TUBE: SubTube4 --continue
 
     # test expressions
-    - SET_VAR: x = 2
-    - SET_VAR: y = x + 2
-    - SET_VAR: y = {x} + 2
-    - SET_VAR: s1 = 'abcdef'
-    - SET_VAR: s2 = a b
+    - SET_VARIABLE: x = 2
+    - SET_VARIABLE: y = x + 2
+    - SET_VARIABLE: y = {x} + 2
+    - SET_VARIABLE: s1 = 'abcdef'
+    - SET_VARIABLE: s2 = a b
     - COMMAND: ECHO HELLO --if s1 == abcdef
-    - SET_VAR: z = datetime.today().weekday()
+    - SET_VARIABLE: z = datetime.today().weekday()
     - COMMAND: ECHO EHLLO --if z != 7
 
     # output testing result

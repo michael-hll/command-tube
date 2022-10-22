@@ -1,6 +1,6 @@
 Tube:
-    - SET_VAR: -n i -v 0
-    - SET_VAR: -n file -v replace_test.txt
+    - SET_VARIABLE: -n i -v 0
+    - SET_VARIABLE: -n file -v replace_test.txt
     - FILE_EMPTY: '{file} -c'
     - RUN_TUBE: LOOP -w i < 5
     - REPLACE_CHAR: -f {file} -o line -n new line
@@ -14,5 +14,5 @@ Tube:
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
 
 LOOP:
-    - SET_VAR: -n i -v i + 1 -g
+    - SET_VARIABLE: -n i -v i + 1 -g
     - WRITE_LINE: -f {file} -v line{i}

@@ -1,6 +1,6 @@
 Tube:
-    - SET_VAR: -n file -v data_0.txt
-    - SET_VAR: -n x -v 100
+    - SET_VARIABLE: -n file -v data_0.txt
+    - SET_VARIABLE: -n x -v 100
     - READ_LINE: -f {file} -n -1 -v line
     - WRITE_LINE: -f {file} -v {line}
     - DELETE_LINE: -f {file} -n -1
@@ -8,7 +8,7 @@ Tube:
     - GET_KEYS: -f {file} -k newkey
     - DELETE_LINE: -f {file} -n -1
     - PRINT_VARS: '*'
-    - CMD: echo test
+    - COMMAND: echo test
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
