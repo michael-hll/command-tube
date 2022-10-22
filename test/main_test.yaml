@@ -44,5 +44,5 @@ TUBE:
         read_console_result, replace_char_result, check_char_result, file_sys_result
 
     - FILE_DELETE: '*.yaml.log --if del_log --continue'
-    - COMMAND: ECHO TESTING FAILED --if tube_passed != result
-    - COMMAND: ECHO TESTING PASSED --if tube_passed == result --key
+    - COMMAND: ECHO TESTING FAILED --if {tube_passed} != {result}
+    - COMMAND: ECHO TESTING PASSED --if {tube_passed} == {result} --key
