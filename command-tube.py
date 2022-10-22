@@ -543,7 +543,7 @@ Use 'help vars' to print all the given tube variables;
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'WRITE_LINE'},
-                self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to update.'],
@@ -557,8 +557,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.  \
-                    \nThe written characters also could be one of them: \'$NLB\' (NEW_LINE_BEFORE), \'$NLA\' (NEW_LINE_AFTER),\'$DL\' (DELETE_LINE).'                    
+                self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.'                    
             },    
             self.C_SET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -2015,30 +2014,13 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         file = ' '.join(args.file)
         if args.number:
-            line_no = args.number[0]
+            line_no = int(args.number[0])
         line_content = ' '.join(args.value).strip('\'').strip('"')
         if args.contains:
             line_contains = ' '.join(args.contains)    
-        
-        # read write content from file or $NLB, $NLA, $DL
-        if line_content.startswith('$'):
-            input_content = line_content[1:]
-            # first check if it's write new line or delete line
-            if input_content == Storage.I.C_NEW_LINE_BEFORE_SHORT:
-                line_content = Storage.I.C_NEW_LINE_BEFORE
-            elif input_content == Storage.I.C_NEW_LINE_AFTER_SHORT:
-                line_content = Storage.I.C_NEW_LINE_AFTER
-            elif input_content == Storage.I.C_DELETE_LINE_SHORT:
-                line_content = Storage.I.C_DELETE_LINE
-            else:
-                # read content from file
-                line_content = Utility.read_file_content(input_content)
-                if not line_content:
-                    return True
             
         # check if in append mode
         if line_no == 0 and line_contains == None:
-            write_mode = 'a+'
             is_append_mode = True
         
         # write line content to file
@@ -2051,80 +2033,59 @@ class TubeCommand():
                 if lines and len(lines) > 0:
                     if not lines[len(lines)-1].endswith('\n'):
                         is_new_line = ''
-            if is_append_mode == False and lines and len(lines) > 0:                      
-                no = 0
-                updated = False
-                for line in lines:                                
+            
+            # start to loop the original lines
+            updated = False
+            if is_append_mode == False and lines and len(lines) > 0:
+                for no, line in enumerate(lines):     
+
                     # break for loop if there is no conditions
                     if line_no == 0 and line_contains == None:
                         break
                     
-                    # increase the line number
-                    # to see if it equals user input
-                    no += 1
-                    
                     # check line contains parameter
-                    contains_valid = False
-                    if line_contains:
-                        if line_contains not in line:
-                            continue 
-                        else:
-                            contains_valid = True
+                    # if user not provided contains then contains_valid is set to True
+                    contains_valid = True if (line_contains and line_contains in line) or line_contains == None else False
+                    if not contains_valid and line_no == 0:
+                        continue
                         
                     # check line no and line contains
-                    if (no == line_no and line_no > 0) or (line_no == 0 and contains_valid == True):                    
+                    if ((no+1) == line_no and line_no > 0 and contains_valid) or (line_no == 0 and contains_valid):                    
                         ends = '\n' if line.endswith('\n') else ''
-                        if line_content == Storage.I.C_NEW_LINE_BEFORE:
-                            lines[no-1] = '\n' + line
-                        elif line_content == Storage.I.C_NEW_LINE_AFTER:
-                            lines[no-1] = line + '\n'
-                        elif line_content == Storage.I.C_DELETE_LINE:
-                            lines[no-1] = ''
-                        else:
-                            lines[no-1] = line_content + ends                  
+                        lines[no] = line_content + ends                  
                         updated = True
                         if line_no > 0:
                             break
-                        
-                # for give line nuber case, but didn't found matched line number
-                # append a new line at the end        
-                if not updated and not line_contains:   
-                    if line_content == Storage.I.C_NEW_LINE_BEFORE or \
-                    line_content == Storage.I.C_NEW_LINE_AFTER: 
-                        lines.append('\n')
-                    elif line_content == Storage.I.C_DELETE_LINE:
-                        return True 
-                    else:                    
-                        lines.append('\n' + line_content)                
-            else:
-                # appand mode
-                lines = []
-                if line_content == Storage.I.C_NEW_LINE_AFTER or \
-                line_content == Storage.I.C_NEW_LINE_BEFORE:
-                    lines.append('\n')
-                elif line_content == Storage.I.C_DELETE_LINE:
-                    return True
+
+            # For append cases                                 
+            if is_append_mode:
+                if is_new_line == '':
+                    line_content = '\n' + line_content
                 else:
-                    if is_new_line == '':
-                        line_content = '\n' + line_content
-                    else:
-                        line_content = line_content + is_new_line
-                    lines.append(line_content)
+                    line_content = line_content + is_new_line
+                lines.append(line_content)
+                updated = True
             
             # overwrite new lines into file
             with open(file, write_mode) as f:
                 for line in lines:
                     f.write(line)  
-            
+               
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 try:                    
-                    file_content = Utility.read_file_content(file)
-                    msg = 'File (%s) content: \n%s' % (file, file_content)
+                    msg = 'Write line in file successfully with parameters: file: {0}, content: {1}, line no: {2}, contains: {3}'.format(
+                        file, str(line_content), str(line_no), str(line_contains))
+                    if updated == False:
+                        msg = 'Write nothing with parameters: file {0}, content: {1}, line no: {2}, contains: {3}'.format(
+                                file, str(line_content), str(line_no), str(line_contains)) 
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 except Exception as ed:
                     tprint(str(ed), type=Storage.I.C_PRINT_TYPE_DEBUG)    
             else:
                 msg = 'Write line in file successfully:' + file
+                if updated == False:
+                    msg = 'Write nothing to file: ' + file
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)          
         else:
