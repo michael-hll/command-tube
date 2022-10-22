@@ -522,7 +522,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to delete lines from.'],
                     [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
-                        'The line number you want to delete. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.'], 
+                        'The line number you want to delete. 1 is the first line, -1 is the last line.'], 
                     [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
                         'The line begins with character you want to delete.'],
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
@@ -2158,12 +2158,7 @@ class TubeCommand():
                 line_number = int(line_number)
                 if line_number < 0:
                     is_asc = False
-                line_number = abs(line_number)
-                if line_number > count:
-                    if is_asc == True:
-                        line_number = count    
-                    else:
-                        line_number = 1               
+                line_number = abs(line_number)              
              
             # go through each line for contains, begins, empty    
             for i, line in enumerate(lines):
