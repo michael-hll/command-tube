@@ -101,6 +101,7 @@ class Storage():
         self.C_FILE_COPY               = 'FILE_COPY'
         self.C_FILE_MOVE               = 'FILE_MOVE'
         self.C_FILE_CREATE             = 'FILE_CREATE'
+        self.C_FILE_INSERT             = 'FILE_INSERT'
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
@@ -354,6 +355,23 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
+            },
+            self.C_FILE_INSERT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'F_INSERT'},
+                self.C_ARG_SYNTAX: 'Syntax: FILE_INSERT: -f file -n line_number -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file you want to insert.'],
+                    [False, '-n','--number', 'str', 1, 'number', True, False, '', '',
+                        'The line number you want to inert. 1 means the first line, -1 means the last line.'], 
+                    [False, '-v','--value', 'str', '+', 'value', True, False, '', '',
+                        'The line you want to insert into the file.'],                                       
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Insert a line before given line number. If line number doesnot exist then insert to the end.'                    
             },
             self.C_FILE_EMPTY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -2026,13 +2044,13 @@ class TubeCommand():
         # write line content to file
         if os.path.exists(file):
             lines = []
-            is_new_line = '\n'
+            endswith_newline = '\n'
             # If not in append mode, then read original lines into memory
             with open(file,'r') as f:
                 lines = f.readlines()
                 if lines and len(lines) > 0:
                     if not lines[len(lines)-1].endswith('\n'):
-                        is_new_line = ''
+                        endswith_newline = ''
             
             # start to loop the original lines
             updated = False
@@ -2059,10 +2077,10 @@ class TubeCommand():
 
             # For append cases                                 
             if is_append_mode:
-                if is_new_line == '':
+                if endswith_newline == '':
                     line_content = '\n' + line_content
                 else:
-                    line_content = line_content + is_new_line
+                    line_content = line_content + endswith_newline
                 lines.append(line_content)
                 updated = True
             
@@ -2564,6 +2582,57 @@ class TubeCommand():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
         else:
             msg = 'File was successfully pushed.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        return True
+
+    def file_insert(self):
+        file, value, number = None, None, None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
+        file = ' '.join(args.file)
+        value = ' '.join(args.value).strip('\'').strip('"')        
+        number = int(args.number[0])
+        
+        if os.path.exists(file):
+            
+            lines = []
+            endswith_newline = '\n'
+            with open(file, 'r') as f:
+                lines = f.readlines()
+                # we need to keep the last char if with newline character after the
+                # inersert
+                insert_at = number
+                if number > 0:
+                    insert_at = number - 1            
+                    
+                if lines and len(lines) > 0:
+                    if not lines[len(lines)-1].endswith('\n'):
+                        endswith_newline = ''
+                if number > len(lines):
+                    if endswith_newline:
+                        lines.insert(insert_at, value + '\n')
+                    else:
+                        lines.insert(insert_at, '\n' + value)
+                else:
+                    lines.insert(insert_at, value + '\n')
+                    
+            # write lines back to text file
+            with open(file, 'w') as f:                
+                for line in lines:
+                    f.write(line) 
+                             
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File was successfully inserted: {0}'.format(value)
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
+        else:
+            msg = 'File was successfully inserted.'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
             
@@ -3964,6 +4033,9 @@ class TubeCommand():
                     
             elif command_type == Storage.I.C_FILE_APPEND:
                 result = self.file_append()  
+
+            elif command_type == Storage.I.C_FILE_INSERT:
+                result = self.file_insert() 
                     
             elif command_type == Storage.I.C_FILE_DELETE:
                 result = self.file_delete()  
