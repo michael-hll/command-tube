@@ -1,7 +1,5 @@
 TODO LIST
 
-- FILE_SORT: -f file [-n] [-s asc|dsc]
-
 - Output Command.results to Email content   
 
 - ENHANCE help
@@ -90,7 +88,8 @@ TODO LIST
         FILE_DELETE: -f|--file                                      - done
         FILE_COPY: -f|--file file -t|--to to (file or directory)    - done
         FILE_MOVE: -f|--file file -t|--to to (file or directory)    - done
-        FILE_CREATE: -f file                                        - done                                    
+        FILE_CREATE: -f file                                        - done    
+        FILE_SORT: -f file [-n] [-s asc|dsc]                        - done        
 
     35. - DIR
         exists, delete, copy, move, create. etc
