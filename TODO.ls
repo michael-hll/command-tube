@@ -1,5 +1,7 @@
 TODO LIST
 
+- FILE_SORT: -f file [-n] [-s asc|dsc]
+
 - Output Command.results to Email content   
 
 - ENHANCE help

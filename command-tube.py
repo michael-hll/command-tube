@@ -102,6 +102,7 @@ class Storage():
         self.C_FILE_MOVE               = 'FILE_MOVE'
         self.C_FILE_CREATE             = 'FILE_CREATE'
         self.C_FILE_INSERT             = 'FILE_INSERT'
+        self.C_FILE_SORT               = 'FILE_SORT'
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
@@ -372,6 +373,23 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Insert a line before given line number. If line number doesnot exist then insert to the end.'                    
+            },
+            self.C_FILE_SORT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'F_SORT'},
+                self.C_ARG_SYNTAX: 'Syntax: FILE_SORT: -f file [-n] [-s asc|desc] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                        'The file you want to sort.'],
+                    [False, '-n','--number', '', '', 'is_number', False, True, 'store_true', False,
+                        'If sort file line content as numbers. Default No.'],
+                    [False, '-s','--sort', 'str', 1, 'sort', False, False, '', '',
+                        'Default value is asc. You can set value \'desc\' to reverse the sorting.'],                                       
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sort a text file lines content.'                    
             },
             self.C_FILE_EMPTY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -2633,6 +2651,64 @@ class TubeCommand():
             
         return True
     
+    def file_sort(self):
+        file, is_number, is_sort_desc = None, False, False
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
+        file = ' '.join(args.file)
+        if args.sort:
+            is_sort_desc = True if args.sort[0].upper() == 'DESC' else False 
+        if args.is_number:
+            is_number = True
+        
+        if os.path.exists(file):
+            
+            lines = []
+            endswith_newline = '\n'
+            with open(file, 'r') as f:
+                lines = f.readlines()     
+                # get last char of the file to see if it's '\n'    
+                if lines and len(lines) > 0:
+                    if not lines[len(lines)-1].endswith('\n'):
+                        endswith_newline = ''
+            
+            newlines = []
+            for i, line in enumerate(lines):
+                line = line.replace('\n', '')
+                if is_number:
+                    if reUtility.is_matched_int(line):
+                        line = int(line)
+                    elif reUtility.is_matched_float(line):
+                        line = float(line)
+                    else:
+                        raise Exception('Line {0} content is not a number: {1}'.format(str(i+1), line))
+                newlines.append(line)
+            
+            # sort the new lines
+            newlines.sort(reverse=is_sort_desc)
+                    
+            # write lines back to text file
+            with open(file, 'w') as f:   
+                count = len(newlines)             
+                for i, newline in enumerate(newlines):
+                    line = str(newline)
+                    if i < count - 1:
+                        line = line + '\n'
+                    elif i == count - 1: # the last line content we need to add the correct ending char
+                        line = line + endswith_newline
+                    
+                    f.write(line)                             
+        else:
+            raise Exception('File doesnot exists: {0}'.format(file))
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'File was successfully sorted.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        return True
+    
     def file_empty(self):
         file = None
         parser = self.tube_argument_parser
@@ -4031,6 +4107,9 @@ class TubeCommand():
 
             elif command_type == Storage.I.C_FILE_INSERT:
                 result = self.file_insert() 
+
+            elif command_type == Storage.I.C_FILE_SORT:
+                result = self.file_sort() 
                     
             elif command_type == Storage.I.C_FILE_DELETE:
                 result = self.file_delete()  
