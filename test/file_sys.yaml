@@ -26,13 +26,19 @@ Tube:
     - LIST_DIRS: -d file_sys -r file_sys/dir_results.txt
     - COUNT: -f file_sys/dir_results.txt -v dir_count
     - FILE_DELETE: file_sys/dir_results.txt --if dir_count == 1
+    # testing file_insert
+    - FILE_EMPTY: file_sys/file_insert.txt -c
+    - FILE_INSERT: -f file_sys/file_insert.txt -n 1 -v line 2
+    - FILE_INSERT: -f file_sys/file_insert.txt -n 1 -v line 1
+    - FILE_POP: file_sys/file_insert.txt -v pop_line
+    - COMMAND: echo passed --if pop_line == 'line 1'
     - DIR_DELETE: file_sys -f
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -c --note Count current success count
-    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==25 --key
-    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=25
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==25
+    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==30 --key
+    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=30
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==30
 
 CR_FILES:
     - SET_VAR: -n i -v i + 1 -g

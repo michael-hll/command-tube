@@ -4834,8 +4834,8 @@ class StorageUtility():
                     for i, err in enumerate(syntax_errors):
                         msg = ''
                         if i == 0:
-                            msg = 'In tube ({0}) command >>> {1} found {2}'.format(
-                                command.tube.tube_name, command.cmd_type + ': ' + command.get_formatted_content(), str(err))
+                            msg = 'In tube [{0}] command >>> {1} found {2}'.format(
+                                str(command.tube.tube_index) + ':' + command.tube.tube_name, command.cmd_type + ': ' + command.get_formatted_content(), str(err))
                         else:
                             msg = 'It has {0}'.format(str(err))
                         errors_return.append(msg) 
