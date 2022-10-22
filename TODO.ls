@@ -1,7 +1,5 @@
 TODO LIST
 
-- FILE_INSERT: -f file -v value -n line_number
-
 - Output Command.results to Email content   
 
 - ENHANCE help
@@ -84,6 +82,7 @@ TODO LIST
         FILE_POP: -f file [-v variable]                             - done
         FILE_APPEND: -f file -v value                               - done
         FILE_PUSH: -f file -v value                                 - done
+        FILE_INSERT: -f file -v value -n line_number                - done
         FILE_EMPTY: -f file                                         - done
         FILE_EXIST: -f file -v variable                             - done
         FILE_DELETE: -f|--file                                      - done

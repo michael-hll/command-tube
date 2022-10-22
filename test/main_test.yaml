@@ -2,9 +2,9 @@
 # TESTING STEPS
 # Changing the 'test_folder' variable value to the correct one
 # From terminal enter the following command using tube:
-# >>> tube -t test/main_test -fc -v cs1=100, cs2=yes, cs3='hello mac'
+# >>> tube -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email = no, del_log=no, all=yes, case=16 -fdc
 # Or from terminal enter the following command using source code:
-# >>> python3 command-tube.py -t test/main_test -fc -v cs1=100, cs2=yes, cs3='hello mac'
+# >>> python3 command-tube.py -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email = no, del_log=no, all=yes, case=16 -fdc
 
 # CHECKING TEST RESULT
 # When it's finished, checking the status of the result,
@@ -17,28 +17,43 @@ Variables:
     del_log: yes
     email: no
     result: 15
-    all: yes
+    all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
 TUBE:
     - PATH: {test_folder}
     - SET_VAR: result = result + 1 --if email
     # TESTING VIA SUB TUBES
-    - RUN_TUBE: del_line.yaml --continue  --note 1 --if all or case == 1
+    - RUN_TUBE: del_line.yaml --continue  --note 1 
+                --if all or case == 1
     - RUN_TUBE: email.yaml --continue  --if email --note 2
-    - RUN_TUBE: get_file_key_value.yaml --continue  --note 3 --if all or case == 3
-    - RUN_TUBE: set_file_key_value.yaml --continue  --note 4 --if all or case == 4
-    - RUN_TUBE: write_line.yaml --continue  --note 5 --if all or case == 5
-    - RUN_TUBE: if.yaml --continue  --note 6  --if all or case == 6
-    - RUN_TUBE: continue.yaml --continue  --note 7 --if all or case == 7
-    - RUN_TUBE: redo.yaml --continue --note 8 --if all or case == 8
-    - RUN_TUBE: tail_file.yaml --continue --note 9 --if all or case == 9
-    - RUN_TUBE: set_variable.yaml --continue --note 10 --if all or case == 10
-    - RUN_TUBE: run_tube.yaml --continue --note 11 --if all or case == 11
-    - RUN_TUBE: read_console.yaml --continue --note 12 --if all or case == 12 # Needs console inputs #: -v cs1 = 100, cs2 = yes, cs3='hello mac'
-    - RUN_TUBE: alias.yaml --continue --note 13 --if all or case == 13
-    - RUN_TUBE: replace_char.yaml --continue --note 14 --if all or case == 14
-    - RUN_TUBE: check_char.yaml --continue --note 15 --if all or case == 15
-    - RUN_TUBE: file_sys.yaml --continue --note 16 --if all or case == 16
+    - RUN_TUBE: get_file_key_value.yaml --continue  --note 3 
+                --if all or case == 3
+    - RUN_TUBE: set_file_key_value.yaml --continue  --note 4 
+                --if all or case == 4
+    - RUN_TUBE: write_line.yaml --continue  --note 5 
+                --if all or case == 5
+    - RUN_TUBE: if.yaml --continue  --note 6  
+                --if all or case == 6
+    - RUN_TUBE: continue.yaml --continue  --note 7 
+                --if all or case == 7
+    - RUN_TUBE: redo.yaml --continue --note 8 
+                --if all or case == 8
+    - RUN_TUBE: tail_file.yaml --continue --note 9 
+                --if all or case == 9
+    - RUN_TUBE: set_variable.yaml --continue --note 10 
+                --if all or case == 10
+    - RUN_TUBE: run_tube.yaml --continue --note 11 
+                --if all or case == 11
+    - RUN_TUBE: read_console.yaml --continue --note 12 
+                --if all or case == 12 # Needs console inputs #: -v cs1 = 100, cs2 = yes, cs3='hello mac'
+    - RUN_TUBE: alias.yaml --continue --note 13 
+                --if all or case == 13
+    - RUN_TUBE: replace_char.yaml --continue --note 14 
+                --if all or case == 14
+    - RUN_TUBE: check_char.yaml --continue --note 15 
+                --if all or case == 15
+    - RUN_TUBE: file_sys.yaml --continue --note 16 
+                --if all or case == 16
 
     - SET_VARIABLE: result = 1 --if all == no
 
