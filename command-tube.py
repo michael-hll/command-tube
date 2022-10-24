@@ -232,7 +232,7 @@ Use 'help vars' to print all the given tube variables;
         self.MATRIX_THREAD             = None
         self.IS_REPORT_PROGRESS        = False
         self.HAS_EMAIL_SETTINGS        = False
-        self.EVAL_CODE_SET    = set()
+        self.EVAL_CODE_SET             = set()
 
         self.__gen_tube_args()
         
@@ -1353,24 +1353,48 @@ class Utility():
         return tempDict
     
     @classmethod
-    def split_equal_expression(self, item):
+    def convert_value_auto(self, value):
         '''
-        Split equal expressions 'key = value'
-        Return (key, value)
+        If value is int, float, bool then convert it automatically
         '''
-        key = item[:item.index('=')].strip()
-        value = item[item.index('=')+1:].strip()
-        value_temp = value.strip('\'').strip('"')
+        value_temp = value
         if reUtility.is_matched_int(value_temp):
             value = int(value_temp)
         elif reUtility.is_matched_float(value_temp):
             value = float(value_temp)
-        elif value_temp.upper() == 'TRUE' or value_temp.upper() == 'YES':
+        elif Utility.equal_true(value_temp):
             value = True
-        elif value_temp.upper() == 'FALSE' or value_temp.upper() == 'NO':
+        elif Utility.equal_false(value_temp):
             value = False
         
-        return (key, value) 
+        return value
+
+    @classmethod
+    def split_equal_expression(self, item):
+        '''
+        Split equal expressions 'name = value or name["key"] = value'
+        Return (name, value) or (name, key, value)
+        '''
+        if reUtility.is_matched_assign_expresson(item):
+            name = item[:item.index('=')].strip()
+            value = item[item.index('=')+1:].strip()
+            value = Utility.convert_value_auto(value)
+        
+            return (name, value) 
+        
+        elif reUtility.is_matched_assign_dict_expresson(item):
+            name_key = item[:item.index('=')].strip()
+            left_bracket_index = name_key.index('[')
+            right_bracket_index = name_key.index(']')
+            name = name_key[:left_bracket_index].strip()
+            key = name_key[left_bracket_index + 2 : right_bracket_index - 1]
+            value = Utility.convert_value_auto(value)
+            value = item[item.index('=')+1:].strip()
+
+            return (name, key, value)
+                    
+        else:
+            return (None, None)
         
     @classmethod
     def quote_dict_str_value(self, d):
@@ -1417,11 +1441,20 @@ class Utility():
 class reUtility():
     
     @staticmethod
-    def is_matched_equal_expresson(input_value):
+    def is_matched_assign_expresson(input_value):
         '''
         To see if match 'x = y' expression 
         '''
         p = '[a-zA-Z_0-9]+[ ]*[=]{1}[ ]*[\S ]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
+    
+    @staticmethod
+    def is_matched_assign_dict_expresson(input_value):
+        '''
+        To see if match 'x["key"] = y' expression 
+        '''
+        p = '[a-zA-Z_0-9]+[\[]{1}["]{1}[a-zA-Z_0-9]+["]{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
     
@@ -3298,7 +3331,7 @@ class TubeCommand():
             # to check if the expression match the expression v1 = a1, v2 = a2
             for item in key_value_list:
                 item = item.strip().strip('\'').strip('"')
-                if not reUtility.is_matched_equal_expresson(item):
+                if not reUtility.is_matched_assign_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
 
         msg = ''
@@ -3477,22 +3510,23 @@ class TubeCommand():
         '''
         For command: SET_VARIABLE
         '''
-        key, value, is_readonly, is_force, is_global = '', '', False, False, False
+        name, key, value, is_readonly, is_force, is_global = '', '', '', False, False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         if args.name and len(args.name) > 0:
-            key = args.name[0]
+            name = args.name[0]
         if args.value:
             value = ' '.join(args.value)
         # check if expressions given
         if args.expression:
             expression = ' '.join(args.expression)
             # to check if the expression match the expression v1 = a1
-            if not reUtility.is_matched_equal_expresson(expression):
+            if not reUtility.is_matched_assign_expresson(expression) and \
+               not reUtility.is_matched_assign_dict_expresson(expression):
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
             # override the key, value from expression to the --name, --value arguements
-            key, value = Utility.split_equal_expression(expression)
+            name, value = Utility.split_equal_expression(expression)
             value = str(value)
         is_readonly = args.is_readonly
         is_force = args.is_force
@@ -3504,21 +3538,21 @@ class TubeCommand():
             code = compile(value, '<string>', 'eval')    
             local_dict = {}
             # Add the missing codes into local varialbes as str
-            for name in code.co_names:
-                kv = self.tube.get_first_key_value(name)
+            for code in code.co_names:
+                kv = self.tube.get_first_key_value(code)
                 if kv != None:
-                    local_dict[name] = kv
+                    local_dict[code] = kv
                     continue
-                if name in Storage.I.EVAL_CODE_SET:
+                if code in Storage.I.EVAL_CODE_SET:
                     continue
-                if not name in globals().keys():
-                        local_dict[name] = str(name)                       
+                if not code in globals().keys():
+                    local_dict[code] = str(code)                       
             value = eval(value, globals(), local_dict)
         except Exception as e:
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
-        return self.update_key_value(key, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
+        return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
     def sftp_get_put(self, ssh):
         '''
@@ -5080,7 +5114,7 @@ class StorageUtility():
             key_value_list = variables.split(',')
             for item in key_value_list:
                 item = item.strip().strip('\'').strip('"')
-                if not reUtility.is_matched_equal_expresson(item):
+                if not reUtility.is_matched_assign_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
                 key, value = Utility.split_equal_expression(item)                
                 StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
