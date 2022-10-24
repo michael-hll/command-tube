@@ -3376,7 +3376,7 @@ class TubeCommand():
                 if key_value_list:
                     for item in key_value_list:
                         key, value = Utility.split_equal_expression(item)
-                        self.sub_tube.update_key_value(key, value, is_force=True, is_readonly=False)
+                        self.sub_tube.update_key_value(key, value, is_force=False, is_readonly=False)
                                                         
                 self.sub_tube.tube_run_times = 0 # initial the tube running times to 0    
                 msg = 'Start sub tube successfully: ' + tube 

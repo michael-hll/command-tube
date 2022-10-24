@@ -1,9 +1,6 @@
 
 TODO LIST
 
-- Bug list:
-    1. A string value has position format, then it doesn't work: '{i:2s}'
-    2. READ_LINE_IN_FILE: If the value is number then convert it to number or float
 
 - SET_VARIABLE: var["key"] = value
 
@@ -127,7 +124,11 @@ TODO LIST
         - auto test each command script         - done
         - check all command debug message       - done
 
-    45. - position arguments for each commands?
+    45. - position arguments for each commands
+        some commands only has one must have argument that use position arguments
 
+    - Bug list:
+        1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
+        2. READ_LINE_IN_FILE: If the value is number then convert it to number or float - done
 
 
