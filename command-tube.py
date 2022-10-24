@@ -1372,7 +1372,7 @@ class Utility():
         return value
 
     @classmethod
-    def split_equal_expression(self, item):
+    def split_assign_expression(self, item):
         '''
         Split equal expressions 'name = value or name["key"] = value'
         Return (name, value) or (name, key, value)
@@ -1380,14 +1380,14 @@ class Utility():
         item = item.strip()
         if reUtility.is_matched_assign_expresson(item):
             name = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip().strip('\'').strip('"')
+            value = item[item.index('=')+1:].strip()
             value = Utility.convert_value_auto(value)
         
             return (name, value) 
         
         elif reUtility.is_matched_assign_dict_expresson(item):
             name_key = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip().strip('\'').strip('"')
+            value = item[item.index('=')+1:].strip()
             left_bracket_index = name_key.index('[')
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
@@ -1443,7 +1443,7 @@ class Utility():
                     f.write('\n' + line)
 
     @classmethod
-    def eval_expression(self, expression: str, command):
+    def eval_expression(self, expression: str, tube):
         '''
         Args:
 
@@ -1457,7 +1457,7 @@ class Utility():
             local_dict = {}
             # Add the missing codes into local varialbes as str
             for code in code.co_names:
-                kv = command.tube.get_first_key_value(code)
+                kv = tube.get_first_key_value(code)
                 if kv != None:
                     local_dict[code] = kv
                     continue
@@ -3442,7 +3442,8 @@ class TubeCommand():
                 # update tube local variables from RUN_TUBE arguments
                 if key_value_list:
                     for item in key_value_list:
-                        key, value = Utility.split_equal_expression(item)
+                        key, value = Utility.split_assign_expression(item)
+                        value = Utility.eval_expression(value, tube=self.tube)
                         self.sub_tube.update_key_value(key, value, is_force=False, is_readonly=False)
                                                         
                 self.sub_tube.tube_run_times = 0 # initial the tube running times to 0    
@@ -3560,10 +3561,10 @@ class TubeCommand():
             # to check if the expression match the expression v1 = a1
             if reUtility.is_matched_assign_expresson(expression):
                 # override the key, value from expression to the --name, --value arguements
-                name, value = Utility.split_equal_expression(expression)
+                name, value = Utility.split_assign_expression(expression)
                 value = str(value)
             elif reUtility.is_matched_assign_dict_expresson(expression):
-                name, key, value = Utility.split_equal_expression(expression)
+                name, key, value = Utility.split_assign_expression(expression)
                 value = str(value)                               
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
@@ -3574,7 +3575,7 @@ class TubeCommand():
 
         # if key value exists
         if key:
-            value = Utility.eval_expression(value, command=self)
+            value = Utility.eval_expression(value, tube=self.tube)
             # check if name already exists
             exists, temp_tube = self.tube.find_key_from_tubes(name)
             if exists:
@@ -5171,7 +5172,8 @@ class StorageUtility():
                 item = item.strip().strip('\'').strip('"')
                 if not reUtility.is_matched_assign_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
-                key, value = Utility.split_equal_expression(item)                
+                key, value = Utility.split_assign_expression(item) 
+                value = Utility.eval_expression(value, tube=tube)               
                 StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
                 if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                     msg = 'Read console variable: \'%s\', value: \'%s\' from console and set it to readonly.'                
