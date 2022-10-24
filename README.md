@@ -544,10 +544,11 @@ Support from version: 2.0.0</pre>
 #### Alias: SET_VAR
 <pre>Description: Set tube variable value.
 
-Syntax: - SET_VARIABLE: expression [-n|--name name] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - SET_VARIABLE: expression [-n|--name name] [-k|--keyword keyword] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   expression:    Assign variable value with format: var_name = 'value expression'; Or you can use --name, --value arguments to set the variable value explicitly.
+   expression:    Assign variable value with format: var_name = expression or var_name["key"] = expression; Or you can use --name, --keyword, --value arguments to set the variable value explicitly.
    -n/--name:     The tube variable name you want to set.
+   -k/--keyword:  If update a dictional type variable, this --keyword value is to set the dict key.
    -v/--value:    The tube variable value you want to set. 
                   Note: The 'eval(expression)' is also supported, eg: 
                      - SET_VARIABLE: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. 
