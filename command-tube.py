@@ -657,7 +657,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
-                        'Assign variable value with format: var_name = <value expression>; Or you can use --name, --value arguments to set the variable value explicitly.'],     
+                        'Assign variable value with format: var_name = \'value expression\'; Or you can use --name, --value arguments to set the variable value explicitly.'],     
                     [False, '-n','--name', 'str', '+', 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
                     [False, '-v','--value', 'str', '*', 'value', False, False, '', '',

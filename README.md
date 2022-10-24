@@ -154,13 +154,13 @@
 #### Alias: CHECK_CHAR
 <pre>Description: Check if given characters exists from a file. Result was updated into a tube variable.
 
-Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -r|--result result [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   -f/--file:   The file you want to check.
-   -c/--char:   The characters you want to check.
-   -r/--result: The tube variable name to store the checking result.
-   -u/--force:  Force update even the variable is readonly. Default no. [2.0.2]
-   -g/--global: If update the variable in global tube variables. Default no. [2.0.2]
+   -f/--file:     The file you want to check.
+   -c/--char:     The characters you want to check.
+   -v/--variable: The tube variable name to store the checking result.
+   -u/--force:    Force update even the variable is readonly. Default no. [2.0.2]
+   -g/--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.1</pre>
 ### 2: COMMAND
@@ -204,11 +204,11 @@ Support from version: 2.0.0</pre>
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -f/--file:     The file you want to delete lines from.
-   -n/--number:   The line number you want to delete. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.
+   -n/--number:   The line number you want to delete. 1 is the first line, -1 is the last line.
    -b/--begins:   The line begins with character you want to delete.
    -c/--contains: The line contains with character you want to delete.
    -e/--empty:    A flag to tell if delete empty line. Default no.
-   -r/--result:   The text file to store deleted directory result.
+   -r/--result:   The text file to store deleted result.
 
 Support from version: 2.0.0</pre>
 ### 6: DELETE_VARIABLE
@@ -246,9 +246,9 @@ Support from version: 2.0.2</pre>
 #### Alias: D_EXIST
 <pre>Description: Check if a directory exists.
 
-Syntax: - DIR_EXIST: directory -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - DIR_EXIST: -d|--dir directory -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   directory:     The directory you want to check.
+   -d/--dir:      The directory you want to check.
    -v/--variable: The tube variable name to store the exist result. (True/False)
    -u/--force:    Force update even the variable is readonly. Default no.
    -g/--global:   If update the variable in global tube variables. Default no.
@@ -318,15 +318,26 @@ Support from version: 2.0.2</pre>
 #### Alias: F_EXIST
 <pre>Description: Check if a file exists.
 
-Syntax: - FILE_EXIST: file -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - FILE_EXIST: -f|--file file -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   file:          The file name you want to check.
+   -f/--file:     The file name you want to check.
    -v/--variable: The tube variable name to store the exist result. (True/False)
    -u/--force:    Force update even the variable is readonly. Default no.
    -g/--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 17: FILE_MOVE
+### 17: FILE_INSERT
+#### Alias: F_INSERT
+<pre>Description: Insert a line before given line number. If line number doesnot exist then insert to the end.
+
+Syntax: - FILE_INSERT: -f|--file file -n|--number number -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Parameters:
+   -f/--file:   The file you want to insert.
+   -n/--number: The line number you want to inert. 1 means the first line, -1 means the last line.
+   -v/--value:  The line you want to insert into the file.
+
+Support from version: 2.0.2</pre>
+### 18: FILE_MOVE
 #### Alias: F_MOVE
 <pre>Description: Move any files to target.
 
@@ -336,7 +347,7 @@ Parameters:
    -d/--dest: The target file or folder
 
 Support from version: 2.0.2</pre>
-### 18: FILE_POP
+### 19: FILE_POP
 #### Alias: F_POP
 <pre>Description: Pop the first line of the given text file. If there is no line there then store empty.
 
@@ -348,17 +359,17 @@ Parameters:
    -g/--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 19: FILE_PUSH
+### 20: FILE_PUSH
 #### Alias: F_PUSH
 <pre>Description: Push the content to the first line of the given text file.
 
-Syntax: - FILE_PUSH: file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - FILE_PUSH: -f|--file file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   file:       The text file name you want to push.
+   -f/--file:  The text file name you want to push.
    -v/--value: The content you want to push to the text file.
 
 Support from version: 2.0.2</pre>
-### 20: FILE_READ
+### 21: FILE_READ
 #### Alias: F_READ
 <pre>Description: Read a file content to tube variable.
 
@@ -370,7 +381,18 @@ Parameters:
    -g/--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 21: GET_FILE_KEY_VALUE
+### 22: FILE_SORT
+#### Alias: F_SORT
+<pre>Description: Sort a text file lines content.
+
+Syntax: - FILE_SORT: file [-n|--number] [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Parameters:
+   file:        The file you want to sort.
+   -n/--number: If sort file line content as numbers. Default No.
+   -s/--sort:   Default value is asc. You can set value 'desc' to reverse the sorting.
+
+Support from version: 2.0.2</pre>
+### 23: GET_FILE_KEY_VALUE
 #### Alias: GET_KEYS
 <pre>Description: Read key values from key-value file.                                            
 It also supports to read key-value from Yaml file with simple type: string, number.                                            
@@ -384,7 +406,7 @@ Parameters:
    -g/--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 22: GET_XML_TAG_TEXT
+### 24: GET_XML_TAG_TEXT
 #### Alias: GET_XML_TAG
 <pre>Description: Get XML file tag text value.                                            
 The result will be stored into a tube variable and xpath will be used as the variable name.
@@ -398,7 +420,7 @@ Parameters:
    -g/--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 23: LINUX_COMMAND
+### 25: LINUX_COMMAND
 #### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
@@ -408,29 +430,29 @@ Parameters:
    --log-detail:   Log command output to tube log file. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 24: LIST_DIRS
+### 26: LIST_DIRS
 #### Alias: LIST_D
 <pre>Description: Got all sub directories for the given directory, and save the result list to a text file.
 
-Syntax: - LIST_DIRS: directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_DIRS: -d|--dir directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   directory:   The directory you want to list its sub directories.
+   -d/--dir:    The directory you want to list its sub directories.
    -r/--result: The text file to store the list result.
    -s/--sort:   It accepts 'asc' or 'desc' value for the sorting. Default is 'asc'.
 
 Support from version: 2.0.2</pre>
-### 25: LIST_FILES
+### 27: LIST_FILES
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file.
 
-Syntax: - LIST_FILES: directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_FILES: -d|--dir directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   directory:   The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
+   -d/--dir:    The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
    -r/--result: The text file to store the search result.
    -s/--sort:   Using '-s time|name|size [asc|desc]' to set the sort properties. Default uses the file modification time (time asc) to sort the result.
 
 Support from version: 2.0.2</pre>
-### 26: PATH
+### 28: PATH
 #### Alias: CD
 <pre>Description: Go to specific directory.
 
@@ -439,7 +461,7 @@ Parameters:
    directory:  The directory you want to goto.
 
 Support from version: 2.0.0</pre>
-### 27: PAUSE
+### 29: PAUSE
 #### Alias: PAUSE
 <pre>Description: Command Tube will pause with given minutes/seconds.
 
@@ -448,7 +470,7 @@ Parameters:
    minutes:  The minutes you want to pause. You can end it with 's' char to pause for xxx seconds.
 
 Support from version: 2.0.0</pre>
-### 28: PRINT_VARIABLES
+### 30: PRINT_VARIABLES
 #### Alias: PRINT_VARS
 <pre>Description: Print tube variable values for debugging purpose.
 
@@ -458,7 +480,7 @@ Parameters:
    -r/--result: The text file to store deleted files result.
 
 Support from version: 2.0.2</pre>
-### 29: READ_LINE_IN_FILE
+### 31: READ_LINE_IN_FILE
 #### Alias: READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
@@ -471,7 +493,7 @@ Parameters:
    -g/--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 30: REPLACE_CHAR
+### 32: REPLACE_CHAR
 #### Alias: REPLACE
 <pre>Description: Replace file line content which contains/matches given value.
 
@@ -483,7 +505,7 @@ Parameters:
    -c/--count:    The replaced times you want to set. Default 1.
 
 Support from version: 2.0.1</pre>
-### 31: REPORT_PROGRESS
+### 33: REPORT_PROGRESS
 #### Alias: REPORT_PRO
 <pre>Description: You can use this command to sent current progress via Email.
 
@@ -492,7 +514,7 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 32: RUN_TUBE
+### 34: RUN_TUBE
 #### Alias: RUN
 <pre>Description: Run a sub-tube. 
              With the '--while' conditions provided, RUN_TUBE will continuely run and stop when conditions return false.
@@ -507,7 +529,7 @@ Parameters:
    -w/--while:     Set the condtions to run the tube.
 
 Support from version: 2.0.2</pre>
-### 33: SET_FILE_KEY_VALUE
+### 35: SET_FILE_KEY_VALUE
 #### Alias: SET_KEY
 <pre>Description: Update key-value file.
 
@@ -518,24 +540,24 @@ Parameters:
    -v/--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 34: SET_VARIABLE
+### 36: SET_VARIABLE
 #### Alias: SET_VAR
 <pre>Description: Set tube variable value.
 
-Syntax: - SET_VARIABLE: expression [-n|--name name] [-v|--value value] [-r|--readonly] [-f|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - SET_VARIABLE: expression [-n|--name name] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   expression:    Assign variable value with format: var_name = <value expression>; Or you can use --name, --value arguments to set the variable value explicitly.
+   expression:    Assign variable value with format: var_name = 'value expression'; Or you can use --name, --value arguments to set the variable value explicitly.
    -n/--name:     The tube variable name you want to set.
    -v/--value:    The tube variable value you want to set. 
                   Note: The 'eval(expression)' is also supported, eg: 
                      - SET_VARIABLE: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. 
                      - SET_VARIABLE: -n sum -v {var1}+{var2} # Tube variable sum will be set to the result of var1 + var2.
    -r/--readonly: Mark the variable as readonly after updating. Default no. [2.0.2]
-   -f/--force:    Force update even the varialbe is readonly. Default no. [2.0.2]
+   -u/--force:    Force update even the varialbe is readonly. Default no. [2.0.2]
    -g/--global:   If set the variable to global (Main TUBE). Within a sub-tube, it will default set the value within the sub tube scope. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 35: SET_XML_TAG_TEXT
+### 37: SET_XML_TAG_TEXT
 #### Alias: SET_XML_TAG
 <pre>Description: Update XML file tag text using xpath.
 
@@ -546,7 +568,7 @@ Parameters:
    -v/--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 36: SFTP_GET
+### 38: SFTP_GET
 #### Alias: FTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
@@ -557,7 +579,7 @@ Parameters:
    -l/--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 37: SFTP_PUT
+### 39: SFTP_PUT
 #### Alias: FTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
@@ -568,11 +590,11 @@ Parameters:
    -r/--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 38: TAIL_FILE
+### 40: TAIL_FILE
 #### Alias: TAIL
 <pre>Description: Print/Log the last N lines of given file.
 
-Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [-r|--result result_file] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -f/--file:     The text file you want to tail.
    -l/--lines:    The lines count you want to output.
@@ -580,13 +602,9 @@ Parameters:
    -r/--result:   The text file to store the tail result.
 
 Support from version: 2.0.0</pre>
-### 39: WRITE_LINE_IN_FILE
+### 41: WRITE_LINE_IN_FILE
 #### Alias: WRITE_LINE
-<pre>Description: Write any characters into a file.                      
-The written characters also could be one of them: '$NLB' (NEW_LINE_BEFORE), '$NLA' (NEW_LINE_AFTER),'$DL' (DELETE_LINE).                     
-If you need more than two space characters in the value content, you can use {s:m} (m > 0) formular.                     
-The 'm' means how many spaces you want to write.                     
-eg: -v {s:5}hello => will be translated to 5 space chars plus hello: '     hello'
+<pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
