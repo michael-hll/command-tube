@@ -31,14 +31,15 @@ TUBE:
     - SET_VARIABLE: d["k1"] = 2
     - SET_VARIABLE: d["k2"] = 3
     - SET_VARIABLE: d["k3"] = x + 2
+    - SET_VARIABLE: -n d -k k4 -v x + 100
     - SET_VARIABLE: y = str(d)
     - CMD: ECHO HELLO DICT {d}
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n set_variable_result -v Testing Pass  -g --if {success_nums}==25 --key
-    - SET_VARIABLE: -n set_variable_result -v Testing Failed -g --if {success_nums}!=25
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==25
+    - SET_VARIABLE: -n set_variable_result -v Testing Pass  -g --if {success_nums}==26 --key
+    - SET_VARIABLE: -n set_variable_result -v Testing Failed -g --if {success_nums}!=26
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==26
 
 SubTube1:
     - SET_VARIABLE: -n i -v i + 1

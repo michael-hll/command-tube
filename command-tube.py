@@ -3563,24 +3563,27 @@ class TubeCommand():
                 value = str(value)
             elif reUtility.is_matched_assign_dict_expresson(expression):
                 name, key, value = Utility.split_equal_expression(expression)
-                value = str(value)
-                value = Utility.eval_expression(value, command=self)
-                # check if name already exists
-                exists, temp_tube = self.tube.find_key_from_tubes(name)
-                if exists:
-                    temp_value = temp_tube.KEY_VALUES_DICT[name]
-                    if type(temp_value) == dict:
-                        value_temp = temp_value.copy()
-                        value_temp[key] = value
-                        value = value_temp
-                else:
-                    value = {key: value}                
+                value = str(value)                               
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
 
         is_readonly = args.is_readonly
         is_force = args.is_force
-        is_global = args.is_global
+        is_global = args.is_global   
+
+        # if key value exists
+        if key:
+            value = Utility.eval_expression(value, command=self)
+            # check if name already exists
+            exists, temp_tube = self.tube.find_key_from_tubes(name)
+            if exists:
+                temp_value = temp_tube.KEY_VALUES_DICT[name]
+                if type(temp_value) == dict:
+                    value_temp = temp_value.copy()
+                    value_temp[key] = value
+                    value = value_temp
+            else:
+                value = {key: value}
 
         # evalulate eval inputs
         if type(value) == str:
