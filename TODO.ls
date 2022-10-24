@@ -2,8 +2,6 @@
 TODO LIST
 
 
-- SET_VARIABLE: var["key"] = value
-
 - Output Command.results to Email content   
 
 - ENHANCE help
@@ -126,6 +124,8 @@ TODO LIST
 
     45. - position arguments for each commands
         some commands only has one must have argument that use position arguments
+
+    46. - SET_VARIABLE: var["key"] = value
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
