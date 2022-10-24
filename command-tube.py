@@ -657,9 +657,11 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
-                        'Assign variable value with format: var_name = \'value expression\'; Or you can use --name, --value arguments to set the variable value explicitly.'],     
-                    [False, '-n','--name', 'str', '+', 'name', False, False, '', '',
+                        'Assign variable value with format: var_name = expression or var_name["key"] = expression; Or you can use --name, --keyword, --value arguments to set the variable value explicitly.'],     
+                    [False, '-n','--name', 'str', 1, 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
+                    [False, '-k','--keyword', 'str', 1, 'keyword', False, False, '', '',
+                        'If update a dictional type variable, this --keyword value is to set the dict key.'],
                     [False, '-v','--value', 'str', '*', 'value', False, False, '', '',
                         'The tube variable value you want to set. \n  \
                 Note: The \'eval(expression)\' is also supported, eg: \n \
@@ -1384,6 +1386,7 @@ class Utility():
         
         elif reUtility.is_matched_assign_dict_expresson(item):
             name_key = item[:item.index('=')].strip()
+            value = item[item.index('=')+1:].strip()
             left_bracket_index = name_key.index('[')
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
@@ -1392,7 +1395,7 @@ class Utility():
             value = item[item.index('=')+1:].strip()
 
             return (name, key, value)
-                    
+
         else:
             return (None, None)
         
@@ -1437,6 +1440,36 @@ class Utility():
                     f.write(line)
                 else:
                     f.write('\n' + line)
+
+    @classmethod
+    def eval_expression(self, expression: str, command):
+        '''
+        Args:
+
+        expression: the expression you want to eval
+        command: the tube command to trigger this eval
+        '''
+        # evalulate eval inputs
+        try:
+            # if cound contionds char we use the normal eval method to do check the condition
+            code = compile(expression, '<string>', 'eval')    
+            local_dict = {}
+            # Add the missing codes into local varialbes as str
+            for code in code.co_names:
+                kv = command.tube.get_first_key_value(code)
+                if kv != None:
+                    local_dict[code] = kv
+                    continue
+                if code in Storage.I.EVAL_CODE_SET:
+                    continue
+                if not code in globals().keys():
+                    local_dict[code] = str(code)                       
+            expression = eval(expression, globals(), local_dict)
+        except Exception as e:
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+        finally:
+            return expression
 
 class reUtility():
     
@@ -3516,41 +3549,59 @@ class TubeCommand():
         args, _ = parser.parse_known_args(inputs.split())
         if args.name and len(args.name) > 0:
             name = args.name[0]
+        if args.keyword and len(args.keyword) > 0:
+            key = args.keyword[0]
         if args.value:
             value = ' '.join(args.value)
         # check if expressions given
         if args.expression:
             expression = ' '.join(args.expression)
             # to check if the expression match the expression v1 = a1
-            if not reUtility.is_matched_assign_expresson(expression) and \
-               not reUtility.is_matched_assign_dict_expresson(expression):
+            if reUtility.is_matched_assign_expresson(expression):
+                # override the key, value from expression to the --name, --value arguements
+                name, value = Utility.split_equal_expression(expression)
+                value = str(value)
+            elif reUtility.is_matched_assign_dict_expresson(expression):
+                name, key, value = Utility.split_equal_expression(expression)
+                value = str(value)
+                value = Utility.eval_expression(value, command=self)
+                # check if name already exists
+                exists, temp_tube = self.tube.find_key_from_tubes(name)
+                if exists:
+                    temp_value = temp_tube.KEY_VALUES_DICT[name]
+                    if type(temp_value) == dict:
+                        value_temp = temp_value.copy()
+                        value_temp[key] = value
+                        value = value_temp
+                else:
+                    value = {key: value}                
+            else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
-            # override the key, value from expression to the --name, --value arguements
-            name, value = Utility.split_equal_expression(expression)
-            value = str(value)
+
         is_readonly = args.is_readonly
         is_force = args.is_force
         is_global = args.is_global
 
         # evalulate eval inputs
-        try:
-            # if cound contionds char we use the normal eval method to do check the condition
-            code = compile(value, '<string>', 'eval')    
-            local_dict = {}
-            # Add the missing codes into local varialbes as str
-            for code in code.co_names:
-                kv = self.tube.get_first_key_value(code)
-                if kv != None:
-                    local_dict[code] = kv
-                    continue
-                if code in Storage.I.EVAL_CODE_SET:
-                    continue
-                if not code in globals().keys():
-                    local_dict[code] = str(code)                       
-            value = eval(value, globals(), local_dict)
-        except Exception as e:
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+        if type(value) == str:
+            try:
+                # if cound contionds char we use the normal eval method to do check the condition
+                code = compile(value, '<string>', 'eval')    
+                local_dict = {}
+                # Add the missing codes into local varialbes as str
+                for code in code.co_names:
+                    kv = self.tube.get_first_key_value(code)
+                    if kv != None:
+                        local_dict[code] = kv
+                        continue
+                    if code in Storage.I.EVAL_CODE_SET:
+                        continue
+                    if not code in globals().keys():
+                        local_dict[code] = str(code)                       
+                value = eval(value, globals(), local_dict)
+            except Exception as e:
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
