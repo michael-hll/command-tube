@@ -4913,7 +4913,7 @@ class StorageUtility():
             
             # check if syntax errors
             if command.tube_argument_parser != None:
-                command_content = command.self_format_placeholders(command.content)            
+                command_content = command.content           
                 command.tube_argument_parser.parse_args(command_content.split())
                 syntax_errors = command.tube_argument_parser.get_formated_errors()
                 if len(syntax_errors) > 0:
