@@ -3208,19 +3208,27 @@ class TubeCommand():
                         value = line[i+1:].strip()
                         if value == None:
                             value = ''
+                        elif reUtility.is_matched_int(value):
+                            value = int(value)
+                        elif reUtility.is_matched_float(value):
+                            value = float(value)
+                        elif Utility.equal_true(value):
+                            value = True
+                        elif Utility.equal_false(value):
+                            value = False
                         if len(keywords) == 0:
                             # update tube variables dependantly
                             key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
                             if key_result == False:
                                 raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
-                            key_values.append(key + '=' + value)
+                            key_values.append(key + '=' + str(value))
                         else:
                             if key in keywords:
                                 # update tube variables dependantly
                                 key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
                                 if key_result == False:
                                     raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
-                                key_values.append(key + '=' + value)
+                                key_values.append(key + '=' + str(value))
                                                    
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Get file key values successfully:\n' + str(key_values)
@@ -4869,6 +4877,8 @@ class StorageUtility():
             forced = ' '
             if is_force:
                 forced = ' forced '
+            if type(value) == str:
+                value = '\'' + value + '\''
             msg = 'Tube variable \'%s\' was%supdated to value: %s.' % (key, forced, value)
             if command:
                 msg += ' By tube[%s] command: %s' % (str(command.tube.tube_index), command.cmd_type + ': ' + str(command.get_formatted_content()))
