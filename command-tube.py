@@ -1377,16 +1377,17 @@ class Utility():
         Split equal expressions 'name = value or name["key"] = value'
         Return (name, value) or (name, key, value)
         '''
+        item = item.strip()
         if reUtility.is_matched_assign_expresson(item):
             name = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip()
+            value = item[item.index('=')+1:].strip().strip('\'').strip('"')
             value = Utility.convert_value_auto(value)
         
             return (name, value) 
         
         elif reUtility.is_matched_assign_dict_expresson(item):
             name_key = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip()
+            value = item[item.index('=')+1:].strip().strip('\'').strip('"')
             left_bracket_index = name_key.index('[')
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
