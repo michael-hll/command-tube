@@ -3830,24 +3830,22 @@ class TubeCommand():
         if tube == None:
             tube = self.tube
 
+        # get all Key_Values
+        KV = self.tube.get_parent_key_values()
         # prepare the temp_dict for placeholder using    
         temp_dict = None
         # for checking if/while condition cases we need to add quotes for string type value
         if is_quoted_str == True:
-            temp_dict = Utility.quote_dict_str_value(tube.KEY_VALUES_DICT)
+            temp_dict = Utility.quote_dict_str_value(KV)
         else:
-            temp_dict = tube.KEY_VALUES_DICT
+            temp_dict = KV
         
         # for logging purpose, we need to quoted empty string with ''
         if is_show_empty:
             temp_dict = Utility.replace_empty_dict(temp_dict)
 
         # replace with current tube k-v dict
-        value = TubeCommand.format_placeholders(value, temp_dict)
-
-        # continue replace with its parent tubes k-v dict
-        if tube.parent:
-            value = self.self_format_placeholders(value, is_show_empty=is_show_empty, is_quoted_str=is_quoted_str, tube=tube.parent)    
+        value = TubeCommand.format_placeholders(value, temp_dict)  
         
         return value
     
@@ -4554,6 +4552,22 @@ class Tube():
         if self.parent:
             return self.parent.get_parent_tube_list(parents)
         return parents
+
+    def get_parent_key_values(self, KV=None):
+        '''
+        Get current tube key-values and all its parents tube key-values
+        '''
+        if KV==None:
+            KV = {}
+        
+        # copy tube and its parents tubes key values to KV and return
+        for key in self.KEY_VALUES_DICT:
+            if not key in KV.keys():
+                KV[key] = self.KEY_VALUES_DICT[key]
+        # checking parents
+        if self.parent:
+            return self.parent.get_parent_key_values(KV)
+        return KV
 
 class TubeRunner():
     
