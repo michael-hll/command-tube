@@ -459,22 +459,28 @@ Support from version: 2.0.0</pre>
 #### Alias: LIST_D
 <pre>Description: Got all sub directories for the given directory, and save the result list to a text file.
 
-Syntax: - LIST_DIRS: -d|--dir directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_DIRS: -d|--dir directory -r|--result file [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -d/--dir:    The directory you want to list its sub directories.
    -r/--result: The text file to store the list result.
    -s/--sort:   It accepts 'asc' or 'desc' value for the sorting. Default is 'asc'.
+   -c/--count:  The tube variable name to store the directories count.
+   -u/--force:  Force update even the variable is readonly. Default no.
+   -g/--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
 ### 27: LIST_FILES
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file.
 
-Syntax: - LIST_FILES: -d|--dir directory -r|--result file [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_FILES: -d|--dir directory -r|--result file [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -d/--dir:    The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
    -r/--result: The text file to store the search result.
-   -s/--sort:   Using '-s time|name|size [asc|desc]' to set the sort properties. Default uses the file modification time (time asc) to sort the result.
+   -s/--sort:   Using '-s atime|mtime|ctime|name|size [asc|desc]' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.
+   -c/--count:  The tube variable name to store the files count.
+   -u/--force:  Force update even the variable is readonly. Default no.
+   -g/--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
 ### 28: PATH
