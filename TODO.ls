@@ -4,8 +4,6 @@ TODO LIST
 
 - Output Command.results to Email content   
 
-- ENHANCE help
-
 - DONE LIST
     1. Email content format - done
     2. TUBE yaml version check - done
@@ -126,6 +124,8 @@ TODO LIST
         some commands only has one must have argument that use position arguments
 
     46. - SET_VARIABLE: var["key"] = value
+
+    47. - update help docs
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
