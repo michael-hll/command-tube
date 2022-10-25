@@ -945,6 +945,12 @@ Use 'help vars' to print all the given tube variables;
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'Using \'-s atime|mtime|ctime|name|size [asc|desc]\' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.'],
+                    [False, '-c','--count', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the files count.'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -962,6 +968,12 @@ Use 'help vars' to print all the given tube variables;
                         'The text file to store the list result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'It accepts \'asc\' or \'desc\' value for the sorting. Default is \'asc\'.'],
+                    [False, '-c','--count', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the directories count.'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2384,12 +2396,16 @@ class TubeCommand():
         return True
 
     def list_files(self):
-        directory, result, sort, asc = None, None, 'mtime', 'asc' 
+        directory, result, sort, asc, variable = None, None, 'mtime', 'asc', None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
         result = ' '.join(args.file)
+        if args.variable:
+            variable = args.variable[0]
+        is_global = args.is_global
+        is_force = args.is_force
         
         if args.sort:
             if len(args.sort) == 1:
@@ -2452,6 +2468,15 @@ class TubeCommand():
         with open(result, 'w') as f:
             Utility.write_result_to_file(result, list_files)
 
+        # store list files count result to tube variable
+        if variable:
+            count = 0
+            if list_files:
+                count = len(list_files)
+            key_result = self.update_key_value(variable, count, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, count))            
+
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List files successfully: ' + str(list_files) 
             tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
@@ -2465,16 +2490,13 @@ class TubeCommand():
     
     def list_dirs(self):
         
-        directory, result, sort = None, None, 'asc'
+        directory, result, sort, variable = None, None, 'asc', None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
         result = ' '.join(args.file)
         
-        # replace placeholders and do a basic checks
-        directory = self.self_format_placeholders(directory)
-        result = self.self_format_placeholders(result)
         if args.sort:
             if len(args.sort) == 1:
                 s = args.sort[0]
@@ -2485,6 +2507,11 @@ class TubeCommand():
                     raise Exception('Sort type could only be \'asc\' or \'desc\'.')
             else:
                 raise Exception('Sort argument only supports \'asc\' or \'desc\'.')
+
+        if args.variable:
+            variable = args.variable[0]
+        is_global = args.is_global
+        is_force = args.is_force
 
         # check directory exists
         if not (os.path.exists(directory) and \
@@ -2502,6 +2529,15 @@ class TubeCommand():
         # writing result
         with open(result, 'w') as f:
             Utility.write_result_to_file(result, ls)
+
+        # store list directories count result to tube variable
+        if variable:
+            count = 0
+            if ls:
+                count = len(ls)
+            key_result = self.update_key_value(variable, count, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, count)) 
 
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List directories successfully: ' + str(ls) 
