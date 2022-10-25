@@ -944,7 +944,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
-                        'Using \'-s time|name|size [asc|desc]\' to set the sort properties. Default uses the file modification time (time asc) to sort the result.'],
+                        'Using \'-s atime|mtime|ctime|name|size [asc|desc]\' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2384,7 +2384,7 @@ class TubeCommand():
         return True
 
     def list_files(self):
-        directory, result, sort, asc = None, None, 'time', 'asc' 
+        directory, result, sort, asc = None, None, 'mtime', 'asc' 
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
@@ -2395,14 +2395,14 @@ class TubeCommand():
             if len(args.sort) == 1:
                 s = args.sort[0]
                 s = self.self_format_placeholders(s).lower()
-                if s == 'time' or s == 'name' or s == 'size':
+                if s == 'mtime' or s == 'atime' or s == 'ctime' or s == 'name' or s == 'size':
                     sort = s
                 else:
-                    raise Exception('Sort type could only be time, name or size.')
+                    raise Exception('Sort type could only be [a|c|m]time, name or size.')
             elif len(args.sort) == 2:
                 s = self.self_format_placeholders(args.sort[0]).lower()
                 a = self.self_format_placeholders(args.sort[1]).lower()
-                if s == 'time' or s == 'name' or s == 'size':
+                if s == 'mtime' or s == 'atime' or s == 'ctime' or s == 'name' or s == 'size':
                     sort = s
                 else:
                     raise Exception('Sort type could only be time, name or size.')
@@ -2411,7 +2411,7 @@ class TubeCommand():
                 else:
                     raise Exception('The sort can only be sort as asc or desc.')
             else:
-                raise Exception('Sort argument only supports format: -s time|name|size')
+                raise Exception('Sort argument could only be [a|c|m]time, name or size.')
 
         # get file list
         basename = path.basename(directory)        
@@ -2431,13 +2431,17 @@ class TubeCommand():
         # searching                   
         list_files = glob.glob(directory)
         # sortings
-        if sort == 'time':
+        if sort == 'mtime':
             list_files.sort(key=os.path.getmtime)
+        if sort == 'atime':
+            list_files.sort(key=os.path.getatime)
+        if sort == 'ctime':
+            list_files.sort(key=os.path.getctime)
         elif sort == 'name':
             list_files.sort(key=os.path.basename)
         elif sort == 'size':
             list_files.sort(key=os.path.getsize)
-        else:
+        else:            
             list_files.sort(key=os.path.getmtime)
         
         # asc, desc

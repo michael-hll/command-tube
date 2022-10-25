@@ -11,7 +11,7 @@ Tube:
     - FILE_DELETE: file_sys/tmp.txt --if exists
     - SET_VARIABLE: -n i -v 0
     - RUN_TUBE: CR_FILES -w {i} < 10
-    - LIST_FILES: -d file_sys/file_*.txt -r file_sys/files_list.txt -s time
+    - LIST_FILES: -d file_sys/file_*.txt -r file_sys/files_list.txt -s mtime
     - FILE_POP: file_sys/files_list.txt -v pop_line
     - FILE_PUSH: -f file_sys/files_list.txt -v {pop_line}
     - COUNT: -f file_sys/files_list.txt -v files_count
