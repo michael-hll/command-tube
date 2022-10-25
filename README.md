@@ -6,8 +6,8 @@
                                       
 ## Introduction
 
-    Command Tube is a tool that can run a group of sequenced commands. You can get a full
-    list of supportted tube commands from readme document.
+    Command Tube is a tool that can run a group of sequenced commands. 
+    You can get a full list of supportted tube commands from readme document.
     Using these commands you can easily build your own tube to do tasks like:
     Refresh Development Environment, Daily Run Test Cases etc.
     It's more user friendly and eaiser to use than PowerShell.
@@ -15,9 +15,9 @@
 ## How to run Command Tube    
 
     Command Tube is a Python 3 script. The most important two arguments 
-    for Command Tube are '--yaml' and '--datetime'.    
+    for Command Tube are '--tube' and '--datetime'.    
     All the tube configurations are maintained by a YAML file, 
-    using '--yaml file' you can specify the tube configurations. 
+    using '--tube file' you can specify the tube configurations. 
     From the 'tube.template.yaml' (tube help tempalte could output it) you could view it.
     Use '--datetime' argument you could set the execution time, 
     you could also run it at once by parameter '-f' or '-i'.
@@ -25,33 +25,35 @@
     from your terminal (Needs Python >= 3.6):
         >>> python command-tube.py -h
     
-    - Examples of running Command Tube with source code:
+    - Examples of running Command Tube via source code:
         1: Run at once and sent result via email: 
-        >>> python command-tube.py -y tube.yaml -fe
+        >>> python command-tube.py -t tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python command-tube.py -y tube.yaml -t20
+        >>> python command-tube.py -t tube.yaml -t20
         3: Run at every 6 o'clock for 100 days: 
-        >>> python command-tube.py -y tube.yaml -t n6 -l 24 -times 100
+        >>> python command-tube.py -t tube.yaml -t n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
-        >>> python command-tube.py -y tube.yaml -t t10 -l 5m -times 10
+        >>> python command-tube.py -t tube.yaml -t t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
-        >>> python command-tube.py -y tube.yaml -t '02/01/22 09:00:00'
+        >>> python command-tube.py -t tube.yaml -t '02/01/22 09:00:00'
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
         ** Find tube running result from tube.yaml.log file by default 
 
     - Binary Mode        
-        Following below steps you can use it in binary mode:
+        Following below steps you can use it in binary (package) mode:
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
         3. Using it from your terminal (Need exec right from MacOS):
-        >>> tube -y tube.yaml -f
+        >>> tube -t tube.yaml -f
         
         Following below steps to build an executable package:
         1. Get source code from github: https://github.com/michael-hll/command-tube.git
         2. From terminal goto source code root directory
         3. Run below command to build the package:
-           >>> python3 command-tube.py -y package-mac.yaml -f
+           >>> python3 command-tube.py -t package-mac.yaml -f
+           Once the upper command run successfully, a file 'tube' will be output
+           under the dist folder.
         4. Run tube version command to verify it's built successfully:
            >>> ./tube --version 
     
@@ -120,33 +122,56 @@
                 will be skipped.)
                 
 
-    - Tube Variables            
-        From tube YAML file, you can add tube variables under 'VARIABLES' property. 
-        e.g.:       
-        VARIABLES:  
-            root_folder: C:\workspaces	runk
-            package_name: xxx-app
-            cmd_parameters: -l
-            # Below two hidden variables are assigned values when tube starts:
-            TUBE_HOME: <tube-running-startup-location-path>           
+    - Tube Variables  
 
-        Then you can reference any variable value via {var-name} in your tube 
-        command arguments. eg:
-            - PATH: {root_folder}
-            # Go to tube home directory:
-            - PATH: {TUBE_HOME}
-            - COMMAND: ls {cmd_parameters}
-            # The below {s:10} will be replaced by 10 space chars 
-            - WRITE_LINE_IN_FILE: -f file -v {s:10}any line content here               
+        Define Tube Variables:  
+            1. From tube YAML file, under 'VARIABLES' property, you can add tube
+               variable staticly.
+            2. Use tube command SET_VARIABLE to dynamic create a tube variable.
+            3. Read tube variable from terminal console.
+            4. Pass tube variable to sub tubes.
+            5. Some tube commands like GET_FILE_KEY_VALUE can read tube variables
+               from a file.     
+
+        Default Tube Variables:      
+            # Below two hidden variables are assigned values for main tube:
+            TUBE_HOME: <tube-running-startup-location-path> 
+            OS_NAME: <current-os-system-name>     
+
+        Scope:
+            There is one main tube and the main tube could have multiple sub tubes.
+            Tube variable default is available in its own tube and its own tube's sub-tubes. 
+            Using --global argument can changed this behaviour.
+
+            << Example 1 >>
+            Tube:
+                - SET_VAR: x = 100
+                - RUN: SubTube
+                - PRINT_VARS: x  # output 100
+            
+            SubTube:
+                - PRINT_VARS: X  # ouput 100
+                - SET_VAR: x = 200
+                - PRINT_VARS: x  # output 200
+            
+            << Example 2 >>
+            Tube:
+                - SET_VAR: x = 100
+                - RUN: SubTube
+                - PRINT_VARS: x  # output 200
+            
+            SubTube:
+                - PRINT_VARS: X  # ouput 100
+                - SET_VAR: x = 200 --global
+                - PRINT_VARS: x  # output 200
+
+        Tube Variable Usace:
+            You can reference any variable value via {var-name} in your tube 
+            command arguments. eg:
+                - PATH: {TUBE_HOME}
+                - COMMAND: ls {cmd_parameters}             
              
-        The below commands will update the tube variables:
-            - GET_XML_TAG_TEXT => xpath will be the variable name
-            - GET_FILE_KEY_VALUE => key will be the variable name
-            - COUNT => variable parameter will be stored into tube variables
-            - SET_VARIABLE => update tube variable by name value
-            - CHECK_CHAR_EXISTS => Result will be stored into tube variable
-             
-        ** Note: If variable was updated from console inputs, then it will become readonly. 
+        ** Note: If variable was updated from terminal console inputs, then it will become readonly. 
                 
                 
 ## Usage of Each Command:
@@ -421,7 +446,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 25: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
