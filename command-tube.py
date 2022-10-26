@@ -6747,7 +6747,8 @@ Tube:
                     # checking if could find matched commands             
                     index = 0
                     for _, key in enumerate(keys):
-                        if command_name.upper() in key:
+                        alias = [a for a in Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ALIAS] if command_name.upper() in a]
+                        if command_name.upper() in key or len(alias) > 0:
                             found_match = True        
                             index += 1        
                             tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW ,prefix='')
