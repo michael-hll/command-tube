@@ -259,7 +259,6 @@ Use 'help vars' to print all the given tube variables;
             self.C_RUN_TUBE: {                
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'RUN'},
-                self.C_ARG_SYNTAX: 'Syntax: RUN_TUBE: -y tube.yaml [-w conditions] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [
                     [True, '-','--', 'str', '+', 'tube', True, False, '', '',
                         'The tube you want to run. It supports 3 formats: \
@@ -274,12 +273,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
             },                   
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'TAIL'},
-                self.C_ARG_SYNTAX: 'Syntax: TAIL_FILE: -f file -l lines [-k keywords] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The text file you want to tail.'],
@@ -293,12 +293,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print/Log the last N lines of given file.'                
             },
             self.C_FILE_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_EXIST'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_EXIST: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to check.'],
@@ -312,12 +313,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
             },
             self.C_FILE_POP: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_POP'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_POP: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to pop.'],
@@ -331,12 +333,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
             },
             self.C_FILE_APPEND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_APPEND'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_APPEND: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The text file name you want to append.'],
@@ -346,12 +349,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Append the content to the last line of the given text file.'                
             },
             self.C_FILE_PUSH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_PUSH'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_PUSH: -f file -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to push.'],
@@ -361,12 +365,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
             },
             self.C_FILE_INSERT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_INSERT'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_INSERT: -f file -n line_number -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to insert.'],
@@ -378,12 +383,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Insert a line before given line number. If line number doesnot exist then insert to the end.'                    
             },
             self.C_FILE_SORT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_SORT'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_SORT: -f file [-n] [-s asc|desc] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The file you want to sort.'],
@@ -395,12 +401,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sort a text file lines content.'                    
             },
             self.C_FILE_EMPTY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_EMPTY'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_EMPTY: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to empty.'],      
@@ -410,12 +417,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Clear an existing text file or create a new empty file.'                
             },
             self.C_FILE_CREATE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_CREATE'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_CREATE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The text file name you want to create.'],            
@@ -423,12 +431,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create an empty file.'                
             },
             self.C_FILE_READ: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_READ'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_READ: -f file -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to read its whole content.'],
@@ -442,12 +451,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable.'                
             },
             self.C_FILE_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_DELETE', 'F_DEL'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to delete.'], 
@@ -457,12 +467,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete any files math the file name.'                
             },
             self.C_FILE_COPY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_COPY', 'F_CP'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_COPY: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
                         'The source file name you want to copy.'],  
@@ -472,12 +483,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Copy any files to target.'                
             },
             self.C_FILE_MOVE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_MOVE', 'F_MV'},
-                self.C_ARG_SYNTAX: 'Syntax: FILE_MOVE: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
                         'The source file name you want to move.'],  
@@ -487,12 +499,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Move any files to target.'                
             },
             self.C_DIR_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'D_EXIST'},
-                self.C_ARG_SYNTAX: 'Syntax: DIR_EXIST: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',    
                         'The directory you want to check.'],
@@ -506,12 +519,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a directory exists.'                
             },
             self.C_DIR_CREATE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'D_CREATE'},
-                self.C_ARG_SYNTAX: 'Syntax: DIR_CREATE: -d directory -v variable [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to check.'],                  
@@ -519,12 +533,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create a directory if it doesnot exist.'                
             },
             self.C_DIR_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'D_DELETE', 'D_DEL'},
-                self.C_ARG_SYNTAX: 'Syntax: DIR_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'directory', True, False, '', '',
                         'The directory you want to delete.'],                   
@@ -536,12 +551,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete a directory and its sub-directories.'                
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'DELETE_LINE', 'DEL_LINE', 'DEL_LN'},
-                self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to delete lines from.'],
@@ -559,12 +575,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Conditionally delete lines from a file.'
             },  
             self.C_READ_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'READ_LINE', 'READ_LN'},
-                self.C_ARG_SYNTAX: 'Syntax: READ_LINE_IN_FILE: -f file -n number [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to read a line from.'],
@@ -580,12 +597,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read one line by given line number, and save the line content to tube variable.'
             }, 
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'WRITE_LINE', 'WRITE_LN'},
-                self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to update.'],
@@ -599,12 +617,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.'                    
             },    
             self.C_SET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'SET_KEY'},
-                self.C_ARG_SYNTAX: 'Syntax: SET_FILE_KEY_VALUE: -f file -k key -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to update.'],
@@ -616,12 +635,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update key-value file.'
             },
             self.C_GET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'GET_XML_TAG'},
-                self.C_ARG_SYNTAX: 'Syntax: GET_XML_TAG_TEXT: -f file -x xpath [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The XML file you want to get tag text.'],
@@ -637,13 +657,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get XML file tag text value. \
                                            \nThe result will be stored into a tube variable and xpath will be used as the variable name.'
             },
             self.C_SET_XML_TAG_TEXT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'SET_XML_TAG'},
-                self.C_ARG_SYNTAX: 'Syntax: SET_XML_TAG_TEXT: -f file -x xpath -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The XML file you want tup set tag text.'],
@@ -655,12 +676,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update XML file tag text using xpath.'
             },
             self.C_SET_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'SET_VAR'},
-                self.C_ARG_SYNTAX: 'Syntax: SET_VARIABLE: -n name -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
                         'Assign variable value with format: var_name = expression or var_name["key"] = expression; Or you can use --name, --keyword, --value arguments to set the variable value explicitly.'],     
@@ -683,12 +705,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
             },
             self.C_DELETE_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'DELETE_VAR', 'DEL_VAR'},
-                self.C_ARG_SYNTAX: 'Syntax: DELETE_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [      
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',  
                         'The tube variable name you want to delete from current tube.'],
@@ -700,12 +723,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete tube variables.'
             },
             self.C_CONNECT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'CONN'},
-                self.C_ARG_SYNTAX: 'Syntax: CONNECT: xxx.xxx.com [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'host', True, False, '', '',
                         'The Linux server host or name you want to connect using SSH protocal.'],
@@ -713,12 +737,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to switch your server connection.'
             },
             self.C_REPORT_PROGRESS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'REPORT_PRO'},
-                self.C_ARG_SYNTAX: 'Syntax: REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'subject', True, False, '', '',
                         'The email subject/title you want to set.'],
@@ -726,12 +751,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to sent current progress via Email.'
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'PAUZE'},
-                self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'minutes', True, False, '', '',
                         'The minutes you want to pause. You can end it with \'s\' char to pause for xxx seconds.'],
@@ -739,12 +765,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes/seconds.'
             },
             self.C_PATH: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'CD'},
-                self.C_ARG_SYNTAX: 'Syntax: PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'directory', True, False, '', '',
                         'The directory you want to goto.'],
@@ -752,12 +779,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Go to specific directory.'
             },
             self.C_GET_FILE_KEY_VALUE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'GET_KEYS'},
-                self.C_ARG_SYNTAX: 'Syntax: GET_FILE_KEY_VALUE: -f file [-k key[,key][...]] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [    
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to get key-value from.'],    
@@ -771,6 +799,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
                                            \nIt also supports to read key-value from Yaml file with simple type. \
                                            \nThe key-value results will be stored into tube variables.'
@@ -778,7 +808,6 @@ Use 'help vars' to print all the given tube variables;
             self.C_EMAIL: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'MAIL'},
-                self.C_ARG_SYNTAX: 'Syntax: EMAIL: -t addressA[,addressB][...] -s subject -b body | $file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-t','--to', 'str', '+', 'to', True, False, '', '',
                         'The sending email addresses.'],
@@ -790,12 +819,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent Email to someone with given subject and content.'
             },
             self.C_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'CMD'},
-                self.C_ARG_SYNTAX: 'Syntax: COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
                         'Any command you want to run.'],     
@@ -805,12 +835,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run any Windows/MacOS terminal command.'
             },
             self.C_LINUX_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'LCMD','SSHCMD'},
-                self.C_ARG_SYNTAX: 'Syntax: LINUX_COMMAND: command [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
                         'Any Linux command you want to run.'], 
@@ -820,12 +851,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a Linux command from the previous connected server.'                
             },
             self.C_COUNT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'CNT'},
-                self.C_ARG_SYNTAX: 'Syntax: COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', False, False, '', '',
                         'The file you want to count line numbers.'],
@@ -845,12 +877,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Count file lines number (-f) or Count tube command number by status (-t).' 
             },
             self.C_SFTP_GET: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ALIAS: {'FTP_GET'},
-                self.C_ARG_SYNTAX: 'Syntax: SFTP_GET: -r remotefile -l localfile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-r','--remotepath', 'str',  1,  'remotepath', True, False, '', '',
                         'The file full remotepath.'],
@@ -860,13 +893,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to copy remote server file to local. \
                                            \nWhen copy multiple files using *.* then localpath must be a directory.'
             },
             self.C_SFTP_PUT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ALIAS: {'FTP_PUT'},
-                self.C_ARG_SYNTAX: 'Syntax: SFTP_PUT: -l localfile -r remotefile [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-l','--localpath',  'str',  1,  'localpath', True, False, '', '',
                         'The file localpath.'],                    
@@ -876,13 +910,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to put local file to remote server. \
                                            \nWhen copy multiple files using *.* then remotepath must be a directory.'
             },
             self.C_CHECK_CHAR_EXISTS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ALIAS: {'CHECK_CHAR'},
-                self.C_ARG_SYNTAX: 'Syntax: CHECK_CHAR_EXISTS: -f file -c characters -r result [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
                         'The file you want to check.'],                    
@@ -898,12 +933,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if given characters exists from a file. Result was updated into a tube variable.'
             },
             self.C_REPLACE_CHAR: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
                 self.C_ALIAS: {'REPLACE'},
-                self.C_ARG_SYNTAX: 'Syntax: REPLACE_CHAR: -f file -o oldvalue -n newvalue [-c count] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
                         'The file you want to replace given characters.'],                    
@@ -917,12 +953,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
             self.C_PRINT_VARIABLES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'PRINT_VARS', 'PRINT'},
-                self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: name [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name. With value \'*\' or \'.\' can print all variables.'],
@@ -932,12 +969,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
             },
             self.C_LIST_FILES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'LIST_F'},
-                self.C_ARG_SYNTAX: 'Syntax: LIST_FILES: -d directory -r result_file [-s time|name|size [asc|desc]] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [      
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',  
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
@@ -955,12 +993,13 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file.'
             },
             self.C_LIST_DIRS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'LIST_D'},
-                self.C_ARG_SYNTAX: 'Syntax: LIST_DIRS: -d directory -r result_file [-s asc|desc] [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '', 
                         'The directory you want to list its sub directories.'],
@@ -978,6 +1017,8 @@ Use 'help vars' to print all the given tube variables;
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file.'
             },
         }
@@ -1559,7 +1600,9 @@ class TubeCommandArgumentConfig():
             self.syntax = TubeCommand.get_command_syntax(self.type, Storage.I.TUBE_ARGS_CONFIG)
             self.is_support_continue = config_dict[self.type][Storage.I.C_CONTINUE_PARAMETER]
             self.is_support_redo = config_dict[self.type][Storage.I.C_REDO_PARAMETER]  
-            self.is_support_if_run = config_dict[self.type][Storage.I.C_IF_PARAMETER]          
+            self.is_support_if_run = config_dict[self.type][Storage.I.C_IF_PARAMETER] 
+            self.is_support_key = config_dict[self.type][Storage.I.C_KEY_PARAMETER]         
+            self.is_support_notes = config_dict[self.type][Storage.I.C_NOTES_PARAMETER]         
             self.__load_arguments(config_dict)
         
     def __load_arguments(self, config_dict):
@@ -1717,6 +1760,7 @@ class TubeCommand():
             tube_index = StorageUtility.get_tube_index(file, tube_name)
             self.sub_tube = Tube(file, tube_name, tube_index, sub_tube_yaml, self.tube)
             self.sub_tube.tube_conditions = conditions
+            self.sub_tube.tube_run_times = 0 # initial the tube running times to 0
         else:
             # the 'TUBE' section doesn't exists from the sub-tube file
             raise Exception('\'{0}\' section doesnot exists from tube file: {1}'.format(tube_name, file))
@@ -3499,8 +3543,6 @@ class TubeCommand():
                         key, value = Utility.split_assign_expression(item)
                         value = Utility.eval_expression(value, tube=self.tube)
                         self.sub_tube.update_key_value(key, value, is_force=False, is_readonly=False)
-                                                        
-                self.sub_tube.tube_run_times = 0 # initial the tube running times to 0    
                 msg = 'Start sub tube successfully: ' + tube 
             else:
                 for err in errors:
@@ -4427,7 +4469,6 @@ class TubeCommand():
         '''     
         syntax = 'Syntax: - ' + command_type + ': '
         arg_config = arg_configs[command_type]
-        general_args = '[--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]'
         args = arg_config[Storage.I.C_ARG_ARGS]
         for arg in args:
             if arg[0] is True: # postion argument
@@ -4446,7 +4487,18 @@ class TubeCommand():
                 else:
                     syntax += prefix + arg[1] + '|' + arg[2] + stored_variable + suffix
             
-            syntax += ' '      
+            syntax += ' '   
+        general_args = ''  
+        if arg_config[Storage.I.C_CONTINUE_PARAMETER]:
+            general_args += '[--continue [m][n]] '
+        if arg_config[Storage.I.C_REDO_PARAMETER]:
+            general_args += '[--redo [m]] '  
+        if arg_config[Storage.I.C_IF_PARAMETER]:
+            general_args += '[--if run] ' 
+        if arg_config[Storage.I.C_KEY_PARAMETER]:
+            general_args += '[--key] ' 
+        if arg_config[Storage.I.C_NOTES_PARAMETER]:
+            general_args += '[--note note]' 
         syntax += general_args          
         return syntax
 

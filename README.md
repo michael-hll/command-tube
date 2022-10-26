@@ -192,7 +192,7 @@ Support from version: 2.0.1</pre>
 #### Alias: CMD
 <pre>Description: Run any Windows/MacOS terminal command.
 
-Syntax: - COMMAND: command [--result file] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - COMMAND: command [--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    command:    Any command you want to run.
    --result:   The text file to store command outputs. [2.0.2]
@@ -208,7 +208,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 4: COUNT
-#### Alias: COUNT
+#### Alias: CNT
 <pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
 Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current] [-s|--skip] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -223,7 +223,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 5: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE
+#### Alias: DEL_LINE, DELETE_LINE, DEL_LN
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -237,7 +237,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 6: DELETE_VARIABLE
-#### Alias: DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -257,7 +257,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 8: DIR_DELETE
-#### Alias: D_DELETE
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -301,7 +301,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 12: FILE_COPY
-#### Alias: F_COPY
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|--src src -d|--dest dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -320,7 +320,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 14: FILE_DELETE
-#### Alias: F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: file [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -363,7 +363,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_MOVE
-#### Alias: F_MOVE
+#### Alias: F_MV, F_MOVE
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|--src src -d|--dest dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -420,13 +420,13 @@ Support from version: 2.0.2</pre>
 ### 23: GET_FILE_KEY_VALUE
 #### Alias: GET_KEYS
 <pre>Description: Read key values from key-value file.                                            
-It also supports to read key-value from Yaml file with simple type: string, number.                                            
+It also supports to read key-value from Yaml file with simple type.                                            
 The key-value results will be stored into tube variables.
 
 Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -f/--file:     The file you want to get key-value from.
-   -k/--keywords: Set the key you can get specific value of a given key.
+   -k/--keywords: The key you want to get values from the file. It supports comma seperated format for multiple keys.
    -u/--force:    Force update even the variable is readonly. Default no. [2.0.2]
    -g/--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
@@ -459,7 +459,7 @@ Support from version: 2.0.0</pre>
 #### Alias: LIST_D
 <pre>Description: Got all sub directories for the given directory, and save the result list to a text file.
 
-Syntax: - LIST_DIRS: -d|--dir directory -r|--result file [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_DIRS: -d|--dir directory -r|--result result [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -d/--dir:    The directory you want to list its sub directories.
    -r/--result: The text file to store the list result.
@@ -473,7 +473,7 @@ Support from version: 2.0.2</pre>
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file.
 
-Syntax: - LIST_FILES: -d|--dir directory -r|--result file [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
+Syntax: - LIST_FILES: -d|--dir directory -r|--result result [-s|--sort sort] [-c|--count variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
    -d/--dir:    The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
    -r/--result: The text file to store the search result.
@@ -493,7 +493,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 29: PAUSE
-#### Alias: PAUSE
+#### Alias: PAUZE
 <pre>Description: Command Tube will pause with given minutes/seconds.
 
 Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -502,17 +502,17 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 30: PRINT_VARIABLES
-#### Alias: PRINT_VARS
+#### Alias: PRINT, PRINT_VARS
 <pre>Description: Print tube variable values for debugging purpose.
 
 Syntax: - PRINT_VARIABLES: name [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
 Parameters:
-   name:        The tube variable name. Provide value '*' can print all variable.
-   -r/--result: The text file to store deleted files result.
+   name:        The tube variable name. With value '*' or '.' can print all variables.
+   -r/--result: The text file to store the result.
 
 Support from version: 2.0.2</pre>
 ### 31: READ_LINE_IN_FILE
-#### Alias: READ_LINE
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]
@@ -635,7 +635,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 41: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--note note]

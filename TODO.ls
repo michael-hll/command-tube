@@ -1,8 +1,8 @@
 
 TODO LIST
 
-- BREAK:
-- CONTINUE:
+- BREAK: break the tube loop
+- CONTINUE: continue the next loop
 
 - Output Command.results to Email content   
 
