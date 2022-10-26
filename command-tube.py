@@ -446,7 +446,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'F_DELETE'},
+                self.C_ALIAS: {'F_DELETE', 'F_DEL'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
@@ -461,7 +461,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_COPY: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'F_COPY'},
+                self.C_ALIAS: {'F_COPY', 'F_CP'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_COPY: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
@@ -476,7 +476,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_FILE_MOVE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'F_MOVE'},
+                self.C_ALIAS: {'F_MOVE', 'F_MV'},
                 self.C_ARG_SYNTAX: 'Syntax: FILE_MOVE: -s src -t target [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
@@ -523,7 +523,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DIR_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'D_DELETE'},
+                self.C_ALIAS: {'D_DELETE', 'D_DEL'},
                 self.C_ARG_SYNTAX: 'Syntax: DIR_DELETE: -f file [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'directory', True, False, '', '',
@@ -540,7 +540,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DELETE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {'DELETE_LINE'},
+                self.C_ALIAS: {'DELETE_LINE', 'DEL_LINE', 'DEL_LN'},
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -563,7 +563,7 @@ Use 'help vars' to print all the given tube variables;
             },  
             self.C_READ_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'READ_LINE'},
+                self.C_ALIAS: {'READ_LINE', 'READ_LN'},
                 self.C_ARG_SYNTAX: 'Syntax: READ_LINE_IN_FILE: -f file -n number [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -584,7 +584,7 @@ Use 'help vars' to print all the given tube variables;
             }, 
             self.C_WRITE_LINE_IN_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {'WRITE_LINE'},
+                self.C_ALIAS: {'WRITE_LINE', 'WRITE_LN'},
                 self.C_ARG_SYNTAX: 'Syntax: WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
@@ -687,7 +687,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_DELETE_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'DELETE_VAR'},
+                self.C_ALIAS: {'DELETE_VAR', 'DEL_VAR'},
                 self.C_ARG_SYNTAX: 'Syntax: DELETE_VARIABLE: -n|--name name [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [      
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',  
@@ -730,7 +730,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {'PAUSE'},
+                self.C_ALIAS: {'PAUZE'},
                 self.C_ARG_SYNTAX: 'Syntax: PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'minutes', True, False, '', '',
@@ -824,7 +824,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_COUNT: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {'COUNT'},
+                self.C_ALIAS: {'CNT'},
                 self.C_ARG_SYNTAX: 'Syntax: COUNT: -f file | -t statusA,B,.. -v variable [-c] [-s] [--continue [m][n]] [--redo [m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', False, False, '', '',
