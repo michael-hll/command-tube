@@ -1649,6 +1649,7 @@ class TubeCommand():
         # contents
         self.content                    = content
         self.original_content           = content
+        self.has_content                = True
         self.notes                      = ''
         self.redo_content               = None
         # continue & redo properties
@@ -1679,7 +1680,8 @@ class TubeCommand():
         self.__original_content2   = None # content without place holders  
         
         # return if content is empty
-        if self.content == None:
+        if not self.content:
+            self.has_content = False
             return
                 
         # to convert type int/float to str        
@@ -1775,7 +1777,7 @@ class TubeCommand():
         if self.tube != None and self.tube.tube_conditions != None and self.loop_index > 0:
             loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
-            if self.__original_content2 == None:
+            if self.__original_content2 == None and self.original_content:
                 # we need to show the readable print/log output
                 # if the key value is an empty string                
                 self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True)
@@ -1783,7 +1785,9 @@ class TubeCommand():
                     self.__original_content2 = self.__original_content2.replace(Storage.I.C_NOTES_PARAMETER, '').replace(self.notes, '').strip()
                     self.__original_content2 = ' '.join(self.__original_content2.split(' '))
                     self.__original_content2 += '  # => {0}'.format(self.notes)
-            return loop_status + self.__original_content2
+                return loop_status + str(self.__original_content2)
+            else:
+                return loop_status
         except Exception as e:
             return loop_status + self.original_content
     
@@ -1793,7 +1797,7 @@ class TubeCommand():
     def reset_general_arguments(self):
         
         # return command with singlie placeholder
-        if self.is_single_placeholder:
+        if self.is_single_placeholder or self.has_content == False:
             return
         
         args, unknow = general_command_parser.parse_known_args(shlex.split(self.content, posix=False))
@@ -1804,6 +1808,10 @@ class TubeCommand():
         else:
             self.content = ''
             self.redo_content = ''
+
+        # check command content
+        if not self.content:
+            self.has_content = False
         
         # reset to initial
         self.is_failed_continue = False
@@ -4180,6 +4188,10 @@ class TubeCommand():
                 # since errors already exist from log.errors
                 # then just throw empty exceptions
                 raise Exception()
+
+            # checking if command has content
+            if self.has_content == False:
+                raise Exception('Command is empty >>> {0}:'.format(self.cmd_type))
             
             # initial logs             
             log.start_datetime = datetime.now()
