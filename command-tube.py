@@ -287,7 +287,7 @@ Use 'help vars' to print all the given tube variables;
                         'The lines count you want to output.'],
                     [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
                         'Output start from the given keywords.'],       
-                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the tail result.'],              
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -451,7 +451,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'file', True, False, '', '',
                         'The file name you want to delete.'], 
-                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted files result.'],                   
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -530,7 +530,7 @@ Use 'help vars' to print all the given tube variables;
                         'The directory you want to delete.'],                   
                     [False, '-f','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force delete if the director is not empty. Default no.'],
-                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted directory result.'], 
                 ],                  
                 self.C_CONTINUE_PARAMETER: True,
@@ -553,7 +553,7 @@ Use 'help vars' to print all the given tube variables;
                         'The line contains with character you want to delete.'],
                     [False, '-e','--empty', '', '', 'del_empty', False, True, 'store_true', False,
                         'A flag to tell if delete empty line. Default no.'],
-                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted result.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -799,7 +799,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'command', True, False, '', '',
                         'Any command you want to run.'],     
-                    [False, '-','--result', 'str', 1, 'file', False, False, '', '',
+                    [False, '-','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store command outputs. [2.0.2]'],            
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -921,13 +921,13 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PRINT_VARIABLES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'PRINT_VARS'}, # TODO change the original to PRINT_VARIABLES
+                self.C_ALIAS: {'PRINT_VARS', 'PRINT'},
                 self.C_ARG_SYNTAX: 'Syntax: PRINT_VARIABLES: name [--continue [m][n]] [--redo[m]] [--if run] [--key]',
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
-                        'The tube variable name. Provide value \'*\' can print all variable.'],
-                    [False, '-r','--result', 'str', '+', 'result', False, False, '', '',
-                        'The text file to store deleted files result.'],  
+                        'The tube variable name. With value \'*\' or \'.\' can print all variables.'],
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
+                        'The text file to store the result.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -941,7 +941,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [      
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',  
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
-                    [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', True, False, '', '',
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'Using \'-s atime|mtime|ctime|name|size [asc|desc]\' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.'],
@@ -964,7 +964,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '', 
                         'The directory you want to list its sub directories.'],
-                    [False, '-r','--result', 'str', '+', 'file', True, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', True, False, '', '',
                         'The text file to store the list result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'It accepts \'asc\' or \'desc\' value for the sorting. Default is \'asc\'.'],
@@ -2401,7 +2401,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
-        result = ' '.join(args.file)
+        result = ' '.join(args.result)
         if args.variable:
             variable = args.variable[0]
         is_global = args.is_global
@@ -2495,7 +2495,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
-        result = ' '.join(args.file)
+        result = ' '.join(args.result)
         
         if args.sort:
             if len(args.sort) == 1:
@@ -3887,7 +3887,7 @@ class TubeCommand():
             lines = []
         for key in tube.KEY_VALUES_DICT.keys():
             for var in variables:
-                if var == '*' or var.upper() == key.upper():
+                if var == '*' or var == '.' or var.upper() == key.upper():
                     # get value
                     value = str(tube.KEY_VALUES_DICT[key])
                     value = Utility.quoted_with_space_characters(value)
@@ -4124,8 +4124,8 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        if args.file:
-            outputfile = args.file[0]
+        if args.result:
+            outputfile = args.result[0]
             inputs = re.sub('--result[ ]*' + outputfile, '', inputs, 1).strip()
 
         result = None
