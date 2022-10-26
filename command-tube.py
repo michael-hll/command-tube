@@ -1831,7 +1831,10 @@ class TubeCommand():
                     self.__original_content2 += '  # => {0}'.format(self.notes)
                 return loop_status + str(self.__original_content2)
             else:
-                return loop_status
+                if not self.original_content:
+                    return ''
+                else:
+                    return loop_status + str(self.__original_content2)
         except Exception as e:
             return loop_status + self.original_content
     
@@ -4686,29 +4689,30 @@ class Tube():
         self.tube_run_times    = None
         self.gen_tube_run()
         Storage.I.TUBE_LIST.append(self)        
+        Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file 
 
     def gen_tube_run(self):
         '''
         Convert tube from yaml format to TubeCommand list
         '''
         
-        tube_new = []
+        tube_run_new = []
         
         # check empty tube commands
         if not self.tube_yaml:
-            return tube_new
+            self.tube_run = []
+            return
         
         # go through each tube command and added
         for item in self.tube_yaml:            
             for key in item.keys():                  
                 command = TubeCommand(key.upper(), item[key])
-                command.tube = self
-                Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file
-                tube_new.append(command) 
-                
+                command.tube = self                
+                tube_run_new.append(command) 
+
         # update max command type length
-        StorageUtility.reset_max_tube_command_type_length(tube_new)
-        self.tube_run = tube_new
+        StorageUtility.reset_max_tube_command_type_length(tube_run_new)
+        self.tube_run = tube_run_new
 
     def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False) -> bool:
         '''
