@@ -762,7 +762,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to get key-value from.'],    
                     [False, '-k','--keywords', 'str', '+', 'keywords', False, False, '', '',
-                        'Set the key you can get specific value of a given key.'],  
+                        'The key you want to get values from the file. It supports comma seperated format for multiple keys.'],  
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the variable is readonly. Default no. [2.0.2]'],
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -772,7 +772,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
-                                           \nIt also supports to read key-value from Yaml file with simple type: string, number. \
+                                           \nIt also supports to read key-value from Yaml file with simple type. \
                                            \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
