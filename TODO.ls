@@ -3,6 +3,9 @@ TODO LIST
 
 - BREAK: break the tube loop
 - CONTINUE: continue the next loop
+- PRINT: command
+
+- refactor help system
 
 - Output Command.results to Email content   
 

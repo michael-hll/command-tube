@@ -94,6 +94,8 @@ class Storage():
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARIABLES'
         self.C_RUN_TUBE                = 'RUN_TUBE'
+        self.C_BREAK                   = 'BREAK'
+        self.C_CONTINUE                = 'CONTINUE'
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_LIST_FILES              = 'LIST_FILES'
         self.C_LIST_DIRS               = 'LIST_DIRS'
@@ -276,7 +278,35 @@ Use 'help vars' to print all the given tube variables;
                 self.C_KEY_PARAMETER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
-            },                   
+            }, 
+            self.C_BREAK: {                
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'BREAK'},
+                self.C_ARG_ARGS: [
+                    [True, '-','--', 'str', '*', 'reason', False, False, '', '',
+                        'The reason you want to break. [Optional]'],
+                ],
+                self.C_CONTINUE_PARAMETER: False,
+                self.C_REDO_PARAMETER: False,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'The command can break a tube\'s running while it\'s in a loop.'
+            },   
+            self.C_CONTINUE: {                
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'CONTINUE'},
+                self.C_ARG_ARGS: [
+                    [True, '-','--', 'str', '*', 'reason', False, False, '', '',
+                        'The reason you want to continue. [Optional]'],
+                ],
+                self.C_CONTINUE_PARAMETER: False,
+                self.C_REDO_PARAMETER: False,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'The command can continue a tube\'s running while it\'s in a loop.'
+            },                 
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'TAIL'},
@@ -959,7 +989,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_PRINT_VARIABLES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
-                self.C_ALIAS: {'PRINT_VARS', 'PRINT'},
+                self.C_ALIAS: {'PRINT_VARS'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'name', True, False, '', '',
                         'The tube variable name. With value \'*\' or \'.\' can print all variables.'],
@@ -1723,7 +1753,8 @@ class TubeCommand():
         self.__original_content2   = None # content without place holders  
         
         # return if content is empty
-        if not self.content:
+        if not self.content and self.command_type != Storage.I.C_BREAK and \
+                self.command_type != Storage.I.C_CONTINUE:
             self.has_content = False
             return
                 
@@ -3562,6 +3593,26 @@ class TubeCommand():
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     
+    def tube_break(self):
+        self.tube.is_broke = True
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Tube is broke.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
+        return True
+
+    def tube_continue(self):
+        self.tube.is_continued = True
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = 'Tube is continued.'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            
+        return True
+    
     def count(self):
         '''
         For command: COUNT
@@ -4354,6 +4405,12 @@ class TubeCommand():
                 log.status = Storage.I.C_RUNNING
                 self.run_tube(general_command_parser)
             
+            elif command_type == Storage.I.C_BREAK:
+                self.tube_break()
+            
+            elif command_type == Storage.I.C_CONTINUE:
+                self.tube_continue()
+            
             elif command_type == Storage.I.C_COUNT:
                 result = self.count()
             
@@ -4475,7 +4532,10 @@ class TubeCommand():
         args = arg_config[Storage.I.C_ARG_ARGS]
         for arg in args:
             if arg[0] is True: # postion argument
-                syntax += arg[5]
+                if arg[6] is True: # is required
+                    syntax += arg[5]
+                else:
+                    syntax += '[' + arg[5] + ']'
             else:
                 prefix, suffix = '[', ']'
                 if arg[6] is True: # is required
@@ -4687,6 +4747,8 @@ class Tube():
         self.tube_run_all      = []
         self.tube_conditions   = None
         self.tube_run_times    = None
+        self.is_broke          = False
+        self.is_continued      = False
         self.gen_tube_run()
         Storage.I.TUBE_LIST.append(self)        
         Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file 
@@ -4827,7 +4889,8 @@ class TubeRunner():
         self.__output_while_condition(while_condition, self.tube.tube_conditions, self.tube.tube_run_times, self.run_tube_command)
             
         # run again?
-        if while_condition:             
+        self.tube.is_continued = False
+        if while_condition and self.tube.is_broke == False:             
             self.pre_command = None       
             self.tube.gen_tube_run()     
             self.start()
@@ -4954,6 +5017,10 @@ class TubeRunner():
                 # start the sub tube runner
                 runner = TubeRunner(False, command, command.sub_tube)                 
                 runner.start()
+
+            # Check 'break' or 'continue' command
+            if command.tube.is_broke or command.tube.is_continued:
+               break
 
         # during the end of sub tube running
         # we need to check while condition again
@@ -5347,7 +5414,7 @@ class StorageUtility():
             for alias in Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ALIAS]:
                 if cmd_type.upper() == alias:
                     return key
-        return ''   
+        return ''  
 
     @classmethod
     def reset_max_tube_command_type_length(self, tube_command_list):
