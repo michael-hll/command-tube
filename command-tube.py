@@ -131,7 +131,7 @@ class Storage():
         self.C_ALIAS                   = 'ALIAS'
         self.C_HELP                    = '''Use 'help' command to view the whole help document;
 Use 'help commands [name]' to print all commands usages;
-Use 'help command-name [name|alias|desc|syntax|parameters|support]' to print all the tube commands which name matched.
+Use 'help command-name [name|desc|syntax|parameters|support]' to print all the tube commands which name matched.
 Use 'help continue' to view the --continue syntax;
 Use 'help if' to view the --if syntax;
 use 'help key' to view the --key syntax;

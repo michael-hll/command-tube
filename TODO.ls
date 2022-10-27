@@ -1,8 +1,6 @@
 
 TODO LIST
 
-- refactor help system
-
 - Output Command.results to Email content   
 
 - DONE LIST
@@ -133,6 +131,9 @@ TODO LIST
     49. - CONTINUE: continue the next loop
 
     50. - PRINT: message [--color red]
+
+    51. - refactor help system
+        support more argument: help command-name [name|desc|syntax|parameters|support]
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
