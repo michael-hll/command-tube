@@ -16,7 +16,7 @@ Variables:
     test_folder: /Volumes/MacDrive/Projects/tube/test
     del_log: yes
     email: no
-    result: 15
+    result: 16
     all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
 TUBE:
@@ -54,13 +54,16 @@ TUBE:
                 --if all or case == 15
     - RUN_TUBE: file_sys.yaml --continue --note 16 
                 --if all or case == 16
+    - RUN_TUBE: break_continue.yaml --continue --note 17
+                --if all or case == 17
 
     - SET_VARIABLE: result = 1 --if all == no
 
     - PRINT_VARS: tube_passed, del_line_result, email_result, get_file_key_value_result, 
         set_file_key_value_result, write_line_in_file, if_condition_result, continue_result, 
         redo_result, tail_file, set_variable_result,run_tube_result, alias_result,
-        read_console_result, replace_char_result, check_char_result, file_sys_result
+        read_console_result, replace_char_result, check_char_result, file_sys_result,
+        break_continue_result
 
     - FILE_DELETE: '*.yaml.log --if del_log --continue'
     - COMMAND: ECHO TESTING FAILED --if {tube_passed} != {result}

@@ -1,0 +1,25 @@
+Tube:
+    - SET_VARIABLE: i = 1
+    - ECHO: the current i value is {i}
+    - RUN_TUBE: SubTube1 --while i < 3
+    - SET_VARIABLE: i = 1
+    - RUN_TUBE: SubTube2 --while i < 3
+    - ECHO: finished -c green --key
+
+    # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
+    - SET_VARIABLE: -n break_continue_result -v 'Testing Pass'  -g --if {success_nums}==6 --key
+    - SET_VARIABLE: -n break_continue_result -v 'Testing Failed' -g --if {success_nums}!=6
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6
+
+SubTube1:
+    - SET_VARIABLE: i = i + 1 -g
+    - PRINT: before continue {i} -c green
+    - CONTINUE: continue this tube if i == 2  --if i == 2
+    - PRINT: after continue {i} -c red
+
+SubTube2:
+    - SET_VARIABLE: i = i + 1 -g
+    - PRINT: before break {i} -c green
+    - BREAK: break this tube if i > 2  --if i > 1
+    - PRINT: after break {i} -c red
