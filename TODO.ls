@@ -1,10 +1,6 @@
 
 TODO LIST
 
-- BREAK: break the tube loop
-- CONTINUE: continue the next loop
-- PRINT: command
-
 - refactor help system
 
 - Output Command.results to Email content   
@@ -130,7 +126,13 @@ TODO LIST
 
     46. - SET_VARIABLE: var["key"] = value
 
-    47. - update help docs
+    47. - update help 
+    
+    48. - BREAK: break the tube loop
+
+    49. - CONTINUE: continue the next loop
+
+    50. - PRINT: message [--color red]
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix

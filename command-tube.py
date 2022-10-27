@@ -93,6 +93,7 @@ class Storage():
         self.C_CHECK_CHAR_EXISTS       = 'CHECK_CHAR_EXISTS'  
         self.C_REPLACE_CHAR            = 'REPLACE_CHAR'
         self.C_PRINT_VARIABLES         = 'PRINT_VARIABLES'
+        self.C_PRINT                   = 'PRINT'
         self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_BREAK                   = 'BREAK'
         self.C_CONTINUE                = 'CONTINUE'
@@ -995,6 +996,22 @@ Use 'help vars' to print all the given tube variables;
                         'The tube variable name. With value \'*\' or \'.\' can print all variables.'],
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the result.'],  
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
+            },
+            self.C_PRINT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'ECHO'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'message', True, False, '', '',
+                        'The message you want to print in the terminal.'],
+                    [False, '-c','--color', 'str', 1, 'color', False, False, '', '',
+                        'The message color you want to use.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -3976,14 +3993,30 @@ class TubeCommand():
         msg = '=== Tube Variables ==='
         tprint(msg, prefix='')
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-        lines = self.print_tube_variables(variables, self.tube)   
+        lines = self.__print_tube_variables(variables, self.tube)   
         output_tube_file_list(is_print=True, indexes=self.tube.get_parent_tube_indexes(), lines=lines)  
 
         # output to file
         if result:
-            Utility.write_result_to_file(result, lines)           
+            Utility.write_result_to_file(result, lines) 
+
+    def print_message(self):
+        '''
+        Print message to the terminal
+        '''
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(inputs.split())
+        msg = ' '.join(args.message)
+        color = None
+        if args.color:
+            color = args.color[0]
+        
+        # print tube variabels
+        tprint(msg, prefix='', tcolor=color)
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
     
-    def print_tube_variables(self, variables, tube, lines=None):
+    def __print_tube_variables(self, variables, tube, lines=None):
         '''
         It will print it's parent scope variables and parent's parent
         '''
@@ -4006,7 +4039,7 @@ class TubeCommand():
             
         # to check if parent is None
         if tube.parent:
-            return self.print_tube_variables(variables, tube.parent, lines)       
+            return self.__print_tube_variables(variables, tube.parent, lines)       
 
         return lines   
     
@@ -4437,6 +4470,9 @@ class TubeCommand():
             
             elif command_type == Storage.I.C_PRINT_VARIABLES:
                 self.print_variables()
+            
+            elif command_type == Storage.I.C_PRINT:
+                self.print_message()
                         
             # not supported command found then log errors and continue next          
             else:
