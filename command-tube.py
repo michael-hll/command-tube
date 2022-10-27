@@ -130,8 +130,8 @@ class Storage():
         self.C_DESC_NEW_LINE_SPACE     = '             '
         self.C_ALIAS                   = 'ALIAS'
         self.C_HELP                    = '''Use 'help' command to view the whole help document;
-Use 'help commands' to print all commands usages;
-Use 'help command-name' to print all the tube commands usage which name matched.
+Use 'help commands [name]' to print all commands usages;
+Use 'help command-name [name|alias|desc|syntax|parameters|support]' to print all the tube commands which name matched.
 Use 'help continue' to view the --continue syntax;
 Use 'help if' to view the --if syntax;
 use 'help key' to view the --key syntax;
@@ -6502,7 +6502,7 @@ def print_tube_command_help(parser: ArgumentParser):
     try:   
         args = parser.parse_args()    
         if(args.help):
-            if(len(args.help) >= 1 and len(args.help) <= 2 and args.help[0].upper() == 'HELP'):
+            if(len(args.help) >= 1 and len(args.help) <= 3 and args.help[0].upper() == 'HELP'):
                 add_notes = Storage.I.C_PROGRAM_NAME + '=' + Storage.I.C_CURR_VERSION
                 help_redo = '''
         Redo: 
@@ -6780,9 +6780,12 @@ Tube:
 </pre>
                 '''
                 command_name = ''
+                command_arg = ''
                 # get the second argument value
-                if len(args.help) == 2:
+                if len(args.help) >= 2:
                     command_name = args.help[1]
+                if len(args.help) >= 3:
+                    command_arg = args.help[2]
                 
                 # check if help readme
                 is_for_readme = False
@@ -6792,7 +6795,6 @@ Tube:
                 # Prepare examples of each command
                 command_examples = []
                 command_examples.append('## Usage of Each Command:')
-                #command_examples.append(Storage.I.C_STATUS_LINE + Storage.I.C_STATUS_LINE)
                 keys = [k for k in Storage.I.TUBE_ARGS_CONFIG.keys()]
                 keys.sort()                
                 for index, key in enumerate(keys):
@@ -6826,6 +6828,9 @@ Tube:
                     sys.exit()
                 elif command_name.upper() == 'COMMANDS':
                     for eg in command_examples:
+                        if command_arg and command_arg == 'name':
+                            if (not eg.startswith('[')) or eg.startswith('[Supp'):
+                                continue
                         tprint(eg, prefix='')
                     sys.exit()
                 elif command_name.upper() == 'TEMPLATE':
@@ -6921,15 +6926,20 @@ Tube:
                         alias = [a for a in Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_ALIAS] if command_name.upper() in a]
                         if command_name.upper() in key or len(alias) > 0:
                             found_match = True        
-                            index += 1        
+                            index += 1       
                             tprint('[%s]: %s' % (str(index),key), tcolor=Storage.I.C_PRINT_COLOR_YELLOW ,prefix='')
                             tprint(TubeCommand.get_command_alias(key, Storage.I.TUBE_ARGS_CONFIG) + '' ,prefix='')
-                            tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n' ,prefix='')
-                            tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')                   
-                            tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')
-                            tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION] ,prefix='')                            
-                            tprint(Storage.I.C_STATUS_LINE ,prefix='')
-                    if found_match == True:
+                            if not command_arg or command_arg.lower() == 'desc':
+                                tprint(TubeCommand.get_command_description(key, Storage.I.TUBE_ARGS_CONFIG) + '\n' ,prefix='')
+                            if not command_arg or command_arg.lower() == 'syntax':
+                                tprint(TubeCommand.get_command_syntax(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')
+                            if not command_arg or command_arg.lower() == 'parameters':                   
+                                tprint(TubeCommand.get_command_parameters(key, Storage.I.TUBE_ARGS_CONFIG) ,prefix='')
+                            if not command_arg or command_arg.lower() == 'support':
+                                tprint('[Support from version: %s]' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION] ,prefix='')                            
+                            if not command_arg:
+                                tprint(Storage.I.C_STATUS_LINE ,prefix='')
+                    if found_match == True and not command_arg:
                         tprint(add_notes ,prefix='')
                 # found nothing match from help system
                 # then raise error
