@@ -6592,7 +6592,7 @@ def print_tube_command_help(parser: ArgumentParser):
                 - PRINT_VARS: x  # output 100
             
             SubTube:
-                - PRINT_VARS: X  # ouput 100
+                - PRINT_VARS: x  # ouput 100
                 - SET_VAR: x = 200
                 - PRINT_VARS: x  # output 200
             
@@ -6603,7 +6603,7 @@ def print_tube_command_help(parser: ArgumentParser):
                 - PRINT_VARS: x  # output 200
             
             SubTube:
-                - PRINT_VARS: X  # ouput 100
+                - PRINT_VARS: x  # ouput 100
                 - SET_VAR: x = 200 --global
                 - PRINT_VARS: x  # output 200
 
