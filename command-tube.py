@@ -1872,7 +1872,7 @@ class TubeCommand():
             if self.__original_content2 == None and self.original_content:
                 # we need to show the readable print/log output
                 # if the key value is an empty string                
-                self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True)
+                self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True).rstrip('\n')
                 if self.notes:
                     self.__original_content2 = self.__original_content2.replace(Storage.I.C_NOTES_PARAMETER, '').replace(self.notes, '').strip()
                     self.__original_content2 = ' '.join(self.__original_content2.split(' '))
