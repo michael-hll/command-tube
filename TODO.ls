@@ -135,6 +135,8 @@ TODO LIST
     51. - refactor help system
         support more argument: help command-name [name|desc|syntax|parameters|support]
 
+    52. - set_var: ls[index] = expression
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
         2. READ_LINE_IN_FILE: If the value is number then convert it to number or float - done

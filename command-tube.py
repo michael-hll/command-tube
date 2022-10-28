@@ -716,11 +716,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'SET_VAR'},
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
-                        'Assign variable value with format: var_name = expression or var_name["key"] = expression; Or you can use --name, --keyword, --value arguments to set the variable value explicitly.'],     
+                        'Assign variable value with format: var_name = expression, var_name["key"] = expression or var_name[index] = expression; \
+                         \n{0:18s}Or you can use --name, --keyword, --index, --value arguments to set the variable value explicitly.'.format(' ')],     
                     [False, '-n','--name', 'str', 1, 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
                     [False, '-k','--keyword', 'str', 1, 'keyword', False, False, '', '',
                         'If update a dictional type variable, this --keyword value is to set the dict key.'],
+                    [False, '-i','--index', 'str', 1, 'index', False, False, '', '',
+                        'If update a list type variable, this --index value is to set list index'],
                     [False, '-v','--value', 'str', '*', 'value', False, False, '', '',
                         'The tube variable value you want to set. \n  \
                 Note: The \'eval(expression)\' is also supported, eg: \n \
@@ -1498,10 +1501,18 @@ class Utility():
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
             key = name_key[left_bracket_index + 2 : right_bracket_index - 1]
-            value = Utility.convert_value_auto(value)
-            value = item[item.index('=')+1:].strip()
 
             return (name, key, value)
+        
+        elif reUtility.is_matched_assign_list_expresson(item):
+            name_index = item[:item.index('=')].strip()
+            value = item[item.index('=')+1:].strip()
+            left_bracket_index = name_index.index('[')
+            right_bracket_index = name_index.index(']')
+            name = name_index[:left_bracket_index].strip()
+            index = name_index[left_bracket_index + 1 : right_bracket_index]
+
+            return (name, int(index), value)
 
         else:
             return (None, None)
@@ -1595,6 +1606,15 @@ class reUtility():
         To see if match 'x["key"] = y' expression 
         '''
         p = '[a-zA-Z_0-9]+[\[]{1}["]{1}[a-zA-Z_0-9]+["]{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
+    
+    @staticmethod
+    def is_matched_assign_list_expresson(input_value):
+        '''
+        To see if match 'x[index] = y' expression 
+        '''
+        p = '[a-zA-Z_0-9]+[\[]{1}[0-9]+[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
     
@@ -3712,7 +3732,7 @@ class TubeCommand():
         '''
         For command: SET_VARIABLE
         '''
-        name, key, value, is_readonly, is_force, is_global = '', '', '', False, False, False
+        name, key, index, value, is_readonly, is_force, is_global = '', '', None, '', False, False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
@@ -3720,6 +3740,8 @@ class TubeCommand():
             name = args.name[0]
         if args.keyword and len(args.keyword) > 0:
             key = args.keyword[0]
+        if args.index and len(args.index) > 0:
+            index = int(args.index[0].strip())
         if args.value:
             value = ' '.join(args.value)
         # check if expressions given
@@ -3732,7 +3754,10 @@ class TubeCommand():
                 value = str(value)
             elif reUtility.is_matched_assign_dict_expresson(expression):
                 name, key, value = Utility.split_assign_expression(expression)
-                value = str(value)                               
+                value = str(value)  
+            elif reUtility.is_matched_assign_list_expresson(expression): 
+                name, index, value = Utility.split_assign_expression(expression)
+                value = str(value)                            
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
 
@@ -3740,7 +3765,8 @@ class TubeCommand():
         is_force = args.is_force
         is_global = args.is_global   
 
-        # if key value exists
+        # if key value exists 
+        # to update dict case
         if key:
             value = Utility.eval_expression(value, tube=self.tube)
             # check if name already exists
@@ -3751,29 +3777,29 @@ class TubeCommand():
                     value_temp = temp_value.copy()
                     value_temp[key] = value
                     value = value_temp
+                else:
+                    raise Exception('Variable {0} value is not a dict, the update was failed.'.format(name))
             else:
                 value = {key: value}
+        
+        # if index value exists
+        # to update list item case
+        if index != None:
+            value = Utility.eval_expression(value, tube=self.tube)
+            # check if name already exists
+            exists, temp_tube = self.tube.find_key_from_tubes(name)
+            if not exists:
+                raise Exception('List doenot exist: {0}'.format(name))
+            temp_value = temp_tube.KEY_VALUES_DICT[name]
+            if type(temp_value) == list:
+                temp_value[index] = value
+                value = temp_value
+            else:
+                raise Exception('Variable {0} value is not a list, the update was failed.'.format(name))
 
         # evalulate eval inputs
-        if type(value) == str:
-            try:
-                # if cound contionds char we use the normal eval method to do check the condition
-                code = compile(value, '<string>', 'eval')    
-                local_dict = {}
-                # Add the missing codes into local varialbes as str
-                for code in code.co_names:
-                    kv = self.tube.get_first_key_value(code)
-                    if kv != None:
-                        local_dict[code] = kv
-                        continue
-                    if code in Storage.I.EVAL_CODE_SET:
-                        continue
-                    if not code in globals().keys():
-                        local_dict[code] = str(code)                       
-                value = eval(value, globals(), local_dict)
-            except Exception as e:
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+        if not key and not index and type(value) == str:
+            value = Utility.eval_expression(value, tube=self.tube)
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
