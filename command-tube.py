@@ -716,19 +716,20 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ALIAS: {'SET_VAR'},
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
-                        'Assign variable value with format: var_name = expression, var_name["key"] = expression or var_name[index] = expression; \
+                        'Assign variable value with format: var_name = expression, var_name["keyword"] = expression or var_name[index] = expression; \
                          \n{0:18s}Or you can use --name, --keyword, --index, --value arguments to set the variable value explicitly.'.format(' ')],     
                     [False, '-n','--name', 'str', 1, 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
                     [False, '-k','--keyword', 'str', 1, 'keyword', False, False, '', '',
                         'If update a dictional type variable, this --keyword value is to set the dict key.'],
                     [False, '-i','--index', 'str', 1, 'index', False, False, '', '',
-                        'If update a list type variable, this --index value is to set list index'],
+                        'If update a list type variable, this --index value is to set list index.'],
                     [False, '-v','--value', 'str', '*', 'value', False, False, '', '',
                         'The tube variable value you want to set. \n  \
                 Note: The \'eval(expression)\' is also supported, eg: \n \
-                    - SET_VARIABLE: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. \n \
-                    - SET_VARIABLE: -n sum -v {var1}+{var2} # Tube variable sum will be set to the result of var1 + var2.'],
+                    - set_var: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. \n \
+                    - set_var: ls = [1,2,3] # Tube variable ls was updated to list value: [1,2,3]. \n \
+                    - set_var: ls = ls.append(4) # Tube variable ls appended value 4 to its end: [1,2,3,4].'],
                     [False, '-r','--readonly', '', '', 'is_readonly', False, True, 'store_true', False,
                         'Mark the variable as readonly after updating. Default no. [2.0.2]'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
