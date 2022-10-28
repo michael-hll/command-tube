@@ -1546,6 +1546,9 @@ class Utility():
             set(dir(int)),
             set(dir(float)),
             set(dir(bool)),
+            set(dir(list)),
+            set(dir(dict)),
+            set(dir(set)),
             set(dir(datetime)))
 
     @classmethod
@@ -1560,12 +1563,13 @@ class Utility():
                     f.write('\n' + line)
 
     @classmethod
-    def eval_expression(self, expression: str, tube):
+    def eval_expression(self, expression: str, tube, var_name: str = None):
         '''
         Args:
 
         expression: the expression you want to eval
         command: the tube command to trigger this eval
+        var_name: this parameter is used to for the collections method
         '''
         # evalulate eval inputs
         try:
@@ -1579,13 +1583,41 @@ class Utility():
                     local_dict[code] = kv
                     continue
                 if code in Storage.I.EVAL_CODE_SET:
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'Code \'{0}\' is in the EVAL_CODE_SET.'.format(
+                            code
+                        )
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                     continue
                 if not code in globals().keys():
                     local_dict[code] = str(code)                       
-            expression = eval(expression, globals(), local_dict)
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'The current expression is: {0}, local_dict: {1}'.format(
+                    expression, local_dict
+                )
+                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            expression = eval(expression, globals(), local_dict)  
+            # In order to achieve the list, dict, set methods operations
+            # we can use the local_dict value as the expression returns
+            # Since most of the collections method don't return the collection itself
+            if var_name and var_name in local_dict.keys():
+                var_type = type(local_dict[var_name])
+                expression_type = type(expression)
+                if var_type != expression_type and (var_type == list or var_type == dict or var_type == set):
+                    expression_before = expression
+                    expression = local_dict[var_name]   
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'The expression was updated from \'{0}\' to \'{1}\''.format(
+                            expression_before, expression
+                        )
+                        tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)       
         except Exception as e:
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
                 tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e))
         finally:
             return expression
 
@@ -3799,7 +3831,7 @@ class TubeCommand():
 
         # evalulate eval inputs
         if not key and not index and type(value) == str:
-            value = Utility.eval_expression(value, tube=self.tube)
+            value = Utility.eval_expression(value, tube=self.tube, var_name=name)
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
