@@ -3088,19 +3088,21 @@ class TubeCommand():
         is_global = args.is_global
         is_force = args.is_force
         
-        value = ''        
+        lines = []        
         if os.path.exists(file):            
             # write lines back to text file
             with open(file, 'r') as f:                
-                lines = f.readlines()                  
-                value = ''.join(lines)
+                for line in f.readlines():     
+                    line = line.replace('\n', '')
+                    if line:             
+                        lines.append(line)
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
 
         # update tube variables dependantly
-        key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
+        key_result = self.update_key_value(var, lines, is_force=is_force, is_global=is_global)
         if key_result == False:
-            raise Exception('Update key-value failed: {0}:{1}'.format(var, value))
+            raise Exception('Update key-value failed: {0}:{1}'.format(var, lines))
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File content was read successfully: {0}'.format(file)
