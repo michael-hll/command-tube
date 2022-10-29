@@ -271,14 +271,18 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-v','--variables', 'str', '+', 'variables', False, False, '', '',
                         'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = 2'], 
                     [False, '-w','--while', 'str', '+', 'conditions', False, False, '', '',
-                        'Set the condtions to run the tube.'],  
+                        'Set the while condtions to run the tube.'],  
+                    [False, '-','--each', 'str', '+', 'each', False, False, '', '',
+                        'Set the foreach loop arguments with format: [index_name,] item_name in list_name'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false.'.format(self.C_DESC_NEW_LINE_SPACE, self.C_RUN_TUBE)
+                self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0:13s}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false. \
+                                             \n{0:13s}With the \'--each\' parameters provided, {1} will iterate the list variable and run the sub-tube.' \
+                                             .format(' ', self.C_RUN_TUBE)
             }, 
             self.C_BREAK: {                
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -1517,6 +1521,34 @@ class Utility():
 
         else:
             return (None, None)
+
+    @classmethod
+    def split_each_expression(self, each: str, tube):
+        '''
+        return (index_name, item_name, ls_instance)
+        '''
+        index_name = None
+        item_name = None
+        ls = None
+        if reUtility.is_matched_each_item_expresson(each):
+            each_list = re.split(' +', each)
+            item_name = each_list[0]
+            ls_name = each_list[2]
+            ls = tube.get_first_key_value(ls_name)
+            if ls == None or type(ls) != list:
+                raise Exception('List doesnot exist: {0}'.format(ls_name))
+            
+        elif reUtility.is_matched_each_index_item_expresson(each):
+            each_list_temp = each.split(',')
+            index_name = each_list_temp[0].strip()
+            each_list = re.split(' +', each_list_temp[1].strip())
+            item_name = each_list[0]
+            ls_name = each_list[2]
+            ls = tube.get_first_key_value(ls_name)
+            if ls == None or type(ls) != list:
+                raise Exception('List doesnot exist: {0}'.format(ls_name))
+        
+        return(index_name, item_name, ls)
         
     @classmethod
     def quote_dict_str_value(self, d):
@@ -1650,7 +1682,25 @@ class reUtility():
         p = '[a-zA-Z_0-9]+[\[]{1}[0-9]+[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
+
+    @staticmethod
+    def is_matched_each_item_expresson(input_value):
+        '''
+        To see if match 'item in ls' expression 
+        '''
+        p = '[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
     
+    @staticmethod
+    def is_matched_each_index_item_expresson(input_value):
+        '''
+        To see if match 'index, item in ls' expression 
+        '''
+        p = '[a-zA-Z_0-9]+[ ]*[,]{1}[ ]*[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
+        prog = re.compile(p)
+        return prog.fullmatch(input_value) != None
+
     @staticmethod
     def is_matched_int(input_value):
         '''
@@ -1919,7 +1969,7 @@ class TubeCommand():
         Remove the placehoders form the content and return
         '''
         loop_status = ''
-        if self.tube != None and self.tube.tube_conditions != None and self.loop_index > 0:
+        if self.tube != None and self.loop_index > 0 and (self.tube.tube_conditions != None or self.tube.each_ready):
             loop_status = '[LOOP %s] ' % str(self.loop_index)
         try:
             if self.__original_content2 == None and self.original_content:
@@ -3552,13 +3602,15 @@ class TubeCommand():
         For command: RUN_TUBE
         '''
         parser = self.tube_argument_parser
-        args, unknow = parser.parse_known_args(self.content.split())
-        tube, conditions, variables  = None, None, None
+        args, _ = parser.parse_known_args(self.content.split())
+        tube, conditions, each, variables  = None, None, None, None
         if args.tube:
             tube = ' '.join(args.tube)
             tube = self.self_format_placeholders(tube)
         if args.conditions:
             conditions = ' '.join(args.conditions)
+        if args.each:
+            each = ' '.join(args.each)
         key_value_list = None
         if args.variables:
             variables = ' '.join(args.variables)
@@ -3569,6 +3621,23 @@ class TubeCommand():
                 item = item.strip().strip('\'').strip('"')
                 if not reUtility.is_matched_assign_expresson(item):
                     raise Exception('The tube input variables have wrong format: {0}'.format(item))
+
+        # it's not allowed to have both --while and --each arguments
+        if conditions and each:
+            raise Exception('--while and --each cannot use together.')
+        
+        # each logic
+        each_index_name = None
+        each_item_name = None
+        each_list = None
+        each_ready = False
+        if each:
+            if reUtility.is_matched_each_item_expresson(each) or \
+               reUtility.is_matched_each_index_item_expresson(each):
+                each_index_name, each_item_name, each_list = Utility.split_each_expression(each, self.tube)                
+            else:
+                raise Exception('The each format is not correct: \'{0}\'.'.format(each))
+            each_ready = True
 
         msg = ''
         # Define re pattern for switching tube type 
@@ -3588,8 +3657,10 @@ class TubeCommand():
             raise Exception('The tube :\'{0}\' doesnot exists.'.format(tube))            
         
         # Check while condition of RUN_TUBE command
-        while_condition = Utility.eval_while_conditions(conditions, command=self) 
-        if  while_condition:
+        while_condition = True
+        if not each_ready:
+            while_condition = Utility.eval_while_conditions(conditions, command=self) 
+        if  while_condition or each_ready:
             tube_name = ''
             file = tube
             if tube_type == 1: # file[tube]
@@ -3608,6 +3679,13 @@ class TubeCommand():
                 with open(file, 'r') as f:
                     data = Utility.safe_load_yaml_with_upper_key(f)
                     self.__create_sub_tube(data, tube_name, file, conditions)
+                
+                # each parameters init
+                if each_ready:
+                    self.sub_tube.each_ready = each_list != None and len(each_list) > 0
+                    self.sub_tube.each_index_name = each_index_name
+                    self.sub_tube.each_item_name = each_item_name
+                    self.sub_tube.each_ls = each_list
             else:    
                 raise Exception('The tube :\'{0}\' doesnot exists.'.format(file))                
 
@@ -4842,6 +4920,11 @@ class Tube():
         self.tube_run_all      = []
         self.tube_conditions   = None
         self.tube_run_times    = None
+        self.each_ready: bool  = False
+        self.__each_index__    = None
+        self.each_index_name   = None
+        self.each_item_name    = None
+        self.each_ls           = None
         self.is_broke          = False
         self.is_continued      = False
         self.gen_tube_run()
@@ -4979,19 +5062,31 @@ class TubeRunner():
         self.tube.tube_run.clear()
         
         # check if need run again
-        while_condition = Utility.eval_while_conditions(self.tube.tube_conditions, False, command=self.run_tube_command)
-        # print current while conditions in debug mode
-        self.__output_while_condition(while_condition, self.tube.tube_conditions, self.tube.tube_run_times, self.run_tube_command)
+        while_condition = True
+        if not self.tube.each_ready:
+            while_condition = Utility.eval_while_conditions(self.tube.tube_conditions, False, command=self.run_tube_command)
+            # print current while conditions in debug mode
+            self.__output_while_condition(while_condition, self.tube.tube_conditions, self.tube.tube_run_times, self.run_tube_command)
             
         # run again?
         self.tube.is_continued = False
-        if while_condition and self.tube.is_broke == False:             
+        if (while_condition and not self.tube.each_ready and self.tube.is_broke == False) or \
+            (self.tube.each_ready and self.tube.__each_index__ < len(self.tube.each_ls) - 1):             
             self.pre_command = None       
             self.tube.gen_tube_run()     
             self.start()
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
             self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
+            # clear each parameters
+            if self.tube.each_ready:
+                self.tube.KEY_VALUES_DICT.pop(self.tube.each_item_name, None)
+                if self.tube.each_index_name:
+                    self.tube.KEY_VALUES_DICT.pop(self.tube.each_index_name, None)
+                self.tube.__each_index__ = None
+                self.tube.each_index_name = None
+                self.tube.each_item_name = None
+                self.tube.each_ls = None                
     
     def start(self):
         '''
@@ -5001,6 +5096,13 @@ class TubeRunner():
         # increase the total interation times
         if self.is_main == False:
             self.tube.tube_run_times += 1
+
+            if self.tube.each_ready:
+                # update each index, item for tube local variable
+                self.tube.__each_index__ = self.tube.tube_run_times - 1
+                if self.tube.each_index_name:
+                    self.tube.update_key_value(self.tube.each_index_name, self.tube.__each_index__, is_force=True)
+                self.tube.update_key_value(self.tube.each_item_name, self.tube.each_ls[self.tube.__each_index__], is_force=True)
         
         # Loop each command within the tube and run it    
         command: TubeCommand
