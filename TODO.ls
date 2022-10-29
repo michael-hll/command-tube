@@ -139,6 +139,10 @@ TODO LIST
 
     53. - run_tube: --each item in ls
 
+    54. - list_f: --variable to store the list result
+        - tail_fail: --variable to store the tail result
+        - list_dir: --variable to store the list result
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
         2. READ_LINE_IN_FILE: If the value is number then convert it to number or float - done

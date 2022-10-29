@@ -1040,12 +1040,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [      
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',  
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
-                    [False, '-r','--result', 'str', 1, 'result', True, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'Using \'-s atime|mtime|ctime|name|size [asc|desc]\' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.'],
-                    [False, '-c','--count', 'str', 1, 'variable', False, False, '', '',
+                    [False, '-c','--count', 'str', 1, 'count', False, False, '', '',
                         'The tube variable name to store the files count.'],
+                    [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the list result.'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -1064,12 +1066,14 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '', 
                         'The directory you want to list its sub directories.'],
-                    [False, '-r','--result', 'str', 1, 'result', True, False, '', '',
+                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the list result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
                         'It accepts \'asc\' or \'desc\' value for the sorting. Default is \'asc\'.'],
-                    [False, '-c','--count', 'str', 1, 'variable', False, False, '', '',
+                    [False, '-c','--count', 'str', 1, 'count', False, False, '', '',
                         'The tube variable name to store the directories count.'],
+                    [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the list result.'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -2608,17 +2612,20 @@ class TubeCommand():
         return True
 
     def list_files(self):
-        directory, result, sort, asc, variable = None, None, 'mtime', 'asc', None
+        directory, result, sort, asc, count, variable = None, None, 'mtime', 'asc', None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
-        result = ' '.join(args.result)
+        if args.result:
+            result = ' '.join(args.result)
         if args.variable:
             variable = args.variable[0]
+        if args.count:
+            count = args.count[0]
         is_global = args.is_global
         is_force = args.is_force
-        
+    
         if args.sort:
             if len(args.sort) == 1:
                 s = args.sort[0]
@@ -2640,6 +2647,9 @@ class TubeCommand():
                     raise Exception('The sort can only be sort as asc or desc.')
             else:
                 raise Exception('Sort argument could only be [a|c|m]time, name or size.')
+
+        if not result and not variable:
+            raise Exception('--result or --variable argument is missing.')
 
         # get file list
         basename = path.basename(directory)        
@@ -2677,17 +2687,24 @@ class TubeCommand():
             list_files.reverse()
             
         # writing result
-        with open(result, 'w') as f:
-            Utility.write_result_to_file(result, list_files)
+        if result:
+            with open(result, 'w') as f:
+                Utility.write_result_to_file(result, list_files)
 
-        # store list files count result to tube variable
-        if variable:
-            count = 0
+        # store list files count result to tube count var
+        if count:
+            f_count = 0
             if list_files:
-                count = len(list_files)
-            key_result = self.update_key_value(variable, count, is_force=is_force, is_global=is_global)
+                f_count = len(list_files)
+            key_result = self.update_key_value(count, f_count, is_force=is_force, is_global=is_global)
             if key_result == False:
-                raise Exception('Update key-value failed: {0}:{1}'.format(variable, count))            
+                raise Exception('Update key-value failed: {0}:{1}'.format(count, f_count))  
+
+        # store list files to tube var
+        if variable:
+            key_result = self.update_key_value(variable, list_files, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, list_files))               
 
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List files successfully: ' + str(list_files) 
@@ -2702,12 +2719,13 @@ class TubeCommand():
     
     def list_dirs(self):
         
-        directory, result, sort, variable = None, None, 'asc', None
+        directory, result, sort, count, variable = None, None, 'asc', None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         directory = ' '.join(args.directory)
-        result = ' '.join(args.result)
+        if args.result:
+            result = ' '.join(args.result)
         
         if args.sort:
             if len(args.sort) == 1:
@@ -2722,8 +2740,13 @@ class TubeCommand():
 
         if args.variable:
             variable = args.variable[0]
+        if args.count:
+            count = args.count[0]
         is_global = args.is_global
         is_force = args.is_force
+
+        if not result and not variable:
+            raise Exception('--result or --variable argument is missing.')
 
         # check directory exists
         if not (os.path.exists(directory) and \
@@ -2742,14 +2765,20 @@ class TubeCommand():
         with open(result, 'w') as f:
             Utility.write_result_to_file(result, ls)
 
-        # store list directories count result to tube variable
-        if variable:
-            count = 0
+        # store list directories count result to tube count var
+        if count:
+            d_count = 0
             if ls:
-                count = len(ls)
-            key_result = self.update_key_value(variable, count, is_force=is_force, is_global=is_global)
+                d_count = len(ls)
+            key_result = self.update_key_value(count, d_count, is_force=is_force, is_global=is_global)
             if key_result == False:
-                raise Exception('Update key-value failed: {0}:{1}'.format(variable, count)) 
+                raise Exception('Update key-value failed: {0}:{1}'.format(count, d_count)) 
+        
+        # store list result to tube var
+        if variable:
+            key_result = self.update_key_value(variable, ls, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(variable, ls)) 
 
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'List directories successfully: ' + str(ls) 
