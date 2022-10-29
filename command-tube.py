@@ -323,7 +323,13 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-k','--keywords', 'str', '*', 'keywords', False, False, '', '',
                         'Output start from the given keywords.'],       
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
-                        'The text file to store the tail result.'],              
+                        'The text file to store the tail result.'],    
+                    [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
+                        'The tube variable name to store the tail result.'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],           
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -3361,7 +3367,7 @@ class TubeCommand():
         '''
         For command: TAIL_FILE
         '''
-        file, lines_count, keywords, r_file = '', 0, '', ''
+        file, lines_count, keywords, r_file, var_name = '', 0, '', '', ''
 
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
@@ -3372,7 +3378,14 @@ class TubeCommand():
             keywords = [k.strip() for k in args.keywords]
             keywords = ' '.join(keywords) 
         if args.result:
-            r_file = ' '.join(args.result)           
+            r_file = ' '.join(args.result)    
+        if args.variable:
+            var_name = args.variable[0]
+        is_global = args.is_global
+        is_force = args.is_force    
+
+        if not r_file and not var_name:
+            raise Exception('Missing result parameter --file or --variable.') 
     
         lines_count = int(lines_count)        
         return_lines = []
@@ -3403,7 +3416,7 @@ class TubeCommand():
             
             # decide returned lines
             if found_line >= 0:
-                return_lines = temp_lines[i:]
+                return_lines = temp_lines[found_line:]
             else:
                 return_lines = temp_lines
             
@@ -3419,7 +3432,13 @@ class TubeCommand():
 
             # write result to result file
             if r_file:
-                Utility.write_result_to_file(r_file, return_lines)      
+                Utility.write_result_to_file(r_file, return_lines) 
+
+            # write result to tube variable
+            if var_name:
+                key_result = self.update_key_value(var_name, return_lines, is_force=is_force, is_global=is_global)
+                if key_result == False:
+                    raise Exception('Update key-value failed: {0}:{1}'.format(var_name, return_lines))         
 
             return True
 
@@ -4145,7 +4164,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         msg = ' '.join(args.message)
         color = None
         if args.color:
