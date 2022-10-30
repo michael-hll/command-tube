@@ -4444,23 +4444,23 @@ class TubeCommand():
     
     def command(self):
         log = self.log
-        outputfile = None
+        log_file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         if args.result:
-            outputfile = args.result[0]
-            inputs = re.sub('--result[ ]*' + outputfile, '', inputs, 1).strip()
+            log_file = args.result[0]
+            inputs = re.sub('--result[ ]*' + log_file, '', inputs, 1).strip()
 
-        result = None
-        if outputfile:
+        process = None
+        if log_file:
             # write outputs to log file
-            with open(outputfile, 'w') as log_file:
-                result = subprocess.Popen(inputs, shell=True,
+            with open(log_file, 'w') as log_file:
+                process = subprocess.Popen(inputs, shell=True,
                          stdout=log_file, stderr=subprocess.PIPE, bufsize=1)     
         else:
             # write outputs to terminal console
-            result = subprocess.Popen(inputs, shell=True,
+            process = subprocess.Popen(inputs, shell=True,
                      stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)  
         
         # Need to print error to the terminal and the log file
@@ -4474,7 +4474,7 @@ class TubeCommand():
             It’s important to note that .read1() is only available on byte streams, so you need to make sure to deal 
             with encodings manually and not use text mode.
             '''
-            line = result.stderr.read1().decode('utf-8')
+            line = process.stderr.read1().decode('utf-8')
             if not line:
                 break
             line = line.replace('\n', '')            
@@ -4482,15 +4482,15 @@ class TubeCommand():
             log.errors.append(line)                       
 
         # wait the process and get running result 
-        result.communicate()
-        if result.returncode != 0:  
+        process.communicate()
+        if process.returncode != 0:  
             return False                           
         else:
             log.errors.clear() 
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-            if outputfile:
-                msg = 'Command outputs are written to file: {0}'.format(os.path.abspath(outputfile))
+            if log_file:
+                msg = 'Command outputs are written to file: {0}'.format(os.path.abspath(log_file))
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
