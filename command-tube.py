@@ -4455,13 +4455,13 @@ class TubeCommand():
         process = None
         if log_file:
             # write outputs to log file
-            with open(log_file, 'w') as log_file:
+            with open(log_file, 'w') as f:
                 process = subprocess.Popen(inputs, shell=True,
-                         stdout=log_file, stderr=subprocess.PIPE, bufsize=1)     
+                         stdout=f, stderr=subprocess.PIPE)     
         else:
             # write outputs to terminal console
             process = subprocess.Popen(inputs, shell=True,
-                     stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)  
+                     stdout=sys.stdout, stderr=subprocess.PIPE)  
         
         # Need to print error to the terminal and the log file
         while True:
