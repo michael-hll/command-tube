@@ -4456,20 +4456,28 @@ class TubeCommand():
         if outputfile:
             # write outputs to log file
             with open(outputfile, 'w') as log_file:
-                result = subprocess.Popen(inputs, text=True, shell=True,
-                         stdout=log_file, stderr=subprocess.PIPE, bufsize=1) 
-    
+                result = subprocess.Popen(inputs, shell=True,
+                         stdout=log_file, stderr=subprocess.PIPE, bufsize=1)     
         else:
             # write outputs to terminal console
-            result = subprocess.Popen(inputs, text=True, shell=True,
+            result = subprocess.Popen(inputs, shell=True,
                      stdout=sys.stdout, stderr=subprocess.PIPE, bufsize=1)  
         
         # Need to print error to the terminal and the log file
         while True:
-            line = result.stderr.readline()
-            line = line.replace('\n', '')
+            '''
+            https://realpython.com/python-subprocess/#processes-and-subprocesses
+            Note: If you put the Popen object into text mode and then called .read() on .stdout, the call to .read() 
+            would be blocking until it reached a newline. In this case, a newline would coincide with the end of the 
+            timer program. This behavior isn’t desired in this situation.
+            To read as many bytes as are available at that time, disregarding newlines, you need to read with .read1(). 
+            It’s important to note that .read1() is only available on byte streams, so you need to make sure to deal 
+            with encodings manually and not use text mode.
+            '''
+            line = result.stderr.read1().decode('utf-8')
             if not line:
                 break
+            line = line.replace('\n', '')            
             tprint(line, prefix='')
             log.errors.append(line)                       
 

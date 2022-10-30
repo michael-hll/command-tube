@@ -146,5 +146,6 @@ TODO LIST
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fix
         2. READ_LINE_IN_FILE: If the value is number then convert it to number or float - done
+        3. If the 'COMMAND' tube command has user prompt questions, the user can't see the question - fixed
 
 
