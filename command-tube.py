@@ -5071,6 +5071,15 @@ class Tube():
             return self.parent.get_parent_key_values(KV)
         return KV
 
+    def clear_each(self):
+        self.KEY_VALUES_DICT.pop(self.each_item_name, None)
+        if self.each_index_name:
+            self.KEY_VALUES_DICT.pop(self.each_index_name, None)
+        self.__each_index__ = None
+        self.each_index_name = None
+        self.each_item_name = None
+        self.each_ls = None 
+
 class TubeRunner():
     
     def __init__(self, is_main = True, run_tube_command: TubeCommand = None, tube: Tube = None):
@@ -5130,13 +5139,7 @@ class TubeRunner():
             self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
             # clear each parameters
             if self.tube.each_ready:
-                self.tube.KEY_VALUES_DICT.pop(self.tube.each_item_name, None)
-                if self.tube.each_index_name:
-                    self.tube.KEY_VALUES_DICT.pop(self.tube.each_index_name, None)
-                self.tube.__each_index__ = None
-                self.tube.each_index_name = None
-                self.tube.each_item_name = None
-                self.tube.each_ls = None                
+                self.tube.clear_each()               
     
     def start(self):
         '''
