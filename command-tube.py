@@ -296,7 +296,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'The command can break a tube\'s running while it\'s in a loop.'
+                self.C_COMMAND_DESCRIPTION: 'The command can break a tube\'s running.'
             },   
             self.C_CONTINUE: {                
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
