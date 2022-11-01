@@ -1665,6 +1665,8 @@ class Utility():
             return expression
 
 class reUtility():
+
+    RE_MATCH_PLACEHOLDER = '{[a-zA-Z_0-9 ]+}|{[a-zA-Z_0-9 ]+:[^:]+}'
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
@@ -3896,7 +3898,7 @@ class TubeCommand():
         name, key, index, value, is_readonly, is_force, is_global = '', '', None, '', False, False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         if args.name and len(args.name) > 0:
             name = args.name[0]
         if args.keyword and len(args.keyword) > 0:
@@ -4728,12 +4730,20 @@ class TubeCommand():
         if type(value) is not str:
             value = str(value)
         
-        # add format support
-        value = value.replace('{0:', '{s:') # to compatible with {0:m} syntax
-        # replace placeholders from tube commands
-        tempDict = TDict(key_values)
-        # using the format_map method will not raise missing key exception
-        ret_value = value.format_map(tempDict)
+        # replace placeholders from tube commands        
+        ret_value = value
+        tempDict = {}
+        matches = re.findall(reUtility.RE_MATCH_PLACEHOLDER, ret_value)
+        if len(matches) > 0:
+            tempDict = TDict(key_values)
+        for item in matches:
+            ph_key = item.strip('{').strip('}').strip()
+            ph_value = item
+            if ':' in ph_key:
+                ph_key = ph_key[0:ph_key.index(':')].strip()
+            if ph_key in tempDict.keys():
+                ph_value = item.format_map(tempDict)
+                ret_value = ret_value.replace(item, ph_value)
         del tempDict
         return ret_value
 
