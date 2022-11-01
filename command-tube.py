@@ -4709,7 +4709,7 @@ class TubeCommand():
         
         Parameters:
             value: The string you want to replace its all placeholders.
-            key_values: If not provided using the tube key value dict.
+            key_values: If not provided return the input value.
         '''
         
         # return for None or empty
@@ -4734,6 +4734,8 @@ class TubeCommand():
         ret_value = value
         tempDict = {}
         matches = re.findall(reUtility.RE_MATCH_PLACEHOLDER, ret_value)
+        # remove duplict items
+        matches = list(dict.fromkeys(matches))
         if len(matches) > 0:
             tempDict = TDict(key_values)
         for item in matches:
