@@ -4737,7 +4737,12 @@ class TubeCommand():
         # remove duplict items
         matches = list(dict.fromkeys(matches))
         if len(matches) > 0:
-            tempDict = TDict(key_values)
+            # in the future we can remove this tempDict logic
+            # and directly used the key_values
+            # keep it here for some days to see if it the new 
+            # logic working well to directly using key_values
+            # tempDict = TDict(key_values)
+            tempDict = key_values
         for item in matches:
             ph_key = item.strip('{').strip('}').strip()
             ph_value = item
@@ -4746,7 +4751,6 @@ class TubeCommand():
             if ph_key in tempDict.keys():
                 ph_value = item.format_map(tempDict)
                 ret_value = ret_value.replace(item, ph_value)
-        del tempDict
         return ret_value
 
     @classmethod
