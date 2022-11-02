@@ -5036,7 +5036,7 @@ class Tube():
         # go through each tube command and added
         for item in self.tube_yaml:            
             for key in item.keys():                  
-                command = TubeCommand(key.upper(), item[key])
+                command = TubeCommand(key, item[key])
                 command.tube = self                
                 tube_run_new.append(command) 
 
@@ -7456,6 +7456,8 @@ try:
     # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
         Storage.I.TUBE_YAML = data[Storage.I.C_TUBE]
+    else:
+        raise Exception('\'Tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
     # Emails
     if Storage.I.C_EMAIL in data.keys():        
         StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
@@ -7516,7 +7518,7 @@ try:
         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     
 except Exception as e:
-    msg = 'Command Tube process parameters error: ' + str(e)
+    msg = str(e)
     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
     sys.exit()

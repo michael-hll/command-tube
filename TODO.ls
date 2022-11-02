@@ -1,8 +1,6 @@
 
 TODO LIST
 
-- keep user inputs tube command (do not make it to upper cases)
-
 - Output Command.results to Email content   
 
 - DONE LIST
@@ -144,6 +142,10 @@ TODO LIST
     54. - list_f: --variable to store the list result
         - tail_fail: --variable to store the tail result
         - list_dir: --variable to store the list result
+    
+    55. - keep user inputs tube command name (do not make it to upper cases)
+
+    56. - Check 'Tube' key exists from the main yaml file 
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
