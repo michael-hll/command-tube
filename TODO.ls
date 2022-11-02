@@ -1,6 +1,8 @@
 
 TODO LIST
 
+- keep user inputs tube command (do not make it to upper cases)
+
 - Output Command.results to Email content   
 
 - DONE LIST
