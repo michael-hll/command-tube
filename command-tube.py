@@ -125,7 +125,7 @@ class Storage():
         self.C_KEY_PARAMETER           = '--key'
         self.C_NOTES_PARAMETER         = '--note'
         self.C_INDENTATION             = '    '
-        self.C_RETRIED_COMMAND_NOTE    = '* The star(*) before command type means the command is run again.'
+        self.C_RETRIED_COMMAND_NOTE    = '* The star(*) after command type means the command is run again.'
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
         self.C_DESC_NEW_LINE_SPACE     = '             '
         self.C_ALIAS                   = 'ALIAS'
@@ -1956,7 +1956,7 @@ class TubeCommand():
                   
     def get_formatted_status(self) -> str:
         '''
-        Return something like: '[0] - status - type - content
+        Return something like: '[0] - status - type: content
         '''
         status = 'NOT STARTED'
         if self.log and self.log.status != None:
@@ -1966,14 +1966,22 @@ class TubeCommand():
             index = self.index
         return '[%s] - [%s] - %s: %s' % (str(index), status, self.cmd_type, self.get_formatted_content())
 
-    def get_formatted_type(self):
+    def get_formatted_type(self, include_tube=True, include_index=False):
         '''
-        Return something like: * COMMAND_TYPE[0]
-        '''
-        command_type = self.cmd_type
-        command_type += '[{0}:{1}]'.format(str(self.tube.tube_index), self.tube.tube_name)
+        Return something like: [0:TUBE] >>> COMMAND
+        '''   
+        command_type = ''
+        if include_tube:
+            tube_format_name = '[' + str(self.tube.tube_index) + ':' + self.tube.tube_name + ']'
+            tube_format_len = Tube.TUBE_NAME_MAX_LENGTH
+            command_type = ('{0:>' + str(tube_format_len) + '}').format(tube_format_name)
+            if include_index:
+                command_type += '[' + str(self.index) + ']'
+        
+        command_type += ' >>> ' + self.cmd_type
         if self.is_redo_added == True:
-            command_type = '* ' + command_type
+            command_type += ' *'
+
         return command_type
     
     def get_formatted_content(self):
@@ -4503,9 +4511,10 @@ class TubeCommand():
         log = self.log 
         try:
             # Log current running step
-            running_command = ' [%s] >>> %s'
+            running_command = ' [%s][%s]%s'
             msg = datetime.now().strftime(Storage.I.C_DATETIME_FORMAT) + running_command % \
-                (str(self.index), self.get_formatted_type() + ': ' + str(self.get_formatted_content()))
+                (str(self.tube.tube_index) + ':' + self.tube.tube_name, str(self.index), 
+                 self.get_formatted_type(include_tube=False) + ': ' + str(self.get_formatted_content()))
             tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_YELLOW, type=Storage.I.C_PRINT_TYPE_INFO)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
@@ -4899,16 +4908,16 @@ class TubeCommandLog:
         duration_in_s = duration.total_seconds()
         return int(duration_in_s)
 
-    def format_log(self, sequence):
+    def format_log(self, sequence, include_index=False):
         '''
         format tube log status overview
         '''
         duration_in_s = self.get_total_seconds()
         duration_str = '%s SEC' % duration_in_s
-        command_type = self.command.get_formatted_type()
+        command_type = self.command.get_formatted_type(include_index=include_index)
         if duration_in_s >= 60:
             duration_str = '%s MIN' % self.get_total_minutes()
-        return_foramt = '%5s - %10s - %8s - %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's: %s'   
+        return_foramt = '%5s - %10s - %8s - %' + str(Tube.TUBE_NAME_MAX_LENGTH) + 's: %s'   
         return return_foramt % \
             ('[' + str(sequence) + ']', self.status, duration_str, command_type, \
              self.command.get_formatted_content())
@@ -4931,8 +4940,8 @@ class TubeCommandLog:
         duration_str = '%s SEC' % duration_in_s
         if duration_in_s >= 60:
             duration_str = '%s MIN' % str(int(divmod(duration_in_s, 60)[0]))
-        command_type = self.command.get_formatted_type()
-        log_format = '%5s - %10s - %8s - %' + str(Storage.I.MAX_TUBE_COMMAND_LENGTH) + 's: %s'
+        command_type = self.command.get_formatted_type(include_index=True)
+        log_format = '%5s - %10s - %8s - %' + str(Tube.TUBE_NAME_MAX_LENGTH) + 's: %s'
         log_value = ('[' + str(sequence) + ']', self.status, duration_str, 
                      command_type, self.command.get_formatted_content())
         msg = log_format % log_value
@@ -4973,6 +4982,8 @@ class TubeCommandLog:
 
 class Tube():    
 
+    TUBE_NAME_MAX_LENGTH = 0
+
     def __init__(self, file, name, index, tube_yaml, parent=None):
         '''
         Args:
@@ -5002,9 +5013,14 @@ class Tube():
         self.is_broke          = False
         self.is_continued      = False
         self.gen_tube_run()
-        Storage.I.TUBE_LIST.append(self)        
-        Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file 
-
+        # class properties
+        format_tube_name_len = len(self.tube_name) + len(str(self.tube_index)) + 3
+        if format_tube_name_len > Tube.TUBE_NAME_MAX_LENGTH:
+            Tube.TUBE_NAME_MAX_LENGTH = format_tube_name_len      
+        # global properties
+        Storage.I.TUBE_LIST.append(self)  
+        Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file       
+        
     def gen_tube_run(self):
         '''
         Convert tube from yaml format to TubeCommand list
@@ -6241,7 +6257,7 @@ def print_logs(LOGS):
         log.print_log(seq)
     # output tube file list as a note
     output_tube_file_list(is_print=True)   
-    # If output note for * before command type    
+    # If output note for * after command type    
     if has_retried_command == True:
         tprint(Storage.I.C_RETRIED_COMMAND_NOTE, prefix='') 
     
@@ -6433,11 +6449,11 @@ def write_logs_to_file(LOGS):
         seq += 1
         total_minutes += log.get_total_minutes()
         total_seconds += log.get_total_seconds()
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, log.format_log(seq))
+        write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, log.format_log(seq, include_index=True))
     
     # output tube file list
     output_tube_file_list(is_write_log=True)
-    # If output note for * before command type
+    # If output note for * after command type
     if has_retried_command == True:
         write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, Storage.I.C_RETRIED_COMMAND_NOTE)
     # totals
