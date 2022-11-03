@@ -7476,7 +7476,7 @@ try:
         Storage.I.TUBE_YAML = data[Storage.I.C_TUBE.title()]
         Storage.I.TUBE_NAME = Storage.I.C_TUBE.title()
     else:
-        raise Exception('\'TUBE\' or \'tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
+        raise Exception('\'TUBE\', \'Tube\' or \'tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
     # Emails
     if Storage.I.C_EMAIL in data.keys():        
         StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
