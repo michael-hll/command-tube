@@ -1926,6 +1926,8 @@ class TubeCommand():
         if tube_type == 3: # to run a yaml file case
             if tube_name not in data.keys() and tube_name.lower() in data.keys():
                 tube_name = tube_name.lower()
+            elif tube_name not in data.keys() and tube_name.title() in data.keys():
+                tube_name = tube_name.title()
         if tube_name in data.keys():
             sub_tube_yaml = data[tube_name]
             if not sub_tube_yaml or type(sub_tube_yaml) != list:
@@ -7470,6 +7472,9 @@ try:
     elif Storage.I.C_TUBE.lower() in data.keys():
         Storage.I.TUBE_YAML = data[Storage.I.C_TUBE.lower()]
         Storage.I.TUBE_NAME = Storage.I.C_TUBE.lower()
+    elif Storage.I.C_TUBE.title() in data.keys():
+        Storage.I.TUBE_YAML = data[Storage.I.C_TUBE.title()]
+        Storage.I.TUBE_NAME = Storage.I.C_TUBE.title()
     else:
         raise Exception('\'TUBE\' or \'tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
     # Emails

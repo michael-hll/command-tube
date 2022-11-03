@@ -147,7 +147,7 @@ TODO LIST
 
     56. - Check 'Tube' key exists from the main yaml file 
 
-    57. - Main tube name should always be 'TUBE' or 'tube'
+    57. - Main tube name should always be 'TUBE', 'Tube', or 'tube'
           The other tube names are case sensitive
 
     - Bug list:
