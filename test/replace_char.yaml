@@ -1,4 +1,4 @@
-Tube:
+TUBE:
     - SET_VARIABLE: -n i -v 0
     - SET_VARIABLE: -n file -v replace_test.txt
     - FILE_EMPTY: '{file} -c'

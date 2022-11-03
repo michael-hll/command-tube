@@ -1,4 +1,4 @@
-Tube:
+TUBE:
     - SET_VARIABLE: -n i -v 0
     - RUN_TUBE: SubTube -v x=100, y='Hello World' -w {i} < 2
     - SET_VARIABLE: students = ['Mac', 'Janine']

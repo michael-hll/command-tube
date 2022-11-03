@@ -1,4 +1,4 @@
-Tube:
+TUBE:
     - SET_VARIABLE: i = 1
     - ECHO: the current i value is {i}
     - RUN_TUBE: SubTube1 --while i < 3

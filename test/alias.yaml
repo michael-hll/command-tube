@@ -1,4 +1,4 @@
-Tube:
+TUBE:
     - SET_VARIABLE: -n file -v data_0.txt
     - SET_VARIABLE: -n x -v 100
     - READ_LINE: -f {file} -n -1 -v line

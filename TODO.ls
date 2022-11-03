@@ -147,6 +147,9 @@ TODO LIST
 
     56. - Check 'Tube' key exists from the main yaml file 
 
+    57. - Main tube name should always be 'TUBE' or 'tube'
+          The other tube names are case sensitive
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2

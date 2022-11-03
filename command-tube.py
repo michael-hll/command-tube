@@ -204,7 +204,8 @@ Use 'help vars' to print all the given tube variables;
         self.IS_FORCE_RUN              = False
         self.IS_SENT_EMAIL             = False
         self.SERVERS                   = None 
-        self.VARIABLES                 = None              
+        self.VARIABLES                 = None      
+        self.TUBE_NAME                 = None # Main tube name        
         self.TUBE_YAML                 = None
         self.TUBE_YAML_FILE            = None
         self.TUBE_LOG_FILE             = 'tube.log'
@@ -1343,6 +1344,9 @@ class Utility():
     
     @classmethod
     def make_dict_key_upper(self, yaml):
+        '''
+        Skip the key value is list type key (skip tube key)
+        '''
         if not yaml or type(yaml) is not dict:
             return
         
@@ -1351,7 +1355,7 @@ class Utility():
         # make the key upper cases
         keys = [k for k in yaml.keys()]
         for key in keys:
-            if key != key.upper():
+            if key != key.upper() and type(yaml[key]) != list:
                 yaml[key.upper()] = yaml[key]
                 deleted_keys.append(key)
         
@@ -1614,6 +1618,9 @@ class Utility():
         command: the tube command to trigger this eval
         var_name: this parameter is used to for the collections method
         '''
+        if expression and type(expression) != str:
+            return expression
+
         # evalulate eval inputs
         try:
             # if cound contionds char we use the normal eval method to do check the condition
@@ -1915,7 +1922,10 @@ class TubeCommand():
         self.tube_argument_config = TubeCommandArgumentConfig(self.command_type, Storage.I.TUBE_ARGS_CONFIG)
         self.tube_argument_parser = TubeArgumentParser.create_argument_parser(self.tube_argument_config)
     
-    def __create_sub_tube(self, data, tube_name, file, conditions):
+    def __create_sub_tube(self, data, tube_type, tube_name, file, conditions):
+        if tube_type == 3: # to run a yaml file case
+            if tube_name not in data.keys() and tube_name.lower() in data.keys():
+                tube_name = tube_name.lower()
         if tube_name in data.keys():
             sub_tube_yaml = data[tube_name]
             if not sub_tube_yaml or type(sub_tube_yaml) != list:
@@ -3725,10 +3735,10 @@ class TubeCommand():
             file = tube
             if tube_type == 1: # file[tube]
                 file = tube[:tube.index('[')]
-                tube_name = tube[tube.index('[')+1:-1].upper()                 
+                tube_name = tube[tube.index('[')+1:-1]               
             elif tube_type == 2: # tube
                 file = self.tube.tube_file
-                tube_name = tube.upper()     
+                tube_name = tube   
             elif tube_type == 3: # file.yaml
                 tube_name = Storage.I.C_TUBE
 
@@ -3738,7 +3748,7 @@ class TubeCommand():
             if exists:
                 with open(file, 'r') as f:
                     data = Utility.safe_load_yaml_with_upper_key(f)
-                    self.__create_sub_tube(data, tube_name, file, conditions)
+                    self.__create_sub_tube(data, tube_type, tube_name, file, conditions)
                 
                 # each parameters init
                 if each_ready:
@@ -7456,8 +7466,12 @@ try:
     # tprint(json.dumps(data, indent=4))   
     if Storage.I.C_TUBE in data.keys(): 
         Storage.I.TUBE_YAML = data[Storage.I.C_TUBE]
+        Storage.I.TUBE_NAME = Storage.I.C_TUBE
+    elif Storage.I.C_TUBE.lower() in data.keys():
+        Storage.I.TUBE_YAML = data[Storage.I.C_TUBE.lower()]
+        Storage.I.TUBE_NAME = Storage.I.C_TUBE.lower()
     else:
-        raise Exception('\'Tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
+        raise Exception('\'TUBE\' or \'tube\' key does not exist from your main YAML file: {0}'.format(Storage.I.TUBE_YAML_FILE))
     # Emails
     if Storage.I.C_EMAIL in data.keys():        
         StorageUtility.read_emails(data[Storage.I.C_EMAIL])   
@@ -7482,7 +7496,7 @@ try:
     StorageUtility.read_hosts(Storage.I.SERVERS)
 
     # Instance a new tube
-    tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.C_TUBE, 0, Storage.I.TUBE_YAML, None)
+    tube = Tube(Storage.I.TUBE_YAML_FILE, Storage.I.TUBE_NAME, 0, Storage.I.TUBE_YAML, None)
 
     # Read variables from console
     StorageUtility.read_variables_from_console(args.variables, tube)
