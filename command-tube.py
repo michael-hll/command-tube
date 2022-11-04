@@ -85,6 +85,7 @@ class Storage():
         self.C_REPORT_PROGRESS         = 'REPORT_PROGRESS'
         self.C_GET_FILE_KEY_VALUE      = 'GET_FILE_KEY_VALUE'
         self.C_EMAIL                   = 'EMAIL'
+        self.C_EXEC                    = 'EXEC'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
         self.C_DELETE_VARIABLE         = 'DELETE_VARIABLE'
@@ -868,6 +869,21 @@ Use 'help vars' to print all the given tube variables;
                 self.C_KEY_PARAMETER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent Email to someone with given subject and content.'
+            },
+            self.C_EXEC: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'EXEC'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'commands', True, False, '', '',
+                        'The python commands.'],
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'The python commands you want to run. The original idea is to use it to import other python modules. \
+                         \nThen you can use the newly imported module in set or condition expressions.'
             },
             self.C_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -4412,6 +4428,11 @@ class TubeCommand():
                     self.log.add_error(error) 
             return False                       
     
+    def exec_command(self):
+        inputs = self.self_format_placeholders(self.content)
+        exec(inputs)
+        return True
+
     def linux_command(self):
         log = self.log
         # Check if we have a valid ssh connection
@@ -4463,7 +4484,7 @@ class TubeCommand():
             return False
         
         return True
-    
+
     def command(self):
         log = self.log
         log_file = None
@@ -4651,6 +4672,9 @@ class TubeCommand():
             
             elif command_type == Storage.I.C_EMAIL:
                 result = self.send_email_via_command()
+            
+            elif command_type == Storage.I.C_EXEC:
+                result = self.exec_command()
             
             elif command_type == Storage.I.C_RUN_TUBE:
                 log.status = Storage.I.C_RUNNING
