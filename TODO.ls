@@ -1,8 +1,6 @@
 
 TODO LIST
 
-- exec command ?? import command ??
-
 - Output Command.results to Email content   
 
 - DONE LIST
@@ -151,6 +149,8 @@ TODO LIST
 
     57. - Main tube name should always be 'TUBE', 'Tube', or 'tube'
           The other tube names are case sensitive
+    
+    58. - exec command was added
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
