@@ -5728,20 +5728,20 @@ class StorageUtility():
             Storage.I.MAX_TUBE_COMMAND_LENGTH = max_length
 
     @classmethod
-    def check_if_key_command_exists(self, tube = []):
+    def check_if_key_command_exists(self, commands = []):
         '''
         Check if key command exists
         
         Args:
-            tube: If not provided then check all the log linked commands
+            commands: If not provided then check all the log linked commands
         '''
-        if not tube or len(tube) == 0:
+        if not commands or len(commands) == 0:
             for log in Storage.I.LOGS:        
                 if log.command.check_if_key_command():
                     return True
         else:        
             command: TubeCommand
-            for command in tube:
+            for command in commands:
                 if command.check_if_key_command():
                     return True        
         return False
@@ -6288,7 +6288,7 @@ def print_logs(LOGS):
     tprint('Total Time: %s' % totals, prefix='')
     tprint('-------------------------------', prefix='')
 
-def get_command_result_by_uuid(uuid, tube = []):
+def get_command_result_by_uuid(uuid, commands = []):
     '''
     Get command result by UUID
     
@@ -6298,7 +6298,7 @@ def get_command_result_by_uuid(uuid, tube = []):
     '''
     command: TubeCommand
     status = Storage.I.C_FAILED
-    if len(tube) == 0:
+    if len(commands) == 0:
         for log in Storage.I.LOGS:
             command = log.command
             if command.original_uuid == uuid:
@@ -6308,7 +6308,7 @@ def get_command_result_by_uuid(uuid, tube = []):
                     status = Storage.I.C_SUCCESSFUL
                     return status
     else:        
-        for command in tube:
+        for command in commands:
             if command.original_uuid == uuid:
                 if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
                     status = Storage.I.C_SKIPPED
@@ -6377,7 +6377,7 @@ def calculate_success_failed_details(is_for_email):
 
     return result
 
-def calculate_success_failed_for_tube(tube):
+def calculate_success_failed_for_tube(commands):
     
     '''
     Get tube success or failed status
@@ -6390,7 +6390,7 @@ def calculate_success_failed_for_tube(tube):
     result = None
 
     # calcualte success and failed count
-    for command in tube:
+    for command in commands:
         log = command.log
         if log.status == Storage.I.C_FAILED:
             failed_count += 1
@@ -6400,7 +6400,7 @@ def calculate_success_failed_for_tube(tube):
             skipped_count +=1
 
     # ouput overall status
-    key_command_exists_all = StorageUtility.check_if_key_command_exists(tube)    
+    key_command_exists_all = StorageUtility.check_if_key_command_exists(commands)    
     result = Storage.I.C_TUBE_SUCCESSFUL
     if not key_command_exists_all:
         # there are no key commands at all
@@ -6409,8 +6409,8 @@ def calculate_success_failed_for_tube(tube):
     else:
         result_tmp = Storage.I.C_SUCCESSFUL
         command: TubeCommand
-        tube_temp = tube.copy()
-        for command in tube:
+        tube_temp = commands.copy()
+        for command in commands:
             # we can skip the --if no cases          
             if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
                 key_command_result = get_command_result_by_uuid(command.original_uuid, tube_temp)
