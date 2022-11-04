@@ -1,6 +1,8 @@
 
 TODO LIST
 
+- exec command ?? import command ??
+
 - Output Command.results to Email content   
 
 - DONE LIST
