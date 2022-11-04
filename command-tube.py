@@ -5168,6 +5168,11 @@ class TubeRunner():
         # copy done list to the 'tube' that contains the whole sub command list
         command_done_list = self.tube.tube_run.copy()
         self.tube.tube_run_all.extend(command_done_list)
+        status = calculate_success_failed_for_tube(command_done_list)
+
+        # if current loop failed then stop the tube running
+        if status == Storage.I.C_FAILED:
+            self.tube.is_broke = True
             
         # clear tube run
         self.tube.tube_run.clear()
@@ -5181,14 +5186,14 @@ class TubeRunner():
             
         # run again?
         self.tube.is_continued = False
-        if (while_condition and not self.tube.each_ready and self.tube.is_broke == False) or \
-            (self.tube.each_ready and self.tube.__each_index__ < len(self.tube.each_ls) - 1):             
+        if not self.tube.is_broke and ((while_condition and not self.tube.each_ready) or \
+            (self.tube.each_ready and self.tube.__each_index__ < len(self.tube.each_ls) - 1)):             
             self.pre_command = None       
             self.tube.gen_tube_run()     
             self.start()
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
-            self.run_tube_command.log.status = calculate_success_failed_for_tube(command_done_list)
+            self.run_tube_command.log.status = status
             # clear each parameters
             if self.tube.each_ready:
                 self.tube.clear_each()               

@@ -154,5 +154,7 @@ TODO LIST
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2
         3. If the 'COMMAND' tube command has user prompt questions, the user can't see the question - fixed 2.0.2
+        4. If one tube interation failed the tube continue run next, the tube should stopped running
+           once one interation failed. -- fixed 2.0.2
 
 
