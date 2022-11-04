@@ -25,5 +25,5 @@ EachTube:
 
 BrokeTube:
     - PRINT: {i}
-    - COMMAND: ls2 --if i == 1
+    - COMMAND: ls2 --if i == 1 --note this command will fail and break the tube
     - PRINT: PROGRAM SHOULD NOT RUN THIS COMMAND --key
