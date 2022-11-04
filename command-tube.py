@@ -724,7 +724,7 @@ Use 'help vars' to print all the given tube variables;
             },
             self.C_SET_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
-                self.C_ALIAS: {'SET_VAR'},
+                self.C_ALIAS: {'SET_VAR', 'SET'},
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
                         'Assign variable value with format: var_name = expression, var_name["keyword"] = expression or var_name[index] = expression; \
@@ -1689,7 +1689,7 @@ class reUtility():
         '''
         To see if match 'x["key"] = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+[\[]{1}["]{1}[a-zA-Z_0-9]+["]{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9]+[\[]{1}["|\']{1}[a-zA-Z_0-9]+["|\']{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
     
