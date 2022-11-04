@@ -3,13 +3,15 @@ TUBE:
     - RUN_TUBE: SubTube -v x=100, y='Hello World' -w {i} < 2
     - SET_VARIABLE: students = ['Mac', 'Janine']
     - RUN_TUBE: EachTube --each i,s in students
+    - SET_VARIABLE: ls = [1,2]
+    - RUN_TUBE: BrokeTube --each i in ls --continue
     - PRINT: success
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==5
-    - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=5
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==5
+    - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==6 --key
+    - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=6
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6
 
 SubTube:
     - SET_VARIABLE: -n i -v {i} + 1 -g
@@ -20,3 +22,8 @@ SubTube:
 EachTube:
     - PRINT: >
         {i} {s}
+
+BrokeTube:
+    - PRINT: {i}
+    - COMMAND: ls2 --if i == 1
+    - PRINT: PROGRAM SHOULD NOT RUN THIS COMMAND --key
