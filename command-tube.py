@@ -4885,7 +4885,7 @@ class TubeCommand():
                     ret_value = ret_value.replace(item, str(ph_value))
                 except Exception as e:
                     if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                        msg = 'str(e)'
+                        msg = str(e)
                         tprint(msg, type=Storage.I.C_RUN_MODE_DEBUG)  
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
