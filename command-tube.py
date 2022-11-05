@@ -4815,13 +4815,11 @@ class TubeCommand():
             # if key is in dict then we are simple           
             if ph_key in tempDict.keys():
                 ph_value = item.format_map(tempDict)
-                if ph_format:
-                    ph_value = ('{0' + ph_format + '}').format(ph_value)
                 ret_value = ret_value.replace(item, str(ph_value))
             else:
                 # if the key is not in the dict, then we use the eval method to
                 # evaluate name, name[0], name['key'] etc cases
-                # TODO: we need to get the name
+                # THINK?: Do we need to get the name, value exactly like in the set_var command?
                 try:
                     ph_value = eval(ph_key, globals(), tempDict)
                     if ph_format:
@@ -5117,7 +5115,7 @@ class Tube():
         StorageUtility.reset_max_tube_command_type_length(tube_run_new)
         self.tube_run = tube_run_new
 
-    def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=False) -> bool:
+    def update_key_value(self, key, value, is_force=False, is_readonly=False, is_override=True) -> bool:
         '''
         Update key-value in current tube only
         '''
@@ -5272,8 +5270,8 @@ class TubeRunner():
                 # update each index, item for tube local variable
                 self.tube.__each_index__ = self.tube.tube_run_times - 1
                 if self.tube.each_index_name:
-                    self.tube.update_key_value(self.tube.each_index_name, self.tube.__each_index__, is_force=True)
-                self.tube.update_key_value(self.tube.each_item_name, self.tube.each_ls[self.tube.__each_index__], is_force=True)
+                    self.tube.update_key_value(self.tube.each_index_name, self.tube.__each_index__)
+                self.tube.update_key_value(self.tube.each_item_name, self.tube.each_ls[self.tube.__each_index__])
         
         # Loop each command within the tube and run it    
         command: TubeCommand
