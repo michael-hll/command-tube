@@ -155,6 +155,8 @@ TODO LIST
     59. - set command supplirt multiple dimension list
           - set: ls[0][0] = expression
 
+    60. - --raw general argument was added to disable the placehodler specific command
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2
