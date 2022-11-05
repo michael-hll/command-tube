@@ -1544,13 +1544,14 @@ class Utility():
         elif reUtility.is_matched_assign_list_expresson(item):
             name_index = item[:item.index('=')].strip()
             value = item[item.index('=')+1:].strip()
+            indexes = []
+            matches = re.findall('[\[][0-9]+[\]]', name_index)
+            for match in matches:
+                indexes.append(int(match.strip('[').strip(']')))
             left_bracket_index = name_index.index('[')
-            right_bracket_index = name_index.index(']')
             name = name_index[:left_bracket_index].strip()
-            index = name_index[left_bracket_index + 1 : right_bracket_index]
 
-            return (name, int(index), value)
-
+            return (name, indexes, value)
         else:
             return (None, None)
 
@@ -1716,7 +1717,7 @@ class reUtility():
         '''
         To see if match 'x[index] = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+[\[]{1}[0-9]+[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9]+([\[][0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
 
@@ -3993,8 +3994,19 @@ class TubeCommand():
                 raise Exception('List doenot exist: {0}'.format(name))
             temp_value = temp_tube.KEY_VALUES_DICT[name]
             if type(temp_value) == list:
-                temp_value[index] = value
-                value = temp_value
+                if type(index) == int:
+                    temp_value[index] = value
+                    value = temp_value
+                elif type(index) == list:
+                    if len(index) == 1:
+                        temp_value[index[0]] = value
+                        value = temp_value
+                    elif len(index) == 2:
+                        temp_value[index[0]][index[1]] = value
+                        value = temp_value    
+                    elif len(index) == 3:
+                        temp_value[index[0]][index[1]][index[2]] = value
+                        value = temp_value 
             else:
                 raise Exception('Variable {0} value is not a list, the update was failed.'.format(name))
 
