@@ -5287,7 +5287,7 @@ class TubeRunner():
         # copy done list to the 'tube' that contains the whole sub command list
         command_done_list = self.tube.tube_run.copy()
         self.tube.tube_run_all.extend(command_done_list)
-        status = calculate_success_failed_for_tube(command_done_list)
+        status = calc_success_failed_for_tube(command_done_list)
 
         # if current loop failed then stop the tube running
         if status == Storage.I.C_FAILED:
@@ -6501,7 +6501,7 @@ def calculate_success_failed_details(is_for_email):
 
     return result
 
-def calculate_success_failed_for_tube(commands):
+def calc_success_failed_for_tube(commands):
     
     '''
     Get tube success or failed status
