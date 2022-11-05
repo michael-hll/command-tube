@@ -1694,7 +1694,14 @@ class Utility():
 
 class reUtility():
 
-    RE_MATCH_PLACEHOLDER = '{[a-zA-Z_0-9 ]+}|{[a-zA-Z_0-9 ]+:[^:]+}'
+    RE_MATCH_PLACEHOLDER = '[{]{1}[a-zA-Z_0-9 ]+[}]{1}' # {name}
+    RE_MATCH_PLACEHOLDER += '|[{]{1}[a-zA-Z_0-9 ]+:[^:]+[}]{1}' # {name:format}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\}' # {name[0]}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]:[^:]+}' # {name[0]:format}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\[[a-zA-Z_0-9]+\]}' # {name[0][1]}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\[[a-zA-Z_0-9]+\]:[^:]+}' # {name[0][1]:format}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[["|\']{1}[a-zA-Z_0-9]+["|\']{1}\]\}' # {name['key']}
+    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[["|\']{1}[a-zA-Z_0-9]+["|\']{1}\]:[^:]+}' # {name['key']:format}
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
@@ -4793,25 +4800,39 @@ class TubeCommand():
         
         # replace placeholders from tube commands        
         ret_value = value
-        tempDict = {}
+        tempDict = key_values
         matches = re.findall(reUtility.RE_MATCH_PLACEHOLDER, ret_value)
         # remove duplict items
         matches = list(dict.fromkeys(matches))
-        if len(matches) > 0:
-            # in the future we can remove this tempDict logic
-            # and directly used the key_values
-            # keep it here for some days to see if it the new 
-            # logic working well to directly using key_values
-            # tempDict = TDict(key_values)
-            tempDict = key_values
         for item in matches:
             ph_key = item.strip('{').strip('}').strip()
             ph_value = item
+            ph_format = ''
             if ':' in ph_key:
-                ph_key = ph_key[0:ph_key.index(':')].strip()
+                # with format case we need to extract format and key
+                ph_format = ph_key[ph_key.index(':'):]
+                ph_key = ph_key[0:ph_key.index(':')].strip()     
+            # if key is in dict then we are simple           
             if ph_key in tempDict.keys():
                 ph_value = item.format_map(tempDict)
-                ret_value = ret_value.replace(item, ph_value)
+                if ph_format:
+                    ph_value = ('{0' + ph_format + '}').format(ph_value)
+                ret_value = ret_value.replace(item, str(ph_value))
+            else:
+                # if the key is not in the dict, then we use the eval method to
+                # evaluate name, name[0], name['key'] etc cases
+                # TODO: we need to get the name
+                try:
+                    ph_value = eval(ph_key, globals(), tempDict)
+                    if ph_format:
+                        ph_value = ('{0' + ph_format + '}').format(ph_value)
+                    ret_value = ret_value.replace(item, str(ph_value))
+                except Exception as e:
+                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                        msg = 'str(e)'
+                        tprint(msg, type=Storage.I.C_RUN_MODE_DEBUG)  
+                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+
         return ret_value
 
     @classmethod
