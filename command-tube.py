@@ -1518,7 +1518,7 @@ class Utility():
         return value
 
     @classmethod
-    def split_assign_expression(self, item):
+    def split_assign_expression(self, item, command=None):
         '''
         Split equal expressions 'name = value or name["key"] = value'
         Return (name, value) or (name, key, value)
@@ -1545,9 +1545,11 @@ class Utility():
             name_index = item[:item.index('=')].strip()
             value = item[item.index('=')+1:].strip()
             indexes = []
-            matches = re.findall('[\[][0-9]+[\]]', name_index)
+            matches = re.findall('[\[][a-zA-Z0-9]+[\]]', name_index)
             for match in matches:
-                indexes.append(int(match.strip('[').strip(']')))
+                index_tmp = match.strip('[').strip(']')
+                index = Utility.eval_expression(index_tmp, command.tube)
+                indexes.append(int(index))
             left_bracket_index = name_index.index('[')
             name = name_index[:left_bracket_index].strip()
 
@@ -1634,7 +1636,7 @@ class Utility():
         Args:
 
         expression: the expression you want to eval
-        command: the tube command to trigger this eval
+        tube: the tube to trigger this eval
         var_name: this parameter is used to for the collections method
         '''
         if expression and type(expression) != str:
@@ -1717,7 +1719,7 @@ class reUtility():
         '''
         To see if match 'x[index] = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+([\[][0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9]+([\[][a-zA-Z_0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
 
@@ -3958,7 +3960,7 @@ class TubeCommand():
                 name, key, value = Utility.split_assign_expression(expression)
                 value = str(value)  
             elif reUtility.is_matched_assign_list_expresson(expression): 
-                name, index, value = Utility.split_assign_expression(expression)
+                name, index, value = Utility.split_assign_expression(expression, command=self)
                 value = str(value)                            
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
