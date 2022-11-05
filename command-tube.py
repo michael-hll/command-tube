@@ -125,6 +125,7 @@ class Storage():
         self.C_IF_PARAMETER            = '--if'
         self.C_KEY_PARAMETER           = '--key'
         self.C_NOTES_PARAMETER         = '--note'
+        self.C_PLACE_HOLDER            = '--raw'
         self.C_INDENTATION             = '    '
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) after command type means the command is run again.'
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
@@ -283,6 +284,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0:13s}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false. \
                                              \n{0:13s}With the \'--each\' parameters provided, {1} will iterate the list variable and run the sub-tube.' \
@@ -299,6 +301,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: False,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The command can break a tube\'s running.'
             },   
@@ -313,6 +316,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: False,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The command can continue a tube\'s running while it\'s in a loop.'
             },                 
@@ -339,6 +343,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print/Log the last N lines of given file.'                
             },
@@ -359,6 +364,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
             },
@@ -379,6 +385,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
             },
@@ -395,6 +402,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Append the content to the last line of the given text file.'                
             },
@@ -411,6 +419,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
             },
@@ -429,6 +438,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Insert a line before given line number. If line number doesnot exist then insert to the end.'                    
             },
@@ -447,6 +457,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sort a text file lines content.'                    
             },
@@ -463,6 +474,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Clear an existing text file or create a new empty file.'                
             },
@@ -477,6 +489,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create an empty file.'                
             },
@@ -497,6 +510,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable.'                
             },
@@ -513,6 +527,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete any files math the file name.'                
             },
@@ -529,6 +544,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Copy any files to target.'                
             },
@@ -545,6 +561,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Move any files to target.'                
             },
@@ -565,6 +582,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a directory exists.'                
             },
@@ -579,6 +597,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create a directory if it doesnot exist.'                
             },
@@ -597,6 +616,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete a directory and its sub-directories.'                
             },
@@ -621,6 +641,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Conditionally delete lines from a file.'
             },  
@@ -643,6 +664,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read one line by given line number, and save the line content to tube variable.'
             }, 
@@ -663,6 +685,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.'                    
             },    
@@ -681,6 +704,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update key-value file.'
             },
@@ -703,6 +727,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get XML file tag text value. \
                                            \nThe result will be stored into a tube variable and xpath will be used as the variable name.'
@@ -722,6 +747,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update XML file tag text using xpath.'
             },
@@ -755,6 +781,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
             },
@@ -773,6 +800,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete tube variables.'
             },
@@ -787,6 +815,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to switch your server connection.'
             },
@@ -801,6 +830,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to sent current progress via Email.'
             },
@@ -815,6 +845,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes/seconds.'
             },
@@ -829,6 +860,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Go to specific directory.'
             },
@@ -849,6 +881,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
                                            \nIt also supports to read key-value from Yaml file with simple type. \
@@ -869,6 +902,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent Email to someone with given subject and content.'
             },
@@ -883,6 +917,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The python commands you want to run. The original idea is to use it to import other python modules. \
                          \nThen you can use the newly imported module in set or condition expressions.'
@@ -900,6 +935,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run any Windows/MacOS terminal command.'
             },
@@ -916,6 +952,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a Linux command from the previous connected server.'                
             },
@@ -942,6 +979,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Count file lines number (-f) or Count tube command number by status (-t).' 
             },
@@ -958,6 +996,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to copy remote server file to local. \
                                            \nWhen copy multiple files using *.* then localpath must be a directory.'
@@ -975,6 +1014,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to put local file to remote server. \
                                            \nWhen copy multiple files using *.* then remotepath must be a directory.'
@@ -998,6 +1038,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if given characters exists from a file. Result was updated into a tube variable.'
             },
@@ -1018,6 +1059,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
@@ -1034,6 +1076,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
             },
@@ -1050,6 +1093,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
             },
@@ -1076,6 +1120,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file.'
             },
@@ -1102,6 +1147,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_REDO_PARAMETER: True,
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file.'
             },
@@ -1786,11 +1832,12 @@ class TubeCommandArgumentConfig():
     def __init__(self, type, config_dict) -> None:
         self.type = type
         self.tube_command_arguments = []
-        self.is_support_continue = True
-        self.is_support_redo = True
-        self.is_support_if_run = True
-        self.is_support_key = True  
-        self.is_support_notes = True      
+        self.is_support_continue = False
+        self.is_support_redo = False
+        self.is_support_if_run = False
+        self.is_support_key = False  
+        self.is_support_notes = False     
+        self.is_support_placeholder = False
         self.syntax = None        
         
         if self.type in config_dict.keys():
@@ -1799,7 +1846,8 @@ class TubeCommandArgumentConfig():
             self.is_support_redo = config_dict[self.type][Storage.I.C_REDO_PARAMETER]  
             self.is_support_if_run = config_dict[self.type][Storage.I.C_IF_PARAMETER] 
             self.is_support_key = config_dict[self.type][Storage.I.C_KEY_PARAMETER]         
-            self.is_support_notes = config_dict[self.type][Storage.I.C_NOTES_PARAMETER]         
+            self.is_support_notes = config_dict[self.type][Storage.I.C_NOTES_PARAMETER]  
+            self.is_support_placeholder = config_dict[self.type][Storage.I.C_PLACE_HOLDER]         
             self.__load_arguments(config_dict)
         
     def __load_arguments(self, config_dict):
@@ -1874,9 +1922,10 @@ class TubeArgumentParser(ArgumentParser):
             new_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, nargs='+', required=False)
         if argument_config.is_support_key:
             new_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
+        if argument_config.is_support_placeholder:
+            new_parser.add_argument(Storage.I.C_PLACE_HOLDER, dest='is_raw', action='store_true', default=False, required=False)
         if argument_config.is_support_notes:
-            new_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, nargs='+', required=False)
-        
+            new_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, nargs='+', required=False)        
         return new_parser
 
 class TubeCommand():
@@ -1911,6 +1960,7 @@ class TubeCommand():
         self.is_single_placeholder      = False
         self.has_placeholders           = False
         self.is_key_command             = False
+        self.is_raw                     = False
         self.results: list              = []       
         self.tube: Tube                 = None # The current command's tube container
         self.sub_tube: Tube             = None # The RUN_TUBE command points to the sub tube
@@ -2124,13 +2174,17 @@ class TubeCommand():
                     self.success_skip_steps = args.continue_steps[1]
                     self.is_success_skip = True
 
+        # check if --raw is set
+        if args.is_raw:
+            self.is_raw = True
+
         # analyze if parameter
         if args.if_run != None:
             self.if_run = Utility.eval_conditions(args.if_run, self) == True
               
         # check if it's key command to decide the tube result
         if args.key:
-            self.is_key_command = True
+            self.is_key_command = True        
         
     def check_if_key_command(self):
         '''
@@ -4355,6 +4409,10 @@ class TubeCommand():
             is_show_empty: When true the empty string will be formated to ''
             is_quoted_str: This is used for if/while conditions, with quoted string then the eval method could work correctly
         '''
+        # if in raw format then disable the placeholder
+        if self.is_raw:
+            return value
+
         # make sure the tube input are has value
         if tube == None:
             tube = self.tube
@@ -4887,6 +4945,8 @@ class TubeCommand():
             general_args += '[--if run] ' 
         if arg_config[Storage.I.C_KEY_PARAMETER]:
             general_args += '[--key] ' 
+        if arg_config[Storage.I.C_PLACE_HOLDER]:
+            general_args += '[--raw] '
         if arg_config[Storage.I.C_NOTES_PARAMETER]:
             general_args += '[--note note]' 
         syntax += general_args          
@@ -6750,6 +6810,7 @@ def init_arguments():
     general_command_parser.add_argument(Storage.I.C_REDO_PARAMETER, type=str, help=argparse.SUPPRESS, nargs='*')
     general_command_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, help=argparse.SUPPRESS, nargs='+')
     general_command_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
+    general_command_parser.add_argument(Storage.I.C_PLACE_HOLDER, dest='is_raw', action='store_true', default=False, required=False)
     general_command_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, help=argparse.SUPPRESS, nargs='+')
     
 def install_3rd_party_packages(args):
