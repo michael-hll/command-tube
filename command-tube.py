@@ -1741,7 +1741,7 @@ class Utility():
 class reUtility():
 
     # regular expression to match: {name}|{name:format}|{name[0/i]}|{name[0/i]:format}|{name["key"]}|{name["key"]:format}
-    RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\]{,2}|\[["|\'][a-zA-Z_0-9]+["|\']\])*(:[^:\{\}]+)?\})'
+    RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\]|\[[\"|\'][a-zA-Z_0-9]+[\"|\']\]){,2}(:[^:\{\}]+)?\})'
     P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
     
     @staticmethod
