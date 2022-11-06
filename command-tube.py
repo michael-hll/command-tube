@@ -1740,14 +1740,9 @@ class Utility():
 
 class reUtility():
 
-    RE_MATCH_PLACEHOLDER = '[{]{1}[a-zA-Z_0-9 ]+[}]{1}' # {name}
-    RE_MATCH_PLACEHOLDER += '|[{]{1}[a-zA-Z_0-9 ]+:[^:]+[}]{1}' # {name:format}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\}' # {name[0]}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]:[^:]+}' # {name[0]:format}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\[[a-zA-Z_0-9]+\]}' # {name[0][1]}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[[a-zA-Z_0-9]+\]\[[a-zA-Z_0-9]+\]:[^:]+}' # {name[0][1]:format}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[["|\']{1}[a-zA-Z_0-9]+["|\']{1}\]\}' # {name['key']}
-    RE_MATCH_PLACEHOLDER += '|\{[a-zA-Z_0-9]+\[["|\']{1}[a-zA-Z_0-9]+["|\']{1}\]:[^:]+}' # {name['key']:format}
+    # regular expression to match: {name}|{name:format}|{name[0/i]}|{name[0/i]:format}|{name["key"]}|{name["key"]:format}
+    RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\]{,2}|\[["|\'][a-zA-Z_0-9]+["|\']\])*(:[^:\{\}]+)?\})'
+    P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
@@ -4858,36 +4853,29 @@ class TubeCommand():
         
         # replace placeholders from tube commands        
         ret_value = value
-        tempDict = key_values
-        matches = re.findall(reUtility.RE_MATCH_PLACEHOLDER, ret_value)
-        # remove duplict items
-        matches = list(dict.fromkeys(matches))
-        for item in matches:
-            ph_key = item.strip('{').strip('}').strip()
-            ph_value = item
-            ph_format = ''
-            if ':' in ph_key:
-                # with format case we need to extract format and key
-                ph_format = ph_key[ph_key.index(':'):]
-                ph_key = ph_key[0:ph_key.index(':')].strip()     
+        matches = reUtility.P_PlaceHolder.findall(ret_value)
+        processed = set()
+        for t in matches:
+            match_str = t[0]
+            match_str_value = t[0]
+            var_name = t[1]
+            var_format = t[3]            
+
+            # don't do duplict processed
+            if match_str in processed:
+                continue
+            else:            
+                processed.add(match_str)
+    
             # if key is in dict then we are simple           
-            if ph_key in tempDict.keys():
-                ph_value = item.format_map(tempDict)
-                ret_value = ret_value.replace(item, str(ph_value))
-            else:
-                # if the key is not in the dict, then we use the eval method to
-                # evaluate name, name[0], name['key'] etc cases
-                # THINK?: Do we need to get the name, value exactly like in the set_var command?
-                try:
-                    ph_value = eval(ph_key, globals(), tempDict)
-                    if ph_format:
-                        ph_value = ('{0' + ph_format + '}').format(ph_value)
-                    ret_value = ret_value.replace(item, str(ph_value))
-                except Exception as e:
-                    if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                        msg = str(e)
-                        tprint(msg, type=Storage.I.C_RUN_MODE_DEBUG)  
-                        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+            if var_name in key_values.keys():
+                ph_key = match_str.strip('{').strip('}')
+                if ':' in ph_key:
+                    ph_key = ph_key[0:ph_key.index(':')]
+                match_str_value = eval(ph_key, globals(), key_values)
+                if var_format:
+                    match_str_value = ('{0' + var_format + '}').format(match_str_value)
+                ret_value = ret_value.replace(match_str, str(match_str_value))
 
         return ret_value
 
