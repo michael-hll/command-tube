@@ -5830,25 +5830,20 @@ class StorageUtility():
         '''
         if not variables:
             return
-        try:
-            variables = ' '.join(args.variables)
-            variables = TubeCommand.format_placeholders(variables)
-            key_value_list = variables.split(',')
-            for item in key_value_list:
-                item = item.strip().strip('\'').strip('"')
-                if not reUtility.is_matched_assign_expresson(item):
-                    raise Exception('The tube input variables have wrong format: {0}'.format(item))
-                key, value = Utility.split_assign_expression(item) 
-                value = Utility.eval_expression(value, tube=tube)               
-                StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
-                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                    msg = 'Read console variable: \'%s\', value: \'%s\' from console and set it to readonly.'                
-                    tprint(msg % (key, value), type=Storage.I.C_PRINT_TYPE_INFO)
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg % (key, value))                               
-        except Exception as e:
-            msg = 'Read variables from console exception: ' + str(e)
-            tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        variables = ' '.join(args.variables)
+        variables = TubeCommand.format_placeholders(variables)
+        key_value_list = variables.split(',')
+        for item in key_value_list:
+            item = item.strip().strip('\'').strip('"')
+            if not reUtility.is_matched_assign_expresson(item):
+                raise Exception('The tube input variables have wrong format: {0}'.format(item))
+            key, value = Utility.split_assign_expression(item) 
+            value = Utility.eval_expression(value, tube=tube)               
+            StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
+            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                msg = 'Read console variable: \'%s\', value: \'%s\' from console and set it to readonly.'                
+                tprint(msg % (key, value), type=Storage.I.C_PRINT_TYPE_INFO)
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg % (key, value))                              
 
     @classmethod
     def reset_colors(self):
