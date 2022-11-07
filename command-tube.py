@@ -4385,7 +4385,7 @@ class TubeCommand():
             lines = []
         for key in tube.KEY_VALUES_DICT.keys():
             for var in variables:
-                if var == '*' or var == '.' or var.upper() == key.upper():
+                if var == '*' or var == '.' or var == key:
                     # get value
                     value = str(tube.KEY_VALUES_DICT[key])
                     value = Utility.quoted_with_space_characters(value)
