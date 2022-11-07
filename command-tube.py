@@ -375,8 +375,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_POP'},
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                    [True, '-','--', 'str', '*', 'file', False, False, '', '',
                         'The text file name you want to pop.'],
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
+                        'The text file name you want to pop. It will override the file argument.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
                         'The tube variable name to store the line content result.'],  
                     [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
@@ -451,8 +453,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_SORT'},
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                    [True, '-','--', 'str', '*', 'file', False, False, '', '',
                         'The file you want to sort.'],
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
+                        'The file you want to sort. It will override file argument.'],
                     [False, '-n','--number', '', '', 'is_number', False, True, 'store_true', False,
                         'If sort file line content as numbers. Default No.'],
                     [False, '-s','--sort', 'str', 1, 'sort', False, False, '', '',
@@ -470,8 +474,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_EMPTY'},
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
-                        'The text file name you want to empty.'],      
+                    [True, '-','--', 'str', '*', 'file', False, False, '', '',
+                        'The text file name you want to empty.'],     
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
+                        'The text file name you want to empty. It will override the file argument.'], 
                     [False, '-c','--create', '', '', 'is_create', False, True, 'store_true', False,
                         'If the give file doesnot exist if create a new empty file. Default No.'],         
                 ],
@@ -487,8 +493,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_CREATE'},
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
-                        'The text file name you want to create.'],            
+                    [True, '-','--', 'str', '*', 'file', False, False, '', '',
+                        'The text file name you want to create.'],      
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
+                        'The text file name you want to create. It will override the file argument.'],      
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -525,8 +533,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_DELETE', 'F_DEL'},
                 self.C_ARG_ARGS: [        
-                    [True, '-','--', 'str', 1, 'file', True, False, '', '',
+                    [True, '-','--', 'str', '*', 'file', False, False, '', '',
                         'The file name you want to delete.'], 
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
+                        'The text file name you want to delete. It will override the file argument.'],
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted files result.'],                   
                 ],
@@ -2938,7 +2948,10 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file = ' '.join(args.file)
+        if args.file:
+            file = ' '.join(args.file)
+        if args.afile:
+            file = ' '.join(args.afile)
         if args.variable:
             var = ' '.join(args.variable)
             # replace placeholders 
@@ -2950,9 +2963,9 @@ class TubeCommand():
 
         is_global = args.is_global
         is_force = args.is_force
-        
-        # replace placeholders 
-        file = self.self_format_placeholders(file)        
+
+        if not file:
+            raise Exception('\'file\' argument was not provided.')       
         
         pop_line = None
         if os.path.exists(file):
@@ -3118,11 +3131,17 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
-        file = ' '.join(args.file)
+        if args.file:
+            file = ' '.join(args.file)
+        if args.afile:
+            file = ' '.join(args.afile)
         if args.sort:
             is_sort_desc = True if args.sort[0].upper() == 'DESC' else False 
         if args.is_number:
             is_number = True
+
+        if not file:
+            raise Exception('\'file\' argument was not provided.') 
         
         if os.path.exists(file):
             
@@ -3176,8 +3195,15 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file = ' '.join(args.file)
+        if args.file:
+            file = ' '.join(args.file)
+        if args.afile:
+            file = ' '.join(args.afile)
+
         is_create = args.is_create
+
+        if not file:
+            raise Exception('\'file\' argument was not provided.') 
                  
         msg = ''
         if os.path.exists(file):            
@@ -3205,7 +3231,13 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file = ' '.join(args.file)
+        if args.file:
+            file = ' '.join(args.file)
+        if args.afile:
+            file = ' '.join(args.afile)
+        
+        if not file:
+            raise Exception('\'file\' argument was not provided.')
                  
         msg = ''
         if not os.path.exists(file):            
@@ -3277,10 +3309,16 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        file = ' '.join(args.file)
+        if args.file:
+            file = ' '.join(args.file)
+        if args.afile:
+            file = ' '.join(args.afile)
         result = None
         if args.result:
             result = ' '.join(args.result)
+        
+        if not file:
+            raise Exception('\'file\' argument was not provided.')
           
         count = 0   
         deleted_files = [] 
