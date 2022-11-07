@@ -333,7 +333,7 @@ Use 'help vars' to print all the given tube variables;
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the tail result.'],    
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
-                        'The tube variable name to store the tail result.'],
+                        'The tube variable name to store the tail result as lines.'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -499,8 +499,10 @@ Use 'help vars' to print all the given tube variables;
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file name you want to read its whole content.'],
-                    [False, '-v','--variable', 'str', 1, 'variable', True, False, '', '',
-                        'The tube variable name to store the read result.'],
+                    [False, '-c','--content', 'str', 1, 'content', False, False, '', '',
+                        'The tube variable name to store the file content.'],
+                    [False, '-l','--lines', 'str', 1, 'lines', False, False, '', '',
+                        'The tube variable name to store the file content as lines.'],   
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -512,7 +514,7 @@ Use 'help vars' to print all the given tube variables;
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable.'                
+                self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable. Doesn\'t include the new-line (\\n) char.'                
             },
             self.C_FILE_DELETE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -3213,30 +3215,45 @@ class TubeCommand():
         return True
 
     def file_read(self):
-        file, var = None, None
+        file, v_content, v_lines = None, None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
         file = ' '.join(args.file)
-        var = ' '.join(args.variable)
+        if args.content:
+            v_content = args.content[0]
+        if args.lines:
+            v_lines = args.lines[0]
         is_global = args.is_global
         is_force = args.is_force
+
+        if not v_content and not v_lines:
+            raise Exception('Missing --content or --lines argument.')
         
-        lines = []        
+        lines = [] 
+        content = ''       
         if os.path.exists(file):            
             # write lines back to text file
             with open(file, 'r') as f:                
                 for line in f.readlines():     
                     line = line.replace('\n', '')
-                    if line:             
+                    if line and v_lines:             
                         lines.append(line)
+                    if line and v_content:
+                        content += line
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
 
         # update tube variables dependantly
-        key_result = self.update_key_value(var, lines, is_force=is_force, is_global=is_global)
-        if key_result == False:
-            raise Exception('Update key-value failed: {0}:{1}'.format(var, lines))
+        if v_content:
+            key_result = self.update_key_value(v_content, content, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(v_content, content))
+
+        if v_lines:
+            key_result = self.update_key_value(v_lines, lines, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(v_lines, lines))
         
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'File content was read successfully: {0}'.format(file)

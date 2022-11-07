@@ -17,7 +17,7 @@ TUBE:
     - COUNT: -f file_sys/files_list.txt -v files_count
     - FILE_COPY: -s file_sys/files_list.txt -d file_sys/tmp2.txt 
     - FILE_MOVE: -s file_sys/tmp2.txt -d file_sys/tmp3.txt
-    - FILE_READ: -f file_sys/tmp3.txt -v read_content
+    - FILE_READ: -f file_sys/tmp3.txt -c read_content
     - PRINT_VARS: read_content
     - FILE_EMPTY: file_sys/tmp3.txt
     - COUNT: -f file_sys/tmp3.txt -v lines_count
