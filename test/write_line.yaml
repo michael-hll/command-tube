@@ -1,7 +1,6 @@
 ---
 RUN_MODE: DEBUG
 VARIABLES:
-    del: yes
     line_count: 0
 TUBE:
     #  WRITE_LINE_IN_FILE: -f file [-n line-number] [-c contains] -v value | $file

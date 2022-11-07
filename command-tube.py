@@ -39,6 +39,7 @@ import shutil
 from random import choice, randrange, paretovariate
 import threading
 import glob
+import keyword
 
 # -------- CLASSES --------------
 class Storage():
@@ -47,6 +48,7 @@ class Storage():
         Storage.I = self     
         # -------- CONSTANTS START --------
         self.C_CURR_VERSION            = '2.0.2 Beta'  
+        self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
         self.C_DATETIME_FORMAT         = '%Y-%m-%d %H:%M:%S'
@@ -5580,6 +5582,10 @@ class StorageUtility():
         # return for None or empty key
         if not key or not tube:
             return False
+
+        # skip keywords cases
+        if key in Storage.I.C_KEYWORDS:
+            raise Exception(f'Keyword \'{key}\' is not allowed to used in variable name. The full keywords list are: {Storage.I.C_KEYWORDS}.')
         
         # check value is None
         if value == None:
