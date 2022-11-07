@@ -131,17 +131,20 @@ class Storage():
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
         self.C_DESC_NEW_LINE_SPACE     = '             '
         self.C_ALIAS                   = 'ALIAS'
-        self.C_HELP                    = '''Use 'help' command to view the whole help document;
-Use 'help commands [name]' to print all commands usages;
-Use 'help command-name [name|desc|syntax|parameters|support]' to print all the tube commands which name matched.
-Use 'help continue' to view the --continue syntax;
-Use 'help if' to view the --if syntax;
-use 'help key' to view the --key syntax;
-Use 'help redo' to view the --redo syntax;
-Use 'help template' to view the tube tempalte;
-Use 'help variable' to view the tube variables usage;
-Use 'help vars' to print all the given tube variables;
-        '''
+        self.C_HELP                    = '''Use optional 'args' argument you can get tube help or set the tube file name.
+    Input 'help commands [name]' to print all commands usages; With optional 'name' argument will only list command names.
+    Input 'help command-name [name|desc|syntax|parameters|support]' to print all the tube commands which name matched.
+    Input 'help general-arg-name' to print the general argument usage:
+        'help continue' to view the --continue syntax;
+        'help redo' to view the --redo syntax;
+        'help if' to view the --if syntax;
+        'help key' to view the --key syntax;
+        'help raw' to view the --raw syntax;
+        'help note' to view the --note syntax;
+    Input 'help template' to view the tube tempalte;
+    Input 'help variable' to view the tube variables usage;
+    Input 'help vars' to print all the given tube variables;
+    Input 'tube-yaml-file' to override the --tube argument value.'''
         # Server used
         self.C_SERVERS                 = 'SERVERS'
         self.C_SERVER                  = 'SERVER'
@@ -6807,7 +6810,7 @@ def init_arguments():
                               '\nUsually you don\'t need to provide this parameter value, \nexcept in Windows system, it\'s not pip and in MacOS, it\'s not pip3.')                                                    
     parser.add_argument('--version', action='version', version=Storage.I.C_CURR_VERSION,
                         help='Print current version.')  
-    parser.add_argument('help', type=str, nargs='*', 
+    parser.add_argument('args', type=str, nargs='*', 
                          help=Storage.I.C_HELP)     
 
     # general_command_parser is used to analyze the COMMAND or LINUX_COMMAND arguments
@@ -6894,11 +6897,13 @@ def disconect_all_hosts(hosts):
     except Exception as e:
         tprint('DISCONECT ALL HOSTS EXCEPTION: ' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
-def print_tube_command_help(parser: ArgumentParser):
+def print_tube_command_help(args):
     try:   
-        args = parser.parse_args()    
-        if(args.help):
-            if(len(args.help) >= 1 and len(args.help) <= 3 and args.help[0].upper() == 'HELP'):
+        if not args:
+            return  
+        found_match = False
+        if(args.args):
+            if(len(args.args) >= 1 and len(args.args) <= 3 and args.args[0].upper() == 'HELP'):
                 add_notes = Storage.I.C_PROGRAM_NAME + '=' + Storage.I.C_CURR_VERSION
                 help_redo = '''
         Redo: 
@@ -6958,6 +6963,18 @@ def print_tube_command_help(parser: ArgumentParser):
                 key commands exist, only all of them run successfully, the tube result will be 
                 marked as successfull. (If the command's --if condition is False, then --key
                 will be skipped.)
+                '''
+                help_raw='''
+        Raw:
+            Syntax: --raw
+            Description:
+                The flag can disable the command placeholder logic.
+                '''
+                help_note='''
+        Note:
+            Syntax: --note
+            Description:
+                Add a note to the command.
                 '''
                 help_var = '''
     - Tube Variables  
@@ -7074,16 +7091,20 @@ def print_tube_command_help(parser: ArgumentParser):
     
 ## General Arguments & Tube Variables
     - General Arguments
-        Description: All tube commands support additional --redo, --continue, 
-                 --key and --if paramters. It could make your tube realize
+        Description: Most of tube commands support additional --continue, --redo,
+                 --key, --if, --raw and --note general arguments. It could make your tube realize
                  more complex flow.         
 %s
 %s
 %s
 %s
 %s
+%s
+%s
                 '''
-                help_all = help_all % (help_title, help_continue, help_redo, help_if, help_key, help_var)
+                help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
+                            help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
+                            help_raw.replace('\n', '', 1), help_note.replace('\n', '', 1), help_var)
                 
                 template = '''
 Version: 2.0.x            
@@ -7178,10 +7199,10 @@ Tube:
                 command_name = ''
                 command_arg = ''
                 # get the second argument value
-                if len(args.help) >= 2:
-                    command_name = args.help[1]
-                if len(args.help) >= 3:
-                    command_arg = args.help[2]
+                if len(args.args) >= 2:
+                    command_name = args.args[1]
+                if len(args.args) >= 3:
+                    command_arg = args.args[2]
                 
                 # check if help readme
                 is_for_readme = False
@@ -7212,9 +7233,7 @@ Tube:
                     else:
                         command_examples.append('Support from version: %s</pre>' % Storage.I.TUBE_ARGS_CONFIG[key][Storage.I.C_SUPPORT_FROM_VERSION])                    
                         
-                # End of prepare examples of each command  
-                
-                found_match = False
+                # End of prepare examples of each command 
                 if command_name == '' or command_name.upper() == 'ALL':
                     # print all help
                     tprint(help_all ,prefix='')
@@ -7257,7 +7276,7 @@ Tube:
                     # print all tube variables
                     found_match = True
                     if not args.yaml_config:
-                        tprint('-y/--yaml aragument is not passed.', type=Storage.I.C_PRINT_TYPE_WARNING)
+                        tprint('-t/--tube aragument is not passed.', type=Storage.I.C_PRINT_TYPE_WARNING)
                         sys.exit()
                     yaml_file = args.yaml_config
                     exists, yaml_file = Utility.check_file_exists(yaml_file, '.yaml', '.yml')
@@ -7293,19 +7312,25 @@ Tube:
                         tprint('Read variables from yaml file errors:' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
                         sys.exit()
                 elif command_name.upper() == 'CONTINUE':
-                    print(help_continue)
+                    print(help_continue.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'REDO':
-                    print(help_redo)
+                    print(help_redo.replace('\n','',1))
                     sys.exit()
                 elif command_name.upper() == 'IF':
-                    print(help_if)
+                    print(help_if.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'KEY':
-                    print(help_key)
+                    print(help_key.replace('\n', '', 1))
+                    sys.exit()
+                elif command_name.upper() == 'RAW':
+                    print(help_raw.replace('\n', '', 1))
+                    sys.exit()
+                elif command_name.upper() == 'NOTE':
+                    print(help_note.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'VARIABLE':
-                    print(help_var)
+                    print(help_var.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'README':
                     with open('README.md', 'w') as f:
@@ -7340,15 +7365,24 @@ Tube:
                 # found nothing match from help system
                 # then raise error
                 if found_match == False:                    
-                    tprint('The command: %s doesnot found matched.' % (command_name), type=Storage.I.C_PRINT_TYPE_WARNING)
+                    tprint('The argument: \'%s\' doesnot found matched.' % (command_name), type=Storage.I.C_PRINT_TYPE_WARNING)
                     tprint(Storage.I.C_HELP ,prefix='')
-                
-            else:
-                # help arguments count is not correct or not equal to HELP
-                tprint(Storage.I.C_HELP ,prefix='')
-                tprint('You entered value for help system: ' + str(args.help), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                    
+                sys.exit()
 
-            sys.exit()
+            elif(len(args.args) == 1):
+                exists, yaml_file = Utility.check_file_exists(args.args[0], '.yaml', '.yml')
+                if exists:
+                    found_match = True
+                    args.yaml_config = args.args[0]
+            
+            # check positional argument result
+            if not found_match:
+                # return if positional argument not matched
+                tprint(Storage.I.C_HELP ,prefix='')
+                tprint('You entered value for position arguments: ' + str(args.args), tcolor=Storage.I.C_PRINT_COLOR_YELLOW)
+                sys.exit()
+
     except argparse.ArgumentError as e:    
         tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
         sys.exit()        
@@ -7513,6 +7547,7 @@ general_command_parser = ArgumentParser(allow_abbrev=False)
 init_arguments()   
 
 # parse user inputs arguments from console
+args = None
 try:
     args = parser.parse_args()
     get_console_inputs()
@@ -7535,7 +7570,7 @@ import requests
 import yaml 
 
 # check help document system
-print_tube_command_help(parser)
+print_tube_command_help(args)
 
 # ------------------------------------------------------------
 # check input yaml/yml tube file
