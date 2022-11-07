@@ -608,7 +608,7 @@ class Storage():
                 self.C_ALIAS: {'D_CREATE'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', 1, 'directory', True, False, '', '',
-                        'The directory you want to check.'],                  
+                        'The directory you want to create.'],                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -4934,10 +4934,13 @@ class TubeCommand():
                 ph_key = match_str.strip('{').strip('}')
                 if ':' in ph_key:
                     ph_key = ph_key[0:ph_key.index(':')]
-                match_str_value = eval(ph_key, globals(), key_values)
+                if not '[' in ph_key:
+                    match_str_value = key_values[ph_key]
+                else:
+                    match_str_value = eval(ph_key, globals(), key_values)
                 if var_format:
                     match_str_value = ('{0' + var_format + '}').format(match_str_value)
-                ret_value = ret_value.replace(match_str, str(match_str_value))
+                ret_value = ret_value.replace(match_str, str(match_str_value))                
 
         return ret_value
 
