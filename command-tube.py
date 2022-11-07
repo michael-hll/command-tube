@@ -379,6 +379,8 @@ class Storage():
                         'The text file name you want to pop.'],
                     [False, '-v','--variable', 'str', 1, 'variable', False, False, '', '',
                         'The tube variable name to store the line content result.'],  
+                    [False, '-n','--number', 'str', 1, 'number', False, False, '', '',
+                        'The line number you want to pop. Default 1 to pop the first line.'],  
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -390,7 +392,7 @@ class Storage():
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Pop the first line of the given text file. If there is no line there then store empty.'                
+                self.C_COMMAND_DESCRIPTION: 'Pop one line of the given text file. If there is no line there then store empty.'                
             },
             self.C_FILE_APPEND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -2557,7 +2559,7 @@ class TubeCommand():
         
         # if didn't found any conditions then delete nothing
         if line_begins == '' and line_contains == '' and not delete_empty and line_number == None:
-            raise Exception('No parameters found: -c, -b or -e')  
+            raise Exception('No parameters found: -n, -c, -b or -e')  
             
         if os.path.exists(file):
             lines = []
@@ -2932,7 +2934,7 @@ class TubeCommand():
         return True
     
     def file_pop(self):
-        file, var = None, None
+        file, var, number = None, None, 0
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
@@ -2941,6 +2943,10 @@ class TubeCommand():
             var = ' '.join(args.variable)
             # replace placeholders 
             var = self.self_format_placeholders(var)
+        if args.number:
+            number = int(args.number[0])
+            if number > 0:
+                number = number - 1
 
         is_global = args.is_global
         is_force = args.is_force
@@ -2956,7 +2962,7 @@ class TubeCommand():
             with open(file,'r') as f:
                 lines = f.readlines()
                 if len(lines) > 0:
-                    pop_line = lines.pop(0).replace('\n', '')
+                    pop_line = lines.pop(number).replace('\n', '')
             
             # write lines back to text file
             with open(file, 'w') as f:
