@@ -131,7 +131,8 @@ class Storage():
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
         self.C_DESC_NEW_LINE_SPACE     = '             '
         self.C_ALIAS                   = 'ALIAS'
-        self.C_HELP                    = '''Use optional 'args' argument you can get tube help or set the tube file name.
+        self.C_HELP                    = '''Use optional 'args' argument you can set the tube file name or get tube help.
+    Input 'tube-yaml-file' to override the --tube argument value.
     Input 'help commands [name]' to print all commands usages; With optional 'name' argument will only list command names.
     Input 'help command-name [name|desc|syntax|parameters|support]' to print all the tube commands which name matched.
     Input 'help general-arg-name' to print the general argument usage:
@@ -143,8 +144,7 @@ class Storage():
         'help note' to view the --note syntax;
     Input 'help template' to view the tube tempalte;
     Input 'help variable' to view the tube variables usage;
-    Input 'help vars' to print all the given tube variables;
-    Input 'tube-yaml-file' to override the --tube argument value.'''
+    Input 'help vars' to print all the given tube variables;'''
         # Server used
         self.C_SERVERS                 = 'SERVERS'
         self.C_SERVER                  = 'SERVER'
