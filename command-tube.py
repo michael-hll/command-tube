@@ -1969,7 +1969,9 @@ class TubeCommand():
         # Private properties
         self.__original_content2   = None # content without place holders  
         
-        # return if content is empty
+        # check None/empty content
+        if self.content == None:
+            self.content = ''
         if not self.content and self.command_type != Storage.I.C_BREAK and \
                 self.command_type != Storage.I.C_CONTINUE:
             self.has_content = False
@@ -2116,10 +2118,6 @@ class TubeCommand():
         else:
             self.content = ''
             self.redo_content = ''
-
-        # check command content
-        if not self.content:
-            self.has_content = False
         
         # reset to initial
         self.is_failed_continue = False
@@ -5618,7 +5616,7 @@ class StorageUtility():
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 continue
                         
-            if command.content == None:
+            if not command.has_content:
                 msg = 'Command: %s is empty.' % command.cmd_type
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
                 errors_return.append(msg)            
