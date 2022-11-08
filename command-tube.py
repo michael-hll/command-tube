@@ -2757,6 +2757,9 @@ class TubeCommand():
             count = args.count[0]
         is_global = args.is_global
         is_force = args.is_force
+
+        if not directory:
+            raise Exception('-f|--file or -d|--directory argument is missing.')
     
         if args.sort:
             if len(args.sort) == 1:
