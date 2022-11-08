@@ -277,11 +277,11 @@ class Storage():
                          \n{0}        - \'file[X]\': Run tube X from file.yaml file. \
                          \n{0}        - \'X\': Run tube X from the current yaml file.'.format(Storage.I.C_DESC_NEW_LINE_SPACE)],    
                     [False, '-v','--variables', 'str', '+', 'variables', False, False, '', '',
-                        'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = 2'], 
+                        'Pass local variable key values to sub tube. format: -v v1 = 1, v2 = \'Command Tube\''], 
                     [False, '-w','--while', 'str', '+', 'conditions', False, False, '', '',
-                        'Set the while condtions to run the tube.'],  
+                        'Set the while condtions to run the tube: --while <eval-expression-condition>'],  
                     [False, '-e','--each', 'str', '+', 'each', False, False, '', '',
-                        'Set the foreach loop arguments with format: [index_name,] item_name in list_name'],
+                        'Set the foreach loop arguments with format: --each [index_name,] item_name in list_name'],
                     [False, '-f','--for', 'str', '+', 'each', False, False, '', '',
                         'The alias of --each argument.'],                      
                 ],
@@ -776,6 +776,7 @@ class Storage():
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
                         'Assign variable value with format: var_name = expression, var_name["keyword"] = expression or var_name[index] = expression; \
+                         \n{0:18s}You can also use operator +=, *=, /+ to make the assignment eaiser: i += 1, i += -1 etc;  \
                          \n{0:18s}Or you can use --name, --keyword, --index, --value arguments to set the variable value explicitly.'.format(' ')],     
                     [False, '-n','--name', 'str', 1, 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
@@ -785,7 +786,7 @@ class Storage():
                         'If update a list type variable, this --index value is to set list index.'],
                     [False, '-v','--value', 'str', '*', 'value', False, False, '', '',
                         'The tube variable value you want to set. \n  \
-                Note: The \'eval(expression)\' is also supported, eg: \n \
+                Note: The backend is using \'eval(expression)\' so you can do more things, eg: \n \
                     - set_var: -n dayOfWeek -v datetime.today().weekday() # Tube variable dayOfWeek will be set to weekday() value. \n \
                     - set_var: ls = [1,2,3] # Tube variable ls was updated to list value: [1,2,3]. \n \
                     - set_var: ls = ls.append(4) # Tube variable ls appended value 4 to its end: [1,2,3,4].'],
@@ -794,7 +795,11 @@ class Storage():
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the varialbe is readonly. Default no. [2.0.2]'],
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
-                        'If set the variable to global (Main TUBE). Within a sub-tube, it will default set the value within the sub tube scope. Default no. [2.0.2]'],
+                        'If set the variable to global (Main TUBE).\n \
+                 With this flag, it will try to find the first variable from current and its parent tube chain that mathes the input variable name, and update its value. \n \
+                 If found nothing then the variable will be updated in the main tube. \n \
+                 Without this flag, it will update the variable in current tube. \n \
+                 Default no. [2.0.2]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1106,7 +1111,7 @@ class Storage():
                     [True, '-','--', 'str', '+', 'message', True, False, '', '',
                         'The message you want to print in the terminal.'],
                     [False, '-c','--color', 'str', 1, 'color', False, False, '', '',
-                        'The message color you want to use.'],  
+                        'The message color you want to use. You can use color name \'red\' or FF0000 to set the color value.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
