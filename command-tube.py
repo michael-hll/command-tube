@@ -1120,8 +1120,10 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'LIST_F'},
                 self.C_ARG_ARGS: [      
-                    [False, '-d','--dir', 'str', 1, 'directory', True, False, '', '',  
+                    [False, '-d','--dir', 'str', 1, 'directory', False, False, '', '',  
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
+                    [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',  
+                        'The files name you want to list. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
@@ -2743,7 +2745,10 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(inputs.split())
-        directory = ' '.join(args.directory)
+        if args.directory:
+            directory = ' '.join(args.directory)
+        if args.afile:
+            directory = ' '.join(args.afile)
         if args.result:
             result = ' '.join(args.result)
         if args.variable:
