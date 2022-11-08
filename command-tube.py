@@ -554,9 +554,9 @@ class Storage():
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'F_COPY', 'F_CP'},
                 self.C_ARG_ARGS: [        
-                    [False, '-s','--src', 'str', '+', 'src', True, False, '', '',
+                    [False, '-s|-f','--src|--from', 'str', '+', 'src', True, False, '', '',
                         'The source file name you want to copy.'],  
-                    [False, '-d','--dest', 'str', '+', 'dest', True, False, '', '',
+                    [False, '-d|-t','--dest|--to', 'str', '+', 'dest', True, False, '', '',
                         'The target file or folder'],                  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -1853,6 +1853,17 @@ class TubeCommandArgument():
         self.has_action = False
         self.action = None
         self.default = None
+        self.flags = []
+    
+    def gen_flags(self):
+        if self.short_flag and self.short_flag != '-':
+            flags = self.short_flag.split('|')
+            for flag in flags:
+                self.flags.append(flag)
+        if self.long_flag and self.long_flag != '--':
+            flags = self.long_flag.split('|')
+            for flag in flags:
+                self.flags.append(flag)
 
 class TubeCommandArgumentConfig():
         
@@ -1892,6 +1903,7 @@ class TubeCommandArgumentConfig():
                 argument.has_action = item[7]
                 argument.action     = item[8]
                 argument.default    = item[9]
+                argument.gen_flags()
                 self.tube_command_arguments.append(argument)
 
 class TubeArgumentParser(ArgumentParser):  
@@ -1921,24 +1933,15 @@ class TubeArgumentParser(ArgumentParser):
         for argument in argument_config.tube_command_arguments:
             if argument.is_inputs:   
                 # position arguments             
-                new_parser.add_argument(argument.dest,
-                                         type=type(argument.type),
-                                         nargs=argument.nargs)
+                new_parser.add_argument(argument.dest, type=type(argument.type), nargs=argument.nargs)
             else:
                 # optional arguments
                 if not argument.has_action:
                     # without action
-                    if argument.short_flag == '-':
-                        new_parser.add_argument(argument.long_flag, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
-                    else:
-                        new_parser.add_argument(argument.short_flag, argument.long_flag, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
+                    new_parser.add_argument(*argument.flags, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
                 else:
                     # store value to action
-                    if argument.short_flag == '-':
-                        new_parser.add_argument(argument.long_flag, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
-                    else:
-                        new_parser.add_argument(argument.short_flag, argument.long_flag, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
-
+                    new_parser.add_argument(*argument.flags, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
 
         # check general arguments
         if argument_config.is_support_continue:
@@ -5062,7 +5065,7 @@ class TubeCommand():
                 if arg[1] == '-':
                     parameters += format_str.format(indentation + arg[2] + ':', arg[len(arg) - 1] + '\n')
                 else:
-                    parameters += format_str.format(indentation + arg[1] + '/' + arg[2] + ':', arg[len(arg) - 1] + '\n')
+                    parameters += format_str.format(indentation + arg[1] + '|' + arg[2] + ':', arg[len(arg) - 1] + '\n')
             else:
                 parameters += format_str.format(indentation + arg[5] + ':', arg[len(arg) - 1] + '\n')                
             
