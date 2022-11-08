@@ -161,6 +161,9 @@ TODO LIST
 
     62. - Tube variable name can't use the python keywords
 
+    63. - set_var: support assign plus expression
+            eg: - set: x += 1
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2

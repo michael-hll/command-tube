@@ -1762,6 +1762,10 @@ class reUtility():
     # regular expression to match: {name}|{name:format}|{name[0/i]}|{name[0/i]:format}|{name["key"]}|{name["key"]:format}
     RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\]|\[[\"|\'][a-zA-Z_0-9]+[\"|\']\]){,2}(:[^:\{\}]+)?\})'
     P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
+
+    # 1 = key, 2 = list index: [0][0], 5 = dict key, 6 = operator: +, -, *, /  7 = value
+    RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\*\/]{1})\=[ ]?([^\=]+))'
+    P_AssignPlus: re.Pattern = re.compile(RE_MATCH_ASSIGN_PLUS)
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
@@ -1773,7 +1777,7 @@ class reUtility():
         return prog.fullmatch(input_value) != None
     
     @staticmethod
-    def is_matched_assign_dict_expresson(input_value):
+    def is_matched_assign_dict_expresson(input_value: str):
         '''
         To see if match 'x["key"] = y' expression 
         '''
@@ -1782,7 +1786,7 @@ class reUtility():
         return prog.fullmatch(input_value) != None
     
     @staticmethod
-    def is_matched_assign_list_expresson(input_value):
+    def is_matched_assign_list_expresson(input_value: str):
         '''
         To see if match 'x[index] = y' expression 
         '''
@@ -1791,7 +1795,14 @@ class reUtility():
         return prog.fullmatch(input_value) != None
 
     @staticmethod
-    def is_matched_each_item_expresson(input_value):
+    def is_matched_assign_plus_expression(input_value: str):
+        '''
+        To see if match 'x += 1' expression
+        '''
+        return reUtility.P_AssignPlus.fullmatch(input_value) != None
+
+    @staticmethod
+    def is_matched_each_item_expresson(input_value: str):
         '''
         To see if match 'item in ls' expression 
         '''
@@ -1800,7 +1811,7 @@ class reUtility():
         return prog.fullmatch(input_value) != None
     
     @staticmethod
-    def is_matched_each_index_item_expresson(input_value):
+    def is_matched_each_index_item_expresson(input_value: str):
         '''
         To see if match 'index, item in ls' expression 
         '''
@@ -1809,7 +1820,7 @@ class reUtility():
         return prog.fullmatch(input_value) != None
 
     @staticmethod
-    def is_matched_int(input_value):
+    def is_matched_int(input_value: str):
         '''
         To see if match int value
         '''
@@ -1818,7 +1829,7 @@ class reUtility():
         return prog.fullmatch(input_value) != None
     
     @staticmethod
-    def is_matched_float(input_value):
+    def is_matched_float(input_value: str):
         '''
         To see if match float value
         '''
@@ -4071,6 +4082,17 @@ class TubeCommand():
         # check if expressions given
         if args.expression:
             expression = ' '.join(args.expression)
+            # rebuild assign plus case expression
+            if reUtility.is_matched_assign_plus_expression(expression):
+                f_result = reUtility.P_AssignPlus.findall(expression)[0]                        
+                var_name = f_result[1]
+                if f_result[2]:
+                    var_name += f_result[2]
+                if f_result[4]:
+                    var_name += f_result[4]
+                var_operator = f_result[6]
+                var_value = f_result[7]
+                expression = var_name + '=' + var_name + var_operator + var_value
             # to check if the expression match the expression v1 = a1
             if reUtility.is_matched_assign_expresson(expression):
                 # override the key, value from expression to the --name, --value arguements
@@ -4081,7 +4103,8 @@ class TubeCommand():
                 value = str(value)  
             elif reUtility.is_matched_assign_list_expresson(expression): 
                 name, index, value = Utility.split_assign_expression(expression, command=self)
-                value = str(value)                            
+                value = str(value)    
+            
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
 
