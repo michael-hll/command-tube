@@ -1706,7 +1706,7 @@ class Utility():
         tube: the tube to trigger this eval
         var_name: this parameter is used to for the collections method
         '''
-        if expression and type(expression) != str:
+        if expression != None and type(expression) != str:
             return expression
 
         # evalulate eval inputs
