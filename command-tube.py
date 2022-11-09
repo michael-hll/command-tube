@@ -1745,6 +1745,8 @@ class Utility():
             # In order to achieve the list, dict, set methods operations
             # we can use the local_dict value as the expression returns
             # Since most of the collections method don't return the collection itself
+            # then we can achieve this set method:
+            # - set: ls = ls.append('xxx')
             if var_name and var_name in local_dict.keys():
                 var_type = type(local_dict[var_name])
                 expression_type = type(expression)
