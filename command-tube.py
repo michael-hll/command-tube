@@ -1148,7 +1148,7 @@ class Storage():
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file.'
+                self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file or variable.'
             },
             self.C_LIST_DIRS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -1175,7 +1175,7 @@ class Storage():
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file.'
+                self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file or variable.'
             },
         }
 
