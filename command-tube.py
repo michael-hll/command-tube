@@ -1111,7 +1111,7 @@ class Storage():
                     [True, '-','--', 'str', '+', 'message', True, False, '', '',
                         'The message you want to print in the terminal.'],
                     [False, '-c','--color', 'str', 1, 'color', False, False, '', '',
-                        'The message color you want to use. You can use color name \'red\' or FF0000 to set the color value.'],  
+                        'The message color you want to use. You can use color name \'red\' or \'FF0000\' to set the color value.'],  
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
