@@ -2237,7 +2237,7 @@ class TubeCommand():
         file_name, xpath = '',''    
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file_name = ' '.join(args.file)
         xpath = ' '.join(args.xpath)
         is_global = False
@@ -2291,7 +2291,7 @@ class TubeCommand():
         file_name, xpath, value = None, None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file_name = ' '.join(args.file)
         xpath = ' '.join(args.xpath)
         value = ' '.join(args.value)
@@ -2391,7 +2391,7 @@ class TubeCommand():
         file_name, keywords, value = '', '', ''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file_name = ' '.join(args.file)
         keywords = ' '.join(args.keywords)
         value = ' '.join(args.value)
@@ -2685,7 +2685,7 @@ class TubeCommand():
         file, line_number, variable, is_force, is_global = '', '', '', False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
         line_number = args.number[0]
         variable = args.variable[0]
@@ -2939,7 +2939,7 @@ class TubeCommand():
         file, var = None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
         var = ' '.join(args.variable)
 
@@ -2977,7 +2977,7 @@ class TubeCommand():
         file, var, number = None, None, 0
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.file:
             file = ' '.join(args.file)
         if args.afile:
@@ -3224,7 +3224,7 @@ class TubeCommand():
         file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.file:
             file = ' '.join(args.file)
         if args.afile:
@@ -3260,7 +3260,7 @@ class TubeCommand():
         file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.file:
             file = ' '.join(args.file)
         if args.afile:
@@ -3287,7 +3287,7 @@ class TubeCommand():
         file, v_content, v_lines = None, None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
         if args.content:
             v_content = args.content[0]
@@ -3338,7 +3338,7 @@ class TubeCommand():
         file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.file:
             file = ' '.join(args.file)
         if args.afile:
@@ -3390,7 +3390,7 @@ class TubeCommand():
         src, dest = None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         src = ' '.join(args.src)
         dest = ' '.join(args.dest)
           
@@ -3423,7 +3423,7 @@ class TubeCommand():
         src, dest = None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         src = ' '.join(args.src)
         dest = ' '.join(args.dest)
           
@@ -3455,7 +3455,7 @@ class TubeCommand():
     def delete_variable(self):
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         name = ' '.join(args.name)
         is_global = args.is_global
         is_del_all = args.is_del_all
@@ -3495,7 +3495,7 @@ class TubeCommand():
         directory, var = None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         directory = ' '.join(args.directory)
         var = ' '.join(args.variable)
         is_global = args.is_global
@@ -3528,7 +3528,7 @@ class TubeCommand():
         directory = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         directory = ' '.join(args.directory)
         is_force = args.is_force
         result = None
@@ -3567,7 +3567,7 @@ class TubeCommand():
         directory = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         directory = ' '.join(args.directory)
           
         os.makedirs(directory)
@@ -3591,7 +3591,7 @@ class TubeCommand():
 
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
         lines_count = args.lines[0]
         if args.keywords != None:
@@ -3712,7 +3712,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         # replace , from the keys  
         keywords = set()
         if args.keywords:
@@ -3807,7 +3807,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs)) 
         to_list = [item for item in args.to]
         to_list = ','.join(to_list)
         subject = ' '.join(args.subject)
@@ -3843,7 +3843,7 @@ class TubeCommand():
         For command: RUN_TUBE
         '''
         parser = self.tube_argument_parser
-        args, _ = parser.parse_known_args(self.content.split())
+        args, _ = parser.parse_known_args(shlex.split(self.content))
         tube, conditions, each, variables  = None, None, None, None
         if args.tube:
             tube = ' '.join(args.tube)
@@ -4009,7 +4009,7 @@ class TubeCommand():
         file, status_set, variable, current_tube, skip_count = '', set(), '', False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.file:
             file = ' '.join(args.file)     
         if args.tube and len(args.tube) > 0:
@@ -4186,7 +4186,7 @@ class TubeCommand():
         
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         localpath = args.localpath[0]
         remotepath = args.remotepath[0]
         
@@ -4298,7 +4298,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file, characters, variable = '', '', False
         
         # get user inputs
@@ -4334,7 +4334,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         file, oldvalue, newvalue, count = '', '', '', 1
         
         # get user inputs
@@ -4382,7 +4382,7 @@ class TubeCommand():
 
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         variables = ''.join(args.name)
         variables = variables.split(',')
         variables = [var.strip() for var in variables]
@@ -4628,7 +4628,7 @@ class TubeCommand():
         
         # Check command
         parser = self.tube_argument_parser
-        args, _ = parser.parse_known_args(self.content.split())
+        args, _ = parser.parse_known_args(shlex.split(self.content))
         
         # check if log detial
         if args.is_log_detail:
@@ -4670,7 +4670,7 @@ class TubeCommand():
         log_file = None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs))
         if args.result:
             log_file = args.result[0]
             inputs = re.sub('--result[ ]*' + log_file, '', inputs, 1).strip()
