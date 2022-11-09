@@ -2752,7 +2752,7 @@ class TubeCommand():
         directory, result, sort, asc, count, variable = None, None, 'mtime', 'asc', None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
         if args.directory:
             directory = ' '.join(args.directory)
         if args.afile:
@@ -2865,7 +2865,7 @@ class TubeCommand():
         directory, result, sort, count, variable = None, None, 'asc', None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(inputs.split())
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
         directory = ' '.join(args.directory)
         if args.result:
             result = ' '.join(args.result)
@@ -2905,8 +2905,9 @@ class TubeCommand():
             ls.reverse()
             
         # writing result
-        with open(result, 'w') as f:
-            Utility.write_result_to_file(result, ls)
+        if result:
+            with open(result, 'w') as f:
+                Utility.write_result_to_file(result, ls)
 
         # store list directories count result to tube count var
         if count:
