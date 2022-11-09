@@ -4406,7 +4406,7 @@ class TubeCommand():
         '''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
         msg = ' '.join(args.message)
         color = None
         if args.color:
