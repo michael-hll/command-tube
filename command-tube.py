@@ -7049,8 +7049,7 @@ def print_tube_command_help(args):
             Description:
                 This flag can tell the tube which commands are the key commands. If there are
                 key commands exist, only all of them run successfully, the tube result will be 
-                marked as successfull. (If the command's --if condition is False, then --key
-                will be skipped.)
+                marked as successfull. 
                 '''
                 help_raw='''
         Raw:
@@ -7060,7 +7059,7 @@ def print_tube_command_help(args):
                 '''
                 help_note='''
         Note:
-            Syntax: --note
+            Syntax: --note notes
             Description:
                 Add a note to the command.
                 '''

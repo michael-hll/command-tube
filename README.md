@@ -115,8 +115,7 @@
             Description:
                 This flag can tell the tube which commands are the key commands. If there are
                 key commands exist, only all of them run successfully, the tube result will be 
-                marked as successfull. (If the command's --if condition is False, then --key
-                will be skipped.)
+                marked as successfull. 
                 
         Raw:
             Syntax: --raw
@@ -124,7 +123,7 @@
                 The flag can disable the command placeholder logic.
                 
         Note:
-            Syntax: --note
+            Syntax: --note notes
             Description:
                 Add a note to the command.
                 
@@ -248,7 +247,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
+#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -262,7 +261,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 8: DELETE_VARIABLE
-#### Alias: DEL_VAR, DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -336,7 +335,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -401,7 +400,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 21: FILE_MOVE
-#### Alias: F_MV, F_MOVE
+#### Alias: F_MOVE, F_MV
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -488,7 +487,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -567,7 +566,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 35: READ_LINE_IN_FILE
-#### Alias: READ_LN, READ_LINE
+#### Alias: READ_LINE, READ_LN
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
