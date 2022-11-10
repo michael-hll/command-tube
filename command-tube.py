@@ -518,6 +518,8 @@ class Storage():
                         'The tube variable name to store the file content.'],
                     [False, '-l','--lines', 'str', 1, 'lines', False, False, '', '',
                         'The tube variable name to store the file content as lines.'],   
+                    [False, '-s','--skip-empty', '', '', 'skip_empty', False, True, 'store_true', False, 
+                        'If skip empty lines. Default no.'],  
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -986,8 +988,8 @@ class Storage():
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file', 'str', '+', 'file', False, False, '', '',
                         'The file you want to count line numbers.'],
-                    [False, '-t','--tube', 'str', '+', 'tube', False, False, '', '',
-                        'The tube status you want to count.'],
+                    [False, '-t','--tube|--status', 'str', '+', 'tube', False, False, '', '',
+                        'The tube command status you want to count.'],
                     [False, '-v','--variable', 'str', '+', 'variable', True, False, '', '',
                         'The tube variable name to store the count result.'],
                     [False, '-c','--current', '', '', 'current_tube', False, True, 'store_true', False,
@@ -3286,7 +3288,7 @@ class TubeCommand():
         return True
 
     def file_read(self):
-        file, v_content, v_lines = None, None, None
+        file, v_content, v_lines, is_skip_empty = None, None, None, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
@@ -3297,6 +3299,7 @@ class TubeCommand():
             v_lines = args.lines[0]
         is_global = args.is_global
         is_force = args.is_force
+        is_skip_empty = args.skip_empty
 
         if not v_content and not v_lines:
             raise Exception('Missing --content or --lines argument.')
@@ -3308,9 +3311,11 @@ class TubeCommand():
             with open(file, 'r') as f:                
                 for line in f.readlines():     
                     line = line.replace('\n', '')
-                    if line and v_lines:             
+                    if is_skip_empty and not line:
+                        continue
+                    if v_lines:             
                         lines.append(line)
-                    if line and v_content:
+                    if v_content:
                         content += line
         else:
             raise Exception('File doesnot exists: {0}'.format(file))
@@ -4410,7 +4415,9 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
-        msg = ' '.join(args.message)
+        msg = ''
+        if args.message:
+            msg = ' '.join(args.message)
         color = None
         if args.color:
             color = args.color[0]
