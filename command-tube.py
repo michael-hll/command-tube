@@ -1119,7 +1119,7 @@ class Storage():
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
+                self.C_COMMAND_DESCRIPTION: 'Print a message to the console for debugging purpose.'
             },
             self.C_LIST_FILES: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
