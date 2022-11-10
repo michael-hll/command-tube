@@ -1131,6 +1131,8 @@ class Storage():
                         'The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
                     [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',  
                         'The files name you want to list. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg'],
+                    [False, '-e','--exclude', 'str', '*', 'exclude', False, False, '', '',
+                        'The excluded file names. eg: -e .txt|.log'], 
                     [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
                         'The text file to store the search result.'], 
                     [False, '-s','--sort', 'str', '+', 'sort', False, False, '', '',
@@ -2753,7 +2755,7 @@ class TubeCommand():
         return True
 
     def list_files(self):
-        directory, result, sort, asc, count, variable = None, None, 'mtime', 'asc', None, None
+        directory, result, exclude, sort, asc, count, variable = None, None, None, 'mtime', 'asc', None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
@@ -2761,6 +2763,8 @@ class TubeCommand():
             directory = ' '.join(args.directory)
         if args.afile:
             directory = ' '.join(args.afile)
+        if args.exclude:
+            exclude = ' '.join(args.exclude)
         if args.result:
             result = ' '.join(args.result)
         if args.variable:
@@ -2815,6 +2819,17 @@ class TubeCommand():
                     directory += '/' + '*.*' 
         # searching                   
         list_files = glob.glob(directory)
+
+        # excluded logic
+        if exclude:
+            list_files_new = []
+            exclude = exclude.replace('.', '\\.').replace('*', '.*')
+            p = re.compile(exclude)
+            for f in list_files:
+                if len(p.findall(f)) == 0:
+                    list_files_new.append(f)
+            list_files = list_files_new
+
         # sortings
         if sort == 'mtime':
             list_files.sort(key=os.path.getmtime)
