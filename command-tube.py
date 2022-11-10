@@ -1053,8 +1053,12 @@ class Storage():
                         'The file you want to check.'],                    
                     [False, '-c','--char',  'str', '+',  'characters', True, False, '', '',
                         'The characters you want to check.'],
-                    [False, '-v','--variable', 'str', 1,   'variable', True, False, '', '',
+                    [False, '-v','--variable', 'str', 1,   'result', True, False, '', '',
                         'The tube variable name to store the checking result.'], 
+                    [False, '-n','--number', 'str', 1,   'number', False, False, '', '',
+                        'The tube variable name to store the line number.'], 
+                    [False, '-l','--line', 'str', 1,   'line', False, False, '', '',
+                        'The tube variable name to store the line content.'], 
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no. [2.0.2]'], 
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -4321,30 +4325,50 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
-        file, characters, variable = '', '', False
+        file, characters, result, number, content = '', '', False, '', ''
         
         # get user inputs
         file = ' '.join(args.file)
         characters = ' '.join(args.characters)
-        variable = args.variable[0]
+        result = args.result[0]
+        if args.number:
+            number = args.number[0]
+        if args.line:
+            content = args.line[0]
         
         is_global = args.is_global
         is_force = args.is_force
         
         found = False
+        number_val = None
+        line_content = None
         # read file line by line
-        try:
-            with open(file, 'r') as f:
-                for line in f:
-                    if characters in line:
-                        found = True
-                        break                       
+        with open(file, 'r') as f:
+            i = 0
+            for line in f:
+                i += 1
+                if characters in line:
+                    found = True
+                    number_val = i
+                    line_content = line.replace('\n', '')
+                    break                       
         
-        finally:
-            # update tube variables dependantly
-            key_result = self.update_key_value(variable, found, is_force=is_force, is_global=is_global)
+        # update tube variables dependantly
+        key_result = self.update_key_value(result, found, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(result, found))
+        
+        # update line number to variable
+        if number:
+            key_result = self.update_key_value(number, number_val, is_force=is_force, is_global=is_global)
             if key_result == False:
-                raise Exception('Update key-value failed: {0}:{1}'.format(variable, found))
+                raise Exception('Update key-value failed: {0}:{1}'.format(number, number_val))
+        
+        # udpate line content to variable
+        if content:
+            key_result = self.update_key_value(content, line_content, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(content, line_content))
 
         msg = 'Checking characters result: ' + str(found)
         tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)

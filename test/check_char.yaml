@@ -7,13 +7,15 @@ TUBE:
     - COMMAND: echo hello testing --if not exists
     - CHECK_CHAR_EXISTS: -f {file} -c line5 -v exists
     - COMMAND: echo hello testing --if exists
+    - CHECK_CHAR_EXISTS: -f {file} -c line2 -v exists -n number -l line
+    - PRINT: test line2 exists --if line == 'line2'
     - FILE_DELETE: {file}
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n check_char_result -v Testing Pass  -g --if {success_nums}==9 --key
-    - SET_VARIABLE: -n check_char_result -v Testing Failed -g --if {success_nums}!=9
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
+    - SET_VARIABLE: -n check_char_result -v Testing Pass  -g --if {success_nums}==11 --key
+    - SET_VARIABLE: -n check_char_result -v Testing Failed -g --if {success_nums}!=11
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11
 
 LOOP:
     - SET_VARIABLE: -n i -v i + 1 -g
