@@ -7107,11 +7107,14 @@ def print_tube_command_help(args):
                 - SET_VAR: x = 200 --global
                 - PRINT_VARS: x  # output 200
 
-        Tube Variable Usace:
+        Tube Variable Usage:
             You can reference any variable value via {var-name} in your tube 
             command arguments. eg:
                 - PATH: {TUBE_HOME}
-                - COMMAND: ls {cmd_parameters}             
+                - COMMAND: ls {cmd_parameters}    
+            In SET_VARIABLE command or in --if and --while conditions, you can omit the curly brackets:
+                - SET: x = 1
+                - SET: y = x + 1         
              
         ** Note: If variable was updated from terminal console inputs, then it will become readonly. 
                 '''

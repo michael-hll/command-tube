@@ -171,11 +171,14 @@
                 - SET_VAR: x = 200 --global
                 - PRINT_VARS: x  # output 200
 
-        Tube Variable Usace:
+        Tube Variable Usage:
             You can reference any variable value via {var-name} in your tube 
             command arguments. eg:
                 - PATH: {TUBE_HOME}
-                - COMMAND: ls {cmd_parameters}             
+                - COMMAND: ls {cmd_parameters}    
+            In SET_VARIABLE command or in --if and --while conditions, you can omit the curly brackets:
+                - SET: x = 1
+                - SET: y = x + 1         
              
         ** Note: If variable was updated from terminal console inputs, then it will become readonly. 
                 
@@ -247,7 +250,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
+#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -335,7 +338,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_COPY
-#### Alias: F_COPY, F_CP
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -355,7 +358,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -400,7 +403,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 21: FILE_MOVE
-#### Alias: F_MOVE, F_MV
+#### Alias: F_MV, F_MOVE
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -487,7 +490,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -629,7 +632,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 40: SET_VARIABLE
-#### Alias: SET_VAR, SET
+#### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -703,7 +706,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 45: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
