@@ -20,8 +20,10 @@
     Within this YAML file, there must be a key called 'Tube' (like other 
     language's main method). And this 'Tube' is list type object, each item in 
     the list is a tube command. eg: A sample.yaml file contains content:
+
     Tube:
-      - PRINT: Hello World of Command Tube
+        - PRINT: Hello World of Command Tube
+
     From your terminal to run this sample.yaml (Needs Python >= 3.6):
         >>> python command-tube.py -t sample.yaml -f
     For more Command Tube arguments you can use below commands:
@@ -65,14 +67,15 @@
    There is only one main tube and maybe many sub-tubes within a yaml file. 
    The main tube name can be one of these: 'Tube', 'tube' or 'TUBE'. 
    Using command RUN_TUBE you can run a sub-tube:
-   Tube:
-      - RUN: SubTube
-   SubTube:
-      - PRINT: I'm a command from sub tube
 
-   Tube Chain:
-      A tube and it's all parents' tubes composed a tube chain.
-      From previous example, tubes 'SubTube' and 'Tube' is one tube chain.
+    Tube:
+        - RUN: SubTube
+    SubTube:
+        - PRINT: I'm a command from sub tube
+
+### Tube Chain
+    A tube and it's all parents' tubes composed a tube chain.
+    From previous example, tubes 'SubTube' and 'Tube' is one tube chain.
 
 ## Tube Commands
     For all supported tube commands you could use below commands:
@@ -80,9 +83,9 @@
     You can find each command's description, syntax there.
 
 ## Naming Convention
-   All sub-tube names and tube variables name could using following characters:
+    All sub-tube names and tube variables name could using following characters:
       a~z,A-Z,0-9,_
-   Note: Python keywords are not allowed to use tube name or variable names.
+    Note: Python keywords are not allowed to use tube name or variable names.
     
 ## General Arguments & Tube Variables
     Each tube command has its own arguments, there are also some general arguments
@@ -295,7 +298,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 8: DELETE_VARIABLE
-#### Alias: DEL_VAR, DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -369,7 +372,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -389,7 +392,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -602,7 +605,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 35: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
