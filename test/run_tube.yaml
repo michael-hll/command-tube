@@ -11,6 +11,7 @@ TUBE:
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==6 --key
     - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=6
+    - SET_VARIABLE: failed += 'run_tube.yaml,' -g --if {success_nums}!=6
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6
 
 SubTube:

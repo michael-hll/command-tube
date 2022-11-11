@@ -8,4 +8,5 @@ TUBE:
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     - SET_VARIABLE: -n read_console_result -v Testing Pass  -g --if success_nums==3 --key
     - SET_VARIABLE: -n read_console_result -v Testing Failed -g --if success_nums!=3
+    - SET_VARIABLE: failed += 'read_console.yaml,' -g --if {success_nums}!=3
     - SET_VARIABLE: -n tube_passed -v tube_passed + 1 -g --if success_nums==3

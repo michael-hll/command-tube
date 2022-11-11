@@ -21,5 +21,6 @@ TUBE:
     # output testing result
     - SET_VARIABLE: -n email_result -v Testing Pass -g --if {success_nums}==2 --key
     - SET_VARIABLE: -n email_result -v Testing Failed -g --if {success_nums}!=2
+    - SET_VARIABLE: failed += 'email.yaml,' -g --if {success_nums}!=2
     - PRINT_VARS: 'email_result'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==2

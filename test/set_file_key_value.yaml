@@ -11,6 +11,7 @@ TUBE:
     - COMMAND: echo Testing Passed --if {success_nums}==5
     - SET_VARIABLE: -n set_file_key_value_result -v Testing Pass -g --if {success_nums}==5 --key
     - SET_VARIABLE: -n set_file_key_value_result -v Testing Failed -g --if {success_nums}!=5
+    - SET_VARIABLE: failed += 'set_file_key_value.yaml,' -g --if {success_nums}!=5
     - PRINT_VARS: 'set_file_key_value_result'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==5
 

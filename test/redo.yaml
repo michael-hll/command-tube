@@ -19,6 +19,7 @@ TUBE:
      # output testing result
     - SET_VARIABLE: -n redo_result -v Testing Pass -g --if {success_nums}==8 --key
     - SET_VARIABLE: -n redo_result -v Testing Failed -g --if {success_nums}!=8
+    - SET_VARIABLE: failed += 'redo.yaml,' -g --if {success_nums}!=8
     - PRINT_VARS: 'redo_result'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
 

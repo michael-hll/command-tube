@@ -13,6 +13,7 @@
 
 Variables:
     tube_passed: 0
+    failed: ''
     test_folder: /Volumes/MacDrive/Projects/tube/test
     del_log: yes
     email: no
@@ -68,3 +69,5 @@ TUBE:
     - FILE_DELETE: '*.yaml.log --if del_log --continue'
     - COMMAND: ECHO TESTING FAILED --if {tube_passed} != {result}
     - COMMAND: ECHO TESTING PASSED --if {tube_passed} == {result} --key
+
+    - PRINT: Failed tube cases = {failed}

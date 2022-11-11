@@ -18,5 +18,6 @@ TUBE:
     - COMMAND: echo Testing Passed --if {success_nums}==6
     - SET_VARIABLE: -n write_line_in_file -v Testing Pass -g --if {success_nums}==7 --key
     - SET_VARIABLE: -n write_line_in_file -v Testing Failed -g --if {success_nums}!=7
+    - SET_VARIABLE: failed += 'write_line.yaml,' -g --if {success_nums}!=7
     - PRINT_VARS: 'write_line_in_file'
     - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
