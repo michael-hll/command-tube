@@ -1047,13 +1047,13 @@ class Storage():
             },
             self.C_CHECK_CHAR_EXISTS: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
-                self.C_ALIAS: {'CHECK_CHAR'},
+                self.C_ALIAS: {'CHECK_CHAR', 'FIND'},
                 self.C_ARG_ARGS: [        
                     [False, '-f','--file',  'str', '+',  'file', True, False, '', '',
-                        'The file you want to check.'],                    
+                        'The file you want to check or find.'],                    
                     [False, '-c','--char',  'str', '+',  'characters', True, False, '', '',
-                        'The characters you want to check.'],
-                    [False, '-v','--variable', 'str', 1,   'result', True, False, '', '',
+                        'The characters you want to check or find (Support regular expression).'],
+                    [False, '-v|-e','--variable|--exist', 'str', 1,   'result', True, False, '', '',
                         'The tube variable name to store the checking result.'], 
                     [False, '-n','--number', 'str', 1,   'number', False, False, '', '',
                         'The tube variable name to store the line number.'], 
@@ -1070,7 +1070,7 @@ class Storage():
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Check if given characters exists from a file. Result was updated into a tube variable.'
+                self.C_COMMAND_DESCRIPTION: 'Check or find characters from a file. Result was updated into tube variables.'
             },
             self.C_REPLACE_CHAR: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.1',
@@ -4345,9 +4345,10 @@ class TubeCommand():
         # read file line by line
         with open(file, 'r') as f:
             i = 0
+            p = re.compile(characters)
             for line in f:
-                i += 1
-                if characters in line:
+                i += 1                
+                if characters in line or len(p.findall(line)) > 0:
                     found = True
                     number_val = i
                     line_content = line.replace('\n', '')
