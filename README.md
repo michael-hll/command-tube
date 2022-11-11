@@ -10,22 +10,24 @@
     You can get a full list of supportted tube commands from readme document.
     Using these commands you can easily build your own tube to do tasks like:
     Refresh Development Environment, Daily Run Test Cases etc.
-    It's more user friendly and eaiser to use than PowerShell.
+    For some cases, it's more user friendly and eaiser to use than PowerShell or Bash.
 
 ## How to run Command Tube    
 
-    Command Tube is a Python 3 script. The most important two arguments 
-    for Command Tube are '--tube' and '--datetime'.    
-    All the tube configurations are maintained by a YAML file, 
-    using '--tube file' you can specify the tube configurations. 
-    From the 'tube.template.yaml' (tube help tempalte could output it) you could view it.
-    Use '--datetime' argument you could set the execution time, 
-    you could also run it at once by parameter '-f' or '-i'.
-    For more information about input arguments please use following command 
-    from your terminal (Needs Python >= 3.6):
+    Command Tube is a Python 3 script. The most important argument
+    is '-t|--tube file' parameter. All the tube commands are maintained by this
+    file content with YAML format.
+    Within this YAML file, there must be a key called 'Tube' (like other 
+    language's main method). And this 'Tube' is list type object, each item in 
+    the list is a tube command. eg: A sample.yaml file contains content:
+    Tube:
+      - PRINT: Hello World of Command Tube
+    From your terminal to run this sample.yaml (Needs Python >= 3.6):
+        >>> python command-tube.py -t sample.yaml -f
+    For more Command Tube arguments you can use below commands:
         >>> python command-tube.py -h
     
-    - Examples of running Command Tube via source code:
+    - Some other examples of running Command Tube via source code:
         1: Run at once and sent result via email: 
         >>> python command-tube.py -t tube.yaml -fe
         2: Run at 20:00 o'clock:
@@ -39,9 +41,9 @@
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
-        ** Find tube running result from tube.yaml.log file by default 
+        ** Find tube running result from tube.yaml.log file
 
-    - Binary Mode        
+    - Binary Mode (Package)       
         Following below steps you can use it in binary (package) mode:
         1. Download 'tube' for MacOS or 'tube.exe' for Windows from github homepage
         3. Using it from your terminal (Need exec right from MacOS):
@@ -57,7 +59,34 @@
         4. Run tube version command to verify it's built successfully:
            >>> ./tube --version 
     
+    - More YAML file examples could reference the yaml files within test folder.
+
+## Tube
+   There is only one main tube and maybe many sub-tubes within a yaml file. 
+   The main tube name can be one of these: 'Tube', 'tube' or 'TUBE'. 
+   Using command RUN_TUBE you can run a sub-tube:
+   Tube:
+      - RUN: SubTube
+   SubTube:
+      - PRINT: I'm a command from sub tube
+
+   Tube Chain:
+      A tube and it's all parents' tubes composed a tube chain.
+      From previous example, tubes 'SubTube' and 'Tube' is one tube chain.
+
+## Tube Commands
+    For all supported tube commands you could use below commands:
+    >>> python command-tube.py help commands
+    You can find each command's description, syntax there.
+
+## Naming Convention
+   All sub-tube names and tube variables name could using following characters:
+      a~z,A-Z,0-9,_
+   Note: Python keywords are not allowed to use tube name or variable names.
+    
 ## General Arguments & Tube Variables
+    Each tube command has its own arguments, there are also some general arguments
+    can be used for most of tube commands.
     - General Arguments
         Description: Most of tube commands support additional --continue, --redo,
                  --key, --if, --raw and --note general arguments. It could make your tube realize
@@ -66,48 +95,42 @@
         Continue:
             Syntax: --continue [m] [n]
             Description:
-                If current command failed the later tube commands will be 
+                - If current command failed the later tube commands will be 
                 conditional skiped.
-
-                Normally if current command failed, the later tube commands 
+                - Normally if current command failed, the later tube commands 
                 will be skipped. But use --continue parameter could change
                 this.
-
-                Without m and n parameters: tube will run next command.
-                        
-                With m (m >= 1) parameter only: If current command failed,
+                - Without m and n parameters: tube will run next command.                        
+                - With m (m >= 1) parameter only: If current command failed,
                 the later m steps will be skipped. Otherwise the later m steps
                 will be executed as normal.
-
-                With m & n ( m,n >=0 ) both parameters: If current command faild,
+                - With m & n ( m,n >=0 ) both parameters: If current command faild,
                 the later m steps after current will be skiped, the later n steps
                 after m will be executed.
-                If current command successful, the previous senario will be swapped.
+                - If current command successful, the previous senario will be swapped.
                 The later m steps after current will be executed and the later n steps
                 after m will be skipped.
                 
         Redo: 
             Syntax: --redo [m]
             Description: 
-                Without m parameter, if current command failed it  
+                - Without m parameter, if current command failed it  
                 will be re-executed once.
-
-                With m (m < 0) parameter, and current command failed, it will  
+                - With m (m < 0) parameter, and current command failed, it will  
                 redo commands from previous m steps.
-
-                With m (m > 0) parameter, and current command success, it will
+                - With m (m > 0) parameter, and current command success, it will
                 redo this command for m times.
                 
         If:            
             Syntax: --if {tube_variable} | value=={tube_variable} | value!={tube_variable}
             Description:
-                If {tube_variable} uppercase equals 'FALSE' or 'NO' then the current tube command
-                will be skipped.
-                For value=={tube_variable} condition, if value not equal {tube_variable} then current
+                - If {tube_variable} uppercase equals 'FALSE' or 'NO' then the current tube
                 command will be skipped.
-                For value!={tube_variable} condition, if value equal {tube_variable} then this
-                command will be skipped.
-                It also support >, >=, <, <= cases, make sure the values are numbers before comparison.
+                - For value=={tube_variable} condition, if value not equal {tube_variable}
+                then current command will be skipped.
+                - For value!={tube_variable} condition, if value equal {tube_variable} then
+                this command will be skipped.
+                - It also support >, >=, <, <= cases, make sure the values are numbers.
                 Note: Extra spaces are NOT allowed in the compare expression.
                 
         Key:
@@ -145,9 +168,13 @@
             OS_NAME: <current-os-system-name>     
 
         Scope:
-            There is one main tube and the main tube could have multiple sub tubes.
-            Tube variable default is available in its own tube and its own tube's sub-tubes. 
-            Using --global argument can changed this behaviour.
+            - When get a tube variable value, it will find the first matching variable
+            name in current tube chain.
+            - When set a tube variable value without -g|--global argument, it will udpate 
+            the tube variable value in current tube.
+            - When set a tube variable value with -g|--global argument, it will update 
+            the first matching variable name in current tube chain. If no matched, then 
+            udpate the tube variable in the main tube.            
 
             << Example 1 >>
             Tube:
@@ -176,11 +203,13 @@
             command arguments. eg:
                 - PATH: {TUBE_HOME}
                 - COMMAND: ls {cmd_parameters}    
-            In SET_VARIABLE command or in --if and --while conditions, you can omit the curly brackets:
+            In SET_VARIABLE command or in --if and --while conditions, you can omit 
+            the curly brackets:
                 - SET: x = 1
                 - SET: y = x + 1         
              
-        ** Note: If variable was updated from terminal console inputs, then it will become readonly. 
+        ** Note: If variable was updated from terminal console inputs, then it will 
+                 become readonly. 
                 
                 
 ## Usage of Each Command:
@@ -194,16 +223,18 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR
-<pre>Description: Check if given characters exists from a file. Result was updated into a tube variable.
+#### Alias: FIND, CHECK_CHAR
+<pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
-Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
 Parameters:
-   -f|--file:     The file you want to check.
-   -c|--char:     The characters you want to check.
-   -v|--variable: The tube variable name to store the checking result.
-   -u|--force:    Force update even the variable is readonly. Default no. [2.0.2]
-   -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
+   -f|--file:                The file you want to check or find.
+   -c|--char:                The characters you want to check or find (Support regular expression).
+   -v|-e|--variable|--exist: The tube variable name to store the checking result.
+   -n|--number:              The tube variable name to store the line number.
+   -l|--line:                The tube variable name to store the line content.
+   -u|--force:               Force update even the variable is readonly. Default no. [2.0.2]
+   -g|--global:              If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.1</pre>
 ### 3: COMMAND
@@ -238,19 +269,19 @@ Support from version: 2.0.2</pre>
 #### Alias: CNT
 <pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
-Syntax: - COUNT: [-f|--file file] [-t|--tube tube] -v|--variable variable [-c|--current] [-s|--skip] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - COUNT: [-f|--file file] [-t|--tube|--status tube] -v|--variable variable [-c|--current] [-s|--skip] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
 Parameters:
-   -f|--file:     The file you want to count line numbers.
-   -t|--tube:     The tube status you want to count.
-   -v|--variable: The tube variable name to store the count result.
-   -c|--current:  If only count current tube. Default no.
-   -s|--skip:     If skip COUNT command. Default no.
-   -u|--force:    Force update even the variable is readonly. Default no. [2.0.2]
-   -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
+   -f|--file:          The file you want to count line numbers.
+   -t|--tube|--status: The tube command status you want to count.
+   -v|--variable:      The tube variable name to store the count result.
+   -c|--current:       If only count current tube. Default no.
+   -s|--skip:          If skip COUNT command. Default no.
+   -u|--force:         Force update even the variable is readonly. Default no. [2.0.2]
+   -g|--global:        If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
+#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -264,7 +295,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 8: DELETE_VARIABLE
-#### Alias: DELETE_VAR, DEL_VAR
+#### Alias: DEL_VAR, DELETE_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -284,7 +315,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 10: DIR_DELETE
-#### Alias: D_DELETE, D_DEL
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -440,13 +471,14 @@ Support from version: 2.0.2</pre>
 #### Alias: F_READ
 <pre>Description: Read a file content to tube variable. Doesn't include the new-line (\n) char.
 
-Syntax: - FILE_READ: -f|--file file [-c|--content content] [-l|--lines lines] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_READ: -f|--file file [-c|--content content] [-l|--lines lines] [-s|--skip-empty] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
 Parameters:
-   -f|--file:    The file name you want to read its whole content.
-   -c|--content: The tube variable name to store the file content.
-   -l|--lines:   The tube variable name to store the file content as lines.
-   -u|--force:   Force update even the variable is readonly. Default no.
-   -g|--global:  If update the variable in global tube variables. Default no.
+   -f|--file:       The file name you want to read its whole content.
+   -c|--content:    The tube variable name to store the file content.
+   -l|--lines:      The tube variable name to store the file content as lines.
+   -s|--skip-empty: If skip empty lines. Default no.
+   -u|--force:      Force update even the variable is readonly. Default no.
+   -g|--global:     If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
 ### 25: FILE_SORT
@@ -518,10 +550,11 @@ Support from version: 2.0.2</pre>
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file or variable.
 
-Syntax: - LIST_FILES: [-d|--dir directory] [-f|--file afile] [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - LIST_FILES: [-d|--dir directory] [-f|--file afile] [-e|--exclude exclude] [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
 Parameters:
    -d|--dir:      The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
    -f|--file:     The files name you want to list. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
+   -e|--exclude:  The excluded file names. eg: -e .txt|.log
    -r|--result:   The text file to store the search result.
    -s|--sort:     Using '-s atime|mtime|ctime|name|size [asc|desc]' to set the sort properties. Default uses the file modification mtime (mtime asc) to sort the result.
    -c|--count:    The tube variable name to store the files count.
@@ -550,7 +583,7 @@ Parameters:
 Support from version: 2.0.0</pre>
 ### 33: PRINT
 #### Alias: ECHO
-<pre>Description: Print tube variable values for debugging purpose.
+<pre>Description: Print a message to the console for debugging purpose.
 
 Syntax: - PRINT: message [-c|--color color] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
 Parameters:
@@ -632,7 +665,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 40: SET_VARIABLE
-#### Alias: SET, SET_VAR
+#### Alias: SET_VAR, SET
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
