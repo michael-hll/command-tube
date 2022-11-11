@@ -206,10 +206,12 @@
             command arguments. eg:
                 - PATH: {TUBE_HOME}
                 - COMMAND: ls {cmd_parameters}    
-            In SET_VARIABLE command or in --if and --while conditions, you can omit 
-            the curly brackets:
+            In SET_VARIABLE command or in --if <condtiion> and --while <condition>, 
+            you can omit the curly brackets:
                 - SET: x = 1
-                - SET: y = x + 1         
+                - SET: y = x + 1   
+                - PRINT: testing condition --if x == 1    
+                - RUN: SubTube --while x < 10  
              
         ** Note: If variable was updated from terminal console inputs, then it will 
                  become readonly. 
@@ -226,7 +228,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: FIND, CHECK_CHAR
+#### Alias: CHECK_CHAR, FIND
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -284,7 +286,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
+#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -298,7 +300,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 8: DELETE_VARIABLE
-#### Alias: DELETE_VAR, DEL_VAR
+#### Alias: DEL_VAR, DELETE_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -392,7 +394,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -437,7 +439,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 21: FILE_MOVE
-#### Alias: F_MV, F_MOVE
+#### Alias: F_MOVE, F_MV
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -668,7 +670,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 40: SET_VARIABLE
-#### Alias: SET_VAR, SET
+#### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -742,7 +744,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 45: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LN, WRITE_LINE
+#### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]

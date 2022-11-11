@@ -7157,10 +7157,12 @@ def print_tube_command_help(args):
             command arguments. eg:
                 - PATH: {TUBE_HOME}
                 - COMMAND: ls {cmd_parameters}    
-            In SET_VARIABLE command or in --if and --while conditions, you can omit 
-            the curly brackets:
+            In SET_VARIABLE command or in --if <condtiion> and --while <condition>, 
+            you can omit the curly brackets:
                 - SET: x = 1
-                - SET: y = x + 1         
+                - SET: y = x + 1   
+                - PRINT: testing condition --if x == 1    
+                - RUN: SubTube --while x < 10  
              
         ** Note: If variable was updated from terminal console inputs, then it will 
                  become readonly. 
