@@ -2269,6 +2269,8 @@ class TubeCommand():
         
         Return: True or False
         '''
+        if self.is_key_command:
+            return True
         if type(self.original_content) is str and ' --key' in self.original_content:
             return True
         return False
@@ -4815,7 +4817,7 @@ class TubeCommand():
                 break
             line = line.replace('\n', '')            
             tprint(line, prefix='')
-            log.errors.append(line)                       
+            log.add_error(line)                       
 
         # wait the process and get running result 
         process.communicate()
@@ -5294,7 +5296,16 @@ class TubeCommandLog:
         elif self.status == Storage.I.C_SKIPPED:
             tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)  
         elif self.status == Storage.I.C_RUNNING:
-            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)                          
+            tprint(msg, tcolor=Storage.I.C_PRINT_COLOR_ORANGE, prefix=Storage.I.C_PRINT_PREFIX_EMPTY)
+
+        # print errors in debug mode
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            if self.command.command_type == Storage.I.C_RUN_TUBE:    
+                for error in self.command.tube.errors:
+                    tprint(error, prefix='')
+            else:
+                for error in self.errors:
+                    tprint(error, prefix='')                           
     
     def add_error(self, error):
         '''
@@ -5308,6 +5319,9 @@ class TubeCommandLog:
                 self.errors.append(error)
         else:
             self.errors.append(error)  
+        
+        # add errors to tube
+        self.command.tube.add_error(error)
             
     def write_errors_to_log(self):
         '''
@@ -5469,6 +5483,9 @@ class Tube():
         self.each_item_name = None
         self.each_ls = None 
 
+    def add_error(self, error):
+        self.errors.append(error)
+
 class TubeRunner():
     
     def __init__(self, is_main = True, run_tube_command: TubeCommand = None, tube: Tube = None):
@@ -5505,7 +5522,7 @@ class TubeRunner():
         # copy done list to the 'tube' that contains the whole sub command list
         command_done_list = self.tube.tube_run.copy()
         self.tube.tube_run_all.extend(command_done_list)
-        status = calc_success_failed_for_tube(command_done_list)
+        status = calc_success_failed_for_tube(command_done_list)        
 
         # if current loop failed then stop the tube running
         if status == Storage.I.C_FAILED:
@@ -5531,6 +5548,7 @@ class TubeRunner():
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
             self.run_tube_command.log.status = status
+            self.tube.status = status
             # clear each parameters
             if self.tube.each_ready:
                 self.tube.clear_each()               
@@ -5644,6 +5662,8 @@ class TubeRunner():
                 TubeCommandUtility.reset_command_skip(self.tube.tube_run, command)        
             
             # if command failed and errors then output to log
+            # we need to at the end of the command running to output the errors
+            # otherwise the errors will interrut the normal outputs
             if log.status == Storage.I.C_FAILED:
                 log.write_errors_to_log()
                 
@@ -5829,13 +5849,15 @@ class StorageUtility():
                 msg = 'Command: %s doesnot support now.' % command.cmd_type
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
                 errors_return.append(msg)
+                command.log.add_error(msg)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 continue
                         
             if not command.has_content:
                 msg = 'Command: %s is empty.' % command.cmd_type
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                errors_return.append(msg)            
+                errors_return.append(msg)  
+                command.log.add_error(msg)          
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 has_errors = True
                 continue
@@ -5856,6 +5878,7 @@ class StorageUtility():
                         else:
                             msg = 'It has {0}'.format(str(err))
                         errors_return.append(msg) 
+                        command.log.add_error(msg)
                         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)                                           
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                    
                 command.tube_argument_parser.argument_error.clear() 
@@ -5871,7 +5894,8 @@ class StorageUtility():
                     has_errors = True
                     msg = '%s: \'%s\' doesnot exists.' % (command.cmd_type, input_server)
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                    errors_return.append(msg)                
+                    errors_return.append(msg) 
+                    command.log.add_error(msg)               
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                    
                     continue
             
@@ -6591,7 +6615,7 @@ def output_tube_file_list(is_print=False, is_write_log=False, indexes=None, line
         if is_write_log:
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
 
-def print_logs(LOGS):
+def print_each_command_status(LOGS):
     tprint(prefix='')    
     
     # print status of each command
@@ -6766,13 +6790,7 @@ def calc_success_failed_for_tube(commands):
 
 def write_logs_to_file(LOGS):
     
-    mode = 'a+'
-    # output overall status
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, '')
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, Storage.I.C_FINISHED_HEADER)
-
-    result = calculate_success_failed_details(False)
-    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, result) 
+    mode = 'a+'    
 
     # log failed detail errors 
     has_retried_command = False
@@ -6781,6 +6799,7 @@ def write_logs_to_file(LOGS):
     for index, log in enumerate(LOGS):        
         if log.status == Storage.I.C_FAILED:
             if not has_written_header:
+                write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, '')
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, mode,  Storage.I.C_FAILED_COMMAND_LIST)  
                 has_written_header = True   
             command_details = '[%s] - %s: %s' % (str(index+1), log.command.get_formatted_type(), str(log.command.content))
@@ -6803,12 +6822,27 @@ def write_logs_to_file(LOGS):
         total_minutes += log.get_total_minutes()
         total_seconds += log.get_total_seconds()
         write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, log.format_log(seq, include_index=True))
+
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            if log.command.command_type == Storage.I.C_RUN_TUBE:    
+                for error in log.command.tube.errors:
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, error)
+            else:
+                log.write_errors_to_log()  
     
     # output tube file list
     output_tube_file_list(is_write_log=True)
     # If output note for * after command type
     if has_retried_command == True:
         write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, Storage.I.C_RETRIED_COMMAND_NOTE)
+
+    # output overall status
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, '')
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, Storage.I.C_FINISHED_HEADER)
+
+    result = calculate_success_failed_details(False)
+    write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, result)
+
     # totals
     totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
     if total_seconds < 60:
@@ -8019,7 +8053,7 @@ while Storage.I.IS_STOP == False:
         if Storage.I.IS_MATRIX_MODE:
             stop_matrix_terminal()
             
-        print_logs(Storage.I.LOGS)
+        print_each_command_status(Storage.I.LOGS)
         write_logs_to_file(Storage.I.LOGS)        
         if Storage.I.IS_SENT_EMAIL:
             prepare_emails_content_and_sent(Storage.I.LOGS)
