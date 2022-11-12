@@ -286,7 +286,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
+#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -374,7 +374,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_COPY
-#### Alias: F_COPY, F_CP
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -394,7 +394,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -527,7 +527,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -669,7 +669,18 @@ Parameters:
    -v|--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 40: SET_VARIABLE
+### 40: SET_TUBE
+#### Alias: SET_T
+<pre>Description: Enable or disable tube command properties for all: --continue, --redo or --key.
+
+Syntax: - SET_TUBE: [-c|--continue-all continue_all] [-r|--redo-all redo_all] [-k|--key-all key_all] [--if run] [--raw] [--note note]
+Parameters:
+   -c|--continue-all: Enable/disable tube's command --continue status. Values: yes/no, true/false.
+   -r|--redo-all:     Enable/disable tube's command --redo status. Values: yes/no, true/false.
+   -k|--key-all:      Enable/disable tube's command --key status. Values: yes/no, true/false.
+
+Support from version: 2.0.2</pre>
+### 41: SET_VARIABLE
 #### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
@@ -695,7 +706,7 @@ Parameters:
                   Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 41: SET_XML_TAG_TEXT
+### 42: SET_XML_TAG_TEXT
 #### Alias: SET_XML_TAG
 <pre>Description: Update XML file tag text using xpath.
 
@@ -706,7 +717,7 @@ Parameters:
    -v|--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 42: SFTP_GET
+### 43: SFTP_GET
 #### Alias: FTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
@@ -717,7 +728,7 @@ Parameters:
    -l|--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 43: SFTP_PUT
+### 44: SFTP_PUT
 #### Alias: FTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
@@ -728,7 +739,7 @@ Parameters:
    -r|--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 44: TAIL_FILE
+### 45: TAIL_FILE
 #### Alias: TAIL
 <pre>Description: Print/Log the last N lines of given file.
 
@@ -743,7 +754,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.0</pre>
-### 45: WRITE_LINE_IN_FILE
+### 46: WRITE_LINE_IN_FILE
 #### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
