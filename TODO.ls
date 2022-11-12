@@ -1,12 +1,7 @@
 
 TODO LIST
 
-- SET_TUBE command, can set tube's property:
-    continue?
-    redo?
-    status?
-    errors?
-    ...
+
 
 - Output Command.results to Email content   
 
@@ -170,6 +165,13 @@ TODO LIST
 
     63. - set_var: support assign plus expression
             eg: - set: x += 1
+    
+    64. - SET_TUBE command, can set tube's property:
+            continue?
+            redo?
+            status?
+            errors?
+            ...
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
