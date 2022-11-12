@@ -85,15 +85,14 @@
 ## Naming Convention
     All sub-tube names and tube variables name could using following characters:
       a~z,A-Z,0-9,_
-    Note: Python keywords are not allowed to use tube name or variable names.
+    Note: Python keywords are not allowed to use in tube name or variable names.
     
-## General Arguments & Tube Variables
+## General Arguments
+
     Each tube command has its own arguments, there are also some general arguments
-    can be used for most of tube commands.
-    - General Arguments
-        Description: Most of tube commands support additional --continue, --redo,
-                 --key, --if, --raw and --note general arguments. It could make your tube realize
-                 more complex flow.         
+    can be used for most of tube commands.Most of tube commands support additional 
+    --continue, --redo, --key, --if, --raw and --note general arguments. It could make 
+    your tube realize more complex flow.         
 
         Continue:
             Syntax: --continue [m] [n]
@@ -153,8 +152,7 @@
             Description:
                 Add a note to the command.
                 
-
-    - Tube Variables  
+##Tube Variables  
 
         Define Tube Variables:  
             1. From tube YAML file, under 'VARIABLES' property, you can add tube
@@ -228,7 +226,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR, FIND
+#### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -286,7 +284,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
+#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -320,7 +318,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 10: DIR_DELETE
-#### Alias: D_DEL, D_DELETE
+#### Alias: D_DELETE, D_DEL
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -374,7 +372,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -394,7 +392,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -527,7 +525,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -755,7 +753,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 46: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]

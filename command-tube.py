@@ -7213,8 +7213,7 @@ def print_tube_command_help(args):
             Description:
                 Add a note to the command.
                 '''
-                help_var = '''
-    - Tube Variables  
+                help_var = '''Tube Variables  
 
         Define Tube Variables:  
             1. From tube YAML file, under 'VARIABLES' property, you can add tube
@@ -7365,22 +7364,21 @@ def print_tube_command_help(args):
 ## Naming Convention
     All sub-tube names and tube variables name could using following characters:
       a~z,A-Z,0-9,_
-    Note: Python keywords are not allowed to use tube name or variable names.
+    Note: Python keywords are not allowed to use in tube name or variable names.
     
-## General Arguments & Tube Variables
+## General Arguments
+
     Each tube command has its own arguments, there are also some general arguments
-    can be used for most of tube commands.
-    - General Arguments
-        Description: Most of tube commands support additional --continue, --redo,
-                 --key, --if, --raw and --note general arguments. It could make your tube realize
-                 more complex flow.         
+    can be used for most of tube commands.Most of tube commands support additional 
+    --continue, --redo, --key, --if, --raw and --note general arguments. It could make 
+    your tube realize more complex flow.         
 %s
 %s
 %s
 %s
 %s
 %s
-%s
+##%s
                 '''
                 help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
                             help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
