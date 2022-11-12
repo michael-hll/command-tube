@@ -5301,8 +5301,9 @@ class TubeCommandLog:
         # print errors in debug mode
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             if self.command.command_type == Storage.I.C_RUN_TUBE:    
-                for error in self.command.tube.errors:
-                    tprint(error, prefix='')
+                if self.command.sub_tube:
+                    for error in self.command.sub_tube.errors:
+                        tprint(error, prefix='')
             else:
                 for error in self.errors:
                     tprint(error, prefix='')                           
