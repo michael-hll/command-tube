@@ -90,6 +90,7 @@ class Storage():
         self.C_EXEC                    = 'EXEC'
         self.C_COUNT                   = 'COUNT'
         self.C_SET_VARIABLE            = 'SET_VARIABLE'
+        self.C_SET_TUBE                = 'SET_TUBE'
         self.C_DELETE_VARIABLE         = 'DELETE_VARIABLE'
         self.C_SFTP_GET                = 'SFTP_GET'
         self.C_SFTP_PUT                = 'SFTP_PUT'
@@ -265,6 +266,7 @@ class Storage():
         # 7: has action
         # 8: action
         # 9: default 
+        # 10: choices
         # LAST: description
         self.TUBE_ARGS_CONFIG = {  
             self.C_RUN_TUBE: {                
@@ -810,6 +812,25 @@ class Storage():
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
+            },
+            self.C_SET_TUBE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.2',
+                self.C_ALIAS: {'SET_T'},
+                self.C_ARG_ARGS: [    
+                    [False, '-c','--continue-all', 'str', 1, 'continue_all', False, False, '', '', ['yes', 'Yes', 'True', 'true', 'no', 'No', 'False', 'false'],
+                        'Enable/disable tube\'s command --continue status. Values: yes/no, true/false.'],
+                    [False, '-r','--redo-all', 'str', 1, 'redo_all', False, False, '', '', ['yes', 'Yes', 'True', 'true', 'no', 'No', 'False', 'false'],
+                        'Enable/disable tube\'s command --redo status. Values: yes/no, true/false.'],
+                    [False, '-k','--key-all', 'str', 1, 'key_all', False, False, '', '', ['yes', 'Yes', 'True', 'true', 'no', 'No', 'False', 'false'],
+                        'Enable/disable tube\'s command --key status. Values: yes/no, true/false.'],
+                ],
+                self.C_CONTINUE_PARAMETER: False,
+                self.C_REDO_PARAMETER: False,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: False,
+                self.C_PLACE_HOLDER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Enable or disable tube command properties: --continue, --redo or --key.'
             },
             self.C_DELETE_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -1868,6 +1889,7 @@ class TubeCommandArgument():
         self.has_action = False
         self.action = None
         self.default = None
+        self.choices = None
         self.flags = []
     
     def gen_flags(self):
@@ -1918,6 +1940,8 @@ class TubeCommandArgumentConfig():
                 argument.has_action = item[7]
                 argument.action     = item[8]
                 argument.default    = item[9]
+                if len(item) >= 12:
+                    argument.choices = item[10]
                 argument.gen_flags()
                 self.tube_command_arguments.append(argument)
 
@@ -1953,7 +1977,8 @@ class TubeArgumentParser(ArgumentParser):
                 # optional arguments
                 if not argument.has_action:
                     # without action
-                    new_parser.add_argument(*argument.flags, type=type(argument.type), nargs=argument.nargs, required=argument.required, dest=argument.dest)
+                    new_parser.add_argument(*argument.flags, type=type(argument.type), nargs=argument.nargs, 
+                        required=argument.required, dest=argument.dest, choices=argument.choices)
                 else:
                     # store value to action
                     new_parser.add_argument(*argument.flags, dest=argument.dest, action=argument.action, default=argument.default, required=argument.required)
@@ -2196,6 +2221,9 @@ class TubeCommand():
                 if len(args.continue_steps) > 0:
                     self.redo_content += (' ' + ' '.join(str(n) for n in args.continue_steps))
         
+        if not self.is_failed_redo and self.tube.redo_all:
+            self.is_failed_redo = True
+
         # analyze continue parameter
         if args.continue_steps != None:
             self.is_failed_continue = True
@@ -2217,6 +2245,9 @@ class TubeCommand():
                     self.success_skip_steps = args.continue_steps[1]
                     self.is_success_skip = True
 
+        if not self.is_failed_continue and self.tube.continue_all:
+            self.is_failed_continue = True
+
         # check if --raw is set
         if args.is_raw:
             self.is_raw = True
@@ -2227,7 +2258,10 @@ class TubeCommand():
               
         # check if it's key command to decide the tube result
         if args.key:
-            self.is_key_command = True        
+            self.is_key_command = True  
+
+        if not self.is_key_command and self.tube.key_all:
+            self.is_key_command = True      
         
     def check_if_key_command(self):
         '''
@@ -4204,6 +4238,36 @@ class TubeCommand():
 
         return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
+    def set_tube(self):
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
+
+        if args.continue_all:
+            if Utility.equal_true(args.continue_all[0]):
+                self.tube.continue_all = True
+            else:
+                self.tube.continue_all = False
+
+        if args.redo_all:
+            if Utility.equal_true(args.redo_all[0]):
+                self.tube.redo_all = True
+            else:
+                self.tube.redo_all = False
+        
+        if args.key_all:
+            if Utility.equal_true(args.key_all[0]):
+                self.tube.key_all = True
+            else:
+                self.tube.key_all = False
+        
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            msg = f'Tube properties are: continue_all({self.tube.continue_all}), redo_all({self.tube.redo_all}), key_all({self.tube.key_all})'
+            tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
+        
+        return True
+
     def sftp_get_put(self, ssh):
         '''
         Get or Put files between local and linux server using ssh.
@@ -4920,6 +4984,9 @@ class TubeCommand():
             
             elif command_type == Storage.I.C_SET_VARIABLE:
                 result = self.set_variable()
+            
+            elif command_type == Storage.I.C_SET_TUBE:
+                result = self.set_tube()
 
             elif command_type == Storage.I.C_DELETE_VARIABLE:
                 result = self.delete_variable()
@@ -5288,6 +5355,13 @@ class Tube():
         self.is_broke          = False
         self.is_continued      = False
         self.gen_tube_run()
+        # status property
+        self.status            = ''
+        self.errors            = []
+        # general arguments property
+        self.continue_all      = False
+        self.redo_all          = False
+        self.key_all           = False
         # class properties
         format_tube_name_len = len(self.tube_name) + len(str(self.tube_index)) + 3
         if format_tube_name_len > Tube.TUBE_NAME_MAX_LENGTH:

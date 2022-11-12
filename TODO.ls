@@ -1,6 +1,13 @@
 
 TODO LIST
 
+- SET_TUBE command, can set tube's property:
+    continue?
+    redo?
+    status?
+    errors?
+    ...
+
 - Output Command.results to Email content   
 
 - DONE LIST
