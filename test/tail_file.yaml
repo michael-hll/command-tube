@@ -1,4 +1,5 @@
 tube:
+    - SET_TUBE: -c yes
     - SET_VARIABLE: -n tmp_file -v tail.txt
     - SET_VARIABLE: -n i -v 0
     - FILE_EMPTY: '{tmp_file} -c'
@@ -9,10 +10,10 @@ tube:
     - FILE_DELETE: {tmp_file}
     - FILE_DELETE: tail2.txt
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n tail_file -v Testing Pass  -g --if {success_nums}==8 --key
-    - SET_VARIABLE: -n tail_file -v Testing Failed -g --if {success_nums}!=8 
-    - SET_VARIABLE: failed += 'tail_file.yaml,' -g --if {success_nums}!=8
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
+    - SET_VARIABLE: -n tail_file -v Testing Pass  -g --if {success_nums}==9 --key
+    - SET_VARIABLE: -n tail_file -v Testing Failed -g --if {success_nums}!=9 
+    - SET_VARIABLE: failed += 'tail_file.yaml,' -g --if {success_nums}!=9
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
 
 CREATE_TEST_FILE:
     - SET_VARIABLE: -n i -v {i} + 1 -g

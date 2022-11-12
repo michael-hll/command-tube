@@ -14,6 +14,7 @@ VARIABLES:
     c: a = ! ()
     v: 你好！=><!() 我是！:asdfasdf
 TUBE:
+    - SET_TUBE: -c yes
     - COMMAND: echo Testing conditions --if true
     - COMMAND: echo Testing conditions --if true false
     - COMMAND: echo Testing conditions --if false
@@ -108,11 +109,11 @@ TUBE:
     - COMMAND: ECHO EHLLO --if c1.startswith('a')
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COMMAND: echo Testing Passed --if {success_nums}==80
-    - SET_VARIABLE: -n if_condition_result -v Testing Pass  -g --if {success_nums}==80 --key
-    - SET_VARIABLE: -n if_condition_result -v Testing Failed -g --if {success_nums}!=80
-    - SET_VARIABLE: failed += 'if.yaml,' -g --if {success_nums}!=80
+    - SET_VARIABLE: -n if_condition_result -v Testing Pass  -g --if {success_nums}==81 --key
+    - SET_VARIABLE: -n if_condition_result -v Testing Failed -g --if {success_nums}!=81
+    - SET_VARIABLE: failed += 'if.yaml,' -g --if {success_nums}!=81
     - PRINT_VARS: 'if_condition_result'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==80
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==81
 
 
 

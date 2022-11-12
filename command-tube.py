@@ -830,7 +830,7 @@ class Storage():
                 self.C_KEY_PARAMETER: False,
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Enable or disable tube command properties: --continue, --redo or --key.'
+                self.C_COMMAND_DESCRIPTION: 'Enable or disable tube command properties for all: --continue, --redo or --key.'
             },
             self.C_DELETE_VARIABLE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',

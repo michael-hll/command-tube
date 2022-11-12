@@ -1,4 +1,5 @@
 TUBE:
+    - SET_TUBE: -c yes
     - SET_VARIABLE: -n i -v 0
     - SET_VARIABLE: -n file -v replace_test.txt
     - FILE_EMPTY: '{file} -c'
@@ -9,10 +10,10 @@ TUBE:
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n replace_char_result -v Testing Pass  -g --if {success_nums}==7 --key
-    - SET_VARIABLE: -n replace_char_result -v Testing Failed -g --if {success_nums}!=7
-    - SET_VARIABLE: failed += 'replace_char.yaml,' -g --if {success_nums}!=7
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
+    - SET_VARIABLE: -n replace_char_result -v Testing Pass  -g --if {success_nums}==8 --key
+    - SET_VARIABLE: -n replace_char_result -v Testing Failed -g --if {success_nums}!=8
+    - SET_VARIABLE: failed += 'replace_char.yaml,' -g --if {success_nums}!=8
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
 
 LOOP:
     - SET_VARIABLE: -n i -v i + 1 -g

@@ -1,4 +1,5 @@
 TUBE:
+    - SET_TUBE: -c yes
     - SET_VARIABLE: -n i -v 0
     - SET_VARIABLE: -n file -v check_char.txt
     - FILE_EMPTY: '{file} -c'
@@ -14,10 +15,10 @@ TUBE:
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n check_char_result -v Testing Pass  -g --if {success_nums}==12 --key
-    - SET_VARIABLE: -n check_char_result -v Testing Failed -g --if {success_nums}!=12
-    - SET_VARIABLE: failed += 'check_char.yaml,' -g --if {success_nums}!=12
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==12
+    - SET_VARIABLE: -n check_char_result -v Testing Pass  -g --if {success_nums}==13 --key
+    - SET_VARIABLE: -n check_char_result -v Testing Failed -g --if {success_nums}!=13
+    - SET_VARIABLE: failed += 'check_char.yaml,' -g --if {success_nums}!=13
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==13
 
 LOOP:
     - SET_VARIABLE: -n i -v i + 1 -g

@@ -1,4 +1,5 @@
 TUBE: 
+    - SET_TUBE: -c yes
     - DIR_EXIST: -d file_sys -v exists
     - DIR_DELETE: file_sys -f --if exists
     - DIR_CREATE: file_sys --continue
@@ -43,10 +44,10 @@ TUBE:
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -c --note Count current success count
-    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==36 --key
-    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=36
-    - SET_VARIABLE: failed += 'file_sys.yaml,' -g --if {success_nums}!=36
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==36
+    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==37 --key
+    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=37
+    - SET_VARIABLE: failed += 'file_sys.yaml,' -g --if {success_nums}!=37
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==37
 
 CR_FILES:
     - SET_VARIABLE: -n i -v i + 1 -g

@@ -5,6 +5,7 @@ VARIABLES:
     skipped_nums: 0
     failed_nums: 0
 TUBE:
+    - SET_TUBE: -c yes
     - COMMAND: ls --redo
     - COMMAND: ls2 --redo --continue
     - COMMAND: ls
@@ -17,11 +18,11 @@ TUBE:
     - COMMAND: echo Check Failed --if {failed_nums}==4
     - COMMAND: echo Check Skipped --if {skipped_nums}==0
      # output testing result
-    - SET_VARIABLE: -n redo_result -v Testing Pass -g --if {success_nums}==8 --key
-    - SET_VARIABLE: -n redo_result -v Testing Failed -g --if {success_nums}!=8
-    - SET_VARIABLE: failed += 'redo.yaml,' -g --if {success_nums}!=8
+    - SET_VARIABLE: -n redo_result -v Testing Pass -g --if {success_nums}==9 --key
+    - SET_VARIABLE: -n redo_result -v Testing Failed -g --if {success_nums}!=9
+    - SET_VARIABLE: failed += 'redo.yaml,' -g --if {success_nums}!=9
     - PRINT_VARS: 'redo_result'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
 
 
      

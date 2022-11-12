@@ -13,14 +13,15 @@ VARIABLES:
 TUBE:
     # DELETE_LINE_IN_FILE: -f file [-b begins] [-c contains] [-e] [--continue [m][n]] [--redo [m]] [--if run]
     # Mac OS version
+    - SET_TUBE: -c yes
     # Prepare data
     - EMAIL: -t {address1} {address2} -s Testing EMAIL -b This is testing email content
     - EMAIL: -t {address1} -s Testing EMAIL BODY -b email.body
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COMMAND: echo Testing Passed --if {success_nums}==2
     # output testing result
-    - SET_VARIABLE: -n email_result -v Testing Pass -g --if {success_nums}==2 --key
-    - SET_VARIABLE: -n email_result -v Testing Failed -g --if {success_nums}!=2
-    - SET_VARIABLE: failed += 'email.yaml,' -g --if {success_nums}!=2
+    - SET_VARIABLE: -n email_result -v Testing Pass -g --if {success_nums}==3 --key
+    - SET_VARIABLE: -n email_result -v Testing Failed -g --if {success_nums}!=3
+    - SET_VARIABLE: failed += 'email.yaml,' -g --if {success_nums}!=3
     - PRINT_VARS: 'email_result'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==2
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==3

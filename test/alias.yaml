@@ -1,4 +1,5 @@
 TUBE:
+    - SET_TUBE: -c yes
     - SET_VARIABLE: -n file -v data_0.txt
     - SET_VARIABLE: -n x -v 100
     - READ_LINE: -f {file} -n -1 -v line
@@ -12,7 +13,7 @@ TUBE:
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n alias_result -v Testing Pass  -g --if {success_nums}==10 --key
-    - SET_VARIABLE: -n alias_result -v Testing Failed -g --if {success_nums}!=10
-    - SET_VARIABLE: failed += 'alias.yaml,' -g --if {success_nums}!=10
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==10
+    - SET_VARIABLE: -n alias_result -v Testing Pass  -g --if {success_nums}==11 --key
+    - SET_VARIABLE: -n alias_result -v Testing Failed -g --if {success_nums}!=11
+    - SET_VARIABLE: failed += 'alias.yaml,' -g --if {success_nums}!=11
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11

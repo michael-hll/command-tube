@@ -1,4 +1,5 @@
 TUBE:
+    - SET_TUBE: -c yes
     - SET_VARIABLE: i = 1
     - ECHO: the current i value is {i}
     - RUN_TUBE: SubTube1 --while i < 3
@@ -8,10 +9,10 @@ TUBE:
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n break_continue_result -v 'Testing Pass'  -g --if {success_nums}==6 --key
-    - SET_VARIABLE: -n break_continue_result -v 'Testing Failed' -g --if {success_nums}!=6
-    - SET_VARIABLE: failed += 'break_continue.yaml,' -g --if {success_nums}!=6
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6
+    - SET_VARIABLE: -n break_continue_result -v 'Testing Pass'  -g --if {success_nums}==7 --key
+    - SET_VARIABLE: -n break_continue_result -v 'Testing Failed' -g --if {success_nums}!=7
+    - SET_VARIABLE: failed += 'break_continue.yaml,' -g --if {success_nums}!=7
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
 
 SubTube1:
     - SET_VARIABLE: i = i + 1 -g

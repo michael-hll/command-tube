@@ -2,16 +2,17 @@
 RUN_MODE: DEBUG
 TUBE:
     # Mac OS version
+    - SET_TUBE: -c yes
     - COMMAND: cp key_value_0.ini key_value_x.ini
     - SET_FILE_KEY_VALUE: -f key_value_x.ini -k key1 -v value1
     - SET_FILE_KEY_VALUE: -f key_value_x.ini -k key1 -v value1 abc
     - SET_FILE_KEY_VALUE: -f key_value_x.ini -k key2 -v test value
     - COMMAND: rm key_value_x.ini
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - COMMAND: echo Testing Passed --if {success_nums}==5
-    - SET_VARIABLE: -n set_file_key_value_result -v Testing Pass -g --if {success_nums}==5 --key
-    - SET_VARIABLE: -n set_file_key_value_result -v Testing Failed -g --if {success_nums}!=5
-    - SET_VARIABLE: failed += 'set_file_key_value.yaml,' -g --if {success_nums}!=5
+    - COMMAND: echo Testing Passed --if {success_nums}==6
+    - SET_VARIABLE: -n set_file_key_value_result -v Testing Pass -g --if {success_nums}==6 --key
+    - SET_VARIABLE: -n set_file_key_value_result -v Testing Failed -g --if {success_nums}!=6
+    - SET_VARIABLE: failed += 'set_file_key_value.yaml,' -g --if {success_nums}!=6
     - PRINT_VARS: 'set_file_key_value_result'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==5
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==6
 
