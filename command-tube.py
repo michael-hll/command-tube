@@ -823,6 +823,13 @@ class Storage():
                         'Enable/disable tube\'s command --redo status. Values: yes/no, true/false.'],
                     [False, '-k','--key-all', 'str', 1, 'key_all', False, False, '', '', ['yes', 'Yes', 'True', 'true', 'no', 'No', 'False', 'false'],
                         'Enable/disable tube\'s command --key status. Values: yes/no, true/false.'],
+                    [False, '-e','--ending|--finally', 'str', 1, 'ending_tube', False, False, '', '',
+                        'The tube you want to run for ending. It supports 3 formats: \
+                         \n{0:20s}        - \'file.yaml\': Run TUBE from file.yaml file. With this format the global variables in file.xml will also be imported. \
+                         \n{0:20s}        - \'file[X]\': Run tube X from file.yaml file. \
+                         \n{0:20s}        - \'X\': Run tube X from the current yaml file.'.format(' ')],
+                    [False, '-','--key-ending', '', '', 'is_ending_key', False, True, 'store_true', False,
+                        'Add ending tube --key argument.'],
                 ],
                 self.C_CONTINUE_PARAMETER: False,
                 self.C_REDO_PARAMETER: False,
@@ -4263,6 +4270,12 @@ class TubeCommand():
             else:
                 self.tube.key_all = False
         
+        if args.ending_tube:
+            self.tube.ending_tube = args.ending_tube[0]
+
+            if args.is_ending_key:
+                self.tube.ending_tube += ' ' + Storage.I.C_KEY_PARAMETER
+        
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = f'Tube properties are: continue_all({self.tube.continue_all}), redo_all({self.tube.redo_all}), key_all({self.tube.key_all})'
             tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
@@ -5357,6 +5370,7 @@ class Tube():
         self.tube_name         = name
         self.tube_index        = index
         self.parent: Tube      = parent
+        self.ending_tube       = None
         self.tube_yaml         = tube_yaml        
         self.tube_run          = []
         self.tube_run_all      = []
@@ -5385,24 +5399,36 @@ class Tube():
         Storage.I.TUBE_LIST.append(self)  
         Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file       
         
-    def gen_tube_run(self):
+    def gen_tube_run(self, is_ending=False):
         '''
         Convert tube from yaml format to TubeCommand list
+        Or run ending tube
         '''
         
         tube_run_new = []
-        
-        # check empty tube commands
-        if not self.tube_yaml:
-            self.tube_run = []
-            return
-        
-        # go through each tube command and added
-        for item in self.tube_yaml:            
-            for key in item.keys():                  
-                command = TubeCommand(key, item[key])
-                command.tube = self                
-                tube_run_new.append(command) 
+
+        if not is_ending:        
+            # check empty tube commands
+            if not self.tube_yaml:
+                self.tube_run = []
+                return
+            
+            # go through each tube command and added
+            for item in self.tube_yaml:            
+                for key in item.keys():                  
+                    command = TubeCommand(key, item[key])
+                    command.tube = self                
+                    tube_run_new.append(command) 
+
+        else:
+            # ending logic
+            content = self.ending_tube
+            if self.key_all and Storage.I.C_KEY_PARAMETER not in content:
+                content += ' ' + Storage.I.C_KEY_PARAMETER
+            command = TubeCommand(Storage.I.C_RUN_TUBE, content)
+            command.tube = self
+            self.tube_run.append(command) # since we need to include the ending tube command to calc the final runing status
+            tube_run_new.append(command) 
 
         # update max command type length
         StorageUtility.reset_max_tube_command_type_length(tube_run_new)
@@ -5501,6 +5527,8 @@ class TubeRunner():
         self.is_main                       = is_main
         self.run_tube_command: TubeCommand = run_tube_command
         self.tube: Tube                    = tube
+        self.is_ending_processed           = False
+        self.is_ending                     = False
     
     def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0, command=None):
         # print current while conditions in debug mode        
@@ -5518,6 +5546,8 @@ class TubeRunner():
         
         # skip the main job
         if self.is_main:
+            # run ending tube
+            self.__process_ending()
             return
         
         # copy done list to the 'tube' that contains the whole sub command list
@@ -5552,15 +5582,27 @@ class TubeRunner():
             self.tube.status = status
             # clear each parameters
             if self.tube.each_ready:
-                self.tube.clear_each()               
+                self.tube.clear_each()  
+
+            # run ending tube
+            self.__process_ending()             
     
+    def __process_ending(self):
+        if not self.tube.ending_tube or self.is_ending_processed:
+            return
+        self.is_ending_processed = True
+        self.is_ending = True
+        self.pre_command = None
+        self.tube.gen_tube_run(is_ending=True)        
+        self.start()
+
     def start(self):
         '''
         Run a tube.          
         '''
         
         # increase the total interation times
-        if self.is_main == False:
+        if self.is_main == False and self.is_ending == False:
             self.tube.tube_run_times += 1
 
             if self.tube.each_ready:
