@@ -167,11 +167,9 @@ TODO LIST
             eg: - set: x += 1
     
     64. - SET_TUBE command, can set tube's property:
-            continue?
-            redo?
-            status?
-            errors?
-            ...
+            continue
+            redo
+            ending logic
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
