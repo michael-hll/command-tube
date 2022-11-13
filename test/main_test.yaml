@@ -17,7 +17,7 @@ Variables:
     test_folder: /Volumes/MacDrive/Projects/tube/test
     del_log: yes
     email: no
-    result: 16
+    result: 17
     all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
 TUBE:
@@ -57,6 +57,8 @@ TUBE:
                 --if all or case == 16
     - RUN_TUBE: break_continue.yaml --continue --note 17
                 --if all or case == 17
+    - RUN_TUBE: set_tube.yaml --continue --note 18
+                --if all or case == 18
 
     - SET_VARIABLE: result = 1 --if all == no
 

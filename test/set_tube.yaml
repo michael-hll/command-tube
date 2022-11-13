@@ -1,0 +1,30 @@
+Tube:
+    - SET_VARIABLE: success_nums = 0
+    - SET_TUBE: -e ending --key-ending    
+    - PRINT: ok
+    - COMMAND: ls2 --continue
+    - RUN_TUBE: sub
+    - SET_VARIABLE: success_nums = 3
+    
+ending:
+    - PRINT: ending command
+    - SET_VARIABLE: -n set_tube_result -v 'Testing Pass'  -g --if {success_nums}>0 --key
+    - SET_VARIABLE: -n set_tube_result -v 'Testing Failed' -g --if {success_nums}==0
+    - SET_VARIABLE: failed += 'set_tube.yaml,' -g --if {success_nums}==0
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}>0
+
+sub:
+    - SET_TUBE: -e ending_sub
+    - PRINT: a sub command
+
+ending_sub:
+    - PRINT: sub ending
+
+    
+    
+
+
+        
+
+    
+
