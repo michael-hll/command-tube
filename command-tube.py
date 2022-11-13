@@ -7385,18 +7385,31 @@ def print_tube_command_help(args):
     - More YAML file examples could reference the yaml files within test folder.
 
 ## Tube
-   There is only one main tube and maybe many sub-tubes within a yaml file. 
-   The main tube name can be one of these: 'Tube', 'tube' or 'TUBE'. 
-   Using command RUN_TUBE you can run a sub-tube:
+    Tube is a container to include all tube commands. It's defined in a YAML file.
+    The tube name is a YAML's content key, and the value of the key is a YAML list 
+    type object. You can define 1 or many tube commands within a tube.
+    There is only one main tube and maybe many sub-tubes within a yaml file. 
+    The main tube name can be one of these: 'Tube', 'tube' or 'TUBE'. 
+    Using command RUN_TUBE you can run a sub-tube:
 
-    Tube:
-        - RUN: SubTube
-    SubTube:
-        - PRINT: I'm a command from sub tube
+        Tube:
+            - RUN: SubTube
+        SubTube:
+            - PRINT: I'm a command from sub tube
 
-### Tube Chain
+#### Tube Chain
     A tube and it's all parents' tubes composed a tube chain.
     From previous example, tubes 'SubTube' and 'Tube' is one tube chain.
+
+#### Tube Ending
+    Use SET_TUBE command's -e|--ending|--finally argument you can set a tube's
+    ending tube. A ending tube will always be executed at the end.
+    
+        Tube:
+            - SET_TUBE: --ending EndingLogic
+            - PRINT: add main tube commands here            
+        EndingLogic:
+            - PRINT: add ending tube commands here
 
 ## Tube Commands
     For all supported tube commands you could use below commands:
