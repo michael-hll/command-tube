@@ -5548,7 +5548,7 @@ class TubeRunner():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)  
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
         
-    def __finish_start_again(self):
+    def __finishing(self):
         
         # skip the main job
         if self.is_main:
@@ -5746,7 +5746,7 @@ class TubeRunner():
         # during the end of sub tube running
         # we need to check while condition again
         # to see if need to run the sub tube again
-        self.__finish_start_again()
+        self.__finishing()
         
 class Host():
     
