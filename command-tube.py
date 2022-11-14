@@ -5514,6 +5514,10 @@ class Tube():
         self.errors.append(error)
 
 class TubeRunner():
+
+    C_STATUS_NOT_START = 'Not-Started'
+    C_STATUS_RUNNING = 'Running'
+    C_STATUS_STOPPED = 'Stopped'
     
     def __init__(self, is_main = True, run_tube_command: TubeCommand = None, tube: Tube = None):
         '''
@@ -5529,6 +5533,7 @@ class TubeRunner():
         self.tube: Tube                    = tube
         self.is_ending_processed           = False
         self.is_ending                     = False
+        self.status                        = TubeRunner.C_STATUS_NOT_START
     
     def __output_while_condition(self, while_condition, tube_conditions, loop_index = 0, command=None):
         # print current while conditions in debug mode        
@@ -5547,7 +5552,8 @@ class TubeRunner():
         # skip the main job
         if self.is_main:
             # run ending tube
-            self.__process_ending()
+            self.status = TubeRunner.C_STATUS_STOPPED
+            self.__process_ending()            
             return
         
         # copy done list to the 'tube' that contains the whole sub command list
@@ -5575,14 +5581,16 @@ class TubeRunner():
             (self.tube.each_ready and self.tube.__each_index__ < len(self.tube.each_ls) - 1)):             
             self.pre_command = None       
             self.tube.gen_tube_run()     
-            self.start()
         else:
             # At the end of the RUN_TUBE interations, we need to reset the sub tube running result
             self.run_tube_command.log.status = status
             self.tube.status = status
             # clear each parameters
             if self.tube.each_ready:
-                self.tube.clear_each()  
+                self.tube.clear_each() 
+
+            # make sure stop the loop
+            self.status = TubeRunner.C_STATUS_STOPPED
 
             # run ending tube
             self.__process_ending()             
@@ -5595,11 +5603,15 @@ class TubeRunner():
         self.pre_command = None
         self.tube.gen_tube_run(is_ending=True)        
         self.start()
+        self.status = TubeRunner.C_STATUS_STOPPED
 
     def start(self):
         '''
         Run a tube.          
         '''
+
+        # update the status
+        self.status = TubeRunner.C_STATUS_RUNNING
         
         # increase the total interation times
         if self.is_main == False and self.is_ending == False:
@@ -5722,8 +5734,9 @@ class TubeRunner():
                 # print current while conditions in debug mode
                 self.__output_while_condition(True, command.sub_tube.tube_conditions, command.sub_tube.tube_run_times, command=command)  
                 # start the sub tube runner
-                runner = TubeRunner(False, command, command.sub_tube)                 
-                runner.start()
+                runner = TubeRunner(False, command, command.sub_tube)     
+                while runner.status != TubeRunner.C_STATUS_STOPPED:          
+                    runner.start()
 
             # Check 'break' or 'continue' command
             if command.tube.is_broke or command.tube.is_continued:
