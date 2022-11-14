@@ -211,6 +211,7 @@ class Storage():
         self.IS_IMMEDIATE              = False
         self.IS_FORCE_RUN              = False
         self.IS_SENT_EMAIL             = False
+        self.IS_DISABLE_LOG            = False
         self.SERVERS                   = None 
         self.VARIABLES                 = None      
         self.TUBE_NAME                 = None # Main tube name        
@@ -6502,6 +6503,8 @@ def write_line_to_log(file, mode='a+', line=''):
               WriteAndRead(w+), AppendOnly(a), AppendAndRead(a+)
         line: Content to write.
     '''
+    if Storage.I.IS_DISABLE_LOG:
+        return
     try:    
         with open(file, mode) as f:            
             f.write(line + '\n')
@@ -7104,6 +7107,8 @@ def init_arguments():
                         help='Set log file name. Default is tube file name plus \'.log\'.')
     parser.add_argument('-c', '--clear-log', dest='clear_log', action='store_const', const='yes',
                         help='A flag to tell if clear tube log content first. Default no.')
+    parser.add_argument('-n', '--no-log', dest='disable_log', action='store_const', const='yes',
+                        help='A flag to disable writing logs. Default no.')
     parser.add_argument('--pip', dest='pip_command',
                         help='To tell which pip command is used. e.g.: pip or pip3. \nWindows system is default pip, and MacOS system is default pip3. ' + \
                               '\nUsually you don\'t need to provide this parameter value, \nexcept in Windows system, it\'s not pip and in MacOS, it\'s not pip3.')                                                    
@@ -7781,9 +7786,14 @@ def get_console_inputs():
     # if debug
     if args.debug != None:
         Storage.I.RUN_MODE = Storage.I.C_RUN_MODE_DEBUG
+
     # if clear log
     if args.clear_log:
         Storage.I.IS_CLEAR_LOG = True
+
+    # if disable log
+    if args.disable_log:
+        Storage.I.IS_DISABLE_LOG = True
 
     # datetime
     if(args.datetime != None):

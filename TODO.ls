@@ -170,6 +170,8 @@ TODO LIST
             continue
             redo
             ending logic
+    
+    65. - Add --no-log flag to disable writting log file feature
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
