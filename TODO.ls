@@ -3,7 +3,7 @@ TODO LIST
 
 
 
-- Output Command.results to Email content   
+- Output Command.results to Email content - future
 
 - DONE LIST
     1. Email content format - done
@@ -182,5 +182,7 @@ TODO LIST
         5. Fixed a python recursive issue
            Python default recursive stack is 1000
            Changed the TubeRunner from recursive to run in a loop to fix this issue
+        6. Bug fix for --if condition logic
+           Fixed case: s.starswith('test') doesn't work
 
 
