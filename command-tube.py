@@ -1767,7 +1767,7 @@ class Utility():
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)       
         except Exception as e:
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                tprint(str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
+                tprint(str(e), type=Storage.I.C_PRINT_TYPE_WARNING)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e))
         finally:
             return expression
@@ -6432,6 +6432,10 @@ def tprint(line='', prefix=None, type=None, tcolor=None, tcolor_style=None, tcol
     # set default color type
     if type == Storage.I.C_PRINT_TYPE_WARNING:
         type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_ORANGE, style=tcolor_style, back=tcolor_back)
+        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+            traces = traceback.format_exc()
+            if not traces.startswith('NoneType'):
+                line += '\n' + traces
     elif type == Storage.I.C_PRINT_TYPE_ERROR:
         type = color(type + splitchar, fore=Storage.I.C_PRINT_COLOR_RED, style=tcolor_style, back=tcolor_back)
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
