@@ -1513,54 +1513,22 @@ class Utility():
         
         Args:
             condtions: []
+            command: TubeCommand
         '''       
-        is_holder_exists = [ True if '{' in item else False for item in conditions]    
-        is_holder_exists = True in is_holder_exists
         conditions_trim = [command.self_format_placeholders(item.strip(), is_quoted_str = True) for item in conditions]
         conditions_trim = ['True' if Utility.equal_true(item) else item for item in conditions_trim]
         conditions_trim = ['False' if Utility.equal_false(item) else item for item in conditions_trim]
         conditions_str = ' '.join(conditions_trim)
         if Utility.if_compare_char_exists(conditions_str): 
             # if cound contionds char we use the normal eval method to do check the condition
-            code = compile(conditions_str, '<string>', 'eval')    
-            local_dict = {}
-            # Add the missing codes into local varialbes as str
-            for name in code.co_names:
-                kv = command.tube.get_first_key_value(name) if is_holder_exists == False else None
-                if is_holder_exists == False and kv != None:
-                    local_dict[name] = kv
-                    continue
-                if name in Storage.I.EVAL_CODE_SET:
-                    continue
-                if not name in globals().keys():
-                    local_dict[name] = str(name)                        
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                msg = 'The eval parameter is: {0}, local dict: {1}, running command is {2}.'.format(conditions_str, local_dict, command.get_full_content())
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            return eval(conditions_str, globals(), local_dict)
+            return Utility.eval_expression(conditions_str, command.tube)
         else:
-            # no conditions char exist case
-            if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
-                msg = 'The condition is: \'{0}\', running command is \'{1}\'.'.format(conditions_str, command.get_full_content())
-                tprint(msg, type=Storage.I.C_PRINT_TYPE_DEBUG)
-                write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
-            # for the cases don't contain ==, >, <, != etc
-            if ' ' in conditions_str:
-                # for 'condtion1 condition2 case'
-                for value in conditions_trim:
-                    if is_holder_exists == False:
-                        kv = command.tube.get_first_key_value(value) 
-                        value = kv if kv != None else value
-                    if Utility.equal_false(value):
-                        return False
-            else:
-                # for 'condition' case
-                if is_holder_exists == False:
-                    kv = command.tube.get_first_key_value(conditions_str) 
-                    conditions_str = kv if kv != None else conditions_str
-                if Utility.equal_false(conditions_str):
-                    return False 
+            # if user provided case: --if condtion1 condtion2 
+            # then use and for condtion1 and condtion2
+            for condition in conditions_trim:
+                eval_result = Utility.eval_expression(condition, command.tube)
+                if eval_result == False:
+                    return False    
         return True
     
     @classmethod
