@@ -165,7 +165,11 @@
             Description:
                 Add a note to the command.
                 
-##Tube Variables  
+## Tube Variables  
+
+        Like other language's variables, Command Tube has its own variable called
+        Tube Variable. You can define and use it for more complex cases and make
+        the tool more convenient.
 
         Define Tube Variables:  
             1. From tube YAML file, under 'VARIABLES' property, you can add tube
@@ -239,7 +243,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: FIND, CHECK_CHAR
+#### Alias: CHECK_CHAR, FIND
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -297,7 +301,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
+#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -311,7 +315,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 8: DELETE_VARIABLE
-#### Alias: DEL_VAR, DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -405,7 +409,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -538,7 +542,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -771,7 +775,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 46: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]

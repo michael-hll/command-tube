@@ -7253,6 +7253,10 @@ def print_tube_command_help(args):
                 '''
                 help_var = '''Tube Variables  
 
+        Like other language's variables, Command Tube has its own variable called
+        Tube Variable. You can define and use it for more complex cases and make
+        the tool more convenient.
+
         Define Tube Variables:  
             1. From tube YAML file, under 'VARIABLES' property, you can add tube
                variable staticly.
@@ -7429,7 +7433,7 @@ def print_tube_command_help(args):
 %s
 %s
 %s
-##%s
+## %s
                 '''
                 help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
                             help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
