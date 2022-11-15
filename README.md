@@ -301,7 +301,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: DELETE_LINE_IN_FILE
-#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
+#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -335,7 +335,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 10: DIR_DELETE
-#### Alias: D_DELETE, D_DEL
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -409,7 +409,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 17: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -542,7 +542,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 28: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -622,7 +622,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 35: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
@@ -686,7 +686,8 @@ Parameters:
 Support from version: 2.0.0</pre>
 ### 40: SET_TUBE
 #### Alias: SET_T
-<pre>Description: Enable or disable tube command properties for all: --continue, --redo or --key.
+<pre>Description: Enable or disable tube commands general arguments for: --continue, --redo or --key.                         
+Set tube's ending tube.
 
 Syntax: - SET_TUBE: [-c|--continue-all continue_all] [-r|--redo-all redo_all] [-k|--key-all key_all] [-e|--ending|--finally ending_tube] [--key-ending] [--if run] [--raw] [--note note]
 Parameters:
@@ -775,7 +776,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 46: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LN, WRITE_LINE
+#### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
