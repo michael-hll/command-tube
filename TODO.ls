@@ -184,5 +184,7 @@ TODO LIST
            Changed the TubeRunner from recursive to run in a loop to fix this issue
         6. Bug fix for --if condition logic
            Fixed case: s.starswith('test') doesn't work
+        7. Make the total time more precise
+           Make the command time more precise
 
 

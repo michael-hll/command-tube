@@ -4840,6 +4840,7 @@ class TubeCommand():
             
             # initial logs             
             log.start_datetime = datetime.now()
+            log.start_time = time.time()
             log.status = Storage.I.C_SUCCESSFUL
             result = True
             # --------------------------------------------------------
@@ -5010,6 +5011,7 @@ class TubeCommand():
             if result == False:
                 log.status = Storage.I.C_FAILED
             log.end_datetime = datetime.now()
+            log.end_time = time.time()
             
             # set the final result of running method
             return True
@@ -5022,6 +5024,7 @@ class TubeCommand():
                 for msg in log.errors:
                     tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR) 
             log.end_datetime = datetime.now()
+            log.end_time = time.time()
             return True
         
     # ---- IMPORTANT RULE ------
@@ -5213,6 +5216,8 @@ class TubeCommandLog:
         self.command        = command
         self.start_datetime = datetime.now()
         self.end_datetime   = datetime.now()
+        self.start_time     = time.time()
+        self.end_time       = time.time()
         self.status         = None
         self.errors         = []
         self.log            = None
@@ -5221,28 +5226,25 @@ class TubeCommandLog:
         '''
         return tube total running time in minutes
         '''
-        duration      = self.end_datetime - self.start_datetime 
-        duration_in_s = duration.total_seconds() 
-        duration_in_m = divmod(duration_in_s, 60)[0]
-        return int(duration_in_m)
+        duration = (self.end_time - self.start_time)/60
+        return float('{:.2f}'.format(duration))
     
     def get_total_seconds(self):
         '''
         return total tube running time in seconds
         '''
-        duration      = self.end_datetime - self.start_datetime 
-        duration_in_s = duration.total_seconds()
-        return int(duration_in_s)
+        duration = self.end_time - self.start_time
+        return float('{:.2f}'.format(duration))
 
     def format_log(self, sequence, include_index=False):
         '''
         format tube log status overview
         '''
         duration_in_s = self.get_total_seconds()
-        duration_str = '%s SEC' % duration_in_s
+        duration_str = '%s SEC' % '{:.1f}'.format(duration_in_s)
         command_type = self.command.get_formatted_type(include_index=include_index)
         if duration_in_s >= 60:
-            duration_str = '%s MIN' % self.get_total_minutes()
+            duration_str = '%s MIN' % '{:.1f}'.format(self.get_total_minutes())
         return_foramt = '%5s - %10s - %8s - %' + str(Tube.TUBE_NAME_MAX_LENGTH) + 's: %s'   
         return return_foramt % \
             ('[' + str(sequence) + ']', self.status, duration_str, command_type, \
@@ -5263,9 +5265,9 @@ class TubeCommandLog:
         print tube log status overview
         '''
         duration_in_s = self.get_total_seconds()
-        duration_str = '%s SEC' % duration_in_s
+        duration_str = '%s SEC' % '{:.1f}'.format(duration_in_s)
         if duration_in_s >= 60:
-            duration_str = '%s MIN' % str(int(divmod(duration_in_s, 60)[0]))
+            duration_str = '%s MIN' % '{:.1f}'.format(duration_in_s/60.0)
         command_type = self.command.get_formatted_type(include_index=True)
         log_format = '%5s - %10s - %8s - %' + str(Tube.TUBE_NAME_MAX_LENGTH) + 's: %s'
         log_value = ('[' + str(sequence) + ']', self.status, duration_str, 
@@ -6648,15 +6650,15 @@ def print_each_command_status(LOGS):
     # print status of each command
     tprint('----- Status of Each Command -----', prefix='')    
     seq = 0
-    total_minutes = 0
-    total_seconds = 0
+    total_minutes = 0.0
+    total_seconds = 0.0
     has_retried_command = False
     log: TubeCommandLog
     for log in LOGS:
         if log.command.is_redo_added == True:
             has_retried_command = True
         seq += 1
-        total_minutes += log.get_total_minutes()
+        total_minutes += log.get_total_seconds()/60
         total_seconds += log.get_total_seconds()
         log.print_log(seq)
     # output tube file list as a note
@@ -6673,9 +6675,12 @@ def print_each_command_status(LOGS):
     tprint(prefix='')   
     
     # print total running during time
-    totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
+
+    totals = ''
     if total_seconds < 60:
-        totals = '%s seconds' % str(total_seconds)
+        totals = '%s seconds' % '{:.1f}'.format(total_seconds)
+    else:
+        totals = '%s minutes' % '{:.1f}'.format(total_seconds/60.0)
     tprint('-------------------------------', prefix='')
     tprint('Total Time: %s' % totals, prefix='')
     tprint('-------------------------------', prefix='')
@@ -6871,9 +6876,12 @@ def write_logs_to_file(LOGS):
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, result)
 
     # totals
-    totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
+    totals = ''
     if total_seconds < 60:
-        totals = '%s seconds' % str(total_seconds)
+        totals = '%s seconds' % '{:.1f}'.format(total_seconds)
+    else:
+        totals = '%s minutes' % '{:.1f}'.format(total_seconds/60.0)
+
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, '--------------------------------')  
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, 'Start at   : ' + Storage.I.START_DATE_TIME.strftime(Storage.I.C_DATETIME_FORMAT))      
     write_line_to_log(Storage.I.TUBE_LOG_FILE, mode, 'Finish at  : ' + datetime.now().strftime(Storage.I.C_DATETIME_FORMAT))
@@ -6957,9 +6965,11 @@ def prepare_emails_content_and_sent(LOGS):
         line = log.format_log(seq)     
         email_body += line + '<br>'
     # total time
-    totals = '%s minutes' % str(int(divmod(total_seconds, 60)[0]))
-    if total_seconds < 60:
-        totals = '%s seconds' % str(total_seconds)
+    totals = ''
+    if total_seconds > 60.0:
+        totals = '%s minutes' % '{:.1f}'.format(total_seconds/60.0)
+    else:
+        totals = '%s seconds' % '{:.1f}'.format(total_seconds)
     email_body += '-------------------------------<br>'
     email_body += '<br>Total Time   : ' + totals + ' <br></body>'
     email_body = '<font face="monospace">' + email_body + '</font>'
