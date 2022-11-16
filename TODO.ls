@@ -1,7 +1,13 @@
 
 TODO LIST
 
+- set_var: support update object type variable's property value - 2.0.3
 
+- placehoder can access object type variable's property - 2.0.3
+
+- Requests popular methods to tube commands - 2.0.3
+
+- Integrate 3rd party or customized scripts as tube commands?? -- Thinking
 
 - Output Command.results to Email content - future
 
