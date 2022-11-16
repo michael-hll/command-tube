@@ -1775,7 +1775,7 @@ class Utility():
 class reUtility():
 
     # regular expression to match: {name}|{name:format}|{name[0/i]}|{name[0/i]:format}|{name["key"]}|{name["key"]:format}
-    RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\]|\[[\"|\'][a-zA-Z_0-9]+[\"|\']\]){,2}(:[^:\{\}]+)?\})'
+    RE_MATCH_PLACEHOLDER = '(\{([a-zA-Z_0-9.]+)(\[[a-zA-Z_0-9.]+\]|\[[\"|\'][a-zA-Z_0-9.]+[\"|\']\]){,2}(:[^:\{\}]+)?\})'
     P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
 
     # 1 = key, 2 = list index: [0][0], 5 = dict key, 6 = operator: +, -, *, /  7 = value
@@ -5067,6 +5067,11 @@ class TubeCommand():
             match_str = t[0]
             match_str_value = t[0]
             var_name = t[1]
+            # if var_name with obejct property like 'now.year'
+            # then we need to find the object name without the property value
+            var_name_trim = var_name
+            if '.' in var_name_trim:
+                var_name_trim = var_name[:var_name.index('.')]    
             var_format = t[3]            
 
             # don't do duplict processed
@@ -5075,15 +5080,12 @@ class TubeCommand():
             else:            
                 processed.add(match_str)
     
-            # if key is in dict then we are simple           
-            if var_name in key_values.keys():
-                ph_key = match_str.strip('{').strip('}')
-                if ':' in ph_key:
-                    ph_key = ph_key[0:ph_key.index(':')]
-                if not '[' in ph_key:
-                    match_str_value = key_values[ph_key]
-                else:
-                    match_str_value = eval(ph_key, globals(), key_values)
+            # if key is in dict then we can use the eval method       
+            if var_name_trim in key_values.keys():
+                expression = match_str.strip('{').strip('}')
+                if ':' in expression:
+                    expression = expression[0:expression.index(':')]
+                match_str_value = eval(expression, globals(), key_values)
                 if var_format:
                     match_str_value = ('{0' + var_format + '}').format(match_str_value)
                 ret_value = ret_value.replace(match_str, str(match_str_value))                

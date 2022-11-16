@@ -1,9 +1,8 @@
 
 TODO LIST
 
-- set_var: support update object type variable's property value - 2.0.3
 
-- placehoder can access object type variable's property - 2.0.3
+- set_var: support update object type variable's property value - 2.0.2
 
 - Requests popular methods to tube commands - 2.0.3
 
@@ -178,6 +177,8 @@ TODO LIST
             ending logic
     
     65. - Add --no-log flag to disable writting log file feature
+
+    66. - placehoder can access object type variable's property - 2.0.2
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
