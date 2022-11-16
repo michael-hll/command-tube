@@ -1779,7 +1779,7 @@ class reUtility():
     P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
 
     # 1 = key, 2 = list index: [0][0], 5 = dict key, 6 = operator: +, -, *, /  7 = value
-    RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\*\/]{1})\=[ ]?([^\=]+))'
+    RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_.]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\*\/]{1})\=[ ]?([^\=]+))'
     P_AssignPlus: re.Pattern = re.compile(RE_MATCH_ASSIGN_PLUS)
     
     @staticmethod
@@ -1787,7 +1787,7 @@ class reUtility():
         '''
         To see if match 'x = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9.]+[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
     
@@ -1796,7 +1796,7 @@ class reUtility():
         '''
         To see if match 'x["key"] = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+[\[]{1}["|\']{1}[a-zA-Z_0-9]+["|\']{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9.]+[\[]{1}["|\']{1}[a-zA-Z_0-9]+["|\']{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
     
@@ -1805,7 +1805,7 @@ class reUtility():
         '''
         To see if match 'x[index] = y' expression 
         '''
-        p = '[a-zA-Z_0-9]+([\[][a-zA-Z_0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
+        p = '[a-zA-Z_0-9.]+([\[][a-zA-Z_0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
         prog = re.compile(p)
         return prog.fullmatch(input_value) != None
 
