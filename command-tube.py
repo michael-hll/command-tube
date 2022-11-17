@@ -4178,7 +4178,7 @@ class TubeCommand():
                 value = Utility.eval_expression(value, tube=self.tube)
                 obj_instance = temp_tube.KEY_VALUES_DICT[name_trim]
                 exec(name_trim + ' = obj_instance')
-                exec(name + ' = value')
+                exec(name + ' = value', globals(), self.tube.get_parent_key_values())
                 # TODO: Need to test if upper two lines code working
                 # otherwise we need to see if below two lines logic working
                 #property_name = name[name.index('.') + 1:]
