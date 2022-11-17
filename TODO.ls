@@ -2,7 +2,9 @@
 TODO LIST
 
 
-- set_var: support update object type variable's property value - 2.0.2
+- set_var: support update object type variable's property value - 2.0.3
+        - set: obj.property = value
+   Note: When add requests method then this feature could be used
 
 - Requests popular methods to tube commands - 2.0.3
 

@@ -4164,6 +4164,29 @@ class TubeCommand():
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
 
+        
+        # if name is a object's property like obj_name.prop_name
+        # then name_trim will only keep the obj_name
+        # TODO: this feature will be tested in 2.0.3
+        name_trim = name
+        if '.' in name_trim:
+            name_trim = name_trim[:name_trim.index('.')]
+
+            # for class type instance
+            exists, temp_tube = self.tube.find_key_from_tubes(name_trim)
+            if exists:
+                value = Utility.eval_expression(value, tube=self.tube)
+                obj_instance = temp_tube.KEY_VALUES_DICT[name_trim]
+                exec(name_trim + ' = obj_instance')
+                exec(name + ' = value')
+                # TODO: Need to test if upper two lines code working
+                # otherwise we need to see if below two lines logic working
+                #property_name = name[name.index('.') + 1:]
+                #setattr(obj_instance, property_name, value)
+                return True
+            else:
+                raise Exception(f'Tube variable doesnot exist: {name_trim}')
+
         is_readonly = args.is_readonly
         is_force = args.is_force
         is_global = args.is_global   
