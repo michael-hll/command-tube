@@ -4553,15 +4553,16 @@ class TubeCommand():
         '''
         Print message to the terminal
         '''
-        parser = self.tube_argument_parser
-        inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(shlex.split(inputs, posix=True))
+        parser = self.tube_argument_parser        
+        args, _ = parser.parse_known_args(shlex.split(self.content, posix=True))
         msg = ''
         if args.message:
             msg = ' '.join(args.message)
+            msg = self.self_format_placeholders(msg)
         color = None
         if args.color:
             color = args.color[0]
+            color = self.self_format_placeholders(color)
         
         # print tube variabels
         tprint(msg, prefix='', tcolor=color)
