@@ -1,6 +1,8 @@
 
 TODO LIST
 
+- print: --json 
+    With --json argument print json data with formated structure
 
 - set_var: support update object type variable's property value - 2.0.3
         - set: obj.property = value

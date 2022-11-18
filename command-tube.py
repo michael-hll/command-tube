@@ -40,6 +40,7 @@ from random import choice, randrange, paretovariate
 import threading
 import glob
 import keyword
+import json
 
 # -------- CLASSES --------------
 class Storage():
@@ -1172,7 +1173,9 @@ class Storage():
                     [True, '-','--', 'str', '+', 'message', True, False, '', '',
                         'The message you want to print in the terminal.'],
                     [False, '-c','--color', 'str', 1, 'color', False, False, '', '',
-                        'The message color you want to use. You can use color name \'red\' or \'FF0000\' to set the color value.'],  
+                        'The message color you want to use. You can use color name \'red\' or \'FF0000\' to set the color value.'], 
+                    [False, '-','--json', '', '', 'json_format', False, True, 'store_true', False,
+                        'Print data in json format. Default no.'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -4563,10 +4566,17 @@ class TubeCommand():
         if args.color:
             color = args.color[0]
             color = self.self_format_placeholders(color)
+
+        is_json_format = args.json_format
         
         # print tube variabels
-        tprint(msg, prefix='', tcolor=color)
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
+        if is_json_format:
+            data = json.dumps(eval(msg), indent=4)
+            tprint(data, prefix='', tcolor=color)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', data)       
+        else:            
+            tprint(msg, prefix='', tcolor=color)
+            write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)        
     
     def __print_tube_variables(self, variables, tube, lines=None):
         '''
