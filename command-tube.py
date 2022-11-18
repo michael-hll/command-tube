@@ -1175,7 +1175,7 @@ class Storage():
                     [False, '-c','--color', 'str', 1, 'color', False, False, '', '',
                         'The message color you want to use. You can use color name \'red\' or \'FF0000\' to set the color value.'], 
                     [False, '-','--json', '', '', 'json_format', False, True, 'store_true', False,
-                        'Print data in json format. Default no.'], 
+                        'Print message in json format. Default no. [2.0.3]'], 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
