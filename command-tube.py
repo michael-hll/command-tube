@@ -47,7 +47,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.2'  
+        self.C_CURR_VERSION            = '2.0.3 Beta'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -120,6 +120,7 @@ class Storage():
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
         self.C_TAIL_LINES_HEADER       = 'TAIL '
+        self.C_REQUESTS_GET            = 'REQUESTS_GET'
         self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
@@ -890,6 +891,29 @@ class Storage():
                 self.C_PLACE_HOLDER: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to sent current progress via Email.'
+            },
+            self.C_REQUESTS_GET: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_GET'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url content.'],
+                    [False, '-r','--response', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":18s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":18s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Get request. Save the response to tube variable.'
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -4734,6 +4758,26 @@ class TubeCommand():
                     self.log.add_error(error) 
             return False                       
     
+    def requests_get(self):
+        url, variable = None, None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs))
+        url = ' '.join(args.url)
+        variable = args.response[0]
+        is_global = args.is_global
+        is_force = args.is_force
+
+        r = requests.get(url)
+        r.encoding = r.apparent_encoding
+
+        # update tube variables dependantly
+        key_result = self.update_key_value(variable, r, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(variable, r))  
+        
+        return True
+
     def exec_command(self):
         inputs = self.self_format_placeholders(self.content)
         exec(inputs)
@@ -5025,7 +5069,10 @@ class TubeCommand():
             
             elif command_type == Storage.I.C_PRINT:
                 self.print_message()
-                        
+
+            elif command_type == Storage.I.C_REQUESTS_GET:
+                result = self.requests_get()
+
             # not supported command found then log errors and continue next          
             else:
                 log.status = Storage.I.C_FAILED 
