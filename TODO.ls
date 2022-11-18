@@ -1,9 +1,6 @@
 
 TODO LIST
 
-- print: --json 
-    With --json argument print json data with formated structure
-
 - set_var: support update object type variable's property value - 2.0.3
         - set: obj.property = value
    Note: When add requests method then this feature could be used
@@ -183,6 +180,9 @@ TODO LIST
     65. - Add --no-log flag to disable writting log file feature
 
     66. - placehoder can access object type variable's property - 2.0.2
+
+    67. - print: --json 
+            With --json argument print json data with formated structure - 2.0.3
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
