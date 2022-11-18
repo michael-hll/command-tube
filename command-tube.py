@@ -254,8 +254,7 @@ class Storage():
         self.EVAL_CODE_SET             = set()
 
         self.__gen_tube_args()
-        # additional keywords
-        self.C_KEYWORDS.add('__value__')
+        self.__add_additional_keywords()
         
     def __gen_tube_args(self):
         # Tube Command argument configurations design details
@@ -1218,6 +1217,10 @@ class Storage():
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file or variable.'
             },
         }
+
+    def __add_additional_keywords(self):
+        self.C_KEYWORDS.add('__name__')
+        self.C_KEYWORDS.add('__value__')
 
 class TDict(dict):
     '''
