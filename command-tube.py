@@ -254,6 +254,8 @@ class Storage():
         self.EVAL_CODE_SET             = set()
 
         self.__gen_tube_args()
+        # additional keywords
+        self.C_KEYWORDS.add('__value__')
         
     def __gen_tube_args(self):
         # Tube Command argument configurations design details
@@ -4176,9 +4178,9 @@ class TubeCommand():
             exists, temp_tube = self.tube.find_key_from_tubes(name_trim)
             if exists:
                 value = Utility.eval_expression(value, tube=self.tube)
-                obj_instance = temp_tube.KEY_VALUES_DICT[name_trim]
-                exec(name_trim + ' = obj_instance')
-                exec(name + ' = value', globals(), self.tube.get_parent_key_values())
+                local_dict = self.tube.get_parent_key_values().copy()
+                local_dict['__value__'] = value
+                exec(name + ' = __value__', globals(), local_dict)
                 # TODO: Need to test if upper two lines code working
                 # otherwise we need to see if below two lines logic working
                 #property_name = name[name.index('.') + 1:]
