@@ -1488,7 +1488,7 @@ class Utility():
         # make the key upper cases
         keys = [k for k in yaml.keys()]
         for key in keys:
-            if key != key.upper() and type(yaml[key]) != list:
+            if key != key.upper() and (key.upper() == Storage.I.C_SERVERS or type(yaml[key]) != list):
                 yaml[key.upper()] = yaml[key]
                 deleted_keys.append(key)
         
