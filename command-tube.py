@@ -4557,7 +4557,7 @@ class TubeCommand():
         Print message to the terminal
         '''
         parser = self.tube_argument_parser        
-        args, _ = parser.parse_known_args(shlex.split(self.content, posix=True))
+        args, _ = parser.parse_known_args(shlex.split(self.content, posix=False))
         msg = ''
         if args.message:
             msg = ' '.join(args.message)
@@ -7447,13 +7447,13 @@ def print_tube_command_help(args):
         1: Run at once and sent result via email: 
         >>> python command-tube.py -t tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python command-tube.py -t tube.yaml -t20
+        >>> python command-tube.py -t tube.yaml --datetime t20
         3: Run at every 6 o'clock for 100 days: 
-        >>> python command-tube.py -t tube.yaml -t n6 -l 24 -times 100
+        >>> python command-tube.py -t tube.yaml --datetime n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
-        >>> python command-tube.py -t tube.yaml -t t10 -l 5m -times 10
+        >>> python command-tube.py -t tube.yaml --datetime t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
-        >>> python command-tube.py -t tube.yaml -t '02/01/22 09:00:00'
+        >>> python command-tube.py -t tube.yaml --datetime '02/01/22 09:00:00'
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
