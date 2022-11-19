@@ -2095,6 +2095,7 @@ class TubeCommand():
             self.sub_tube = Tube(file, tube_name, tube_index, sub_tube_yaml, self.tube)
             self.sub_tube.tube_conditions = conditions
             self.sub_tube.tube_run_times = 0 # initial the tube running times to 0
+            self.sub_tube.run_dir = os.getcwd()
         else:
             # the 'TUBE' section doesn't exists from the sub-tube file
             raise Exception('\'{0}\' section doesnot exists from tube file: {1}'.format(tube_name, file))
@@ -5426,6 +5427,7 @@ class Tube():
         self.KEY_VALUES_DICT   = {} 
         self.KEYS_READONLY_SET = set()
         self.KEYS_DEFAULT      = set()
+        self.run_dir           = None
         self.tube_file         = file
         self.tube_name         = name
         self.tube_index        = index
@@ -5653,7 +5655,10 @@ class TubeRunner():
             self.status = TubeRunner.C_STATUS_STOPPED
 
             # run ending tube
-            self.__process_ending()             
+            self.__process_ending()   
+
+            # go back to parent dir
+            os.chdir(self.tube.run_dir)          
     
     def __process_ending(self):
         if not self.tube.ending_tube or self.is_ending_processed:
