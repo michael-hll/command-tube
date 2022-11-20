@@ -1246,16 +1246,7 @@ class Storage():
         }
 
     def __add_additional_keywords(self):
-        self.C_KEYWORDS.add('__name__')
-        self.C_KEYWORDS.add('__value__')
-        self.C_KEYWORDS.add('yes')
-        self.C_KEYWORDS.add('Yes')
-        self.C_KEYWORDS.add('no')
-        self.C_KEYWORDS.add('No')
-        self.C_KEYWORDS.add('true')
-        self.C_KEYWORDS.add('True')
-        self.C_KEYWORDS.add('false')
-        self.C_KEYWORDS.add('False')
+        self.C_KEYWORDS.update(['__name__', '__value__', 'yes', 'Yes', 'no', 'No', 'true', 'True', 'false', 'False'])
 
 class TDict(dict):
     '''
