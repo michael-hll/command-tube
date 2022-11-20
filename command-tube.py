@@ -4163,7 +4163,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, unknows = parser.parse_known_args(shlex.split(inputs, posix=False))
         # for assign plus case of '-='
-        if unknows and len(unknows) == 2 and unknows[0] == '-=' and args.expression and len(args.expression) > 0:
+        if unknows and len(unknows) >= 2 and unknows[0] == '-=' and args.expression and len(args.expression) > 0:
             args.expression.extend(unknows)
             
         if args.name and len(args.name) > 0:
