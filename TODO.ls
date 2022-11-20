@@ -186,6 +186,9 @@ TODO LIST
 
     68. - Back to parent run folder when run command is finished - 2.0.3
 
+    69. - SET_VARIABLE support '-=' now - 2.0.3
+        - set: x -= -0.5
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2

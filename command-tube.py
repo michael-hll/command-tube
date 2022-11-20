@@ -784,7 +784,7 @@ class Storage():
                 self.C_ARG_ARGS: [   
                     [True, '-','--', 'str', '*', 'expression', False, False, '', '',
                         'Assign variable value with format: var_name = expression, var_name["keyword"] = expression or var_name[index] = expression; \
-                         \n{0:18s}You can also use operator +=, *=, /+ to make the assignment eaiser: i += 1, i += -1 etc;  \
+                         \n{0:18s}You can also use operator +=, -=, *=, /+ to make the assignment eaiser: i += 1, i *= -1 etc;  \
                          \n{0:18s}Or you can use --name, --keyword, --index, --value arguments to set the variable value explicitly.'.format(' ')],     
                     [False, '-n','--name', 'str', 1, 'name', False, False, '', '',
                         'The tube variable name you want to set.'],
@@ -1811,7 +1811,7 @@ class reUtility():
     P_PlaceHolder: re.Pattern = re.compile(RE_MATCH_PLACEHOLDER)
 
     # 1 = key, 2 = list index: [0][0], 5 = dict key, 6 = operator: +, -, *, /  7 = value
-    RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_.]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\*\/]{1})\=[ ]?([^\=]+))'
+    RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_.]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\-\*\/]{1})\=[ ]?([^\=]+))'
     P_AssignPlus: re.Pattern = re.compile(RE_MATCH_ASSIGN_PLUS)
     
     @staticmethod
@@ -1960,7 +1960,9 @@ class TubeArgumentParser(ArgumentParser):
     argument_config = None
     
     def error(self, message):
-        self.argument_error.append('ERROR: %s' % (message))
+        if not('unrecognized arguments: -=' in message and \
+           self.argument_config.type == Storage.I.C_SET_VARIABLE):
+            self.argument_error.append('ERROR: %s' % (message))
         
     def get_formated_errors(self):
         errors = []
@@ -2055,7 +2057,7 @@ class TubeCommand():
                 self.command_type != Storage.I.C_CONTINUE:
             self.has_content = False
             return
-                
+
         # to convert type int/float to str        
         if type(content) is int or type(content) is float:
             self.content = str(self.content)
@@ -4159,7 +4161,11 @@ class TubeCommand():
         name, key, index, value, is_readonly, is_force, is_global = '', '', None, '', False, False, False
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
+        args, unknows = parser.parse_known_args(shlex.split(inputs, posix=False))
+        # for assign plus case of '-='
+        if unknows and len(unknows) == 2 and unknows[0] == '-=' and args.expression and len(args.expression) > 0:
+            args.expression.extend(unknows)
+            
         if args.name and len(args.name) > 0:
             name = args.name[0]
         if args.keyword and len(args.keyword) > 0:
