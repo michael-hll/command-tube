@@ -930,11 +930,13 @@ class Storage():
                 self.C_ALIAS: {'HTTP_GET'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'url', True, False, '', '',
-                        'The request url content.'],
-                    [False, '-r','--response', 'str', 1, 'response', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.get() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
                         f'The tube variable name to store http get response. \
-                         \n{" ":18s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
-                         \n{" ":18s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -4842,7 +4844,7 @@ class TubeCommand():
         url, variable = None, None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
-        args, _ = parser.parse_known_args(shlex.split(inputs))
+        args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         url = ' '.join(args.url)
         variable = args.response[0]
         is_global = args.is_global
