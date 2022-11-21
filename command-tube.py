@@ -2207,7 +2207,7 @@ class TubeCommand():
         
         command_type += ' >>> ' + self.cmd_type
         if self.is_redo_added == True:
-            command_type += ' *'
+            command_type += '*'
 
         return command_type
     
