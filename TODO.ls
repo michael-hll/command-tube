@@ -189,6 +189,11 @@ TODO LIST
     69. - SET_VARIABLE support '-=' now - 2.0.3
         - set: x -= -0.5
 
+    70. - Add --raw-log general argument - 2.0.3
+        This flag is handy when the command content's placehoder value is very long
+        Then in the console log it's hard to distinguish command content and output content
+        With this flag you can easily disable log command content placehoder values
+
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2

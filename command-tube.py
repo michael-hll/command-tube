@@ -131,6 +131,7 @@ class Storage():
         self.C_KEY_PARAMETER           = '--key'
         self.C_NOTES_PARAMETER         = '--note'
         self.C_PLACE_HOLDER            = '--raw'
+        self.C_RAW_LOG                 = '--raw-log'
         self.C_INDENTATION             = '    '
         self.C_RETRIED_COMMAND_NOTE    = '* The star(*) after command type means the command is run again.'
         self.C_FAILED_COMMAND_LIST     = '----- Failed Command List -----'
@@ -146,6 +147,7 @@ class Storage():
         'help if' to view the --if syntax;
         'help key' to view the --key syntax;
         'help raw' to view the --raw syntax;
+        'help raw-log' to view the --raw-log syntax;
         'help note' to view the --note syntax;
     Input 'help template' to view the tube tempalte;
     Input 'help variable' to view the tube variables usage;
@@ -296,6 +298,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a sub-tube. \n{0:13s}With the \'--while\' conditions provided, {1} will continuely run and stop when conditions return false. \
                                              \n{0:13s}With the \'--each\' parameters provided, {1} will iterate the list variable and run the sub-tube.' \
@@ -313,6 +316,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The command can break a tube\'s running.'
             },   
@@ -328,6 +332,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The command can continue a tube\'s running while it\'s in a loop.'
             },                 
@@ -355,6 +360,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print/Log the last N lines of given file.'                
             },
@@ -376,6 +382,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a file exists.'                
             },
@@ -401,6 +408,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Pop one line of the given text file. If there is no line there then store empty.'                
             },
@@ -418,6 +426,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Append the content to the last line of the given text file.'                
             },
@@ -435,6 +444,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Push the content to the first line of the given text file.'                
             },
@@ -454,6 +464,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Insert a line before given line number. If line number doesnot exist then insert to the end.'                    
             },
@@ -475,6 +486,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sort a text file lines content.'                    
             },
@@ -494,6 +506,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Clear an existing text file or create a new empty file.'                
             },
@@ -511,6 +524,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create an empty file.'                
             },
@@ -536,6 +550,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read a file content to tube variable. Doesn\'t include the new-line (\\n) char.'                
             },
@@ -555,6 +570,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete any files math the file name.'                
             },
@@ -572,6 +588,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Copy any files to target.'                
             },
@@ -589,6 +606,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Move any files to target.'                
             },
@@ -610,6 +628,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check if a directory exists.'                
             },
@@ -625,6 +644,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create a directory if it doesnot exist.'                
             },
@@ -644,6 +664,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete a directory and its sub-directories.'                
             },
@@ -669,6 +690,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Conditionally delete lines from a file.'
             },  
@@ -692,6 +714,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read one line by given line number, and save the line content to tube variable.'
             }, 
@@ -713,6 +736,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Write any characters into a file.'                    
             },    
@@ -732,6 +756,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update key-value file.'
             },
@@ -755,6 +780,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get XML file tag text value. \
                                            \nThe result will be stored into a tube variable and xpath will be used as the variable name.'
@@ -775,6 +801,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Update XML file tag text using xpath.'
             },
@@ -814,6 +841,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Set tube variable value.'
             },
@@ -840,6 +868,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: False,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Enable or disable tube commands general arguments for: --continue, --redo or --key. \
                         \nSet tube\'s ending tube.'
@@ -860,6 +889,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Delete tube variables.'
             },
@@ -875,6 +905,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to switch your server connection.'
             },
@@ -890,6 +921,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'You can use this command to sent current progress via Email.'
             },
@@ -913,6 +945,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Get request. Save the response to tube variable.'
             },
@@ -928,6 +961,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Command Tube will pause with given minutes/seconds.'
             },
@@ -943,6 +977,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Go to specific directory.'
             },
@@ -964,6 +999,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
                                            \nIt also supports to read key-value from Yaml file with simple type. \
@@ -985,6 +1021,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent Email to someone with given subject and content.'
             },
@@ -1000,6 +1037,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The python commands you want to run. The original idea is to use it to import other python modules. \
                          \nThen you can use the newly imported module in set or condition expressions.'
@@ -1018,6 +1056,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run any Windows/MacOS terminal command.'
             },
@@ -1035,6 +1074,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Run a Linux command from the previous connected server.'                
             },
@@ -1062,6 +1102,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Count file lines number (-f) or Count tube command number by status (-t).' 
             },
@@ -1079,6 +1120,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to copy remote server file to local. \
                                            \nWhen copy multiple files using *.* then localpath must be a directory.'
@@ -1097,6 +1139,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Using SSHClient to put local file to remote server. \
                                            \nWhen copy multiple files using *.* then remotepath must be a directory.'
@@ -1125,6 +1168,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Check or find characters from a file. Result was updated into tube variables.'
             },
@@ -1146,6 +1190,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Replace file line content which contains/matches given value.'
             },
@@ -1163,6 +1208,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print tube variable values for debugging purpose.'
             },
@@ -1182,6 +1228,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Print a message to the console for debugging purpose.'
             },
@@ -1213,6 +1260,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Get matched files list and save it to a text file or variable.'
             },
@@ -1240,6 +1288,7 @@ class Storage():
                 self.C_IF_PARAMETER: True,
                 self.C_KEY_PARAMETER: True,
                 self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file or variable.'
             },
@@ -1921,6 +1970,7 @@ class TubeCommandArgumentConfig():
         self.is_support_key = False  
         self.is_support_notes = False     
         self.is_support_placeholder = False
+        self.is_support_raw_log = False
         self.syntax = None        
         
         if self.type in config_dict.keys():
@@ -1930,7 +1980,8 @@ class TubeCommandArgumentConfig():
             self.is_support_if_run = config_dict[self.type][Storage.I.C_IF_PARAMETER] 
             self.is_support_key = config_dict[self.type][Storage.I.C_KEY_PARAMETER]         
             self.is_support_notes = config_dict[self.type][Storage.I.C_NOTES_PARAMETER]  
-            self.is_support_placeholder = config_dict[self.type][Storage.I.C_PLACE_HOLDER]         
+            self.is_support_placeholder = config_dict[self.type][Storage.I.C_PLACE_HOLDER] 
+            self.is_support_raw_log = config_dict[self.type][Storage.I.C_RAW_LOG]        
             self.__load_arguments(config_dict)
         
     def __load_arguments(self, config_dict):
@@ -2005,7 +2056,9 @@ class TubeArgumentParser(ArgumentParser):
         if argument_config.is_support_placeholder:
             new_parser.add_argument(Storage.I.C_PLACE_HOLDER, dest='is_raw', action='store_true', default=False, required=False)
         if argument_config.is_support_notes:
-            new_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, nargs='+', required=False)        
+            new_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, nargs='+', required=False)    
+        if argument_config.is_support_raw_log:   
+            new_parser.add_argument(Storage.I.C_RAW_LOG, dest='is_raw_log', action='store_true', default=False, required=False)
         return new_parser
 
 class TubeCommand():
@@ -2041,6 +2094,7 @@ class TubeCommand():
         self.has_placeholders           = False
         self.is_key_command             = False
         self.is_raw                     = False
+        self.is_raw_log                 = False
         self.results: list              = []       
         self.tube: Tube                 = None # The current command's tube container
         self.sub_tube: Tube             = None # The RUN_TUBE command points to the sub tube
@@ -2167,8 +2221,11 @@ class TubeCommand():
         try:
             if self.__original_content2 == None and self.original_content:
                 # we need to show the readable print/log output
-                # if the key value is an empty string                
-                self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True).rstrip('\n')
+                # if the key value is an empty string      
+                if self.is_raw_log:          
+                    self.__original_content2 = self.original_content.rstrip('\n')
+                else:
+                    self.__original_content2 = self.self_format_placeholders(self.original_content, is_show_empty = True).rstrip('\n')
                 if self.notes:
                     self.__original_content2 = self.__original_content2.replace(Storage.I.C_NOTES_PARAMETER, '').replace(self.notes, '').strip()
                     self.__original_content2 = ' '.join(self.__original_content2.split(' '))
@@ -2209,6 +2266,8 @@ class TubeCommand():
         self.redo_steps = 0
         
         self.if_run = True
+        self.is_raw = False
+        self.is_raw_log = False
         
         # check notes value
         if args.notes:
@@ -2262,6 +2321,10 @@ class TubeCommand():
         # check if --raw is set
         if args.is_raw:
             self.is_raw = True
+        
+        # check if --raw-log is set
+        if args.is_raw_log:
+            self.is_raw_log = True
 
         # analyze if parameter
         if args.if_run != None:
@@ -5240,6 +5303,8 @@ class TubeCommand():
             general_args += '[--key] ' 
         if arg_config[Storage.I.C_PLACE_HOLDER]:
             general_args += '[--raw] '
+        if arg_config[Storage.I.C_RAW_LOG]:
+            general_args += '[--raw-log] '
         if arg_config[Storage.I.C_NOTES_PARAMETER]:
             general_args += '[--note note]' 
         syntax += general_args          
@@ -7204,6 +7269,7 @@ def init_arguments():
     general_command_parser.add_argument(Storage.I.C_IF_PARAMETER, dest='if_run', type=str, help=argparse.SUPPRESS, nargs='+')
     general_command_parser.add_argument(Storage.I.C_KEY_PARAMETER, dest='key', action='store_true', default=False, required=False)
     general_command_parser.add_argument(Storage.I.C_PLACE_HOLDER, dest='is_raw', action='store_true', default=False, required=False)
+    general_command_parser.add_argument(Storage.I.C_RAW_LOG, dest='is_raw_log', action='store_true', default=False, required=False)
     general_command_parser.add_argument(Storage.I.C_NOTES_PARAMETER, dest='notes', type=str, help=argparse.SUPPRESS, nargs='+')
     
 def install_3rd_party_packages(args):
@@ -7346,7 +7412,13 @@ def print_tube_command_help(args):
         Raw:
             Syntax: --raw
             Description:
-                The flag can disable the command placeholder logic.
+                The flag can fully disable the command placeholder logic.
+                '''
+                help_raw_log='''
+        Raw-log:
+            Syntax: --raw-log
+            Description:
+                The flag can disable the command placeholder logic when logging command content.
                 '''
                 help_note='''
         Note:
@@ -7536,11 +7608,12 @@ def print_tube_command_help(args):
 %s
 %s
 %s
+%s
 ## %s
                 '''
                 help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
                             help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
-                            help_raw.replace('\n', '', 1), help_note.replace('\n', '', 1), help_var)
+                            help_raw.replace('\n', '', 1), help_raw_log.replace('\n', '', 1), help_note.replace('\n', '', 1), help_var)
                 
                 template = '''
 Version: 2.0.x            
@@ -7761,6 +7834,9 @@ Tube:
                     sys.exit()
                 elif command_name.upper() == 'RAW':
                     print(help_raw.replace('\n', '', 1))
+                    sys.exit()
+                elif command_name.upper() == 'RAW-LOG':
+                    print(help_raw_log.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'NOTE':
                     print(help_note.replace('\n', '', 1))
