@@ -99,12 +99,17 @@ TUBE:
     - SET_VARIABLE: year = {now.year}
     - PRINT: OK --if type(year) == int
 
+    # test new a object
+    - CREATE_OBJECT: obj
+    - SET_VARIABLE: obj.name = 'mac'
+    - PRINT: NAME={obj.name} --if obj.name == 'mac'
+
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n set_variable_result -v 'Testing Pass' -g --if {success_nums}==77 --key
-    - SET_VARIABLE: -n set_variable_result -v 'Testing Failed' -g --if {success_nums}!=77
-    - SET_VARIABLE: failed += 'set_variable.yaml,' -g --if {success_nums}!=77
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==77
+    - SET_VARIABLE: -n set_variable_result -v 'Testing Pass' -g --if {success_nums}==80 --key
+    - SET_VARIABLE: -n set_variable_result -v 'Testing Failed' -g --if {success_nums}!=80
+    - SET_VARIABLE: failed += 'set_variable.yaml,' -g --if {success_nums}!=80
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==80
 
 SubTube1:
     - SET_VARIABLE: -n i -v i + 1

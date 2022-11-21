@@ -193,6 +193,9 @@ TODO LIST
         This flag is handy when the command content's placehoder value is very long
         Then in the console log it's hard to distinguish command content and output content
         With this flag you can easily disable log command content placehoder values
+    
+    71. - CREATE_OJBECT: name tube command is added - 2.0.3
+        use this command you can create a new object() type instance
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2

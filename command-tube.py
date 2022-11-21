@@ -102,6 +102,7 @@ class Storage():
         self.C_RUN_TUBE                = 'RUN_TUBE'
         self.C_BREAK                   = 'BREAK'
         self.C_CONTINUE                = 'CONTINUE'
+        self.C_CREATE_OJBECT           = 'CREATE_OBJECT'
         self.C_READ_LINE_IN_FILE       = 'READ_LINE_IN_FILE'
         self.C_LIST_FILES              = 'LIST_FILES'
         self.C_LIST_DIRS               = 'LIST_DIRS'
@@ -335,7 +336,27 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'The command can continue a tube\'s running while it\'s in a loop.'
-            },                 
+            },  
+            self.C_CREATE_OJBECT: {                
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'CREATE', 'NEW'},
+                self.C_ARG_ARGS: [
+                    [True, '-','--', 'str', 1, 'name', True, False, '', '',
+                        'The object instance name (Tube variable name).'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'],
+                ],
+                self.C_CONTINUE_PARAMETER: False,
+                self.C_REDO_PARAMETER: False,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Create a new object instance.'
+            },               
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'TAIL'},
@@ -1307,7 +1328,10 @@ class TDict(dict):
     '''
     def __missing__(self, key):
         return '{' + key + '}'
-    
+
+class Object():
+    pass
+
 class Utility():
     
     @classmethod
@@ -4218,6 +4242,27 @@ class TubeCommand():
             
         return True
 
+    def create_object(self):
+        var, value = None, None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs))
+        if args.name:
+            var = args.name[0]
+            value = Object()
+
+        if not var:
+            raise Exception('\'name\' argument is missing.')
+        
+        is_force = args.is_force
+        is_global = args.is_global
+
+        key_result = self.update_key_value(var, value, is_force=is_force, is_global=is_global)
+        if key_result == False:
+            raise Exception('Update key-value failed: {0}:{1}'.format(var, value))
+        
+        return True
+
     def set_variable(self):
         '''
         For command: SET_VARIABLE
@@ -5118,6 +5163,9 @@ class TubeCommand():
             
             elif command_type == Storage.I.C_CONTINUE:
                 self.tube_continue()
+            
+            elif command_type == Storage.I.C_CREATE_OJBECT:
+                result = self.create_object()
             
             elif command_type == Storage.I.C_COUNT:
                 result = self.count()
