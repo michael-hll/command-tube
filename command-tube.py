@@ -4247,12 +4247,8 @@ class TubeCommand():
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
-        if args.name:
-            var = args.name[0]
-            value = Object()
-
-        if not var:
-            raise Exception('\'name\' argument is missing.')
+        var = args.name[0]
+        value = Object()
         
         is_force = args.is_force
         is_global = args.is_global
