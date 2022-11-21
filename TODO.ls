@@ -7,6 +7,8 @@ TODO LIST
 
 - Requests popular methods to tube commands - 2.0.3
 
+- validation: check tube and variable names valid - 2.0.3
+
 - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
 
 - Output Command.results to Email content - future
