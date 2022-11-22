@@ -1,9 +1,6 @@
 
 TODO LIST
 
-- Requests popular methods to tube commands - 2.0.3
-    - requests.get -- done
-
 - validation: check tube and variable names valid - 2.0.3
 
 - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
@@ -199,6 +196,15 @@ TODO LIST
     72. - set_var: support update object type variable's property value - 2.0.3
         - set: obj.property = value
         Note: When add requests method then this feature could be used
+    
+    73. - Requests popular methods to tube commands - 2.0.3
+            - requests.get -- done
+            - requests.post -- done
+            - requests.delete -- done
+            - requests.head -- done
+            - requests.patch -- done
+            - requests.options -- done
+            - requests.put -- done
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
