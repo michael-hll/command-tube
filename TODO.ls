@@ -1,8 +1,6 @@
 
 TODO LIST
 
-- validation: check tube and variable names valid - 2.0.3
-
 - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
 
 - Output Command.results to Email content - future
@@ -205,6 +203,8 @@ TODO LIST
             - requests.patch -- done
             - requests.options -- done
             - requests.put -- done
+    
+    74. - validation: check tube and variable names valid - 2.0.3
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2

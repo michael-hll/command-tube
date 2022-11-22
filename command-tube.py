@@ -2050,6 +2050,9 @@ class reUtility():
     # 1 = key, 2 = list index: [0][0], 5 = dict key, 6 = operator: +, -, *, /  7 = value
     RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_.]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\-\*\/]{1})\=[ ]?([^\=]+))'
     P_AssignPlus: re.Pattern = re.compile(RE_MATCH_ASSIGN_PLUS)
+
+    RE_MATCH_VAR_NAME = '[a-zA-Z0-9_]+'
+    P_VarName: re.Pattern = re.compile(RE_MATCH_VAR_NAME)
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
@@ -5760,7 +5763,14 @@ class Tube():
             Tube.TUBE_NAME_MAX_LENGTH = format_tube_name_len      
         # global properties
         Storage.I.TUBE_LIST.append(self)  
-        Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file       
+        Storage.I.TUBE_FILE_LIST[self.tube_index] = self.tube_name + '=' + self.tube_file  
+
+        # validate
+        self.__validate()
+
+    def __validate(self):
+        if not reUtility.P_VarName.fullmatch(self.tube_name):
+            raise Exception(f'Tube name: \'{self.tube_name}\' is not valid, please use: {reUtility.RE_MATCH_VAR_NAME}')     
         
     def gen_tube_run(self, is_ending=False):
         '''
@@ -6187,6 +6197,9 @@ class StorageUtility():
         # return for None or empty key
         if not key or not tube:
             return False
+
+        if not reUtility.P_VarName.fullmatch(key):
+            raise Exception(f'Variable: \'{key}\' name is not valid, please use: {reUtility.RE_MATCH_VAR_NAME}')
 
         # skip keywords cases
         if key in Storage.I.C_KEYWORDS:

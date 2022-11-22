@@ -1,7 +1,7 @@
 
 -------------------------------           
 # Welcome to Command Tube
-## version: 2.0.2
+## version: 2.0.3 Beta
 -------------------------------
                                       
 ## Introduction
@@ -33,13 +33,13 @@
         1: Run at once and sent result via email: 
         >>> python command-tube.py -t tube.yaml -fe
         2: Run at 20:00 o'clock:
-        >>> python command-tube.py -t tube.yaml -t20
+        >>> python command-tube.py -t tube.yaml --datetime t20
         3: Run at every 6 o'clock for 100 days: 
-        >>> python command-tube.py -t tube.yaml -t n6 -l 24 -times 100
+        >>> python command-tube.py -t tube.yaml --datetime n6 -l 24 -times 100
         4: Run 10 times for every 5 minutes start from 10:00:
-        >>> python command-tube.py -t tube.yaml -t t10 -l 5m -times 10
+        >>> python command-tube.py -t tube.yaml --datetime t10 -l 5m -times 10
         5: Run tube at 9:00 AM Feb 1, 2022:
-        >>> python command-tube.py -t tube.yaml -t '02/01/22 09:00:00'
+        >>> python command-tube.py -t tube.yaml --datetime '02/01/22 09:00:00'
         6: Find command syntax which name contains 'file' keyword:
         >>> python command-tube.py help file
     
@@ -158,7 +158,12 @@
         Raw:
             Syntax: --raw
             Description:
-                The flag can disable the command placeholder logic.
+                The flag can fully disable the command placeholder logic.
+                
+        Raw-log:
+            Syntax: --raw-log
+            Description:
+                The flag can disable the command placeholder logic when logging command content.
                 
         Note:
             Syntax: --note notes
@@ -237,7 +242,7 @@
 #### Alias: BREAK
 <pre>Description: The command can break a tube's running.
 
-Syntax: - BREAK: [reason] [--if run] [--key] [--raw] [--note note]
+Syntax: - BREAK: [reason] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    reason:  The reason you want to break. [Optional]
 
@@ -246,7 +251,7 @@ Support from version: 2.0.2</pre>
 #### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
-Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:                The file you want to check or find.
    -c|--char:                The characters you want to check or find (Support regular expression).
@@ -261,7 +266,7 @@ Support from version: 2.0.1</pre>
 #### Alias: CMD
 <pre>Description: Run any Windows/MacOS terminal command.
 
-Syntax: - COMMAND: command [--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - COMMAND: command [--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    command:    Any command you want to run.
    --result:   The text file to store command outputs. [2.0.2]
@@ -271,7 +276,7 @@ Support from version: 2.0.0</pre>
 #### Alias: CONN
 <pre>Description: You can use this command to switch your server connection.
 
-Syntax: - CONNECT: host [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - CONNECT: host [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    host:  The Linux server host or name you want to connect using SSH protocal.
 
@@ -280,7 +285,7 @@ Support from version: 2.0.0</pre>
 #### Alias: CONTINUE
 <pre>Description: The command can continue a tube's running while it's in a loop.
 
-Syntax: - CONTINUE: [reason] [--if run] [--key] [--raw] [--note note]
+Syntax: - CONTINUE: [reason] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    reason:  The reason you want to continue. [Optional]
 
@@ -289,7 +294,7 @@ Support from version: 2.0.2</pre>
 #### Alias: CNT
 <pre>Description: Count file lines number (-f) or Count tube command number by status (-t).
 
-Syntax: - COUNT: [-f|--file file] [-t|--tube|--status tube] -v|--variable variable [-c|--current] [-s|--skip] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - COUNT: [-f|--file file] [-t|--tube|--status tube] -v|--variable variable [-c|--current] [-s|--skip] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:          The file you want to count line numbers.
    -t|--tube|--status: The tube command status you want to count.
@@ -300,11 +305,22 @@ Parameters:
    -g|--global:        If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 7: DELETE_LINE_IN_FILE
+### 7: CREATE_OBJECT
+#### Alias: NEW, CREATE
+<pre>Description: Create a new object instance.
+
+Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   name:        The object instance name (Tube variable name).
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 8: DELETE_LINE_IN_FILE
 #### Alias: DELETE_LINE, DEL_LN, DEL_LINE
 <pre>Description: Conditionally delete lines from a file.
 
-Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to delete lines from.
    -n|--number:   The line number you want to delete. 1 is the first line, -1 is the last line.
@@ -314,42 +330,42 @@ Parameters:
    -r|--result:   The text file to store deleted result.
 
 Support from version: 2.0.0</pre>
-### 8: DELETE_VARIABLE
+### 9: DELETE_VARIABLE
 #### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
-Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    name:        The tube variable name you want to delete from current tube.
    -g|--global: With --global parameter you can delete it from current and its parent tubes.
    -a|--all:    With --all parameter you can delete it from all tubes.
 
 Support from version: 2.0.2</pre>
-### 9: DIR_CREATE
+### 10: DIR_CREATE
 #### Alias: D_CREATE
 <pre>Description: Create a directory if it doesnot exist.
 
-Syntax: - DIR_CREATE: directory [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - DIR_CREATE: directory [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    directory:  The directory you want to create.
 
 Support from version: 2.0.2</pre>
-### 10: DIR_DELETE
-#### Alias: D_DELETE, D_DEL
+### 11: DIR_DELETE
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
-Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    directory:   The directory you want to delete.
    -f|--force:  Force delete if the director is not empty. Default no.
    -r|--result: The text file to store deleted directory result.
 
 Support from version: 2.0.2</pre>
-### 11: DIR_EXIST
+### 12: DIR_EXIST
 #### Alias: D_EXIST
 <pre>Description: Check if a directory exists.
 
-Syntax: - DIR_EXIST: -d|--dir directory -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - DIR_EXIST: -d|--dir directory -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -d|--dir:      The directory you want to check.
    -v|--variable: The tube variable name to store the exist result. (True/False)
@@ -357,84 +373,84 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 12: EMAIL
+### 13: EMAIL
 #### Alias: MAIL
 <pre>Description: Sent Email to someone with given subject and content.
 
-Syntax: - EMAIL: -t|--to to -s|--subject subject -b|--body body [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - EMAIL: -t|--to to -s|--subject subject -b|--body body [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -t|--to:      The sending email addresses.
    -s|--subject: The email title.
    -b|--body:    The email content. If it's text file name, then the content of the file will be as the email content.
 
 Support from version: 2.0.0</pre>
-### 13: EXEC
+### 14: EXEC
 #### Alias: EXEC
 <pre>Description: The python commands you want to run. The original idea is to use it to import other python modules.                          
 Then you can use the newly imported module in set or condition expressions.
 
-Syntax: - EXEC: commands [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - EXEC: commands [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    commands:  The python commands.
 
 Support from version: 2.0.2</pre>
-### 14: FILE_APPEND
+### 15: FILE_APPEND
 #### Alias: F_APPEND
 <pre>Description: Append the content to the last line of the given text file.
 
-Syntax: - FILE_APPEND: -f|--file file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_APPEND: -f|--file file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:  The text file name you want to append.
    -v|--value: The content you want to append to the text file.
 
 Support from version: 2.0.2</pre>
-### 15: FILE_COPY
+### 16: FILE_COPY
 #### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
-Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -s|-f|--src|--from: The source file name you want to copy.
    -d|-t|--dest|--to:  The target file or folder
 
 Support from version: 2.0.2</pre>
-### 16: FILE_CREATE
+### 17: FILE_CREATE
 #### Alias: F_CREATE
 <pre>Description: Create an empty file.
 
-Syntax: - FILE_CREATE: [file] [-f|--file afile] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_CREATE: [file] [-f|--file afile] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    file:      The text file name you want to create.
    -f|--file: The text file name you want to create. It will override the file argument.
 
 Support from version: 2.0.2</pre>
-### 17: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+### 18: FILE_DELETE
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
-Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    file:        The file name you want to delete.
    -f|--file:   The text file name you want to delete. It will override the file argument.
    -r|--result: The text file to store deleted files result.
 
 Support from version: 2.0.2</pre>
-### 18: FILE_EMPTY
+### 19: FILE_EMPTY
 #### Alias: F_EMPTY
 <pre>Description: Clear an existing text file or create a new empty file.
 
-Syntax: - FILE_EMPTY: [file] [-f|--file afile] [-c|--create] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_EMPTY: [file] [-f|--file afile] [-c|--create] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    file:        The text file name you want to empty.
    -f|--file:   The text file name you want to empty. It will override the file argument.
    -c|--create: If the give file doesnot exist if create a new empty file. Default No.
 
 Support from version: 2.0.2</pre>
-### 19: FILE_EXIST
+### 20: FILE_EXIST
 #### Alias: F_EXIST
 <pre>Description: Check if a file exists.
 
-Syntax: - FILE_EXIST: -f|--file file -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_EXIST: -f|--file file -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file name you want to check.
    -v|--variable: The tube variable name to store the exist result. (True/False)
@@ -442,32 +458,32 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 20: FILE_INSERT
+### 21: FILE_INSERT
 #### Alias: F_INSERT
 <pre>Description: Insert a line before given line number. If line number doesnot exist then insert to the end.
 
-Syntax: - FILE_INSERT: -f|--file file -n|--number number -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_INSERT: -f|--file file -n|--number number -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:   The file you want to insert.
    -n|--number: The line number you want to inert. 1 means the first line, -1 means the last line.
    -v|--value:  The line you want to insert into the file.
 
 Support from version: 2.0.2</pre>
-### 21: FILE_MOVE
+### 22: FILE_MOVE
 #### Alias: F_MOVE, F_MV
 <pre>Description: Move any files to target.
 
-Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -s|-f|--src|--from: The source file name you want to move.
    -d|-t|--dest|--to:  The target file or folder
 
 Support from version: 2.0.2</pre>
-### 22: FILE_POP
+### 23: FILE_POP
 #### Alias: F_POP
 <pre>Description: Pop one line of the given text file. If there is no line there then store empty.
 
-Syntax: - FILE_POP: [file] [-f|--file afile] [-v|--variable variable] [-n|--number number] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_POP: [file] [-f|--file afile] [-v|--variable variable] [-n|--number number] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    file:          The text file name you want to pop.
    -f|--file:     The text file name you want to pop. It will override the file argument.
@@ -477,21 +493,21 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 23: FILE_PUSH
+### 24: FILE_PUSH
 #### Alias: F_PUSH
 <pre>Description: Push the content to the first line of the given text file.
 
-Syntax: - FILE_PUSH: -f|--file file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_PUSH: -f|--file file -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:  The text file name you want to push.
    -v|--value: The content you want to push to the text file.
 
 Support from version: 2.0.2</pre>
-### 24: FILE_READ
+### 25: FILE_READ
 #### Alias: F_READ
 <pre>Description: Read a file content to tube variable. Doesn't include the new-line (\n) char.
 
-Syntax: - FILE_READ: -f|--file file [-c|--content content] [-l|--lines lines] [-s|--skip-empty] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_READ: -f|--file file [-c|--content content] [-l|--lines lines] [-s|--skip-empty] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:       The file name you want to read its whole content.
    -c|--content:    The tube variable name to store the file content.
@@ -501,11 +517,11 @@ Parameters:
    -g|--global:     If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 25: FILE_SORT
+### 26: FILE_SORT
 #### Alias: F_SORT
 <pre>Description: Sort a text file lines content.
 
-Syntax: - FILE_SORT: [file] [-f|--file afile] [-n|--number] [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - FILE_SORT: [file] [-f|--file afile] [-n|--number] [-s|--sort sort] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    file:        The file you want to sort.
    -f|--file:   The file you want to sort. It will override file argument.
@@ -513,13 +529,13 @@ Parameters:
    -s|--sort:   Default value is asc. You can set value 'desc' to reverse the sorting.
 
 Support from version: 2.0.2</pre>
-### 26: GET_FILE_KEY_VALUE
+### 27: GET_FILE_KEY_VALUE
 #### Alias: GET_KEYS
 <pre>Description: Read key values from key-value file.                                            
 It also supports to read key-value from Yaml file with simple type.                                            
 The key-value results will be stored into tube variables.
 
-Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to get key-value from.
    -k|--keywords: The key you want to get values from the file. It supports comma seperated format for multiple keys.
@@ -527,12 +543,12 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 27: GET_XML_TAG_TEXT
+### 28: GET_XML_TAG_TEXT
 #### Alias: GET_XML_TAG
 <pre>Description: Get XML file tag text value.                                            
 The result will be stored into a tube variable and xpath will be used as the variable name.
 
-Syntax: - GET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - GET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The XML file you want to get tag text.
    -x|--xpath:    The xpath of the XML tag.
@@ -541,21 +557,21 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 28: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+### 29: LINUX_COMMAND
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
-Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    command:        Any Linux command you want to run.
    --log-detail:   Log command output to tube log file. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 29: LIST_DIRS
+### 30: LIST_DIRS
 #### Alias: LIST_D
 <pre>Description: Got all sub directories for the given directory, and save the result list to a text file or variable.
 
-Syntax: - LIST_DIRS: -d|--dir directory [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - LIST_DIRS: -d|--dir directory [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -d|--dir:      The directory you want to list its sub directories.
    -r|--result:   The text file to store the list result.
@@ -566,11 +582,11 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 30: LIST_FILES
+### 31: LIST_FILES
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file or variable.
 
-Syntax: - LIST_FILES: [-d|--dir directory] [-f|--file afile] [-e|--exclude exclude] [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - LIST_FILES: [-d|--dir directory] [-f|--file afile] [-e|--exclude exclude] [-r|--result result] [-s|--sort sort] [-c|--count count] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -d|--dir:      The directory with file name matchings. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
    -f|--file:     The files name you want to list. If not provided then use default *.* to list all files. eg: <directory>/*.* or *.jpg
@@ -583,49 +599,50 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 31: PATH
+### 32: PATH
 #### Alias: CD
 <pre>Description: Go to specific directory.
 
-Syntax: - PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - PATH: directory [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    directory:  The directory you want to goto.
 
 Support from version: 2.0.0</pre>
-### 32: PAUSE
+### 33: PAUSE
 #### Alias: PAUZE
 <pre>Description: Command Tube will pause with given minutes/seconds.
 
-Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - PAUSE: minutes [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    minutes:  The minutes you want to pause. You can end it with 's' char to pause for xxx seconds.
 
 Support from version: 2.0.0</pre>
-### 33: PRINT
+### 34: PRINT
 #### Alias: ECHO
 <pre>Description: Print a message to the console for debugging purpose.
 
-Syntax: - PRINT: message [-c|--color color] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - PRINT: message [-c|--color color] [--json] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
-   message:    The message you want to print in the terminal.
-   -c|--color: The message color you want to use. You can use color name 'red' or 'FF0000' to set the color value.
+   message:      The message you want to print in the terminal.
+   -c|--color:   The message color you want to use. You can use color name 'red' or 'FF0000' to set the color value.
+   --json:       Print message in json format. Default no. [2.0.3]
 
 Support from version: 2.0.2</pre>
-### 34: PRINT_VARIABLES
+### 35: PRINT_VARIABLES
 #### Alias: PRINT_VARS
 <pre>Description: Print tube variable values for debugging purpose.
 
-Syntax: - PRINT_VARIABLES: name [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - PRINT_VARIABLES: name [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    name:        The tube variable name. With value '*' or '.' can print all variables.
    -r|--result: The text file to store the result.
 
 Support from version: 2.0.2</pre>
-### 35: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+### 36: READ_LINE_IN_FILE
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
-Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to read a line from.
    -n|--number:   The line number you want to read. 1 is the first line, -1 is the last line. If the number is greater than file lines then return the last line.
@@ -634,11 +651,11 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 36: REPLACE_CHAR
+### 37: REPLACE_CHAR
 #### Alias: REPLACE
 <pre>Description: Replace file line content which contains/matches given value.
 
-Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - REPLACE_CHAR: -f|--file file -o|--oldvalue oldvalue -n|--newvalue newvalue [-c|--count count] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to replace given characters.
    -o|--oldvalue: The oldvalue you want to replace (Support regular expressions).
@@ -646,22 +663,127 @@ Parameters:
    -c|--count:    The replaced times you want to set. Default 1.
 
 Support from version: 2.0.1</pre>
-### 37: REPORT_PROGRESS
+### 38: REPORT_PROGRESS
 #### Alias: REPORT_PRO
 <pre>Description: You can use this command to sent current progress via Email.
 
-Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - REPORT_PROGRESS: subject [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 38: RUN_TUBE
+### 39: REQUESTS_DELETE
+#### Alias: HTTP_DELETE
+<pre>Description: Sent a HTTP Delete request. Save the response to tube variable.
+
+Syntax: - REQUESTS_DELETE: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.delete() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 40: REQUESTS_GET
+#### Alias: HTTP_GET
+<pre>Description: Sent a HTTP Get request. Save the response to tube variable.
+
+Syntax: - REQUESTS_GET: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.get() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 41: REQUESTS_HEAD
+#### Alias: HTTP_HEAD
+<pre>Description: Sent a HTTP Head request. Save the response to tube variable.
+
+Syntax: - REQUESTS_HEAD: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.head() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 42: REQUESTS_OPTIONS
+#### Alias: HTTP_OPTIONS
+<pre>Description: Sent a HTTP Options request. Save the response to tube variable.
+
+Syntax: - REQUESTS_OPTIONS: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.options() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 43: REQUESTS_PATCH
+#### Alias: HTTP_PATCH
+<pre>Description: Sent a HTTP Patch request. Save the response to tube variable.
+
+Syntax: - REQUESTS_PATCH: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.patch() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 44: REQUESTS_POST
+#### Alias: HTTP_POST
+<pre>Description: Sent a HTTP Post request. Save the response to tube variable.
+
+Syntax: - REQUESTS_POST: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.post() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 45: REQUESTS_PUT
+#### Alias: HTTP_PUT
+<pre>Description: Sent a HTTP Put request. Save the response to tube variable.
+
+Syntax: - REQUESTS_PUT: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   url:         The request url.
+   -a|--args:   The parameters of requests.put() method. eg: --args params=xxx, data=yyy
+   -r|--resp:   The tube variable name to store http get response.                          
+                Then you can access response properties: status_code, url, headers, text, json(), etc.                          
+                Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -u|--force:  Force update even the variable is readonly. Default no.
+   -g|--global: If update the variable in global tube variables. Default no.
+
+Support from version: 2.0.3</pre>
+### 46: RUN_TUBE
 #### Alias: RUN
 <pre>Description: Run a sub-tube. 
              With the '--while' conditions provided, RUN_TUBE will continuely run and stop when conditions return false.                                              
              With the '--each' parameters provided, RUN_TUBE will iterate the list variable and run the sub-tube.
 
-Syntax: - RUN_TUBE: tube [-v|--variables variables] [-w|--while conditions] [-e|--each each] [-f|--for each] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - RUN_TUBE: tube [-v|--variables variables] [-w|--while conditions] [-e|--each each] [-f|--for each] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    tube:           The tube you want to run. It supports 3 formats:                          
                      - 'file.yaml': Run TUBE from file.yaml file. With this format the global variables in file.xml will also be imported.                          
@@ -673,23 +795,23 @@ Parameters:
    -f|--for:       The alias of --each argument.
 
 Support from version: 2.0.2</pre>
-### 39: SET_FILE_KEY_VALUE
+### 47: SET_FILE_KEY_VALUE
 #### Alias: SET_KEY
 <pre>Description: Update key-value file.
 
-Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - SET_FILE_KEY_VALUE: -f|--file file -k|--keywords keywords -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to update.
    -k|--keywords: The key in the left side of '='.
    -v|--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 40: SET_TUBE
+### 48: SET_TUBE
 #### Alias: SET_T
 <pre>Description: Enable or disable tube commands general arguments for: --continue, --redo or --key.                         
 Set tube's ending tube.
 
-Syntax: - SET_TUBE: [-c|--continue-all continue_all] [-r|--redo-all redo_all] [-k|--key-all key_all] [-e|--ending|--finally ending_tube] [--key-ending] [--if run] [--raw] [--note note]
+Syntax: - SET_TUBE: [-c|--continue-all continue_all] [-r|--redo-all redo_all] [-k|--key-all key_all] [-e|--ending|--finally ending_tube] [--key-ending] [--if run] [--raw] [--raw-log] [--note note]
 Parameters:
    -c|--continue-all:     Enable/disable tube's command --continue status. Values: yes/no, true/false.
    -r|--redo-all:         Enable/disable tube's command --redo status. Values: yes/no, true/false.
@@ -701,14 +823,14 @@ Parameters:
    --key-ending:          Add ending tube --key argument.
 
 Support from version: 2.0.2</pre>
-### 41: SET_VARIABLE
+### 49: SET_VARIABLE
 #### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
-Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    expression:    Assign variable value with format: var_name = expression, var_name["keyword"] = expression or var_name[index] = expression;                          
-                  You can also use operator +=, *=, /+ to make the assignment eaiser: i += 1, i += -1 etc;                           
+                  You can also use operator +=, -=, *=, /+ to make the assignment eaiser: i += 1, i *= -1 etc;                           
                   Or you can use --name, --keyword, --index, --value arguments to set the variable value explicitly.
    -n|--name:     The tube variable name you want to set.
    -k|--keyword:  If update a dictional type variable, this --keyword value is to set the dict key.
@@ -727,44 +849,44 @@ Parameters:
                   Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 42: SET_XML_TAG_TEXT
+### 50: SET_XML_TAG_TEXT
 #### Alias: SET_XML_TAG
 <pre>Description: Update XML file tag text using xpath.
 
-Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - SET_XML_TAG_TEXT: -f|--file file -x|--xpath xpath -v|--value value [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:  The XML file you want tup set tag text.
    -x|--xpath: The xpath of the XML tag
    -v|--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 43: SFTP_GET
+### 51: SFTP_GET
 #### Alias: FTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
 
-Syntax: - SFTP_GET: -r|--remotepath remotepath -l|--localpath localpath [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - SFTP_GET: -r|--remotepath remotepath -l|--localpath localpath [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -r|--remotepath: The file full remotepath.
    -l|--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 44: SFTP_PUT
+### 52: SFTP_PUT
 #### Alias: FTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
 
-Syntax: - SFTP_PUT: -l|--localpath localpath -r|--remotepath remotepath [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - SFTP_PUT: -l|--localpath localpath -r|--remotepath remotepath [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -l|--localpath:  The file localpath.
    -r|--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 45: TAIL_FILE
+### 53: TAIL_FILE
 #### Alias: TAIL
 <pre>Description: Print/Log the last N lines of given file.
 
-Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [-r|--result result] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - TAIL_FILE: -f|--file file -l|--lines lines [-k|--keywords keywords] [-r|--result result] [-v|--variable variable] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The text file you want to tail.
    -l|--lines:    The lines count you want to output.
@@ -775,11 +897,11 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.0</pre>
-### 46: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LN, WRITE_LINE
+### 54: WRITE_LINE_IN_FILE
+#### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
-Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--note note]
+Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to update.
    -v|--value:    The character value you want to update in the file.
