@@ -1,6 +1,9 @@
 
 TODO LIST
 
+- WRITE_FILE: -f file -c content -m mode ??
+- DOWNLOAD: url ??
+
 - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
 
 - Output Command.results to Email content - future
