@@ -118,6 +118,7 @@ class Storage():
         self.C_FILE_CREATE             = 'FILE_CREATE'
         self.C_FILE_INSERT             = 'FILE_INSERT'
         self.C_FILE_SORT               = 'FILE_SORT'
+        self.C_FILE_DOWNLOAD           = 'FILE_DOWNLOAD'
         self.C_DIR_EXIST               = 'DIR_EXIST'
         self.C_DIR_DELETE              = 'DIR_DELETE'
         self.C_DIR_CREATE              = 'DIR_CREATE'
@@ -128,7 +129,7 @@ class Storage():
         self.C_REQUESTS_PUT            = 'REQUESTS_PUT'
         self.C_REQUESTS_HEAD           = 'REQUESTS_HEAD'
         self.C_REQUESTS_PATCH          = 'REQUESTS_PATCH'
-        self.C_REQUESTS_DELETE         = 'REQUESTS_DELETE'
+        self.C_REQUESTS_DELETE         = 'REQUESTS_DELETE'        
         # method – method for the new Request object: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
         self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -363,7 +364,7 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Create a new object instance.'
-            },               
+            },        
             self.C_TAIL_FILE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
                 self.C_ALIAS: {'TAIL'},
@@ -638,6 +639,24 @@ class Storage():
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Move any files to target.'                
             },
+            self.C_FILE_DOWNLOAD: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'DOWNLOAD'},
+                self.C_ARG_ARGS: [        
+                    [False, '-u','--url', 'str', '+', 'url', True, False, '', '',
+                        'The file url.'],  
+                    [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
+                        'The file name to save.'],                  
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Download a file from internet.'                
+            }, 
             self.C_DIR_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
                 self.C_ALIAS: {'D_EXIST'},

@@ -2,7 +2,7 @@
 TODO LIST
 
 - WRITE_FILE: -f file -c content -m mode ??
-- DOWNLOAD: url ??
+- DOWNLOAD: --url url --file file
 
 - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
 
