@@ -123,6 +123,7 @@ class Storage():
         self.C_DIR_CREATE              = 'DIR_CREATE'
         self.C_TAIL_LINES_HEADER       = 'TAIL '
         self.C_REQUESTS_GET            = 'REQUESTS_GET'
+        self.C_REQUESTS_POST           = 'REQUESTS_POST'
         self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
@@ -971,6 +972,32 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Get request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_POST: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_POST'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.post() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Post request. Save the response to tube variable.'
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -4881,7 +4908,7 @@ class TubeCommand():
                     self.log.add_error(error) 
             return False                       
     
-    def requests_get(self):
+    def requests_sent(self):
         url, variable, parameters = None, None, ''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
@@ -4893,7 +4920,10 @@ class TubeCommand():
         is_global = args.is_global
         is_force = args.is_force
         
-        expression = f'r = requests.get(\'{url}\', {parameters})'
+        if self.command_type == Storage.I.C_REQUESTS_GET:
+            expression = f'r = requests.get(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_POST:
+            expression = f'r = requests.post(\'{url}\', {parameters})'
         exec(expression)
         resp = eval('r')
         # update tube variables dependantly
@@ -5198,8 +5228,9 @@ class TubeCommand():
             elif command_type == Storage.I.C_PRINT:
                 self.print_message()
 
-            elif command_type == Storage.I.C_REQUESTS_GET:
-                result = self.requests_get()
+            elif command_type == Storage.I.C_REQUESTS_GET or \
+                 command_type == Storage.I.C_REQUESTS_POST:
+                result = self.requests_sent()
 
             # not supported command found then log errors and continue next          
             else:
