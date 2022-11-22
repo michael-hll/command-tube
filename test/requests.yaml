@@ -1,0 +1,24 @@
+Tube: 
+    - SET_TUBE: -c yes
+    - SET_VARIABLE: >
+        payload = {'key1': 'value1', 'key2': ['value2', 'value3']}
+    - SET_VARIABLE: >
+        headers = {'user-agent': 'my-app/0.0.1'}
+    - REQUESTS_GET: >
+        https://httpbin.org/response-headers
+        -a params={payload}, data='data', stream=True, headers={headers}
+        -r resp
+    - PRINT: {resp.status_code}
+    - PRINT: text={resp.text} --raw-log
+    - SET_VARIABLE: j = resp.json()
+    - PRINT: >
+        {j} --raw-log --json
+    - PRINT: headers={resp.headers} --raw-log
+    - PRINT: raw={resp.raw} --raw-log
+
+    # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs
+    - SET_VARIABLE: -n request_result -v 'Testing Pass' -g --if {success_nums}==10 --key
+    - SET_VARIABLE: -n request_result -v 'Testing Failed' -g --if {success_nums}!=10
+    - SET_VARIABLE: failed += 'requests.yaml,' -g --if {success_nums}!=10
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==10

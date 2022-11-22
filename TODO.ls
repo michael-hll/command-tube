@@ -1,11 +1,8 @@
 
 TODO LIST
 
-- set_var: support update object type variable's property value - 2.0.3
-        - set: obj.property = value
-   Note: When add requests method then this feature could be used
-
 - Requests popular methods to tube commands - 2.0.3
+    - requests.get -- done
 
 - validation: check tube and variable names valid - 2.0.3
 
@@ -198,6 +195,10 @@ TODO LIST
     
     71. - CREATE_OJBECT: name tube command is added - 2.0.3
         use this command you can create a new object() type instance
+
+    72. - set_var: support update object type variable's property value - 2.0.3
+        - set: obj.property = value
+        Note: When add requests method then this feature could be used
 
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2

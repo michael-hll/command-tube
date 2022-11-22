@@ -4882,22 +4882,24 @@ class TubeCommand():
             return False                       
     
     def requests_get(self):
-        url, variable = None, None
+        url, variable, parameters = None, None, ''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         url = ' '.join(args.url)
         variable = args.response[0]
+        if args.parameters:
+            parameters = ' '.join(args.parameters)
         is_global = args.is_global
         is_force = args.is_force
-
-        r = requests.get(url)
-        r.encoding = r.apparent_encoding
-
+        
+        expression = f'r = requests.get(\'{url}\', {parameters})'
+        exec(expression)
+        resp = eval('r')
         # update tube variables dependantly
-        key_result = self.update_key_value(variable, r, is_force=is_force, is_global=is_global)
+        key_result = self.update_key_value(variable, resp, is_force=is_force, is_global=is_global)
         if key_result == False:
-            raise Exception('Update key-value failed: {0}:{1}'.format(variable, r))  
+            raise Exception('Update key-value failed: {0}:{1}'.format(variable, resp))  
         
         return True
 
