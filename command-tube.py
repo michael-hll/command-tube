@@ -1492,7 +1492,11 @@ class TDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
 
-class Object():
+class Object(object):
+    '''
+    This empty Object class is used
+    for create class type tube variable
+    '''
     pass
 
 class Utility():
@@ -2051,6 +2055,7 @@ class reUtility():
     RE_MATCH_ASSIGN_PLUS = '(([a-zA-Z0-9_.]+)((\[[a-zA-Z0-9_]+\]){,2})(\[[\'\"]([a-zA-Z0-9_]+)[\'\"]\])?[ ]?([\+\-\*\/]{1})\=[ ]?([^\=]+))'
     P_AssignPlus: re.Pattern = re.compile(RE_MATCH_ASSIGN_PLUS)
 
+    # to validate tube variable name and tube name
     RE_MATCH_VAR_NAME = '[a-zA-Z0-9_]+'
     P_VarName: re.Pattern = re.compile(RE_MATCH_VAR_NAME)
     
@@ -4477,7 +4482,6 @@ class TubeCommand():
         
         # if name is a object's property like obj_name.prop_name
         # then name_trim will only keep the obj_name
-        # TODO: this feature will be tested in 2.0.3
         name_trim = name
         if '.' in name_trim:
             name_trim = name_trim[:name_trim.index('.')]
@@ -4489,10 +4493,6 @@ class TubeCommand():
                 local_dict = self.tube.get_parent_key_values().copy()
                 local_dict['__value__'] = value
                 exec(name + ' = __value__', globals(), local_dict)
-                # TODO: Need to test if upper two lines code working
-                # otherwise we need to see if below two lines logic working
-                #property_name = name[name.index('.') + 1:]
-                #setattr(obj_instance, property_name, value)
                 return True
             else:
                 raise Exception(f'Tube variable doesnot exist: {name_trim}')
@@ -5048,6 +5048,9 @@ class TubeCommand():
             return False                       
     
     def requests_sent(self):
+        '''
+        Wrapper for http methods: get, post, delete, put, head, patch, options
+        '''
         url, variable, parameters = None, None, ''
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
