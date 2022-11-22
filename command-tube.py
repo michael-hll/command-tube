@@ -124,6 +124,12 @@ class Storage():
         self.C_TAIL_LINES_HEADER       = 'TAIL '
         self.C_REQUESTS_GET            = 'REQUESTS_GET'
         self.C_REQUESTS_POST           = 'REQUESTS_POST'
+        self.C_REQUESTS_OPTIONS        = 'REQUESTS_OPTIONS'
+        self.C_REQUESTS_PUT            = 'REQUESTS_PUT'
+        self.C_REQUESTS_HEAD           = 'REQUESTS_HEAD'
+        self.C_REQUESTS_PATCH          = 'REQUESTS_PATCH'
+        self.C_REQUESTS_DELETE         = 'REQUESTS_DELETE'
+        # method – method for the new Request object: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
         self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
         self.C_FINISHED_HEADER         = '*** Command Tube Finished Status ***'
@@ -998,6 +1004,136 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Post request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_PUT: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_PUT'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.put() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Put request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_PATCH: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_PATCH'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.patch() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Patch request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_HEAD: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_HEAD'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.head() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Head request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_OPTIONS: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_OPTIONS'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.options() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Options request. Save the response to tube variable.'
+            },
+            self.C_REQUESTS_DELETE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.3',
+                self.C_ALIAS: {'HTTP_DELETE'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'url', True, False, '', '',
+                        'The request url.'],
+                    [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
+                        'The parameters of requests.delete() method. eg: --args params=xxx, data=yyy'],
+                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                        f'The tube variable name to store http get response. \
+                         \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
+                         \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
+                        'Force update even the variable is readonly. Default no.'],  
+                    [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
+                        'If update the variable in global tube variables. Default no.'], 
+                ],
+                self.C_CONTINUE_PARAMETER: True,
+                self.C_REDO_PARAMETER: True,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: True,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Sent a HTTP Delete request. Save the response to tube variable.'
             },
             self.C_PAUSE: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -4924,6 +5060,17 @@ class TubeCommand():
             expression = f'r = requests.get(\'{url}\', {parameters})'
         elif self.command_type == Storage.I.C_REQUESTS_POST:
             expression = f'r = requests.post(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_OPTIONS:
+            expression = f'r = requests.options(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_PUT:
+            expression = f'r = requests.put(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_HEAD:
+            expression = f'r = requests.head(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_PATCH:
+            expression = f'r = requests.patch(\'{url}\', {parameters})'
+        elif self.command_type == Storage.I.C_REQUESTS_DELETE:
+            expression = f'r = requests.delete(\'{url}\', {parameters})'
+        
         exec(expression)
         resp = eval('r')
         # update tube variables dependantly
@@ -5229,7 +5376,12 @@ class TubeCommand():
                 self.print_message()
 
             elif command_type == Storage.I.C_REQUESTS_GET or \
-                 command_type == Storage.I.C_REQUESTS_POST:
+                 command_type == Storage.I.C_REQUESTS_POST or \
+                 command_type == Storage.I.C_REQUESTS_DELETE or \
+                 command_type == Storage.I.C_REQUESTS_PATCH or \
+                 command_type == Storage.I.C_REQUESTS_HEAD or \
+                 command_type == Storage.I.C_REQUESTS_OPTIONS or \
+                 command_type == Storage.I.C_REQUESTS_PUT:
                 result = self.requests_sent()
 
             # not supported command found then log errors and continue next          

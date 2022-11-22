@@ -19,9 +19,18 @@ Tube:
     - REQUESTS_POST: https://httpbin.org/post -a data={payload} -r resp
     - PRINT: status={resp.status_code} --if resp.status_code == 200
 
+    - REQUESTS_DELETE: https://httpbin.org/delete -a data={payload} -r resp
+    - PRINT: OK --if resp.status_code == 200
+
+    - REQUESTS_PUT: https://httpbin.org/put -a data={payload} -r resp
+    - PRINT: OK --if resp.status_code == 200
+
+    - REQUESTS_PATCH: https://httpbin.org/patch -a data={payload} -r resp
+    - PRINT: OK --if resp.status_code == 200
+
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs
-    - SET_VARIABLE: -n request_result -v 'Testing Pass' -g --if {success_nums}==12 --key
-    - SET_VARIABLE: -n request_result -v 'Testing Failed' -g --if {success_nums}!=12
-    - SET_VARIABLE: failed += 'requests.yaml,' -g --if {success_nums}!=12
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==12
+    - SET_VARIABLE: -n request_result -v 'Testing Pass' -g --if {success_nums}==18 --key
+    - SET_VARIABLE: -n request_result -v 'Testing Failed' -g --if {success_nums}!=18
+    - SET_VARIABLE: failed += 'requests.yaml,' -g --if {success_nums}!=18
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==18
