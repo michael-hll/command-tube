@@ -646,7 +646,9 @@ class Storage():
                     [False, '-u','--url', 'str', '+', 'url', True, False, '', '',
                         'The file url.'],  
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
-                        'The file name to save.'],                  
+                        'The file name to save.'],   
+                    [False, '-','--timeout', 'str', 1, 'timeout', False, False, '', '',
+                        'The timeout seconds to download the file. Default no timeout.'],                 
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -655,7 +657,7 @@ class Storage():
                 self.C_PLACE_HOLDER: True,
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'Download a file from internet.'                
+                self.C_COMMAND_DESCRIPTION: 'Download a file from internet using requests.get().'                
             }, 
             self.C_DIR_EXIST: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.2',
@@ -3806,6 +3808,22 @@ class TubeCommand():
 
         return True
     
+    def file_download(self):
+        url, file, timeout = None, None, None
+        parser = self.tube_argument_parser
+        inputs = self.self_format_placeholders(self.content)
+        args, _ = parser.parse_known_args(shlex.split(inputs))
+        url = ' '.join(args.url)
+        file = ' '.join(args.file)
+        if args.timeout:
+            timeout=int(args.timeout[0])
+
+        r = requests.get(url, verify=False, timeout=timeout)
+        with open(file, 'wb') as f:
+            f.write(r.content)
+
+        return True
+
     def delete_variable(self):
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
@@ -5335,6 +5353,9 @@ class TubeCommand():
                     
             elif command_type == Storage.I.C_FILE_MOVE:
                 result = self.file_move()  
+            
+            elif command_type == Storage.I.C_FILE_DOWNLOAD:
+                result = self.file_download()
             
             elif command_type == Storage.I.C_DIR_EXIST:
                 result = self.dir_exist()  
