@@ -980,10 +980,12 @@ class Storage():
                         'The request url.'],
                     [False, '-a','--args', 'str', '*', 'parameters', False, False, '', '',
                         'The parameters of requests.get() method. eg: --args params=xxx, data=yyy'],
-                    [False, '-r','--resp', 'str', 1, 'response', True, False, '', '',
+                    [False, '-r','--resp', 'str', 1, 'response', False, False, '', '',
                         f'The tube variable name to store http get response. \
                          \n{" ":16s}Then you can access response properties: status_code, url, headers, text, json(), etc. \
                          \n{" ":16s}Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content'],
+                    [False, '-s','--soup', 'str', 1, 'soup', False, False, '', '',
+                        'Tube variable name of BeautifulSoup object. (Use Response.Text content with lxml parser)'],
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False, 
                         'Force update even the variable is readonly. Default no.'],  
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -5070,16 +5072,22 @@ class TubeCommand():
         '''
         Wrapper for http methods: get, post, delete, put, head, patch, options
         '''
-        url, variable, parameters = None, None, ''
+        url, variable, parameters, soup = None, None, '', None
         parser = self.tube_argument_parser
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs, posix=False))
         url = ' '.join(args.url)
-        variable = args.response[0]
+        if args.response:
+            variable = args.response[0]
+        if 'soup' in args.__dict__.keys() and args.soup:
+            soup = args.soup[0]
         if args.parameters:
             parameters = ' '.join(args.parameters)
         is_global = args.is_global
         is_force = args.is_force
+
+        if not variable and not soup:
+            raise Exception('--resp or --soap argument is missing.')
         
         if self.command_type == Storage.I.C_REQUESTS_GET:
             expression = f'r = requests.get(\'{url}\', {parameters})'
@@ -5098,10 +5106,18 @@ class TubeCommand():
         
         exec(expression)
         resp = eval('r')
+        
         # update tube variables dependantly
         key_result = self.update_key_value(variable, resp, is_force=is_force, is_global=is_global)
         if key_result == False:
-            raise Exception('Update key-value failed: {0}:{1}'.format(variable, resp))  
+            raise Exception('Update key-value failed: {0}:{1}'.format(variable, resp)) 
+
+        # update soap obj
+        if resp.status_code == 200 and soup:
+            soap_obj = BeautifulSoup(resp.text, 'lxml') 
+            key_result = self.update_key_value(soup, soap_obj, is_force=is_force, is_global=is_global)
+            if key_result == False:
+                raise Exception('Update key-value failed: {0}:{1}'.format(soup, soap_obj)) 
         
         return True
 
