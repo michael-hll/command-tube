@@ -248,7 +248,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: FIND, CHECK_CHAR
+#### Alias: CHECK_CHAR, FIND
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -317,7 +317,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
+#### Alias: DEL_LINE, DELETE_LINE, DEL_LN
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -405,7 +405,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_COPY, F_CP
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -435,7 +435,18 @@ Parameters:
    -r|--result: The text file to store deleted files result.
 
 Support from version: 2.0.2</pre>
-### 19: FILE_EMPTY
+### 19: FILE_DOWNLOAD
+#### Alias: DOWNLOAD
+<pre>Description: Download a file from internet using requests.get().
+
+Syntax: - FILE_DOWNLOAD: -u|--url url -f|--file file [--timeout timeout] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Parameters:
+   -u|--url:    The file url.
+   -f|--file:   The file name to save.
+   --timeout:   The timeout seconds to download the file. Default no timeout.
+
+Support from version: 2.0.3</pre>
+### 20: FILE_EMPTY
 #### Alias: F_EMPTY
 <pre>Description: Clear an existing text file or create a new empty file.
 
@@ -446,7 +457,7 @@ Parameters:
    -c|--create: If the give file doesnot exist if create a new empty file. Default No.
 
 Support from version: 2.0.2</pre>
-### 20: FILE_EXIST
+### 21: FILE_EXIST
 #### Alias: F_EXIST
 <pre>Description: Check if a file exists.
 
@@ -458,7 +469,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 21: FILE_INSERT
+### 22: FILE_INSERT
 #### Alias: F_INSERT
 <pre>Description: Insert a line before given line number. If line number doesnot exist then insert to the end.
 
@@ -469,8 +480,8 @@ Parameters:
    -v|--value:  The line you want to insert into the file.
 
 Support from version: 2.0.2</pre>
-### 22: FILE_MOVE
-#### Alias: F_MOVE, F_MV
+### 23: FILE_MOVE
+#### Alias: F_MV, F_MOVE
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -479,7 +490,7 @@ Parameters:
    -d|-t|--dest|--to:  The target file or folder
 
 Support from version: 2.0.2</pre>
-### 23: FILE_POP
+### 24: FILE_POP
 #### Alias: F_POP
 <pre>Description: Pop one line of the given text file. If there is no line there then store empty.
 
@@ -493,7 +504,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 24: FILE_PUSH
+### 25: FILE_PUSH
 #### Alias: F_PUSH
 <pre>Description: Push the content to the first line of the given text file.
 
@@ -503,7 +514,7 @@ Parameters:
    -v|--value: The content you want to push to the text file.
 
 Support from version: 2.0.2</pre>
-### 25: FILE_READ
+### 26: FILE_READ
 #### Alias: F_READ
 <pre>Description: Read a file content to tube variable. Doesn't include the new-line (\n) char.
 
@@ -517,7 +528,7 @@ Parameters:
    -g|--global:     If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 26: FILE_SORT
+### 27: FILE_SORT
 #### Alias: F_SORT
 <pre>Description: Sort a text file lines content.
 
@@ -529,7 +540,7 @@ Parameters:
    -s|--sort:   Default value is asc. You can set value 'desc' to reverse the sorting.
 
 Support from version: 2.0.2</pre>
-### 27: GET_FILE_KEY_VALUE
+### 28: GET_FILE_KEY_VALUE
 #### Alias: GET_KEYS
 <pre>Description: Read key values from key-value file.                                            
 It also supports to read key-value from Yaml file with simple type.                                            
@@ -543,7 +554,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 28: GET_XML_TAG_TEXT
+### 29: GET_XML_TAG_TEXT
 #### Alias: GET_XML_TAG
 <pre>Description: Get XML file tag text value.                                            
 The result will be stored into a tube variable and xpath will be used as the variable name.
@@ -557,7 +568,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 29: LINUX_COMMAND
+### 30: LINUX_COMMAND
 #### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
@@ -567,7 +578,7 @@ Parameters:
    --log-detail:   Log command output to tube log file. Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 30: LIST_DIRS
+### 31: LIST_DIRS
 #### Alias: LIST_D
 <pre>Description: Got all sub directories for the given directory, and save the result list to a text file or variable.
 
@@ -582,7 +593,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 31: LIST_FILES
+### 32: LIST_FILES
 #### Alias: LIST_F
 <pre>Description: Get matched files list and save it to a text file or variable.
 
@@ -599,7 +610,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 32: PATH
+### 33: PATH
 #### Alias: CD
 <pre>Description: Go to specific directory.
 
@@ -608,7 +619,7 @@ Parameters:
    directory:  The directory you want to goto.
 
 Support from version: 2.0.0</pre>
-### 33: PAUSE
+### 34: PAUSE
 #### Alias: PAUZE
 <pre>Description: Command Tube will pause with given minutes/seconds.
 
@@ -617,7 +628,7 @@ Parameters:
    minutes:  The minutes you want to pause. You can end it with 's' char to pause for xxx seconds.
 
 Support from version: 2.0.0</pre>
-### 34: PRINT
+### 35: PRINT
 #### Alias: ECHO
 <pre>Description: Print a message to the console for debugging purpose.
 
@@ -628,7 +639,7 @@ Parameters:
    --json:       Print message in json format. Default no. [2.0.3]
 
 Support from version: 2.0.2</pre>
-### 35: PRINT_VARIABLES
+### 36: PRINT_VARIABLES
 #### Alias: PRINT_VARS
 <pre>Description: Print tube variable values for debugging purpose.
 
@@ -638,8 +649,8 @@ Parameters:
    -r|--result: The text file to store the result.
 
 Support from version: 2.0.2</pre>
-### 36: READ_LINE_IN_FILE
-#### Alias: READ_LN, READ_LINE
+### 37: READ_LINE_IN_FILE
+#### Alias: READ_LINE, READ_LN
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -651,7 +662,7 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.2</pre>
-### 37: REPLACE_CHAR
+### 38: REPLACE_CHAR
 #### Alias: REPLACE
 <pre>Description: Replace file line content which contains/matches given value.
 
@@ -663,7 +674,7 @@ Parameters:
    -c|--count:    The replaced times you want to set. Default 1.
 
 Support from version: 2.0.1</pre>
-### 38: REPORT_PROGRESS
+### 39: REPORT_PROGRESS
 #### Alias: REPORT_PRO
 <pre>Description: You can use this command to sent current progress via Email.
 
@@ -672,7 +683,7 @@ Parameters:
    subject:  The email subject/title you want to set.
 
 Support from version: 2.0.0</pre>
-### 39: REQUESTS_DELETE
+### 40: REQUESTS_DELETE
 #### Alias: HTTP_DELETE
 <pre>Description: Sent a HTTP Delete request. Save the response to tube variable.
 
@@ -687,22 +698,23 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 40: REQUESTS_GET
+### 41: REQUESTS_GET
 #### Alias: HTTP_GET
 <pre>Description: Sent a HTTP Get request. Save the response to tube variable.
 
-Syntax: - REQUESTS_GET: url [-a|--args parameters] -r|--resp response [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Syntax: - REQUESTS_GET: url [-a|--args parameters] [-r|--resp response] [-s|--soup soup] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    url:         The request url.
    -a|--args:   The parameters of requests.get() method. eg: --args params=xxx, data=yyy
    -r|--resp:   The tube variable name to store http get response.                          
                 Then you can access response properties: status_code, url, headers, text, json(), etc.                          
                 Refer to: https://requests.readthedocs.io/en/latest/user/quickstart/#response-content
+   -s|--soup:   Tube variable name of BeautifulSoup object. (Use Response.Text content with lxml parser)
    -u|--force:  Force update even the variable is readonly. Default no.
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 41: REQUESTS_HEAD
+### 42: REQUESTS_HEAD
 #### Alias: HTTP_HEAD
 <pre>Description: Sent a HTTP Head request. Save the response to tube variable.
 
@@ -717,7 +729,7 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 42: REQUESTS_OPTIONS
+### 43: REQUESTS_OPTIONS
 #### Alias: HTTP_OPTIONS
 <pre>Description: Sent a HTTP Options request. Save the response to tube variable.
 
@@ -732,7 +744,7 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 43: REQUESTS_PATCH
+### 44: REQUESTS_PATCH
 #### Alias: HTTP_PATCH
 <pre>Description: Sent a HTTP Patch request. Save the response to tube variable.
 
@@ -747,7 +759,7 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 44: REQUESTS_POST
+### 45: REQUESTS_POST
 #### Alias: HTTP_POST
 <pre>Description: Sent a HTTP Post request. Save the response to tube variable.
 
@@ -762,7 +774,7 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 45: REQUESTS_PUT
+### 46: REQUESTS_PUT
 #### Alias: HTTP_PUT
 <pre>Description: Sent a HTTP Put request. Save the response to tube variable.
 
@@ -777,7 +789,7 @@ Parameters:
    -g|--global: If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.3</pre>
-### 46: RUN_TUBE
+### 47: RUN_TUBE
 #### Alias: RUN
 <pre>Description: Run a sub-tube. 
              With the '--while' conditions provided, RUN_TUBE will continuely run and stop when conditions return false.                                              
@@ -795,7 +807,7 @@ Parameters:
    -f|--for:       The alias of --each argument.
 
 Support from version: 2.0.2</pre>
-### 47: SET_FILE_KEY_VALUE
+### 48: SET_FILE_KEY_VALUE
 #### Alias: SET_KEY
 <pre>Description: Update key-value file.
 
@@ -806,7 +818,7 @@ Parameters:
    -v|--value:    The value in the right side of '='.
 
 Support from version: 2.0.0</pre>
-### 48: SET_TUBE
+### 49: SET_TUBE
 #### Alias: SET_T
 <pre>Description: Enable or disable tube commands general arguments for: --continue, --redo or --key.                         
 Set tube's ending tube.
@@ -823,7 +835,7 @@ Parameters:
    --key-ending:          Add ending tube --key argument.
 
 Support from version: 2.0.2</pre>
-### 49: SET_VARIABLE
+### 50: SET_VARIABLE
 #### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
@@ -849,7 +861,7 @@ Parameters:
                   Default no. [2.0.2]
 
 Support from version: 2.0.0</pre>
-### 50: SET_XML_TAG_TEXT
+### 51: SET_XML_TAG_TEXT
 #### Alias: SET_XML_TAG
 <pre>Description: Update XML file tag text using xpath.
 
@@ -860,7 +872,7 @@ Parameters:
    -v|--value: The new value of the tag.
 
 Support from version: 2.0.0</pre>
-### 51: SFTP_GET
+### 52: SFTP_GET
 #### Alias: FTP_GET
 <pre>Description: Using SSHClient to copy remote server file to local.                                            
 When copy multiple files using *.* then localpath must be a directory.
@@ -871,7 +883,7 @@ Parameters:
    -l|--localpath:  The file localpath.
 
 Support from version: 2.0.1</pre>
-### 52: SFTP_PUT
+### 53: SFTP_PUT
 #### Alias: FTP_PUT
 <pre>Description: Using SSHClient to put local file to remote server.                                            
 When copy multiple files using *.* then remotepath must be a directory.
@@ -882,7 +894,7 @@ Parameters:
    -r|--remotepath: The file full remotepath.
 
 Support from version: 2.0.1</pre>
-### 53: TAIL_FILE
+### 54: TAIL_FILE
 #### Alias: TAIL
 <pre>Description: Print/Log the last N lines of given file.
 
@@ -897,8 +909,8 @@ Parameters:
    -g|--global:   If update the variable in global tube variables. Default no.
 
 Support from version: 2.0.0</pre>
-### 54: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+### 55: WRITE_LINE_IN_FILE
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
