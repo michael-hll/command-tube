@@ -3,9 +3,9 @@ TUBE:
     # Mac OS version
     - SET_TUBE: -c yes
     - GET_FILE_KEY_VALUE: -f key_value.ini
-    - GET_FILE_KEY_VALUE: -f key_value.ini -k key1 key_value.ini
-    - GET_FILE_KEY_VALUE: -f key_value.ini -k key2,key3 key_value.ini
-    - GET_FILE_KEY_VALUE: -f key_value.ini -k key4 key5 key_value.ini
+    - GET_FILE_KEY_VALUE: -f key_value.ini -k key1
+    - GET_FILE_KEY_VALUE: -f key_value.ini -k key2,key3
+    - GET_FILE_KEY_VALUE: -f key_value.ini -k key4 > k4,  key5 > k5
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COMMAND: echo Testing Passed --if {success_nums}==4
     # output testing result

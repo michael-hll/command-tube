@@ -1197,7 +1197,9 @@ class Storage():
                     [False, '-f','--file', 'str', '+', 'file', True, False, '', '',
                         'The file you want to get key-value from.'],    
                     [False, '-k','--keywords', 'str', '+', 'keywords', False, False, '', '',
-                        'The key you want to get values from the file. It supports comma seperated format for multiple keys.'],  
+                        f'The key you want to get values from the file. It supports comma seperated format for multiple keys. \
+                          \n{" ":20s}eg1: -k key1, key2 # It will read key1, key2 values and save to tube variables key1, key2; \
+                          \n{" ":20s}eg2: -k key1 > k1, key2 > k2 # It will read key1, key2 values and save to tube variables k1, k2'],  
                     [False, '-u','--force', '', '', 'is_force', False, True, 'store_true', False,
                         'Force update even the variable is readonly. Default no. [2.0.2]'],
                     [False, '-g','--global', '', '', 'is_global', False, True, 'store_true', False,
@@ -2067,6 +2069,17 @@ class Utility():
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e))
         finally:
             return expression
+    
+    @classmethod
+    def split_key(self, key, split_char='>'):
+        '''
+        Split key1 > key2 case for get_file_key_value command
+        '''
+        if not split_char in key:
+            return (key, key)
+        k1 = key[:key.index(split_char)].strip()
+        k2 = key[key.index(split_char)+1:].strip()
+        return (k1, k2)
 
 class reUtility():
 
@@ -4088,14 +4101,10 @@ class TubeCommand():
         # replace , from the keys  
         keywords = set()
         if args.keywords:
-            # replace ',' to ''
-            for i, k in enumerate(args.keywords): 
-                if ',' in k:
-                    keys_temp = args.keywords[i].split(',')
-                    for temp in keys_temp:
-                        keywords.add(temp)           
-                else:
-                    keywords.add(k)
+            keyword_s = ' '.join(args.keywords) 
+            keys_temp = keyword_s.split(',')
+            for temp in keys_temp:
+                keywords.add(temp.strip())
             
         file = ' '.join(args.file)
         key_values = [] 
@@ -4118,14 +4127,16 @@ class TubeCommand():
                         key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
                         if key_result == False:
                             raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
-                        key_values.append(key + '=' + value)                        
-                    else:
-                        if key in keywords:  
-                            # update tube variables dependantly
-                            key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
-                            if key_result == False:
-                                raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
-                            key_values.append(key + '=' + value)     
+                        key_values.append(key + '=' + str(value))                       
+                    else: 
+                        for input_key in keywords:
+                            key1, key2 = Utility.split_key(input_key)
+                            if key == key1:
+                                # update tube variables dependantly
+                                key_result = self.update_key_value(key2, value, is_force=is_force, is_global=is_global)
+                                if key_result == False:
+                                    raise Exception('Update key-value failed: {0}:{1}'.format(key2, value))
+                                key_values.append(key2 + '=' + str(value))    
             
         else:
             # key value file
@@ -4155,12 +4166,14 @@ class TubeCommand():
                                 raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
                             key_values.append(key + '=' + str(value))
                         else:
-                            if key in keywords:
-                                # update tube variables dependantly
-                                key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
-                                if key_result == False:
-                                    raise Exception('Update key-value failed: {0}:{1}'.format(key, value)) 
-                                key_values.append(key + '=' + str(value))
+                            for input_key in keywords:
+                                key1, key2 = Utility.split_key(input_key)
+                                if key == key1:
+                                    # update tube variables dependantly
+                                    key_result = self.update_key_value(key2, value, is_force=is_force, is_global=is_global)
+                                    if key_result == False:
+                                        raise Exception('Update key-value failed: {0}:{1}'.format(key2, value))
+                                    key_values.append(key2 + '=' + str(value))
                                                    
         if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
             msg = 'Get file key values successfully:\n' + str(key_values)
