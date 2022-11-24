@@ -248,7 +248,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR, FIND
+#### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -306,7 +306,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: NEW, CREATE
+#### Alias: CREATE, NEW
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -317,7 +317,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DEL_LINE, DELETE_LINE, DEL_LN
+#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -331,7 +331,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: DELETE_VARIABLE
-#### Alias: DELETE_VAR, DEL_VAR
+#### Alias: DEL_VAR, DELETE_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -351,7 +351,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 11: DIR_DELETE
-#### Alias: D_DEL, D_DELETE
+#### Alias: D_DELETE, D_DEL
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -405,7 +405,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -425,7 +425,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -549,7 +549,9 @@ The key-value results will be stored into tube variables.
 Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to get key-value from.
-   -k|--keywords: The key you want to get values from the file. It supports comma seperated format for multiple keys.
+   -k|--keywords: The key you want to get values from the file. It supports comma seperated format for multiple keys.                           
+                    eg1: -k key1, key2 # It will read key1, key2 values and save to tube variables key1, key2;                           
+                    eg2: -k key1 > k1, key2 > k2 # It will read key1, key2 values and save to tube variables k1, k2
    -u|--force:    Force update even the variable is readonly. Default no. [2.0.2]
    -g|--global:   If update the variable in global tube variables. Default no. [2.0.2]
 
@@ -650,7 +652,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 37: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
