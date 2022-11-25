@@ -1241,7 +1241,7 @@ class Storage():
                 self.C_ALIAS: {'EXEC'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'commands', True, False, '', '',
-                        'The python commands.'],
+                        'The tube variable\'s method you want to run. eg: my_list.reverse()'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -1250,8 +1250,7 @@ class Storage():
                 self.C_PLACE_HOLDER: True,
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
-                self.C_COMMAND_DESCRIPTION: 'The python commands you want to run. The original idea is to use it to import other python modules. \
-                         \nThen you can use the newly imported module in set or condition expressions.'
+                self.C_COMMAND_DESCRIPTION: 'Run tube variable\'s method.'
             },
             self.C_COMMAND: {
                 self.C_SUPPORT_FROM_VERSION: '2.0.0',
@@ -5154,7 +5153,20 @@ class TubeCommand():
 
     def exec_command(self):
         inputs = self.self_format_placeholders(self.content)
-        exec(inputs)
+        # if it'is with format var.xxx()
+        # Then will run var xxx() method 
+        name_trim = inputs
+        if '.' in name_trim:
+            name_trim = name_trim[:name_trim.index('.')]
+            exists, _ = self.tube.find_key_from_tubes(name_trim)
+            if exists:
+                local_dict = self.tube.get_parent_key_values().copy()
+                exec(inputs, globals(), local_dict)
+                return True
+            else:
+                raise Exception(f'Tube variable doesnot exist: {name_trim}')
+        else:
+            exec(inputs)
         return True
 
     def linux_command(self):
