@@ -212,6 +212,9 @@ TODO LIST
 
     76. - GET_KEYS: -f file -k key1 > k1 - 2.0.3
 
+    77. - EXEC: ls.reverse() - 2.0.3
+          run tube variable's method
+          
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
         2. GET_KEYS: If the value is number then convert it to number or float - fixed 2.0.2
