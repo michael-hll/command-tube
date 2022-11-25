@@ -1213,7 +1213,7 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Read key values from key-value file. \
-                                           \nIt also supports to read key-value from Yaml file with simple type. \
+                                           \nIt also supports to read key-value from Yaml file. \
                                            \nThe key-value results will be stored into tube variables.'
             },
             self.C_EMAIL: {
@@ -4120,22 +4120,21 @@ class TubeCommand():
                 value = data[key]
                 if value == None:
                     value = ''
-                if type(value) != dict and type(value) != list:
-                    if len(keywords) == 0:
-                        # update tube variables dependantly
-                        key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
-                        if key_result == False:
-                            raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
-                        key_values.append(key + '=' + str(value))                       
-                    else: 
-                        for input_key in keywords:
-                            key1, key2 = Utility.split_key(input_key)
-                            if key == key1:
-                                # update tube variables dependantly
-                                key_result = self.update_key_value(key2, value, is_force=is_force, is_global=is_global)
-                                if key_result == False:
-                                    raise Exception('Update key-value failed: {0}:{1}'.format(key2, value))
-                                key_values.append(key2 + '=' + str(value))    
+                if len(keywords) == 0:
+                    # update tube variables dependantly
+                    key_result = self.update_key_value(key, value, is_force=is_force, is_global=is_global)
+                    if key_result == False:
+                        raise Exception('Update key-value failed: {0}:{1}'.format(key, value))
+                    key_values.append(key + '=' + str(value))                       
+                else: 
+                    for input_key in keywords:
+                        key1, key2 = Utility.split_key(input_key)
+                        if key == key1:
+                            # update tube variables dependantly
+                            key_result = self.update_key_value(key2, value, is_force=is_force, is_global=is_global)
+                            if key_result == False:
+                                raise Exception('Update key-value failed: {0}:{1}'.format(key2, value))
+                            key_values.append(key2 + '=' + str(value))    
             
         else:
             # key value file
