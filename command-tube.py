@@ -2080,6 +2080,14 @@ class Utility():
         k2 = key[key.index(split_char)+1:].strip()
         return (k1, k2)
 
+    @classmethod
+    def replace_system_placehoders(self, value):
+        '''
+        Replace {-} to -
+        Replace $- to -
+        '''
+        return value.replace('{-}', '-').replace('$-', '-')
+
 class reUtility():
 
     # regular expression to match: {name}|{name:format}|{name[0/i]}|{name[0/i]:format}|{name["key"]}|{name["key"]:format}
@@ -2462,6 +2470,7 @@ class TubeCommand():
                     self.__original_content2 = self.__original_content2.replace(Storage.I.C_NOTES_PARAMETER, '').replace(self.notes, '').strip()
                     self.__original_content2 = ' '.join(self.__original_content2.split(' '))
                     self.__original_content2 += '  # => {0}'.format(self.notes)
+                self.__original_content2 = Utility.replace_system_placehoders(self.__original_content2)
                 return loop_status + str(self.__original_content2)
             else:
                 if not self.original_content:
@@ -2503,7 +2512,7 @@ class TubeCommand():
         
         # check notes value
         if args.notes:
-            self.notes = self.self_format_placeholders(' '.join(args.notes))
+            self.notes = Utility.replace_system_placehoders(self.self_format_placeholders(' '.join(args.notes)))
         
         # analyze redo parameter
         if args.redo != None:       
@@ -2646,7 +2655,7 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file_name = ' '.join(args.file)
         xpath = ' '.join(args.xpath)
-        value = ' '.join(args.value)
+        value = Utility.replace_system_placehoders(' '.join(args.value))
         
         # local variables
         temp_namespace = 'temp_ns_attrib_name'
@@ -2746,7 +2755,7 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file_name = ' '.join(args.file)
         keywords = ' '.join(args.keywords)
-        value = ' '.join(args.value)
+        value = Utility.replace_system_placehoders(' '.join(args.value))
             
         if(path.exists(file_name)):
             
@@ -2841,7 +2850,7 @@ class TubeCommand():
         file = ' '.join(args.file)
         if args.number:
             line_no = int(args.number[0])
-        line_content = ' '.join(args.value)
+        line_content = Utility.replace_system_placehoders(' '.join(args.value))
         if args.contains:
             line_contains = ' '.join(args.contains)    
             
@@ -2931,9 +2940,9 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
         if args.begins != None:
-            line_begins = ' '.join(args.begins)
+            line_begins = Utility.replace_system_placehoders(' '.join(args.begins))
         if args.contains != None:
-            line_contains = ' '.join(args.contains)
+            line_contains = Utility.replace_system_placehoders(' '.join(args.contains))
         if args.del_empty:
             delete_empty = True
         if args.number:
@@ -3404,7 +3413,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
-        value = ' '.join(args.value) 
+        value = Utility.replace_system_placehoders(' '.join(args.value))
         
         if os.path.exists(file):
             
@@ -3442,7 +3451,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
-        value = ' '.join(args.value)      
+        value = Utility.replace_system_placehoders(' '.join(args.value))
         
         if os.path.exists(file):
             
@@ -3476,7 +3485,7 @@ class TubeCommand():
         inputs = self.self_format_placeholders(self.content)
         args, _ = parser.parse_known_args(shlex.split(inputs))
         file = ' '.join(args.file)
-        value = ' '.join(args.value)      
+        value = Utility.replace_system_placehoders(' '.join(args.value))
         number = int(args.number[0])
         
         if os.path.exists(file):
@@ -4194,7 +4203,7 @@ class TubeCommand():
         to_list = [item for item in args.to]
         to_list = ','.join(to_list)
         subject = ' '.join(args.subject)
-        body = ' '.join(args.body)
+        body = Utility.replace_system_placehoders(' '.join(args.body))
         
         # to check if emial body is a file
         # if it's a file then read email body from it
@@ -4500,9 +4509,11 @@ class TubeCommand():
             index = int(args.index[0].strip())
         if args.value:
             value = ' '.join(args.value)
+            value = Utility.replace_system_placehoders(value)
         # check if expressions given
         if args.expression:
             expression = ' '.join(args.expression)
+            expression = Utility.replace_system_placehoders(expression)
             # rebuild assign plus case expression
             if reUtility.is_matched_assign_plus_expression(expression):
                 f_result = reUtility.P_AssignPlus.findall(expression)[0]                        
@@ -4761,7 +4772,7 @@ class TubeCommand():
         
         # get user inputs
         file = ' '.join(args.file)
-        characters = ' '.join(args.characters)
+        characters = Utility.replace_system_placehoders(' '.join(args.characters))
         result = args.result[0]
         if args.number:
             number = args.number[0]
@@ -4818,8 +4829,8 @@ class TubeCommand():
         
         # get user inputs
         file = ' '.join(args.file)
-        oldvalue = ' '.join(args.oldvalue)
-        newvalue = ' '.join(args.newvalue)
+        oldvalue = Utility.replace_system_placehoders(' '.join(args.oldvalue))
+        newvalue = Utility.replace_system_placehoders(' '.join(args.newvalue))
         if args.count:
             count = int(args.count[0])
         
@@ -4889,7 +4900,7 @@ class TubeCommand():
         msg = ''
         if args.message:
             msg = ' '.join(args.message)
-            msg = self.self_format_placeholders(msg)
+            msg = Utility.replace_system_placehoders(self.self_format_placeholders(msg))
         color = None
         if args.color:
             color = args.color[0]
