@@ -2111,33 +2111,48 @@ class reUtility():
     # to validate tube variable name and tube name
     RE_MATCH_VAR_NAME = '[a-zA-Z0-9_]+'
     P_VarName: re.Pattern = re.compile(RE_MATCH_VAR_NAME)
+
+    RE_ASSIGN_EXPRESSION = '[a-zA-Z_0-9.]+[ ]*[=]{1}[ ]*[\S ]+'
+    P_AssignExpression = re.compile(RE_ASSIGN_EXPRESSION)
+
+    RE_ASSIGN_DICT_EXPRESSION = '[a-zA-Z_0-9.]+[\[]{1}["|\']{1}[a-zA-Z_0-9]+["|\']{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
+    P_AssignDictExpression = re.compile(RE_ASSIGN_DICT_EXPRESSION)
+
+    RE_ASSIGN_LIST_EXPRESSION = '[a-zA-Z_0-9.]+([\[][a-zA-Z_0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
+    P_AssignListExpression = re.compile(RE_ASSIGN_LIST_EXPRESSION)
+
+    RE_EACH_ITEM_EXPRESSION = '[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
+    P_EachItemExpression = re.compile(RE_EACH_ITEM_EXPRESSION)
+
+    RE_EACH_INDEX_ITEM_EXPRESSION = '[a-zA-Z_0-9]+[ ]*[,]{1}[ ]*[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
+    P_EachIndexItemExpression = re.compile(RE_EACH_INDEX_ITEM_EXPRESSION)
+
+    RE_INT = '[1-9]+[0-9]*'
+    P_Int = re.compile(RE_INT)
+
+    RE_FLOAT = '[1-9]+[.]*[0-9]*|[.]+[0-9]+'
+    P_Float = re.compile(RE_FLOAT)
     
     @staticmethod
     def is_matched_assign_expresson(input_value):
         '''
         To see if match 'x = y' expression 
         '''
-        p = '[a-zA-Z_0-9.]+[ ]*[=]{1}[ ]*[\S ]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_AssignExpression.fullmatch(input_value) != None
     
     @staticmethod
     def is_matched_assign_dict_expresson(input_value: str):
         '''
         To see if match 'x["key"] = y' expression 
         '''
-        p = '[a-zA-Z_0-9.]+[\[]{1}["|\']{1}[a-zA-Z_0-9]+["|\']{1}[\]]{1}[ ]*[=]{1}[ ]*[\S ]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_AssignDictExpression.fullmatch(input_value) != None
     
     @staticmethod
     def is_matched_assign_list_expresson(input_value: str):
         '''
         To see if match 'x[index] = y' expression 
         '''
-        p = '[a-zA-Z_0-9.]+([\[][a-zA-Z_0-9]+[\]])+[ ]*[=]{1}[ ]*[\S ]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_AssignListExpression.fullmatch(input_value) != None
 
     @staticmethod
     def is_matched_assign_plus_expression(input_value: str):
@@ -2151,36 +2166,28 @@ class reUtility():
         '''
         To see if match 'item in ls' expression 
         '''
-        p = '[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_EachItemExpression.fullmatch(input_value) != None
     
     @staticmethod
     def is_matched_each_index_item_expresson(input_value: str):
         '''
         To see if match 'index, item in ls' expression 
         '''
-        p = '[a-zA-Z_0-9]+[ ]*[,]{1}[ ]*[a-zA-Z_0-9]+[ ]+in{1}[ ]+[a-zA-Z_0-9]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_EachIndexItemExpression.fullmatch(input_value) != None
 
     @staticmethod
     def is_matched_int(input_value: str):
         '''
         To see if match int value
         '''
-        p = '[1-9]+[0-9]*'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_Int.fullmatch(input_value) != None
     
     @staticmethod
     def is_matched_float(input_value: str):
         '''
         To see if match float value
         '''
-        p = '[1-9]+[.]*[0-9]*|[.]+[0-9]+'
-        prog = re.compile(p)
-        return prog.fullmatch(input_value) != None
+        return reUtility.P_Float.fullmatch(input_value) != None
  
 class TubeCommandArgument():
     
