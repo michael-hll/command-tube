@@ -2512,7 +2512,7 @@ class TubeCommand():
         
         # check notes value
         if args.notes:
-            self.notes = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.notes)))
+            self.notes = self.self_format_ph(' '.join(args.notes), replace_sys_ph=True)
         
         # analyze redo parameter
         if args.redo != None:       
@@ -2654,7 +2654,7 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file_name = self.self_format_ph(' '.join(args.file))
         xpath = self.self_format_ph(' '.join(args.xpath))
-        value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         
         # local variables
         temp_namespace = 'temp_ns_attrib_name'
@@ -2753,7 +2753,7 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file_name = self.self_format_ph(' '.join(args.file))
         keywords = self.self_format_ph(' '.join(args.keywords))
-        value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
             
         if(path.exists(file_name)):
             
@@ -2847,9 +2847,9 @@ class TubeCommand():
         file = self.self_format_ph(' '.join(args.file))
         if args.number:
             line_no = int(self.self_format_ph(args.number[0]))
-        line_content = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        line_content = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         if args.contains:
-            line_contains = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.contains)))
+            line_contains = self.self_format_ph(' '.join(args.contains), replace_sys_ph=True)
             
         # check if in append mode
         if line_no == 0 and line_contains == None:
@@ -2936,9 +2936,9 @@ class TubeCommand():
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file = self.self_format_ph(' '.join(args.file))
         if args.begins != None:
-            line_begins = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.begins)))
+            line_begins = self.self_format_ph(' '.join(args.begins), replace_sys_ph=True)
         if args.contains != None:
-            line_contains = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.contains)))
+            line_contains = self.self_format_ph(' '.join(args.contains), replace_sys_ph=True)
         if args.del_empty:
             delete_empty = True
         if args.number:
@@ -3408,7 +3408,7 @@ class TubeCommand():
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file = self.self_format_ph(' '.join(args.file))
-        value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         
         if os.path.exists(file):
             
@@ -3445,7 +3445,7 @@ class TubeCommand():
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file = self.self_format_ph(' '.join(args.file))
-        value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         
         if os.path.exists(file):
             
@@ -3478,7 +3478,7 @@ class TubeCommand():
         parser = self.tube_argument_parser
         args, _ = parser.parse_known_args(shlex.split(self.content))
         file = self.self_format_ph(' '.join(args.file))
-        value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+        value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         number = int(self.self_format_ph(args.number[0]))
         
         if os.path.exists(file):
@@ -4195,7 +4195,7 @@ class TubeCommand():
         to_list = [self.self_format_ph(item) for item in args.to]
         to_list = self.self_format_ph(','.join(to_list))
         subject = self.self_format_ph(' '.join(args.subject))
-        body = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.body)))
+        body = self.self_format_ph(' '.join(args.body), replace_sys_ph=True)
         
         # to check if emial body is a file
         # if it's a file then read email body from it
@@ -4500,10 +4500,10 @@ class TubeCommand():
         if args.index and len(args.index) > 0:
             index = int(self.self_format_ph(args.index[0].strip()))
         if args.value:
-            value = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.value)))
+            value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         # check if expressions given
         if args.expression:
-            expression = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.expression)))
+            expression = self.self_format_ph(' '.join(args.expression), replace_sys_ph=True)
             # rebuild assign plus case expression
             if reUtility.is_matched_assign_plus_expression(expression):
                 f_result = reUtility.P_AssignPlus.findall(expression)[0]                        
@@ -4761,7 +4761,7 @@ class TubeCommand():
         
         # get user inputs
         file = self.self_format_ph(' '.join(args.file))
-        characters = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.characters)))
+        characters = self.self_format_ph(' '.join(args.characters), replace_sys_ph=True)
         result = self.self_format_ph(args.result[0])
         if args.number:
             number = self.self_format_ph(args.number[0])
@@ -4817,8 +4817,8 @@ class TubeCommand():
         
         # get user inputs
         file = self.self_format_ph(' '.join(args.file))
-        oldvalue = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.oldvalue)))
-        newvalue = Utility.replace_sys_ph(self.self_format_ph(' '.join(args.newvalue)))
+        oldvalue = self.self_format_ph(' '.join(args.oldvalue), replace_sys_ph=True)
+        newvalue = self.self_format_ph(' '.join(args.newvalue), replace_sys_ph=True)
         if args.count:
             count = int(self.self_format_ph(args.count[0]))
         
@@ -4888,7 +4888,7 @@ class TubeCommand():
         msg = ''
         if args.message:
             msg = ' '.join(args.message)
-            msg = Utility.replace_sys_ph(self.self_format_ph(msg))
+            msg = self.self_format_ph(msg, replace_sys_ph=True)
         color = None
         if args.color:
             color = args.color[0]
@@ -4987,7 +4987,7 @@ class TubeCommand():
             tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)   
     
-    def self_format_ph(self, value, is_show_empty = False, is_quoted_str=False, tube=None):
+    def self_format_ph(self, value, is_show_empty = False, is_quoted_str=False, tube=None, replace_sys_ph=False):
         '''
         Recurrencly format placeholder from self and its parent
         
@@ -4995,10 +4995,14 @@ class TubeCommand():
             value: The characters you want to replace place hoders {x}
             is_show_empty: When true the empty string will be formated to ''
             is_quoted_str: This is used for if/while conditions, with quoted string then the eval method could work correctly
+            replace_sys_ph: If replace $-, or {-} to '-'
         '''
         # if in raw format then disable the placeholder
         if self.is_raw:
-            return value
+            if replace_sys_ph:
+                return Utility.replace_sys_ph(value)
+            else:
+                return value
 
         # make sure the tube input are has value
         if tube == None:
@@ -5021,7 +5025,10 @@ class TubeCommand():
         # replace with current tube k-v dict
         value = TubeCommand.format_placeholders(value, temp_dict)  
         
-        return value
+        if replace_sys_ph:
+            return Utility.replace_sys_ph(value)
+        else:
+            return value
     
     def pause(self):
         self.content = self.self_format_ph(self.content).strip().replace(' ', '').upper()
