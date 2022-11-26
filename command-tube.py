@@ -2055,6 +2055,11 @@ class Utility():
             # Since most of the collections method don't return the collection itself
             # then we can achieve this set method:
             # - set: ls = ls.append('xxx')
+            # for object type method it doesn't work now
+            # eg: o.ls.reverse()
+            # for the obj.xxx() method case we can use
+            # - exec: obj.xxx() tube command
+            # and keep this below logic exists
             if var_name and var_name in local_dict.keys():
                 var_type = type(local_dict[var_name])
                 expression_type = type(expression)
@@ -4545,7 +4550,7 @@ class TubeCommand():
             # for class type instance
             exists, temp_tube = self.tube.find_key_from_tubes(name_trim)
             if exists:
-                value = Utility.eval_expression(value, tube=self.tube, var_name=name_trim)
+                value = Utility.eval_expression(value, tube=self.tube)
                 local_dict = self.tube.get_parent_key_values().copy()
                 local_dict['__value__'] = value
                 exec(name + ' = __value__', globals(), local_dict)
