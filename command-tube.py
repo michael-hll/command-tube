@@ -2020,7 +2020,12 @@ class Utility():
         # evalulate eval inputs
         try:
             # if cound contionds char we use the normal eval method to do check the condition
-            code = compile(expression, '<string>', 'eval')    
+            code = []
+            try:
+                code = compile(expression, '<string>', 'eval')    
+            except:
+                expression = f'\'{expression}\''
+                code = compile(expression, '<string>', 'eval')    
             local_dict = {}
             # Add the missing codes into local varialbes as str
             for code in code.co_names:
@@ -4540,7 +4545,7 @@ class TubeCommand():
             # for class type instance
             exists, temp_tube = self.tube.find_key_from_tubes(name_trim)
             if exists:
-                value = Utility.eval_expression(value, tube=self.tube)
+                value = Utility.eval_expression(value, tube=self.tube, var_name=name_trim)
                 local_dict = self.tube.get_parent_key_values().copy()
                 local_dict['__value__'] = value
                 exec(name + ' = __value__', globals(), local_dict)
