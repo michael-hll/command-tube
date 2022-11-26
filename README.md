@@ -100,12 +100,16 @@
       a~z,A-Z,0-9,_
     Note: Python keywords are not allowed to use in tube name or variable names.
     
-## General Arguments
+## Arguments & General Arguments
 
-    Each tube command has its own arguments, there are also some general arguments
-    can be used for most of tube commands.Most of tube commands support additional 
-    --continue, --redo, --key, --if, --raw and --note general arguments. It could make 
-    your tube realize more complex flow.         
+    Each tube command has its own arguments, you can find it from command syntax. 
+    There are also some general arguments which can be used for most of tube commands. 
+    Most of tube commands support additional --continue, --redo, --key, --if, --raw and 
+    --note general arguments. It could make your tube realize more complex flow.  
+
+    Notes: Since argument starts with '-' character, if you want to contain
+           '-' char in your argument value you can use system placeholder to 
+           achieve that: $- or {-}
 
         Continue:
             Syntax: --continue [m] [n]
@@ -317,7 +321,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
+#### Alias: DEL_LN, DELETE_LINE, DEL_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -331,7 +335,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: DELETE_VARIABLE
-#### Alias: DEL_VAR, DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -386,12 +390,11 @@ Parameters:
 Support from version: 2.0.0</pre>
 ### 14: EXEC
 #### Alias: EXEC
-<pre>Description: The python commands you want to run. The original idea is to use it to import other python modules.                          
-Then you can use the newly imported module in set or condition expressions.
+<pre>Description: Run tube variable's method.
 
 Syntax: - EXEC: commands [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
-   commands:  The python commands.
+   commands:  The tube variable's method you want to run. eg: my_list.reverse()
 
 Support from version: 2.0.2</pre>
 ### 15: FILE_APPEND
@@ -405,7 +408,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_COPY, F_CP
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -481,7 +484,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 23: FILE_MOVE
-#### Alias: F_MV, F_MOVE
+#### Alias: F_MOVE, F_MV
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -543,7 +546,7 @@ Support from version: 2.0.2</pre>
 ### 28: GET_FILE_KEY_VALUE
 #### Alias: GET_KEYS
 <pre>Description: Read key values from key-value file.                                            
-It also supports to read key-value from Yaml file with simple type.                                            
+It also supports to read key-value from Yaml file.                                            
 The key-value results will be stored into tube variables.
 
 Syntax: - GET_FILE_KEY_VALUE: -f|--file file [-k|--keywords keywords] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -571,7 +574,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 30: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -838,7 +841,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 50: SET_VARIABLE
-#### Alias: SET, SET_VAR
+#### Alias: SET_VAR, SET
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -912,7 +915,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 55: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LN, WRITE_LINE
+#### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]

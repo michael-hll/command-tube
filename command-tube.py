@@ -7934,12 +7934,16 @@ def print_tube_command_help(args):
       a~z,A-Z,0-9,_
     Note: Python keywords are not allowed to use in tube name or variable names.
     
-## General Arguments
+## Arguments & General Arguments
 
-    Each tube command has its own arguments, there are also some general arguments
-    can be used for most of tube commands.Most of tube commands support additional 
-    --continue, --redo, --key, --if, --raw and --note general arguments. It could make 
-    your tube realize more complex flow.         
+    Each tube command has its own arguments, you can find it from command syntax. 
+    There are also some general arguments which can be used for most of tube commands. 
+    Most of tube commands support additional --continue, --redo, --key, --if, --raw and 
+    --note general arguments. It could make your tube realize more complex flow.  
+
+    Notes: Since argument starts with '-' character, if you want to contain
+           '-' char in your argument value you can use system placeholder to 
+           achieve that: $- or {-}
 %s
 %s
 %s

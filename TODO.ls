@@ -228,5 +228,6 @@ TODO LIST
            Fixed case: s.starswith('test') doesn't work
         7. Make the total time more precise
            Make the command time more precise
+        8. Add $-, {-} two system placehoders to used as '-' character
 
 
