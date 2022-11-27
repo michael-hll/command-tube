@@ -4518,9 +4518,19 @@ class TubeCommand():
             index = int(self.self_format_ph(args.index[0].strip()))
         if args.value:
             value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
-        # check if expressions given
-        if args.expression:
-            expression = self.self_format_ph(' '.join(args.expression), replace_sys_ph=True)
+        
+        is_readonly = args.is_readonly
+        is_force = args.is_force
+        is_global = args.is_global 
+
+        return self.__set_variable_sub(command=self, expression=args.expression, name=name, key=key, index=index, value=value,
+                                       is_readonly=is_readonly, is_force=is_force, is_global=is_global)
+
+    def __set_variable_sub(self, command, expression=None, name='', key='', index=None, value='', 
+                          is_readonly=False, is_force=False, is_global=False):
+        # check expression
+        if expression:
+            expression = command.self_format_ph(' '.join(expression), replace_sys_ph=True)
             # rebuild assign plus case expression
             if reUtility.is_matched_assign_plus_expression(expression):
                 f_result = reUtility.P_AssignPlus.findall(expression)[0]                        
@@ -4541,12 +4551,10 @@ class TubeCommand():
                 name, key, value = Utility.split_assign_expression(expression)
                 value = str(value)  
             elif reUtility.is_matched_assign_list_expresson(expression): 
-                name, index, value = Utility.split_assign_expression(expression, command=self)
-                value = str(value)    
-            
+                name, index, value = Utility.split_assign_expression(expression, command=command)
+                value = str(value)
             else:
                 raise Exception('The set variable has wrong format: {0}'.format(expression))
-
         
         # if name is a object's property like obj_name.prop_name
         # then name_trim will only keep the obj_name
@@ -4555,26 +4563,22 @@ class TubeCommand():
             name_trim = name_trim[:name_trim.index('.')]
 
             # for class type instance
-            exists, temp_tube = self.tube.find_key_from_tubes(name_trim)
+            exists, temp_tube = command.tube.find_key_from_tubes(name_trim)
             if exists:
-                value = Utility.eval_expression(value, tube=self.tube)
-                local_dict = self.tube.get_parent_key_values().copy()
+                value = Utility.eval_expression(value, tube=command.tube)
+                local_dict = command.tube.get_parent_key_values().copy()
                 local_dict['__value__'] = value
                 exec(name + ' = __value__', globals(), local_dict)
                 return True
             else:
                 raise Exception(f'Tube variable doesnot exist: {name_trim}')
 
-        is_readonly = args.is_readonly
-        is_force = args.is_force
-        is_global = args.is_global   
-
         # if key value exists 
         # to update dict case
         if key:
-            value = Utility.eval_expression(value, tube=self.tube)
+            value = Utility.eval_expression(value, tube=command.tube)
             # check if name already exists
-            exists, temp_tube = self.tube.find_key_from_tubes(name)
+            exists, temp_tube = command.tube.find_key_from_tubes(name)
             if exists:
                 temp_value = temp_tube.KEY_VALUES_DICT[name]
                 if type(temp_value) == dict:
@@ -4589,9 +4593,9 @@ class TubeCommand():
         # if index value exists
         # to update list item case
         if index != None:
-            value = Utility.eval_expression(value, tube=self.tube)
+            value = Utility.eval_expression(value, tube=command.tube)
             # check if name already exists
-            exists, temp_tube = self.tube.find_key_from_tubes(name)
+            exists, temp_tube = command.tube.find_key_from_tubes(name)
             if not exists:
                 raise Exception('List doenot exist: {0}'.format(name))
             temp_value = temp_tube.KEY_VALUES_DICT[name]
@@ -4614,9 +4618,9 @@ class TubeCommand():
 
         # evalulate eval inputs
         if not key and not index and type(value) == str:
-            value = Utility.eval_expression(value, tube=self.tube, var_name=name)
+            value = Utility.eval_expression(value, tube=command.tube, var_name=name)
 
-        return self.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
+        return command.update_key_value(name, value, is_force=is_force, is_readonly=is_readonly, is_global=is_global)
 
     def set_tube(self):
         parser = self.tube_argument_parser
@@ -5178,7 +5182,7 @@ class TubeCommand():
         # if it'is with format var.xxx()
         # Then will run var xxx() method 
         name_trim = inputs
-        if '.' in name_trim:
+        if '.' in name_trim and '=' not in name_trim:
             name_trim = name_trim[:name_trim.index('.')]
             exists, _ = self.tube.find_key_from_tubes(name_trim)
             if exists:
@@ -5188,8 +5192,8 @@ class TubeCommand():
             else:
                 raise Exception(f'Tube variable doesnot exist: {name_trim}')
         else:
-            exec(inputs)
-        return True
+            pass
+            #self.set_variable()
 
     def linux_command(self):
         log = self.log
