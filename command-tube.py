@@ -4530,7 +4530,8 @@ class TubeCommand():
                           is_readonly=False, is_force=False, is_global=False):
         # check expression
         if expression:
-            expression = command.self_format_ph(' '.join(expression), replace_sys_ph=True)
+            if command.command_type == Storage.I.C_SET_VARIABLE:
+                expression = command.self_format_ph(' '.join(expression), replace_sys_ph=True)
             # rebuild assign plus case expression
             if reUtility.is_matched_assign_plus_expression(expression):
                 f_result = reUtility.P_AssignPlus.findall(expression)[0]                        
@@ -5178,11 +5179,12 @@ class TubeCommand():
         return True
 
     def exec_command(self):
-        inputs = self.self_format_ph(self.content)
+        inputs = self.self_format_ph(self.content, replace_sys_ph=True)
         # if it'is with format var.xxx()
         # Then will run var xxx() method 
         name_trim = inputs
         if '.' in name_trim and '=' not in name_trim:
+            # if it's pattern: obj.xxx() 
             name_trim = name_trim[:name_trim.index('.')]
             exists, _ = self.tube.find_key_from_tubes(name_trim)
             if exists:
@@ -5192,7 +5194,18 @@ class TubeCommand():
             else:
                 raise Exception(f'Tube variable doesnot exist: {name_trim}')
         else:
-            return self.__set_variable_sub(command=self, expression=inputs)
+            # if it's pattern like set_var: x = yyy
+            if reUtility.is_matched_assign_plus_expression(inputs) or \
+               reUtility.is_matched_assign_expresson(inputs) or \
+               reUtility.is_matched_assign_dict_expresson(inputs) or \
+               reUtility.is_matched_assign_list_expresson(inputs):
+                return self.__set_variable_sub(command=self, expression=inputs)
+            else:
+                # for other cases
+                local_dict = self.tube.get_parent_key_values().copy()
+                exec(inputs, globals(), local_dict)
+                return True
+            
 
     def linux_command(self):
         log = self.log
