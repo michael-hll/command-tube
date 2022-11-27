@@ -1962,6 +1962,9 @@ class Utility():
         
     @classmethod
     def quote_dict_str_value(self, d):
+        '''
+        Add quotes for string type dictional key value
+        '''
         d_new = {}
         for k in d.keys():
             if type(d[k]) == str and not (d[k].startswith('\'') or d[k].startswith('"')):
@@ -1971,12 +1974,13 @@ class Utility():
         return d_new
 
     @classmethod
-    def quoted_with_space_characters(self, value):
+    def quoted_str_value(self, value):
+        '''
+        Quoted string value for the print_var commands
+        '''
         if value == None or value == '':
             return '\'\''
-        if len(value) > 0 and value.strip() == 0:
-            return '\'' + value + '\''
-        if len(value) > 0 and (value.startswith(' ') or value.endswith(' ')):
+        if type(value) == str:
             return '\'' + value + '\''
         else:
             return value
@@ -4937,13 +4941,13 @@ class TubeCommand():
             for var in variables:
                 if var == '*' or var == '.' or var == key:
                     # get value
-                    value = str(tube.KEY_VALUES_DICT[key])
-                    value = Utility.quoted_with_space_characters(value)
+                    value = tube.KEY_VALUES_DICT[key]
+                    value = Utility.quoted_str_value(value)
                     # get readonly
                     readonly = ''
                     if key in tube.KEYS_READONLY_SET:
                         readonly = ' (readonly)'
-                    msg = '[%s:%s] %s=%s %s' % (tube.tube_index, tube.tube_name, key, value, readonly)
+                    msg = '[%s:%s] %s: %s %s' % (tube.tube_index, tube.tube_name, key, value, readonly)
                     tprint(msg, prefix='')
                     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg) 
                     lines.append(msg)
