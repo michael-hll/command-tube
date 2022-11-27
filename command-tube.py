@@ -5206,7 +5206,6 @@ class TubeCommand():
                 exec(inputs, globals(), local_dict)
                 return True
             
-
     def linux_command(self):
         log = self.log
         # Check if we have a valid ssh connection
