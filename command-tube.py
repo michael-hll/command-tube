@@ -5192,8 +5192,7 @@ class TubeCommand():
             else:
                 raise Exception(f'Tube variable doesnot exist: {name_trim}')
         else:
-            pass
-            #self.set_variable()
+            return self.__set_variable_sub(command=self, expression=inputs)
 
     def linux_command(self):
         log = self.log

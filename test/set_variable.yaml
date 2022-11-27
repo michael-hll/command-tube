@@ -108,13 +108,15 @@ TUBE:
     - SET_VARIABLE: ls = [1,2]
     - EXEC: ls.reverse()
     - PRINT: ok --if ls[0] == 2
+    - EXEC: x = 2
+    - PRINT: ok --if x == 2
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n set_variable_result -v 'Testing Pass' -g --if {success_nums}==83 --key
-    - SET_VARIABLE: -n set_variable_result -v 'Testing Failed' -g --if {success_nums}!=83
-    - SET_VARIABLE: failed += 'set_variable.yaml,' -g --if {success_nums}!=83
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==83
+    - SET_VARIABLE: -n set_variable_result -v 'Testing Pass' -g --if {success_nums}==85 --key
+    - SET_VARIABLE: -n set_variable_result -v 'Testing Failed' -g --if {success_nums}!=85
+    - SET_VARIABLE: failed += 'set_variable.yaml,' -g --if {success_nums}!=85
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==85
 
 SubTube1:
     - SET_VARIABLE: -n i -v i + 1
