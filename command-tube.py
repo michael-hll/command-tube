@@ -5986,6 +5986,9 @@ class Tube():
         return KV
 
     def clear_each(self):
+        '''
+        Clear --for/each settings
+        '''
         self.KEY_VALUES_DICT.pop(self.each_item_name, None)
         if self.each_index_name:
             self.KEY_VALUES_DICT.pop(self.each_index_name, None)
@@ -6177,6 +6180,9 @@ class TubeRunner():
             os.chdir(self.tube.run_dir)          
     
     def __process_ending(self):
+        '''
+        Process for tube ending
+        '''
         if not self.tube.ending_tube or self.is_ending_processed:
             return
         self.is_ending_processed = True
