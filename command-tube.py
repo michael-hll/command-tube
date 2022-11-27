@@ -4077,7 +4077,7 @@ class TubeCommand():
         email_subject = self.content
         email_body = ''
         new_line = '<br>'
-        progress = calculate_progress_status(commands)
+        progress = Tube.calculate_progress_status(commands)
         email_body += progress + new_line
         command: TubeCommand
         
@@ -5993,6 +5993,100 @@ class Tube():
     def add_error(self, error):
         self.errors.append(error)
 
+    @staticmethod
+    def calc_success_failed(commands):
+    
+        '''
+        Get tube success or failed status
+        It doesn't calculete its sub-tube status
+        '''
+        
+        success_count = 0
+        failed_count = 0    
+        skipped_count = 0
+        result = None
+
+        # calcualte success and failed count
+        for command in commands:
+            log = command.log
+            if log.status == Storage.I.C_FAILED:
+                failed_count += 1
+            elif log.status == Storage.I.C_SUCCESSFUL:
+                success_count += 1
+            elif log.status == Storage.I.C_SKIPPED:
+                skipped_count +=1
+
+        # ouput overall status
+        key_command_exists_all = StorageUtility.check_if_key_command_exists(commands)    
+        result = Storage.I.C_TUBE_SUCCESSFUL
+        if not key_command_exists_all:
+            # there are no key commands at all
+            if failed_count > 0:
+                result = Storage.I.C_TUBE_FAILED
+        else:
+            result_tmp = Storage.I.C_SUCCESSFUL
+            command: TubeCommand
+            tube_temp = commands.copy()
+            for command in commands:
+                # we can skip the --if no cases          
+                if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
+                    key_command_result = Tube.get_command_result_by_uuid(command.original_uuid, tube_temp)
+                    if key_command_result != Storage.I.C_SUCCESSFUL:
+                        result_tmp = Storage.I.C_FAILED
+                        break
+            
+            # include the loops and details information
+            result = result_tmp
+
+        return result
+
+    @staticmethod
+    def get_command_result_by_uuid(uuid, commands = []):
+        '''
+        Get command result by UUID
+        
+        Args:
+            uuid: The UUID of the command
+            tube: The tube you want to check, if not provided then check all the linked log commands
+        '''
+        command: TubeCommand
+        status = Storage.I.C_FAILED
+        if len(commands) == 0:
+            for log in Storage.I.LOGS:
+                command = log.command
+                if command.original_uuid == uuid:
+                    if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
+                        status = Storage.I.C_SKIPPED
+                    elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
+                        status = Storage.I.C_SUCCESSFUL
+                        return status
+        else:        
+            for command in commands:
+                if command.original_uuid == uuid:
+                    if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
+                        status = Storage.I.C_SKIPPED
+                    elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
+                        status = Storage.I.C_SUCCESSFUL
+                        return status
+        return status
+
+    @staticmethod
+    def calculate_progress_status(commands) -> str:
+        '''
+        Calcualte current tube progress status
+        '''
+        command: TubeCommand
+        total_count = 0
+        finished_count = 0
+        for command in commands:
+            # total command count
+            total_count += 1
+            # finished command count
+            if command.log and command.log.status != None:
+                finished_count += 1
+        
+        return 'PROGRESS: (%s/%s)' % (str(finished_count), str(total_count))
+
 class TubeRunner():
 
     C_STATUS_NOT_START = 'Not-Started'
@@ -6039,7 +6133,7 @@ class TubeRunner():
         # copy done list to the 'tube' that contains the whole sub command list
         command_done_list = self.tube.tube_run.copy()
         self.tube.tube_run_all.extend(command_done_list)
-        status = calc_success_failed_for_tube(command_done_list)        
+        status = Tube.calc_success_failed(command_done_list)        
 
         # if current loop failed then stop the tube running
         if status == Storage.I.C_FAILED:
@@ -6278,6 +6372,16 @@ class Host():
             self.ssh = None
         self.errors.clear()
         self.is_connected = False         
+
+    @staticmethod
+    def disconect_all_hosts(hosts):
+        try:
+            for host_name in hosts.keys():
+                host: Host = hosts[host_name]
+                if host.is_connected:
+                    host.disconnect()        
+        except Exception as e:
+            tprint('DISCONECT ALL HOSTS EXCEPTION: ' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
 class StorageUtility():
 
@@ -7204,35 +7308,6 @@ def print_each_command_status(LOGS):
     tprint('Total Time: %s' % totals, prefix='')
     tprint('-------------------------------', prefix='')
 
-def get_command_result_by_uuid(uuid, commands = []):
-    '''
-    Get command result by UUID
-    
-    Args:
-        uuid: The UUID of the command
-        tube: The tube you want to check, if not provided then check all the linked log commands
-    '''
-    command: TubeCommand
-    status = Storage.I.C_FAILED
-    if len(commands) == 0:
-        for log in Storage.I.LOGS:
-            command = log.command
-            if command.original_uuid == uuid:
-                if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
-                    status = Storage.I.C_SKIPPED
-                elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
-                    status = Storage.I.C_SUCCESSFUL
-                    return status
-    else:        
-        for command in commands:
-            if command.original_uuid == uuid:
-                if command.log.status == Storage.I.C_SKIPPED and status == Storage.I.C_FAILED:
-                    status = Storage.I.C_SKIPPED
-                elif command.log.status == Storage.I.C_SUCCESSFUL and status != Storage.I.C_SUCCESSFUL:
-                    status = Storage.I.C_SUCCESSFUL
-                    return status
-    return status
-
 def calculate_success_failed_details(is_for_email):
     
     '''
@@ -7283,59 +7358,13 @@ def calculate_success_failed_details(is_for_email):
         for command in Storage.I.TUBE_RUN:
             # we can skip the --if no cases          
             if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
-                key_command_result = get_command_result_by_uuid(command.original_uuid, Storage.I.TUBE_RUN.copy())
+                key_command_result = Tube.get_command_result_by_uuid(command.original_uuid, Storage.I.TUBE_RUN.copy())
                 if key_command_result != Storage.I.C_SUCCESSFUL:
                     result_tmp = Storage.I.C_FAILED
                     break
         
         # include the loops and details information
         result += result_tmp + loops + newline + details
-
-    return result
-
-def calc_success_failed_for_tube(commands):
-    
-    '''
-    Get tube success or failed status
-    It doesn't calculete its sub-tube status
-    '''
-    
-    success_count = 0
-    failed_count = 0    
-    skipped_count = 0
-    result = None
-
-    # calcualte success and failed count
-    for command in commands:
-        log = command.log
-        if log.status == Storage.I.C_FAILED:
-            failed_count += 1
-        elif log.status == Storage.I.C_SUCCESSFUL:
-            success_count += 1
-        elif log.status == Storage.I.C_SKIPPED:
-            skipped_count +=1
-
-    # ouput overall status
-    key_command_exists_all = StorageUtility.check_if_key_command_exists(commands)    
-    result = Storage.I.C_TUBE_SUCCESSFUL
-    if not key_command_exists_all:
-        # there are no key commands at all
-        if failed_count > 0:
-            result = Storage.I.C_TUBE_FAILED
-    else:
-        result_tmp = Storage.I.C_SUCCESSFUL
-        command: TubeCommand
-        tube_temp = commands.copy()
-        for command in commands:
-            # we can skip the --if no cases          
-            if command.check_if_key_command() and (command.is_skip_by_if == False or command.is_skip_by_while == False):
-                key_command_result = get_command_result_by_uuid(command.original_uuid, tube_temp)
-                if key_command_result != Storage.I.C_SUCCESSFUL:
-                    result_tmp = Storage.I.C_FAILED
-                    break
-        
-        # include the loops and details information
-        result = result_tmp
 
     return result
 
@@ -7513,19 +7542,6 @@ def prepare_emails_content_and_sent(LOGS):
     tprint(msg, prefix='')
     write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
 
-def calculate_progress_status(commands) -> str:
-    command: TubeCommand
-    total_count = 0
-    finished_count = 0
-    for command in commands:
-        # total command count
-        total_count += 1
-        # finished command count
-        if command.log and command.log.status != None:
-            finished_count += 1
-    
-    return 'PROGRESS: (%s/%s)' % (str(finished_count), str(total_count))
-
 def output_log_header():
     # Log start for xxx.yaml.log    
     Storage.I.START_DATE_TIME = datetime.now()
@@ -7689,15 +7705,6 @@ def install_3rd_party_packages(args):
         msg = 'ERROR: Install/Check 3-rd party packages failed with exception: ' + str(e2)
         print(msg)
         sys.exit()
-
-def disconect_all_hosts(hosts):
-    try:
-        for host_name in hosts.keys():
-            host: Host = hosts[host_name]
-            if host.is_connected:
-                host.disconnect()        
-    except Exception as e:
-        tprint('DISCONECT ALL HOSTS EXCEPTION: ' + str(e), type=Storage.I.C_PRINT_TYPE_ERROR)
 
 def print_tube_command_help(args):
     try:   
@@ -8396,7 +8403,7 @@ def job_start():
             write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', str(e)) 
 
         # close all connections         
-        disconect_all_hosts(Storage.I.HOSTS)     
+        Host.disconect_all_hosts(Storage.I.HOSTS)     
         Host.SSHConnection = None  
 # --------- END OF FUNCTIONS -----------------
 
