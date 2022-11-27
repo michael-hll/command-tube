@@ -17,12 +17,14 @@ Variables:
     test_folder: /Volumes/MacDrive/Projects/tube/test
     del_log: yes
     email: no
-    result: 18
+    http: no
+    result: 17
     all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
 TUBE:
     - PATH: {test_folder}
     - SET_VARIABLE: result = result + 1 --if email
+    - SET_VARIABLE: result += 1 --if http
     # TESTING VIA SUB TUBES
     - RUN_TUBE: del_line.yaml --continue  --note 1 
                 --if all or case == 1
@@ -60,7 +62,7 @@ TUBE:
     - RUN_TUBE: set_tube.yaml --continue --note 18
                 --if all or case == 18
     - RUN_TUBE: requests.yaml --continue --note 19
-                --if all or case == 19
+                --if http
 
     - SET_VARIABLE: result = 1 --if all == no
 
