@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.3 Beta'  
+        self.C_CURR_VERSION            = '2.0.3'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -4680,7 +4680,7 @@ class TubeCommand():
         
         sftp = ssh.open_sftp()
         try:      
-            if self.cmd_type == Storage.I.C_SFTP_GET:   
+            if self.command_type == Storage.I.C_SFTP_GET:   
                 if not star_char in remotepath:                
                     sftp.get(remotepath, localpath)
                     copy_count += 1
@@ -4729,7 +4729,7 @@ class TubeCommand():
                 tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
                 write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                     
-            elif self.cmd_type == Storage.I.C_SFTP_PUT:
+            elif self.command_type == Storage.I.C_SFTP_PUT:
                 if not star_char in localpath:
                     sftp.put(localpath, remotepath)
                     copy_count += 1
@@ -6538,22 +6538,6 @@ class StorageUtility():
                         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)                                           
                         write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                    
                 command.tube_argument_parser.argument_error.clear() 
-            
-            # check Server exists
-            if command.has_syntax_error == False and \
-            command.command_type == Storage.I.C_CONNECT:
-                command_content = command.self_format_ph(command.content)
-                _, input_server = continue_redo_parser.parse_known_args(command_content.split())
-                input_server = ' '.join(input_server)
-                host = StorageUtility.get_host(host=input_server,name=input_server)
-                if host == None:
-                    has_errors = True
-                    msg = '%s: \'%s\' doesnot exists.' % (command.cmd_type, input_server)
-                    tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-                    errors_return.append(msg) 
-                    command.log.add_error(msg)               
-                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)                    
-                    continue
             
         return (has_errors, errors_return)
 

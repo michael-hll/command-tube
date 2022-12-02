@@ -1,15 +1,32 @@
-Email: tube-config.yaml
-Servers: tube-config.yaml
-
+Servers:  
+    - Server:
+        Name: linux01
+        Host: 10.211.55.13
+        SSH_Port: 22
+        User: mac
+        Password: 123456
+        Root: /home/mac
+        Profile: source /home/mac/.bashrc
+Variables:
+    test_folder: /Volumes/MacDrive/Projects/tube/test
+    server1: linux01
 TUBE:
-    - PATH: test
-    - connect: '{server1} --continue'
-    - lcmd: ls --continue
-    - FILE_CREATE: tmp.txt --continue
-    - SFTP_PUT: -l tmp.txt -r tmp.txt --continue
-    - lcmd: ls /home/mfg --continue
-    - sftp_get: -r /home/mfg/tmp.txt -l tmp2.txt --continue
-    - lcmd: rm /home/mfg/tmp.txt --continue
-    - lcmd: ls /home/mfg --continue
-    - FILE_DELETE: tmp.txt --continue
-    - FILE_DELETE: tmp2.txt --continue
+    - SET_TUBE: -c yes
+    - PATH: {test_folder}
+    - connect: {server1}
+    - lcmd: ls
+    - FILE_CREATE: tmp.txt
+    - SFTP_PUT: -l tmp.txt -r tmp.txt
+    - lcmd: ls /home/mac
+    - sftp_get: -r /home/mac/tmp.txt -l tmp2.txt
+    - lcmd: rm /home/mac/tmp.txt
+    - lcmd: ls /home/mac
+    - FILE_DELETE: tmp.txt
+    - FILE_DELETE: tmp2.txt
+
+    # output testing result
+    - COUNT: -t SUCCESSFUL -v success_nums -cs
+    - SET_VARIABLE: -n request_result -v 'Testing Pass' -g --if {success_nums}==12 --key
+    - SET_VARIABLE: -n request_result -v 'Testing Failed' -g --if {success_nums}!=12
+    - SET_VARIABLE: failed += 'lcmd.yaml,' -g --if {success_nums}!=12
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==12

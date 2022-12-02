@@ -2,9 +2,9 @@
 # TESTING STEPS
 # Changing the 'test_folder' variable value to the correct one
 # From terminal enter the following command using tube:
-# >>> tube -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email = no, del_log=no, all=yes, case=16 -fdc
+# >>> tube test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email=yes, http=yes, linux=yes, del_log=no, all=yes, case=11 -fcn
 # Or from terminal enter the following command using source code:
-# >>> python3 command-tube.py -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email = no, del_log=no, all=yes, case=16 -fdc
+# >>> python3 command-tube.py -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email=yes, http=yes, linux=yes, del_log=no, all=yes, case=11 -fcn
 
 # CHECKING TEST RESULT
 # When it's finished, checking the status of the result,
@@ -18,6 +18,7 @@ Variables:
     del_log: yes
     email: no
     http: no
+    linux: no
     result: 17
     all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
@@ -25,6 +26,7 @@ TUBE:
     - PATH: {test_folder}
     - SET_VARIABLE: result = result + 1 --if email
     - SET_VARIABLE: result += 1 --if http
+    - SET_VARIABLE: result += 1 --if linux
     # TESTING VIA SUB TUBES
     - RUN_TUBE: del_line.yaml --continue  --note 1 
                 --if all or case == 1
@@ -63,6 +65,8 @@ TUBE:
                 --if all or case == 18
     - RUN_TUBE: requests.yaml --continue --note 19
                 --if http
+    - RUN_TUBE: lcmd.yaml --continue --note 20
+                --if linux
 
     - SET_VARIABLE: result = 1 --if all == no
 
