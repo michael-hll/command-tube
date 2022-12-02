@@ -13,14 +13,14 @@ Variables:
 TUBE:
     - SET_TUBE: -c yes
     - PATH: {test_folder}
-    - connect: {server1}
-    - lcmd: ls
+    - CONNECT: {server1}
+    - LINUX_COMMAND: ls
     - FILE_CREATE: tmp.txt
     - SFTP_PUT: -l tmp.txt -r tmp.txt
-    - lcmd: ls /home/mac
-    - sftp_get: -r /home/mac/tmp.txt -l tmp2.txt
-    - lcmd: rm /home/mac/tmp.txt
-    - lcmd: ls /home/mac
+    - LINUX_COMMAND: ls /home/mac
+    - SFTP_GET: -r /home/mac/tmp.txt -l tmp2.txt
+    - LINUX_COMMAND: rm /home/mac/tmp.txt
+    - LINUX_COMMAND: ls /home/mac
     - FILE_DELETE: tmp.txt
     - FILE_DELETE: tmp2.txt
 
