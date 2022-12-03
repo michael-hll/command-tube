@@ -1557,7 +1557,7 @@ class Utility():
         '''
         exists, _ = Utility.check_file_exists(file)
         if exists == True:
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 for line in lines:
                     line = line.replace('\n', '')
@@ -1604,7 +1604,7 @@ class Utility():
         
         exists, file = Utility.check_file_exists(file)
         if exists == True:
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 return ''.join(lines)
         else:
@@ -2012,7 +2012,7 @@ class Utility():
 
     @classmethod
     def write_result_to_file(self, file, lines):
-        with open(file, 'w') as f:
+        with open(file, 'w', encoding='utf-8') as f:
             if len(lines) == 0:
                 f.write('')
             for i, line in enumerate(lines):
@@ -2724,7 +2724,7 @@ class TubeCommand():
                     
             # get xml comments before root level
             doc_comments = []
-            with open(file_name, 'r') as f:
+            with open(file_name, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 for line in lines:
                     if line.startswith('<?xml'):
@@ -2748,7 +2748,7 @@ class TubeCommand():
             # write xml comments before root back
             lines = []
             # first read all lines
-            with open(file_name, 'r') as f:
+            with open(file_name, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
             # second, insert xml comments back into memory
             for i, line in enumerate(lines):
@@ -2759,7 +2759,7 @@ class TubeCommand():
                         insert_at += 1
                     break
             # finally, write all contents to file
-            with open(file_name, 'w') as f:
+            with open(file_name, 'w', encoding='utf-8') as f:
                 for line in lines:
                     f.write(line)  
 
@@ -2794,7 +2794,7 @@ class TubeCommand():
             new_lines = []  
             key_found = False    
             # reset value      
-            with open(file_name, 'r') as f:
+            with open(file_name, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 # check if last line is endswith '\n'
                 if lines and len(lines) > 0:
@@ -2834,7 +2834,7 @@ class TubeCommand():
                 new_lines.append(keywords + '=' + value)  
             
             # write back to the file      
-            with open(file_name, 'w') as f:
+            with open(file_name, 'w', encoding='utf-8') as f:
                 line_count = len(new_lines)
                 for i, line in enumerate(new_lines):
                     if i < line_count -1:
@@ -2893,7 +2893,7 @@ class TubeCommand():
             lines = []
             endswith_newline = '\n'
             # If not in append mode, then read original lines into memory
-            with open(file,'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 if lines and len(lines) > 0:
                     if not lines[len(lines)-1].endswith('\n'):
@@ -2932,7 +2932,7 @@ class TubeCommand():
                 updated = True
             
             # overwrite new lines into file
-            with open(file, write_mode) as f:
+            with open(file, write_mode, encoding='utf-8') as f:
                 for line in lines:
                     f.write(line)  
                
@@ -2990,7 +2990,7 @@ class TubeCommand():
             deleted_lines = []
             is_last_char_new_line = True
             # get file original lines
-            with open(file,'r') as f:
+            with open(file, 'r' , encoding='utf-8') as f:
                 lines = f.readlines()
                 # check if last line endswith '\n'
                 if len(lines) > 0:
@@ -3039,7 +3039,7 @@ class TubeCommand():
                     deleted_lines.append(line)              
             
             # overwrite new lines into file
-            with open(file, 'w') as f:
+            with open(file, 'w', encoding='utf-8') as f:
                 newlines_count = len(lines_new)
                 for i, line in enumerate(lines_new):
                     # make sure the last char is the same as deleted before
@@ -3086,7 +3086,7 @@ class TubeCommand():
             line_number = int(line_number)
             lines = []
             # read file lines into memory
-            with open(file,'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 
             # check line numbers
@@ -3234,7 +3234,7 @@ class TubeCommand():
             
         # writing result
         if result:
-            with open(result, 'w') as f:
+            with open(result, 'w', encoding='utf-8') as f:
                 Utility.write_result_to_file(result, list_files)
 
         # store list files count result to tube count var
@@ -3309,7 +3309,7 @@ class TubeCommand():
             
         # writing result
         if result:
-            with open(result, 'w') as f:
+            with open(result, 'w', encoding='utf-8') as f:
                 Utility.write_result_to_file(result, ls)
 
         # store list directories count result to tube count var
@@ -3405,13 +3405,13 @@ class TubeCommand():
             lines = None
             pop_line = None
             # read file lines into memory
-            with open(file,'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 if len(lines) > 0:
                     pop_line = lines.pop(number).replace('\n', '')
             
             # write lines back to text file
-            with open(file, 'w') as f:
+            with open(file, 'w', encoding='utf-8') as f:
                 for line in lines:
                     f.write(line)
                     
@@ -3446,14 +3446,14 @@ class TubeCommand():
         if os.path.exists(file):
             
             is_new_line = '\n'
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 if lines and len(lines) > 0:
                     if not lines[len(lines)-1].endswith('\n'):
                         is_new_line = ''
             
             # write lines back to text file
-            with open(file, 'a+') as f:
+            with open(file, 'a+', encoding='utf-8') as f:
                 if is_new_line == '':
                     f.write('\n' + value)
                 else:
@@ -3483,11 +3483,11 @@ class TubeCommand():
         if os.path.exists(file):
             
             lines = []
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
             
             # write lines back to text file
-            with open(file, 'w') as f:                
+            with open(file, 'w', encoding='utf-8') as f:                
                 lines.insert(0, value + '\n')
                 for line in lines:
                     f.write(line)   
@@ -3518,7 +3518,7 @@ class TubeCommand():
             
             lines = []
             endswith_newline = '\n'
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 # we need to keep the last char if with newline character after the
                 # inersert
@@ -3538,7 +3538,7 @@ class TubeCommand():
                     lines.insert(insert_at, value + '\n')
                     
             # write lines back to text file
-            with open(file, 'w') as f:                
+            with open(file, 'w', encoding='utf-8') as f:                
                 for line in lines:
                     f.write(line) 
                              
@@ -3577,7 +3577,7 @@ class TubeCommand():
             
             lines = []
             endswith_newline = '\n'
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()     
                 # get last char of the file to see if it's '\n'    
                 if lines and len(lines) > 0:
@@ -3600,7 +3600,7 @@ class TubeCommand():
             newlines.sort(reverse=is_sort_desc)
                     
             # write lines back to text file
-            with open(file, 'w') as f:   
+            with open(file, 'w', encoding='utf-8') as f:   
                 count = len(newlines)             
                 for i, newline in enumerate(newlines):
                     line = str(newline)
@@ -3638,13 +3638,13 @@ class TubeCommand():
         msg = ''
         if os.path.exists(file):            
             # write lines back to text file
-            with open(file, 'w') as f:                
+            with open(file, 'w', encoding='utf-8') as f:                
                 f.write('')                    
             msg = 'File {0} was cleared.'.format(file)
         else:
             if is_create:
                 # write lines back to text file
-                with open(file, 'w+') as f:                
+                with open(file, 'w+', encoding='utf-8') as f:                
                     f.write('')
                 msg = 'File {0} was created.'.format(file)                
             else:
@@ -3671,7 +3671,7 @@ class TubeCommand():
                  
         msg = ''
         if not os.path.exists(file):            
-            with open(file, 'w+') as f:                
+            with open(file, 'w+', encoding='utf-8') as f:                
                 f.write('')                   
             msg = 'File {0} was created.'.format(file)
         else:            
@@ -3704,7 +3704,7 @@ class TubeCommand():
         content = ''       
         if os.path.exists(file):            
             # write lines back to text file
-            with open(file, 'r') as f:                
+            with open(file, 'r', encoding='utf-8') as f:                
                 for line in f.readlines():     
                     line = line.replace('\n', '')
                     if is_skip_empty and not line:
@@ -4173,7 +4173,7 @@ class TubeCommand():
             
         else:
             # key value file
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 for line in f:
                     line = line.replace('\n', '')
                     if len(line) < 0:
@@ -4238,7 +4238,7 @@ class TubeCommand():
                 file = file[1:]
             body = ''
             # read email body from text file
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 for line in f:
                     body += line + '<br>'              
         tprint('Tube is sending email to %s' % (to_list), type=Storage.I.C_PRINT_TYPE_INFO)   
@@ -4457,7 +4457,7 @@ class TubeCommand():
         # case 1: count file lines count
         if file:
             line_count = 0
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 line_count = sum(1 for line in f)
             # update tube variables dependantly
             key_result = self.update_key_value(variable, line_count, is_force=is_force, is_global=is_global)
@@ -4813,7 +4813,7 @@ class TubeCommand():
         number_val = None
         line_content = None
         # read file line by line
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding='utf-8') as f:
             i = 0
             p = re.compile(characters)
             for line in f:
@@ -4871,7 +4871,7 @@ class TubeCommand():
             lines = []
             lines_new = []
             
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
             for line in lines:
                 while re.search(oldvalue, line) is not None and replaced_count < count:
@@ -4880,7 +4880,7 @@ class TubeCommand():
                 lines_new.append(line)
             
             # write replaced lines back to file
-            with open(file, 'w') as f:
+            with open(file, 'w', encoding='utf-8') as f:
                 for line in lines_new:
                     f.write(line)
         else:
@@ -5273,7 +5273,7 @@ class TubeCommand():
         process = None
         if log_file:
             # write outputs to log file
-            with open(log_file, 'w') as f:
+            with open(log_file, 'w', encoding='utf-8') as f:
                 process = subprocess.Popen(inputs, shell=True,
                          stdout=f, stderr=subprocess.PIPE)     
         else:
@@ -8131,7 +8131,7 @@ Tube:
                     found_match = True
                     try:    
                         file = 'tube.template.yaml'
-                        with open(file, 'w') as f:
+                        with open(file, 'w', encoding='utf-8') as f:
                             f.write(template)
                         tprint(template,prefix='')
                         tprint('# ' + file + ' is generated.',prefix='')
@@ -8142,7 +8142,7 @@ Tube:
                     found_match = True
                     try:
                         file = 'help.txt'
-                        with open(file, 'w') as f:
+                        with open(file, 'w', encoding='utf-8') as f:
                             f.write(help_all + '\n')
                             for eg in command_examples:
                                 f.write(eg + '\n')
@@ -8163,7 +8163,7 @@ Tube:
                         sys.exit()
                     # begin to read yaml file variables
                     try:
-                        with open(yaml_file, 'r') as f:
+                        with open(yaml_file, 'r', encoding='utf-8') as f:
                             lines = f.readlines()
                             var_start = False                            
                             for line in lines:
@@ -8214,7 +8214,7 @@ Tube:
                     print(help_var.replace('\n', '', 1))
                     sys.exit()
                 elif command_name.upper() == 'README':
-                    with open('README.md', 'w') as f:
+                    with open('README.md', 'w', encoding='utf-8') as f:
                         f.write(help_all + '\n')
                         for eg in command_examples:
                             f.write(eg + '\n')
@@ -8276,7 +8276,7 @@ Tube:
 def read_run_mode():
     try:
         if Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE):
-            with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
+            with open(Storage.I.TUBE_YAML_FILE, 'r', encoding='utf-8') as f:
                 for line in f:
                     line = line.replace('\n', '').strip()
                     if line.startswith(Storage.I.C_RUN_MODE):
