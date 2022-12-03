@@ -7947,6 +7947,30 @@ def print_tube_command_help(args):
     A tube and it's all parents' tubes composed a tube chain.
     From previous example, tubes 'SubTube' and 'Tube' is one tube chain.
 
+#### Each Loop
+    You can run a tube in each loop mode using --each argument.
+    In the below example, SubTube will be run two times since 
+    ls variable has two elements.
+
+        Tube:
+            - SET: ls = ['hello', 'world']
+            - RUN: SubTube --each i, item in ls
+        SubTube:
+            - PRINT: SubTube is running in loop: {i}, item: {item}     
+
+#### While Loop
+    You can run a tube in while loop mode using --while argument.
+    In the below example, SubTube will be also run two times until
+    variable i is greater than 2.
+
+        Tube:
+            - SET: i = 1
+            - RUN: SubTube --while i <= 2
+        SubTube:
+            - PRINT: SubTube is running in loop: {i}
+            - SET: i += 1 --global
+
+
 #### Tube Ending
     Use SET_TUBE command's -e|--ending|--finally argument you can set a tube's
     ending tube. A ending tube will always be executed at the end.
