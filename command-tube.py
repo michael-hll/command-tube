@@ -1790,7 +1790,7 @@ class Utility():
     
     @classmethod
     def safe_load_yaml(self, f):
-        with open(f, 'r') as f:
+        with open(f, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
             return data
     
@@ -4334,7 +4334,7 @@ class TubeCommand():
             exists, file = Utility.check_file_exists(file, '.yaml', '.yml')
             data = None
             if exists:
-                with open(file, 'r') as f:
+                with open(file, 'r', encoding='utf-8') as f:
                     data = Utility.safe_load_yaml_with_upper_key(f)
                     self.__create_sub_tube(data, tube_type, tube_name, file, conditions)
                 
@@ -6564,7 +6564,7 @@ class StorageUtility():
         
         # read servers configuration from file
         if type(servers) is str:
-            with open(servers, 'r') as f:
+            with open(servers, 'r', encoding='utf-8') as f:
                 servers = Utility.safe_load_yaml_with_upper_key(f)
                 servers = servers[Storage.I.C_SERVERS]
         
@@ -6636,7 +6636,7 @@ class StorageUtility():
         Read email configurations from 'EMAIL' section.
         '''   
         if type(emails) is str:
-            with open(emails, 'r') as f:
+            with open(emails, 'r', encoding='utf-8') as f:
                 emails = Utility.safe_load_yaml_with_upper_key(f)
                 emails = emails[Storage.I.C_EMAIL]
                 
@@ -7106,7 +7106,7 @@ def write_line_to_log(file, mode='a+', line=''):
     if Storage.I.IS_DISABLE_LOG:
         return
     try:    
-        with open(file, mode) as f:            
+        with open(file, mode, encoding='utf-8') as f:            
             f.write(line + '\n')
     except Exception as e:
         msg = 'Write line to logfile with exception: ' + str(e)
@@ -8505,7 +8505,7 @@ else:
 try:
     data = None
     if(Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE)):
-        with open(Storage.I.TUBE_YAML_FILE, 'r') as f:
+        with open(Storage.I.TUBE_YAML_FILE, 'r', encoding='utf-8') as f:
             data = Utility.safe_load_yaml_with_upper_key(f) 
     
     # check if given configuration file is empty        
