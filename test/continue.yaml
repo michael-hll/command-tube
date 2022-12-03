@@ -6,32 +6,34 @@ VARIABLES:
     failed_nums: 0
 TUBE:
     - SET_TUBE: -c yes
-    - COMMAND: ls --continue
-    - COMMAND: ls
+    - SET_VARIABLE: ls = 'ls'
+    - SET_VARIABLE: ls = 'dir' --if OS_NAME == nt
+    - COMMAND: '{ls} --continue'
+    - COMMAND: {ls}
     - COMMAND: ls2 --continue
-    - COMMAND: ls
+    - COMMAND: {ls}
     - COMMAND: ls3 --continue 1
-    - COMMAND: ls
+    - COMMAND: {ls}
     - COMMAND: ls4 --continue 1 1
-    - COMMAND: ls
-    - COMMAND: ls
+    - COMMAND: {ls}
+    - COMMAND: {ls}
     - COMMAND: ls5 --continue 0 1
-    - COMMAND: ls
-    - COMMAND: ls --continue 1 1
-    - COMMAND: ls
-    - COMMAND: ls
-    - COMMAND: ls --continue 0 1
-    - COMMAND: ls
+    - COMMAND: {ls}
+    - COMMAND: '{ls} --continue 1 1'
+    - COMMAND: {ls}
+    - COMMAND: {ls}
+    - COMMAND: '{ls} --continue 0 1'
+    - COMMAND: {ls}
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COUNT: -t SKIPPED -v skipped_nums -cs
     - COUNT: -t FAILED -v failed_nums -cs
     - COMMAND: echo Check Success --if {success_nums}==8
     - COMMAND: echo Check Failed --if {failed_nums}==4
     - COMMAND: echo Check Skipped --if {skipped_nums}==4
-    - SET_VARIABLE: -n continue_result -v Testing Pass  -g --if {success_nums}==9 --key
-    - SET_VARIABLE: -n continue_result -v Testing Failed -g --if {success_nums}!=9
-    - SET_VARIABLE: failed += 'continue.yaml,' -g --if {success_nums}!=9
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
+    - SET_VARIABLE: -n continue_result -v Testing Pass  -g --if {success_nums}==11 --key
+    - SET_VARIABLE: -n continue_result -v Testing Failed -g --if {success_nums}!=11
+    - SET_VARIABLE: failed += 'continue.yaml,' -g --if {success_nums}!=11
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11
      
 
 
