@@ -1,7 +1,7 @@
 
 -------------------------------           
 # Welcome to Command Tube
-## version: 2.0.3 Beta
+## version: 2.0.3
 -------------------------------
                                       
 ## Introduction
@@ -28,6 +28,12 @@
         >>> python command-tube.py -t sample.yaml -f
     For more Command Tube arguments you can use below commands:
         >>> python command-tube.py -h
+    * Notes: Command Tube will use some other module need to be installed first.
+      It's better to install below packages before run a tube:
+      Mac OS:
+        >>> python3 -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
+      Windows:
+        >>> python -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
     
     - Some other examples of running Command Tube via source code:
         1: Run at once and sent result via email: 
@@ -355,7 +361,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 11: DIR_DELETE
-#### Alias: D_DELETE, D_DEL
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -408,7 +414,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -915,7 +921,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 55: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]

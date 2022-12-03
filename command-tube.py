@@ -7889,6 +7889,12 @@ def print_tube_command_help(args):
         >>> python command-tube.py -t sample.yaml -f
     For more Command Tube arguments you can use below commands:
         >>> python command-tube.py -h
+    * Notes: Command Tube will use some other module need to be installed first.
+      It's better to install below packages before run a tube:
+      Mac OS:
+        >>> python3 -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
+      Windows:
+        >>> python -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
     
     - Some other examples of running Command Tube via source code:
         1: Run at once and sent result via email: 
