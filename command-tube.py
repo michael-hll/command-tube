@@ -1893,6 +1893,18 @@ class Utility():
         return value
 
     @classmethod
+    def trim_quotes(self, value):
+        if not value or type(value) != str:
+            return value
+        
+        value = value.strip()
+        if value.startswith('\'') and value.endswith('\''):
+            return value.strip('\'')
+        if value.startswith('"') and value.endswith('"'):
+            return value.strip('"')
+        return value
+
+    @classmethod
     def split_assign_expression(self, item, command=None):
         '''
         Split equal expressions 'name = value or name["key"] = value'
@@ -1901,14 +1913,14 @@ class Utility():
         item = item.strip()
         if reUtility.is_matched_assign_expresson(item):
             name = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip()
+            value = Utility.trim_quotes(item[item.index('=')+1:])
             value = Utility.convert_value_auto(value)
         
             return (name, value) 
         
         elif reUtility.is_matched_assign_dict_expresson(item):
             name_key = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip()
+            value = Utility.trim_quotes(item[item.index('=')+1:])
             left_bracket_index = name_key.index('[')
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
@@ -1918,7 +1930,7 @@ class Utility():
         
         elif reUtility.is_matched_assign_list_expresson(item):
             name_index = item[:item.index('=')].strip()
-            value = item[item.index('=')+1:].strip()
+            value = Utility.trim_quotes(item[item.index('=')+1:])
             indexes = []
             matches = re.findall('[\[][a-zA-Z0-9]+[\]]', name_index)
             for match in matches:
@@ -6661,7 +6673,7 @@ class StorageUtility():
         variables = TubeCommand.format_placeholders(variables)
         key_value_list = variables.split(',')
         for item in key_value_list:
-            item = item.strip().strip('\'').strip('"')
+            item = item.strip()
             if not reUtility.is_matched_assign_expresson(item):
                 raise Exception('The tube input variables have wrong format: {0}'.format(item))
             key, value = Utility.split_assign_expression(item) 
