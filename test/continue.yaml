@@ -27,13 +27,13 @@ TUBE:
     - COUNT: -t SUCCESSFUL -v success_nums -cs
     - COUNT: -t SKIPPED -v skipped_nums -cs
     - COUNT: -t FAILED -v failed_nums -cs
-    - COMMAND: echo Check Success --if {success_nums}==8
+    - COMMAND: echo Check Success --if {success_nums}==10
     - COMMAND: echo Check Failed --if {failed_nums}==4
     - COMMAND: echo Check Skipped --if {skipped_nums}==4
-    - SET_VARIABLE: -n continue_result -v Testing Pass  -g --if {success_nums}==11 --key
-    - SET_VARIABLE: -n continue_result -v Testing Failed -g --if {success_nums}!=11
-    - SET_VARIABLE: failed += 'continue.yaml,' -g --if {success_nums}!=11
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11
+    - SET_VARIABLE: -n continue_result -v Testing Pass  -g --if {success_nums}==10 --key
+    - SET_VARIABLE: -n continue_result -v Testing Failed -g --if {success_nums}!=10
+    - SET_VARIABLE: failed += 'continue.yaml,' -g --if {success_nums}!=10
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==10
      
 
 
