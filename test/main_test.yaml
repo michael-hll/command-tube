@@ -6,6 +6,7 @@
 # Or from terminal enter the following command using source code:
 # >>> python3 command-tube.py -t test/main_test -v cs1=100, cs2=yes, cs3='hello mac', email=yes, http=yes, linux=yes, del_log=no, all=yes, case=11 -fcn
 
+# Testing email or linux need to config the additional configurations, using email=no, linux=no to turn off the testing.
 # CHECKING TEST RESULT
 # When it's finished, checking the status of the result,
 # it should be SUCCESSFUL
