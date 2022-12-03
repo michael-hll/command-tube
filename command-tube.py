@@ -1913,14 +1913,14 @@ class Utility():
         item = item.strip()
         if reUtility.is_matched_assign_expresson(item):
             name = item[:item.index('=')].strip()
-            value = Utility.trim_quotes(item[item.index('=')+1:])
+            value = item[item.index('=')+1:].strip()
             value = Utility.convert_value_auto(value)
         
             return (name, value) 
         
         elif reUtility.is_matched_assign_dict_expresson(item):
             name_key = item[:item.index('=')].strip()
-            value = Utility.trim_quotes(item[item.index('=')+1:])
+            value = item[item.index('=')+1:].strip()
             left_bracket_index = name_key.index('[')
             right_bracket_index = name_key.index(']')
             name = name_key[:left_bracket_index].strip()
@@ -1930,7 +1930,7 @@ class Utility():
         
         elif reUtility.is_matched_assign_list_expresson(item):
             name_index = item[:item.index('=')].strip()
-            value = Utility.trim_quotes(item[item.index('=')+1:])
+            value = item[item.index('=')+1:].strip()
             indexes = []
             matches = re.findall('[\[][a-zA-Z0-9]+[\]]', name_index)
             for match in matches:
@@ -6677,6 +6677,7 @@ class StorageUtility():
             if not reUtility.is_matched_assign_expresson(item):
                 raise Exception('The tube input variables have wrong format: {0}'.format(item))
             key, value = Utility.split_assign_expression(item) 
+            value = Utility.trim_quotes(value)
             value = Utility.eval_expression(value, tube=tube)               
             StorageUtility.update_key_value_dict(key, value, is_readonly=True, tube=tube) 
             if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
