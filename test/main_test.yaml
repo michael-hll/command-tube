@@ -23,6 +23,7 @@ Variables:
     all: yes # yes means run all cases, no means run 'case' variable value
     case: 0
 TUBE:
+    - SET_VARIABLE: test_folder = 'C:\\dev\\tube\\tube\\test' --if OS_NAME == nt
     - PATH: {test_folder}
     - SET_VARIABLE: result = result + 1 --if email
     - SET_VARIABLE: result += 1 --if http

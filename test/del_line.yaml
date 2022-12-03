@@ -3,7 +3,7 @@ TUBE:
     # Mac OS version
     - SET_TUBE: -c yes
     # Prepare data
-    - COMMAND: cp data_0.txt data_del.txt
+    - FILE_COPY: -f data_0.txt -t data_del.txt
     # 1. Test delete an not exists file
     - DELETE_LINE_IN_FILE: -f not_exits_file -e --continue
     # 2. Test begins 
@@ -18,7 +18,7 @@ TUBE:
     - COUNT: -f data_del.txt -v line_count -cs
     - DELETE_LINE_IN_FILE: -f data_del.txt -e --continue --if {line_count}==3
     # 7. Remove data_del.txt
-    - COMMAND: rm data_del.txt
+    - FILE_DELETE: data_del.txt
     # 8. Test successful command count
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
     # output testing result
