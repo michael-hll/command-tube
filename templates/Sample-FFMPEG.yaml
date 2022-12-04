@@ -1,4 +1,5 @@
 # Usage: Resize images
+# Assumption: Have installed FFmpeg in your compurter
 # If you want to resice all pictures start with temp*.jpg to height 1920:
 # >>> tube -t Sample-FFMPEG.yaml -f -v name=temp*.jpg, height=1920, work=my_pic_folder 
 
@@ -21,5 +22,17 @@ ChangeSize:
     - set: new = pic[:pic.index('.')] + 'h.jpg'
     # using ffmpeg command to resize the picture to -1:height
     - cmd: ffmpeg -y -i {pic} -vf scale=-1:{height} {new}
+
+
+# More samples
+# 01 Get picture/video properties
+GetPicProperty:
+    # assumeing passing 'file' variable to this sub tube
+    # or 'file' variable is availabe from its parent tube
+    - print: {file} 
+    # using ffprobe command to output the image property to text file
+    - cmd: ffprobe -v error -select_streams v:0 -show_format -show_entries stream -of default=nw=1 {file} --result {file}.log
+    # get file width and height and save them to tube variable pic_width, pic_height
+    - get_keys: -f {file}.log -k width > pic_width, height > pic_height
 
   
