@@ -1,6 +1,3 @@
-
-Version: 2.0.x            
-Run_Mode: BIN
 Servers:
     - Server:
         Name: server1

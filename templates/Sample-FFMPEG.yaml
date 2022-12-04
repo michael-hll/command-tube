@@ -1,0 +1,25 @@
+# Usage: Resize images
+# If you want to resice all pictures start with temp*.jpg to height 1920:
+# >>> tube -t Sample-FFMPEG.yaml -f -v name=temp*.jpg, height=1920, work=my_pic_folder 
+
+Variables:
+    work: /xxx/working/path
+    name: xxx*.jpg   
+    height: 1920
+Tube:
+    # goto working folder
+    - cd: {work}
+    # get all picture names and save them into pics list type variable
+    - list_f: -f {name} -s name asc -v pics
+    # using --each argument to run ChangeSize sub tube for each picture
+    - run: ChangeSize --each pic in pics
+
+ChangeSize:
+    # print for debugging purpose
+    - print: {pic}
+    # set new to the new picture name after resizing
+    - set: new = pic[:pic.index('.')] + 'h.jpg'
+    # using ffmpeg command to resize the picture to -1:height
+    - cmd: ffmpeg -y -i {pic} -vf scale=-1:{height} {new}
+
+  

@@ -1,6 +1,4 @@
 
-Version: 2.0.x            
-Run_Mode: BIN
 Servers:
     - Server:
         Name: server1
@@ -30,10 +28,10 @@ Tube:
     # We can use tube variable to condition exec our tube commands
     # For this example, there are two tube variables: build_bl and build_ui 
     # Then from the terminal console, we can use below command to only build bL:
-    # >>> tube -y Sample-conditional-build.yaml -f -v build_bl=yes
+    # >>> tube -t Sample-conditional-build.yaml -f -v build_bl=yes
     # We can use below command to build ui only:
-    # >>> tube -y Sample-conditional-build.yaml -f -v build_ui=yes
+    # >>> tube -t Sample-conditional-build.yaml -f -v build_ui=yes
     # Or we can build both bl and ui:
-    # >>> tube -y Sample-conditional-build.yaml -f -v build_bl=yes build_ui=yes 
+    # >>> tube -t Sample-conditional-build.yaml -f -v build_bl=yes, build_ui=yes 
     
             

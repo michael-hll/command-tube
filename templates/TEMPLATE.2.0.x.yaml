@@ -1,7 +1,3 @@
-
-Version: 2.0.x            
-# Run_Mode is either SRC or BIN
-Run_Mode: BIN
 Servers:
     - Server:
         Name: server1
