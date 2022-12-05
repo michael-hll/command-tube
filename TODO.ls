@@ -3,8 +3,6 @@ TODO LIST
 
 - test search images and download images via tube
 
-- Integrate 3rd party or customized scripts as tube commands?? -- Thinking
-
 - Output Command.results to Email content - future
 
 - DONE LIST
@@ -214,6 +212,9 @@ TODO LIST
 
     77. - EXEC: ls.reverse() - 2.0.3
           run tube variable's method
+    
+    - Integrate 3rd party or customized scripts as tube commands?? -- Thinking
+      Added IMPORT_MODULE command can achieve this - 2.0.5
           
     - Bug list:
         1. A string value has position format, then it doesn't work: '{i:02d}' - workaround fixed 2.0.2
