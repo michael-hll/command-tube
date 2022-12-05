@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.3'  
+        self.C_CURR_VERSION            = '2.0.4 Beta'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -129,7 +129,8 @@ class Storage():
         self.C_REQUESTS_PUT            = 'REQUESTS_PUT'
         self.C_REQUESTS_HEAD           = 'REQUESTS_HEAD'
         self.C_REQUESTS_PATCH          = 'REQUESTS_PATCH'
-        self.C_REQUESTS_DELETE         = 'REQUESTS_DELETE'        
+        self.C_REQUESTS_DELETE         = 'REQUESTS_DELETE'   
+        self.C_IMPORT_MODULE           = 'IMPORT_MODULE'     
         # method – method for the new Request object: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE.
         self.C_LOG_HEADER              = '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nCommand Tube Log starts at '
         self.C_JOB_HEADER              = '\n--------------------------------------\nJob starts at '
@@ -1501,6 +1502,22 @@ class Storage():
                 self.C_RAW_LOG: True,
                 self.C_NOTES_PARAMETER: True,
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file or variable.'
+            },
+            self.C_IMPORT_MODULE: {
+                self.C_SUPPORT_FROM_VERSION: '2.0.4',
+                self.C_ALIAS: {'IMPORT'},
+                self.C_ARG_ARGS: [        
+                    [True, '-','--', 'str', '+', 'imports', True, False, '', '',
+                        'The import module command. eg: import pandas as pd'],
+                ],
+                self.C_CONTINUE_PARAMETER: False,
+                self.C_REDO_PARAMETER: False,
+                self.C_IF_PARAMETER: True,
+                self.C_KEY_PARAMETER: True,
+                self.C_PLACE_HOLDER: False,
+                self.C_RAW_LOG: True,
+                self.C_NOTES_PARAMETER: True,
+                self.C_COMMAND_DESCRIPTION: 'Import other python modules to command tube.'
             },
         }
 
@@ -5194,6 +5211,20 @@ class TubeCommand():
         
         return True
 
+    def import_module(self):
+        '''
+        import other python module
+        '''
+        parser = self.tube_argument_parser        
+        args, _ = parser.parse_known_args(shlex.split(self.content))
+        import_command = ''
+        if args.imports:
+            import_command = ' '.join(args.imports)
+            import_command = self.self_format_ph(import_command, replace_sys_ph=True)
+        exec(import_command, globals())
+
+        return True
+
     def exec_command(self):
         inputs = self.self_format_ph(self.content, replace_sys_ph=True)
         # if it's pattern like set_var: x = yyy
@@ -5509,6 +5540,9 @@ class TubeCommand():
                  command_type == Storage.I.C_REQUESTS_OPTIONS or \
                  command_type == Storage.I.C_REQUESTS_PUT:
                 result = self.requests_sent()
+
+            elif command_type == Storage.I.C_IMPORT_MODULE:
+                result = self.import_module()
 
             # not supported command found then log errors and continue next          
             else:
