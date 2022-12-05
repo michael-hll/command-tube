@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.4 Beta'  
+        self.C_CURR_VERSION            = '2.0.5'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -1504,7 +1504,7 @@ class Storage():
                 self.C_COMMAND_DESCRIPTION: 'Got all sub directories for the given directory, and save the result list to a text file or variable.'
             },
             self.C_IMPORT_MODULE: {
-                self.C_SUPPORT_FROM_VERSION: '2.0.4',
+                self.C_SUPPORT_FROM_VERSION: '2.0.5',
                 self.C_ALIAS: {'IMPORT'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '+', 'imports', True, False, '', '',
