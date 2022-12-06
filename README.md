@@ -6,8 +6,8 @@
 -------------------------------
 <table border="0">
  <tr>
-    <td><b style="font-size:30px">Title</b></td>
-    <td><b style="font-size:30px">[Slide Show](https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf)</b></td>
+    <td><b style="font-size:30px">Version: 2.0.5</b></td>
+    <td><b style="font-size:30px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
  </tr>
 </table>
                                       
