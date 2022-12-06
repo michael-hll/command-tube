@@ -1,11 +1,21 @@
 
 -------------------------------           
 # Welcome to Command Tube
+<<<<<<< HEAD
 -------------------------------
 <table border="0">
  <tr>
     <td><b style="font-size:12px">Version: 2.0.5</b></td>
     <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
+=======
+## version: 2.0.5
+[Slide Show](https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf)
+-------------------------------
+<table border="0">
+ <tr>
+    <td><b style="font-size:30px">Version: 2.0.5</b></td>
+    <td><b style="font-size:30px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
+>>>>>>> 2eccbc73260dad7793e69d180fe36c85abdb7ca0
  </tr>
 </table>
                                       
