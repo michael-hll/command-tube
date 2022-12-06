@@ -2,6 +2,7 @@
 -------------------------------           
 # Welcome to Command Tube
 ## version: 2.0.5
+[Slide Show](https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf)
 -------------------------------
                                       
 ## Introduction
