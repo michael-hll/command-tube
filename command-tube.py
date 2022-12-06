@@ -7893,8 +7893,13 @@ def print_tube_command_help(args):
                 '''
                 help_title = '''-------------------------------           
 # Welcome to Command Tube
-## version: %s
 -------------------------------
+<table border="0">
+ <tr>
+    <td><b style="font-size:12px">Version: %s</b></td>
+    <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
+ </tr>
+</table>
                 '''
                 help_title = help_title % Storage.I.C_CURR_VERSION
                 help_all = '''
