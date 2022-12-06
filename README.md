@@ -7,6 +7,7 @@
     <td><b style="font-size:12px">Version: 2.0.5</b></td>
     <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
  </tr>
+</table>
                                       
 ## Introduction
 
@@ -344,7 +345,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: NEW, CREATE
+#### Alias: CREATE, NEW
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -355,7 +356,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
+#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -369,7 +370,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: DELETE_VARIABLE
-#### Alias: DEL_VAR, DELETE_VAR
+#### Alias: DELETE_VAR, DEL_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -442,7 +443,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -617,7 +618,7 @@ Parameters:
 
 Support from version: 2.0.5</pre>
 ### 31: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -698,7 +699,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 38: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -958,7 +959,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 56: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
