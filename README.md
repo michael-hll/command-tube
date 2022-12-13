@@ -29,16 +29,15 @@
     Tube:
         - PRINT: Hello World of Command Tube
 
-    From your terminal to run this sample.yaml (Needs Python >= 3.6):
+    From your terminal to run this sample.yaml:
         >>> python command-tube.py -t sample.yaml -f
     For more Command Tube arguments you can use below commands:
         >>> python command-tube.py -h
-    * Notes: Command Tube will use some other module need to be installed first.
-      It's better to install below packages before run a tube:
-      Mac OS:
-        >>> python3 -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
-      Windows:
-        >>> python -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
+
+    ** Notes: Command Tube will use some other modules need to be installed first (Source code mode).      
+       Mac OS: >>> python3 -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
+       Windows: >>> python -m pip install 'Colr' 'paramiko' 'beautifulsoup4' 'lxml' 'requests' 'PyYAML'
+       You can also use the '--pip pip' argument, this will install the 3rd party modules automatically.
     
     - Some other examples of running Command Tube via source code:
         1: Run at once and sent result via email: 
@@ -345,7 +344,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: CREATE, NEW
+#### Alias: NEW, CREATE
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -356,7 +355,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
+#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -443,7 +442,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -463,7 +462,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -519,7 +518,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 23: FILE_MOVE
-#### Alias: F_MOVE, F_MV
+#### Alias: F_MV, F_MOVE
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
