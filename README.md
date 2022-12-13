@@ -4,7 +4,7 @@
 -------------------------------
 <table border="0">
  <tr>
-    <td><b style="font-size:12px">Version: 2.0.5</b></td>
+    <td><b style="font-size:12px">Version: 2.0.6</b></td>
     <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
  </tr>
 </table>
@@ -356,7 +356,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DEL_LN, DEL_LINE, DELETE_LINE
+#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -370,7 +370,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: DELETE_VARIABLE
-#### Alias: DELETE_VAR, DEL_VAR
+#### Alias: DEL_VAR, DELETE_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -390,7 +390,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 11: DIR_DELETE
-#### Alias: D_DEL, D_DELETE
+#### Alias: D_DELETE, D_DEL
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -443,7 +443,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_COPY, F_CP
+#### Alias: F_CP, F_COPY
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -463,7 +463,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -618,7 +618,7 @@ Parameters:
 
 Support from version: 2.0.5</pre>
 ### 31: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -885,7 +885,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 51: SET_VARIABLE
-#### Alias: SET_VAR, SET
+#### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]

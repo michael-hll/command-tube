@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.5'  
+        self.C_CURR_VERSION            = '2.0.6'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -7664,8 +7664,7 @@ def init_arguments():
     parser.add_argument('-n', '--no-log', dest='disable_log', action='store_const', const='yes',
                         help='A flag to disable writing logs. Default no.')
     parser.add_argument('--pip', dest='pip_command',
-                        help='To tell which pip command is used. e.g.: pip or pip3. \nWindows system is default pip, and MacOS system is default pip3. ' + \
-                              '\nUsually you don\'t need to provide this parameter value, \nexcept in Windows system, it\'s not pip and in MacOS, it\'s not pip3.')                                                    
+                        help='Tell Command Tube using which pip command to install the 3rd party python packages. pip or pip3.')                                                    
     parser.add_argument('--version', action='version', version=Storage.I.C_CURR_VERSION,
                         help='Print current version.')  
     parser.add_argument('args', type=str, nargs='*', 
@@ -7683,17 +7682,6 @@ def init_arguments():
 def install_3rd_party_packages(args):
     
     try:        
-        # return if running in binary mode
-        if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_BIN:
-            msg = 'Command Tube is running in binary mode.'
-            print(msg)
-            return
-        
-        # check os to set default pip command
-        if(os.name.startswith('nt')):
-            Storage.I.PIP_NAME = 'pip'
-        else:
-            Storage.I.PIP_NAME = 'pip3'
         
         # override pip command from user inputs
         if(args.pip_command != None):
@@ -7739,7 +7727,6 @@ def install_3rd_party_packages(args):
             
     except OSError as e1:
         msg = 'ERROR: Install/Check 3-rd party packages failed with exception: ' + str(e1)
-        msg += '\nIf you run in binary mode, please check if your tube run mode is BIN. ' 
         print(msg)
         sys.exit()
     except Exception as e2:
@@ -7893,7 +7880,11 @@ def print_tube_command_help(args):
                 '''
                 help_title = '''-------------------------------           
 # Welcome to Command Tube
--------------------------------
+-------------------------------'''
+                help_title_version = '''
+Version: %s
+                '''
+                help_title_version_RM = '''
 <table border="0">
  <tr>
     <td><b style="font-size:12px">Version: %s</b></td>
@@ -7901,7 +7892,6 @@ def print_tube_command_help(args):
  </tr>
 </table>
                 '''
-                help_title = help_title % Storage.I.C_CURR_VERSION
                 help_all = '''
 %s                      
 ## Introduction
@@ -8049,14 +8039,10 @@ def print_tube_command_help(args):
 %s
 ## %s
                 '''
-                help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
-                            help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
-                            help_raw.replace('\n', '', 1), help_raw_log.replace('\n', '', 1), help_note.replace('\n', '', 1), help_var)
+
                 
                 template = '''
 Version: 2.0.x            
-# Run_Mode is either SRC or BIN
-Run_Mode: BIN
 Servers:
     - Server:
         Name: server1
@@ -8156,6 +8142,16 @@ Tube:
                 is_for_readme = False
                 if command_name and command_name.upper() == 'README':
                     is_for_readme = True
+                
+                # dedice the title version content
+                if is_for_readme:
+                    help_title = help_title + help_title_version_RM % Storage.I.C_CURR_VERSION
+                else:
+                    help_title = help_title + help_title_version % Storage.I.C_CURR_VERSION
+
+                help_all = help_all % (help_title, help_continue, help_redo.replace('\n', '', 1), 
+                        help_if.replace('\n', '', 1), help_key.replace('\n', '', 1), 
+                        help_raw.replace('\n', '', 1), help_raw_log.replace('\n', '', 1), help_note.replace('\n', '', 1), help_var)
                     
                 # Prepare examples of each command
                 command_examples = []
@@ -8342,27 +8338,7 @@ Tube:
         sys.exit()        
     except SystemExit:
         sys.exit()
-
-def read_run_mode():
-    try:
-        if Storage.I.TUBE_YAML_FILE and path.exists(Storage.I.TUBE_YAML_FILE):
-            with open(Storage.I.TUBE_YAML_FILE, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.replace('\n', '').strip()
-                    if line.startswith(Storage.I.C_RUN_MODE):
-                        start = line.index(':')
-                        value = line[start+1:].strip()
-                        if value == Storage.I.C_RUN_MODE_BIN:
-                            Storage.I.RUN_MODE = value
-                        elif value == Storage.I.C_RUN_MODE_DEBUG:
-                            Storage.I.RUN_MODE = value
-                        break
-                                                                    
-    except Exception as e:
-        msg = 'READ RUN_MODE EXCEPTION: %s' % (str(e))
-        tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
-        write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)  
-
+                                                                     
 def start_matrix_terminal():  
     '''
     This method only run when --matrix-mode flag is set to true
@@ -8517,7 +8493,11 @@ except Exception as e:
 # -------------------------------
 # Install & Import 3rd-party Packages
 # -------------------------------
-install_3rd_party_packages(args)  
+if args.pip_command:
+    # if --pip argument is provided, then tube will check
+    # 3rd-party packages available and install it if not
+    install_3rd_party_packages(args)  
+
 # Import 3rd-party packages
 import paramiko 
 from colr import color
@@ -8548,9 +8528,6 @@ if(args.yaml_config != None):
                 Storage.I.TUBE_LOG_FILE = os.path.abspath(args.log_file[0])
             else:
                 Storage.I.TUBE_LOG_FILE = os.path.join(Storage.I.C_CURR_DIR, args.log_file[0])
-        # read run mode file yaml file
-        if Storage.I.RUN_MODE != Storage.I.C_RUN_MODE_DEBUG:
-            read_run_mode()
     else:
         msg = "YAML file doesn't exist: " + Storage.I.TUBE_YAML_FILE
         tprint(msg, type=Storage.I.C_PRINT_TYPE_ERROR)
