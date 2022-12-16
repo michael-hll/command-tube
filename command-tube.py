@@ -7644,7 +7644,7 @@ def init_arguments():
                         help='Command Tube file with YAML format. \nUse \'help template\' could print the YAML file template.' + \
                              '\nFor quick you could leave out the file name extension .yaml or .yml') 
     parser.add_argument('-v', '--vars', type=str, dest='variables', nargs='+',
-                        help='Pass tube variables into tube: var1=value1, var2=value2')                 
+                        help='Pass tube variables into tube: \'var1=value1, var2=value2\'')                 
     parser.add_argument('-i', '--immediate', dest='immediate', action='store_const', const='yes',
                         help='A flag to tell if run the tube immediately, but needs a user confirm. \nDefault no.')  
     parser.add_argument('-f', '--force', dest='force', action='store_const', const='yes',
