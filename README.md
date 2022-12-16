@@ -286,7 +286,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR, FIND
+#### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -344,7 +344,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: NEW, CREATE
+#### Alias: CREATE, NEW
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -462,7 +462,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -518,7 +518,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 23: FILE_MOVE
-#### Alias: F_MV, F_MOVE
+#### Alias: F_MOVE, F_MV
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -698,7 +698,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 38: READ_LINE_IN_FILE
-#### Alias: READ_LN, READ_LINE
+#### Alias: READ_LINE, READ_LN
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -976,5 +976,6 @@ Support from version: 2.0.0</pre>
     Sample-refresh-dev.yaml
     Sample-conditional-build.yaml
     Sample-FFMPEG.yaml
+    Sample-deploy-node.yaml
 </pre>
                 
