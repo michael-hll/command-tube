@@ -8127,6 +8127,7 @@ Tube:
     Sample-refresh-dev.yaml
     Sample-conditional-build.yaml
     Sample-FFMPEG.yaml
+    Sample-deploy-node.yaml
 </pre>
                 '''
                 command_name = ''

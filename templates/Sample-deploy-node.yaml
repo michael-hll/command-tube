@@ -1,0 +1,17 @@
+Variables:
+    work: /volumes/macdrive/projects/minikube-study
+    action: start
+Tube:
+    - cd: {work}
+    - cmd: minikube start --if action == start
+    - cmd: minikube stop --if action == stop
+    - break: exit tube --if action == stop
+    - pause: 15s
+    - cmd: kubectl apply -f mongo-secret.yml
+    - cmd: kubectl apply -f mongo.yml
+    - pause: 15s
+    - cmd: kubectl apply -f mongodb-configmap.yml
+    - cmd: kubectl apply -f mongo-express.yml
+    - pause: 15s
+    - cmd: minikube service mongo-express-service
+
