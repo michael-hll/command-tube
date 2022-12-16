@@ -4316,6 +4316,10 @@ class TubeCommand():
             # then return and do nothing for the subtube
             if each_list == None or len(each_list) == 0:
                 self.log.status = Storage.I.C_SUCCESSFUL
+                if Storage.I.RUN_MODE == Storage.I.C_RUN_MODE_DEBUG:
+                    msg = f'The list object is empty, subtube will not start.'
+                    tprint(msg, type=Storage.I.C_PRINT_TYPE_INFO)
+                    write_line_to_log(Storage.I.TUBE_LOG_FILE, 'a+', msg)
                 return
             each_ready = True
 
