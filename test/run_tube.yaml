@@ -6,14 +6,16 @@ TUBE:
     - RUN_TUBE: EachTube --each i,s in students
     - SET_VARIABLE: ls = [1,2]
     - RUN_TUBE: BrokeTube --each i in ls --continue
+    - SET_VARIABLE: ls = []
+    - RUN_TUBE: SubTube --each item in ls
     - PRINT: success
 
     # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==7 --key
-    - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=7
-    - SET_VARIABLE: failed += 'run_tube.yaml,' -g --if {success_nums}!=7
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==7
+    - SET_VARIABLE: -n run_tube_result -v Testing Pass  -g --if {success_nums}==9 --key
+    - SET_VARIABLE: -n run_tube_result -v Testing Failed -g --if {success_nums}!=9
+    - SET_VARIABLE: failed += 'run_tube.yaml,' -g --if {success_nums}!=9
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==9
 
 SubTube:
     - SET_VARIABLE: -n i -v {i} + 1 -g

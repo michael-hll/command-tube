@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.6'  
+        self.C_CURR_VERSION            = '2.0.7'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -4312,6 +4312,11 @@ class TubeCommand():
                 each_index_name, each_item_name, each_list = Utility.split_each_expression(each, self.tube)                
             else:
                 raise Exception('The each format is not correct: \'{0}\'.'.format(each))
+            # if used --each argument but with empty list item,
+            # then return and do nothing for the subtube
+            if each_list == None or len(each_list) == 0:
+                self.log.status = Storage.I.C_SUCCESSFUL
+                return
             each_ready = True
 
         msg = ''
@@ -5487,7 +5492,7 @@ class TubeCommand():
                 result = self.exec_command()
             
             elif command_type == Storage.I.C_RUN_TUBE:
-                log.status = Storage.I.C_RUNNING
+                log.status = Storage.I.C_RUNNING                
                 self.run_tube(general_command_parser)
             
             elif command_type == Storage.I.C_BREAK:
