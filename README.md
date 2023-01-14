@@ -100,7 +100,7 @@
             - SET: ls = ['hello', 'world']
             - RUN: SubTube --each i, item in ls
         SubTube:
-            - PRINT: SubTube is running in loop: {i}, item: {item}     
+            - PRINT: SubTube is running in loop {i}, item {item}     
 
 #### While Loop
     You can run a tube in while loop mode using --while argument.
@@ -111,7 +111,7 @@
             - SET: i = 1
             - RUN: SubTube --while i <= 2
         SubTube:
-            - PRINT: SubTube is running in loop: {i}
+            - PRINT: SubTube is running in loop {i}
             - SET: i += 1 --global
 
 
@@ -345,7 +345,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: NEW, CREATE
+#### Alias: CREATE, NEW
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -356,7 +356,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DEL_LN, DELETE_LINE, DEL_LINE
+#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -463,7 +463,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DELETE, F_DEL
+#### Alias: F_DEL, F_DELETE
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -885,7 +885,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 51: SET_VARIABLE
-#### Alias: SET, SET_VAR
+#### Alias: SET_VAR, SET
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]

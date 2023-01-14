@@ -7994,7 +7994,7 @@ Version: %s
             - SET: ls = ['hello', 'world']
             - RUN: SubTube --each i, item in ls
         SubTube:
-            - PRINT: SubTube is running in loop: {i}, item: {item}     
+            - PRINT: SubTube is running in loop {i}, item {item}     
 
 #### While Loop
     You can run a tube in while loop mode using --while argument.
@@ -8005,7 +8005,7 @@ Version: %s
             - SET: i = 1
             - RUN: SubTube --while i <= 2
         SubTube:
-            - PRINT: SubTube is running in loop: {i}
+            - PRINT: SubTube is running in loop {i}
             - SET: i += 1 --global
 
 
