@@ -48,7 +48,7 @@ class Storage():
     def __init__(self) -> None:
         Storage.I = self     
         # -------- CONSTANTS START --------
-        self.C_CURR_VERSION            = '2.0.7'  
+        self.C_CURR_VERSION            = '2.0.8'  
         self.C_KEYWORDS                = set(keyword.kwlist)
         self.C_SUPPORT_FROM_VERSION    = 'SUPPORT_FROM_VERSION'     
         self.C_YAML_VERSION            = 'VERSION'        
@@ -7898,6 +7898,7 @@ Version: %s
  <tr>
     <td><b style="font-size:12px">Version: %s</b></td>
     <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
+    <td><b style="font-size:12px"><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></b></td>
  </tr>
 </table>
                 '''
