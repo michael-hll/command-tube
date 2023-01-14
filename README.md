@@ -1,6 +1,6 @@
 
 -------------------------------           
-# Welcome to Command Tube
+# Command Tube
 -------------------------------
 <table border="0">
  <tr>
@@ -287,7 +287,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR, FIND
+#### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -356,7 +356,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LN, DEL_LINE
+#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -390,7 +390,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 11: DIR_DELETE
-#### Alias: D_DELETE, D_DEL
+#### Alias: D_DEL, D_DELETE
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -443,7 +443,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 16: FILE_COPY
-#### Alias: F_CP, F_COPY
+#### Alias: F_COPY, F_CP
 <pre>Description: Copy any files to target.
 
 Syntax: - FILE_COPY: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -463,7 +463,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -618,7 +618,7 @@ Parameters:
 
 Support from version: 2.0.5</pre>
 ### 31: LINUX_COMMAND
-#### Alias: SSHCMD, LCMD
+#### Alias: LCMD, SSHCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -959,7 +959,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 56: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LINE, WRITE_LN
+#### Alias: WRITE_LN, WRITE_LINE
 <pre>Description: Write any characters into a file.
 
 Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]

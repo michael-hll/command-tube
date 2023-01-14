@@ -7888,7 +7888,7 @@ def print_tube_command_help(args):
                  become readonly. 
                 '''
                 help_title = '''-------------------------------           
-# Welcome to Command Tube
+# Command Tube
 -------------------------------'''
                 help_title_version = '''
 Version: %s
