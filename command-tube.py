@@ -7888,10 +7888,10 @@ def print_tube_command_help(args):
                  become readonly. 
                 '''
                 help_title = '''           
-# Command Tube
-'''
+# Command Tube'''
                 help_title_version = '''
-Version: %s'''
+Version: %s
+                '''
                 help_title_version_RM = '''
 <table border="0">
  <tr>
@@ -7899,7 +7899,8 @@ Version: %s'''
     <td><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></td>
     <td><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></td>
  </tr>
-</table>'''
+</table>
+'''
                 help_all = '''
 %s                      
 ## Introduction
