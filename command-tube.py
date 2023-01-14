@@ -7887,21 +7887,19 @@ def print_tube_command_help(args):
         ** Note: If variable was updated from terminal console inputs, then it will 
                  become readonly. 
                 '''
-                help_title = '''-------------------------------           
+                help_title = '''           
 # Command Tube
--------------------------------'''
+'''
                 help_title_version = '''
-Version: %s
-                '''
+Version: %s'''
                 help_title_version_RM = '''
 <table border="0">
  <tr>
-    <td><b style="font-size:12px">Version: %s</b></td>
-    <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
-    <td><b style="font-size:12px"><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></b></td>
+    <td style="padding-left:0px">Version: %s</td>
+    <td><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></td>
+    <td><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></td>
  </tr>
-</table>
-                '''
+</table>'''
                 help_all = '''
 %s                      
 ## Introduction

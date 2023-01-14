@@ -1,15 +1,14 @@
 
--------------------------------           
+           
 # Command Tube
--------------------------------
+
 <table border="0">
  <tr>
-    <td><b style="font-size:12px">Version: 2.0.8</b></td>
-    <td><b style="font-size:12px"><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></b></td>
-    <td><b style="font-size:12px"><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></b></td>
+    <td style="padding-left:0px">Version: 2.0.8</td>
+    <td><a href="https://github.com/michael-hll/command-tube/blob/main/CommandTube.pdf">Slides</a></td>
+    <td><a href="https://www.youtube.com/watch?v=2tuvZpbUiPY">YouTube</a></td>
  </tr>
-</table>
-                                      
+</table>                      
 ## Introduction
 
     Command Tube is a tool that can run a group of sequenced commands. 
@@ -345,7 +344,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: CREATE, NEW
+#### Alias: NEW, CREATE
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -356,7 +355,7 @@ Parameters:
 
 Support from version: 2.0.3</pre>
 ### 8: DELETE_LINE_IN_FILE
-#### Alias: DELETE_LINE, DEL_LINE, DEL_LN
+#### Alias: DEL_LINE, DEL_LN, DELETE_LINE
 <pre>Description: Conditionally delete lines from a file.
 
 Syntax: - DELETE_LINE_IN_FILE: -f|--file file [-n|--number number] [-b|--begins begins] [-c|--contains contains] [-e|--empty] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -370,7 +369,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 9: DELETE_VARIABLE
-#### Alias: DELETE_VAR, DEL_VAR
+#### Alias: DEL_VAR, DELETE_VAR
 <pre>Description: Delete tube variables.
 
 Syntax: - DELETE_VARIABLE: name [-g|--global] [-a|--all] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -519,7 +518,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 23: FILE_MOVE
-#### Alias: F_MOVE, F_MV
+#### Alias: F_MV, F_MOVE
 <pre>Description: Move any files to target.
 
 Syntax: - FILE_MOVE: -s|-f|--src|--from src -d|-t|--dest|--to dest [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
