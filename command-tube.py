@@ -4041,7 +4041,7 @@ class TubeCommand():
         is_force = args.is_force    
 
         if not r_file and not var_name:
-            raise Exception('Missing result parameter --file or --variable.') 
+            raise Exception('Missing result parameter --result or --variable.') 
     
         lines_count = int(lines_count)        
         return_lines = []
