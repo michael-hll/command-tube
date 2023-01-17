@@ -7792,8 +7792,7 @@ def print_tube_command_help(args):
                 then current command will be skipped.
                 - For value!={tube_variable} condition, if value equal {tube_variable} then
                 this command will be skipped.
-                - It also support >, >=, <, <= cases, make sure the values are numbers.
-                Note: Extra spaces are NOT allowed in the compare expression.
+                - It supports python condition expression.
                 '''
                 help_key='''
         Key:
