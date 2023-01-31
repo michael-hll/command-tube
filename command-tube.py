@@ -529,7 +529,9 @@ class Storage():
                     [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
                         'The text file name you want to empty. It will override the file argument.'], 
                     [False, '-c','--create', '', '', 'is_create', False, True, 'store_true', False,
-                        'If the give file doesnot exist if create a new empty file. Default No.'],         
+                        'If the give file doesnot exist if create a new empty file. Default No.'],   
+                    [False, '-n','--number', 'str', 1, 'empty_lines', False, False, '', '',
+                        'Add N empty lines to the empty file. [2.0.8]'],       
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -3648,6 +3650,9 @@ class TubeCommand():
             file = ' '.join(args.afile)
 
         is_create = args.is_create
+        numbers = None
+        if args.empty_lines:
+            numbers = int(args.empty_lines[0])
 
         if not file:
             raise Exception('\'file\' argument was not provided.') 
@@ -3655,14 +3660,22 @@ class TubeCommand():
         msg = ''
         if os.path.exists(file):            
             # write lines back to text file
-            with open(file, 'w', encoding='utf-8') as f:                
-                f.write('')                    
+            with open(file, 'w', encoding='utf-8') as f:    
+                if numbers:
+                    for i in range(1, numbers+1):
+                        f.write('\n')
+                else:            
+                    f.write('')                    
             msg = 'File {0} was cleared.'.format(file)
         else:
             if is_create:
                 # write lines back to text file
-                with open(file, 'w+', encoding='utf-8') as f:                
-                    f.write('')
+                with open(file, 'w+', encoding='utf-8') as f:   
+                    if numbers:
+                        for i in range(1, numbers+1):
+                            f.write('\n')            
+                    else:
+                        f.write('')
                 msg = 'File {0} was created.'.format(file)                
             else:
                 raise Exception('File doesnot exists: {0}'.format(file))

@@ -20,8 +20,11 @@ TUBE:
     - FILE_MOVE: -s file_sys/tmp2.txt -d file_sys/tmp3.txt
     - FILE_READ: -f file_sys/tmp3.txt -c read_content
     - PRINT_VARS: read_content
-    - FILE_EMPTY: file_sys/tmp3.txt
+    - FILE_EMPTY: file_sys/tmp3.txt -n 5
     - COUNT: -f file_sys/tmp3.txt -v lines_count
+    - ECHO: CORRECT --if lines_count == 5
+    - FILE_EMPTY: file_sys/tmp3.txt
+    - COUNT: -f file_sys/tmp3.txt -v lines_count    
     - FILE_DELETE: file_sys/tmp3.txt --if lines_count == 0
     - FILE_DELETE: file_sys/files_list.txt --if files_count == 10
     - LIST_DIRS: -d file_sys -r file_sys/dir_results.txt
@@ -46,10 +49,10 @@ TUBE:
 
      # output testing result
     - COUNT: -t SUCCESSFUL -v success_nums -c --note Count current success count
-    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==38 --key
-    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=38
-    - SET_VARIABLE: failed += 'file_sys.yaml,' -g --if {success_nums}!=38
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==38
+    - SET_VARIABLE: -n file_sys_result -v Testing Pass  -g --if {success_nums}==41 --key
+    - SET_VARIABLE: -n file_sys_result -v Testing Failed -g --if {success_nums}!=41
+    - SET_VARIABLE: failed += 'file_sys.yaml,' -g --if {success_nums}!=41
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==41
 
 CR_FILES:
     - SET_VARIABLE: -n i -v i + 1 -g
