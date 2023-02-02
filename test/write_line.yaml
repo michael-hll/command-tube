@@ -11,14 +11,17 @@ TUBE:
     - WRITE_LINE_IN_FILE: -f data_w.txt -v Testing Started
     - WRITE_LINE_IN_FILE: -f data_w.txt -n 1 -v hello world
     - WRITE_LINE_IN_FILE: -f data_w.txt -c ABC -v hello ABC
+    - WRITE_LINE_IN_FILE: -f data_w.txt -b bcd -v hello bcd
     - FILE_POP: data_w.txt -v pop_line
     - COMMAND: echo passed --if pop_line == 'hello world'
+    - FILE_POP: data_w.txt -n -2 -v pop_line
+    - COMMAND: echo passed --if pop_line == 'hello bcd'
     - FILE_DELETE: data_w.txt
 
     - COUNT: -t SUCCESSFUL -v success_nums -cs --note Count current success count
-    - COMMAND: echo Testing Passed --if {success_nums}==8
-    - SET_VARIABLE: -n write_line_in_file -v Testing Pass -g --if {success_nums}==8 --key
-    - SET_VARIABLE: -n write_line_in_file -v Testing Failed -g --if {success_nums}!=8
-    - SET_VARIABLE: failed += 'write_line.yaml,' -g --if {success_nums}!=8
+    - COMMAND: echo Testing Passed --if {success_nums}==11
+    - SET_VARIABLE: -n write_line_in_file -v Testing Pass -g --if {success_nums}==11 --key
+    - SET_VARIABLE: -n write_line_in_file -v Testing Failed -g --if {success_nums}!=11
+    - SET_VARIABLE: failed += 'write_line.yaml,' -g --if {success_nums}!=11
     - PRINT_VARS: 'write_line_in_file'
-    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==8
+    - SET_VARIABLE: -n tube_passed -v {tube_passed} + 1 -g --if {success_nums}==11

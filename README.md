@@ -285,7 +285,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 2: CHECK_CHAR_EXISTS
-#### Alias: CHECK_CHAR, FIND
+#### Alias: FIND, CHECK_CHAR
 <pre>Description: Check or find characters from a file. Result was updated into tube variables.
 
 Syntax: - CHECK_CHAR_EXISTS: -f|--file file -c|--char characters -v|-e|--variable|--exist result [-n|--number number] [-l|--line line] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -343,7 +343,7 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 7: CREATE_OBJECT
-#### Alias: CREATE, NEW
+#### Alias: NEW, CREATE
 <pre>Description: Create a new object instance.
 
 Syntax: - CREATE_OBJECT: name [-u|--force] [-g|--global] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -388,7 +388,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 11: DIR_DELETE
-#### Alias: D_DEL, D_DELETE
+#### Alias: D_DELETE, D_DEL
 <pre>Description: Delete a directory and its sub-directories.
 
 Syntax: - DIR_DELETE: directory [-f|--force] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -461,7 +461,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 18: FILE_DELETE
-#### Alias: F_DEL, F_DELETE
+#### Alias: F_DELETE, F_DEL
 <pre>Description: Delete any files math the file name.
 
 Syntax: - FILE_DELETE: [file] [-f|--file afile] [-r|--result result] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -486,11 +486,12 @@ Support from version: 2.0.3</pre>
 #### Alias: F_EMPTY
 <pre>Description: Clear an existing text file or create a new empty file.
 
-Syntax: - FILE_EMPTY: [file] [-f|--file afile] [-c|--create] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Syntax: - FILE_EMPTY: [file] [-f|--file afile] [-c|--create] [-n|--number empty_lines] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
-   file:        The text file name you want to empty.
-   -f|--file:   The text file name you want to empty. It will override the file argument.
-   -c|--create: If the give file doesnot exist if create a new empty file. Default No.
+   file:         The text file name you want to empty.
+   -f|--file:    The text file name you want to empty. It will override the file argument.
+   -c|--create:  If the give file doesnot exist if create a new empty file. Default No.
+   -n|--number:  Add N empty lines to the empty file. [2.0.8]
 
 Support from version: 2.0.2</pre>
 ### 21: FILE_EXIST
@@ -616,7 +617,7 @@ Parameters:
 
 Support from version: 2.0.5</pre>
 ### 31: LINUX_COMMAND
-#### Alias: LCMD, SSHCMD
+#### Alias: SSHCMD, LCMD
 <pre>Description: Run a Linux command from the previous connected server.
 
 Syntax: - LINUX_COMMAND: command [--log-detail] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -697,7 +698,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 38: READ_LINE_IN_FILE
-#### Alias: READ_LINE, READ_LN
+#### Alias: READ_LN, READ_LINE
 <pre>Description: Read one line by given line number, and save the line content to tube variable.
 
 Syntax: - READ_LINE_IN_FILE: -f|--file file -n|--number number -v|--variable variable [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -883,7 +884,7 @@ Parameters:
 
 Support from version: 2.0.2</pre>
 ### 51: SET_VARIABLE
-#### Alias: SET_VAR, SET
+#### Alias: SET, SET_VAR
 <pre>Description: Set tube variable value.
 
 Syntax: - SET_VARIABLE: [expression] [-n|--name name] [-k|--keyword keyword] [-i|--index index] [-v|--value value] [-r|--readonly] [-u|--force] [-g|--global] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
@@ -957,15 +958,16 @@ Parameters:
 
 Support from version: 2.0.0</pre>
 ### 56: WRITE_LINE_IN_FILE
-#### Alias: WRITE_LN, WRITE_LINE
+#### Alias: WRITE_LINE, WRITE_LN
 <pre>Description: Write any characters into a file.
 
-Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
+Syntax: - WRITE_LINE_IN_FILE: -f|--file file -v|--value value [-n|--number number] [-c|--contains contains] [-b|--begins begins] [--continue [m][n]] [--redo [m]] [--if run] [--key] [--raw] [--raw-log] [--note note]
 Parameters:
    -f|--file:     The file you want to update.
    -v|--value:    The character value you want to update in the file.
    -n|--number:   The line number you want to update. If not provided then append the value to the file.
    -c|--contains: Only update the line if it contains the given characters content.
+   -b|--begins:   The line begins with character you want to update.
 
 Support from version: 2.0.0</pre>
 

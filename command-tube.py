@@ -782,6 +782,8 @@ class Storage():
                         'The line number you want to update. If not provided then append the value to the file.'],                    
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
                         'Only update the line if it contains the given characters content.'],
+                    [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
+                        'The line begins with character you want to update.'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
@@ -2890,7 +2892,7 @@ class TubeCommand():
         
         If line_no doesn't exist, then line_content will be appended.
         '''
-        file, line_no, line_content, line_contains = '', 0 ,'', None
+        file, line_no, line_content, line_begins, line_contains = '', 0 ,'', None, None
         write_mode = 'w'
         is_append_mode = False
 
@@ -2902,9 +2904,11 @@ class TubeCommand():
         line_content = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         if args.contains:
             line_contains = self.self_format_ph(' '.join(args.contains), replace_sys_ph=True)
+        if args.begins != None:
+            line_begins = self.self_format_ph(' '.join(args.begins), replace_sys_ph=True)
             
         # check if in append mode
-        if line_no == 0 and line_contains == None:
+        if line_no == 0 and line_contains == None and line_begins == None:
             is_append_mode = True
         
         # write line content to file
@@ -2924,17 +2928,22 @@ class TubeCommand():
                 for no, line in enumerate(lines):     
 
                     # break for loop if there is no conditions
-                    if line_no == 0 and line_contains == None:
+                    if line_no == 0 and line_contains == None and line_begins == None:
                         break
                     
                     # check line contains parameter
                     # if user not provided contains then contains_valid is set to True
                     contains_valid = True if (line_contains and line_contains in line) or line_contains == None else False
-                    if not contains_valid and line_no == 0:
+                    # if user not provided line_begins then begins_valid is set to True
+                    begins_valid = True if (line_begins and line.startswith(line_begins)) or line_begins == None else False
+
+                    # continue next line if begins or contains not valid
+                    if (not contains_valid or not begins_valid) and line_no == 0:
                         continue
                         
                     # check line no and line contains
-                    if ((no+1) == line_no and line_no > 0 and contains_valid) or (line_no == 0 and contains_valid):                    
+                    if ((no+1) == line_no and line_no > 0 and contains_valid and begins_valid) or \
+                        (line_no == 0 and contains_valid and begins_valid):                    
                         ends = '\n' if line.endswith('\n') else ''
                         lines[no] = line_content + ends                  
                         updated = True
