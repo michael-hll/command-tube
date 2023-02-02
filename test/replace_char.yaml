@@ -17,4 +17,4 @@ TUBE:
 
 LOOP:
     - SET_VARIABLE: -n i -v i + 1 -g
-    - WRITE_LINE: -f {file} -v line{i}
+    - WRITE_LINE_IN_FILE: -f {file} -v line{i}
