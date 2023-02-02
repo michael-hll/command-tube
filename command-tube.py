@@ -783,7 +783,7 @@ class Storage():
                     [False, '-c','--contains', 'str', '+', 'contains', False, False, '', '',
                         'Only update the line if it contains the given characters content.'],
                     [False, '-b','--begins', 'str', '+', 'begins', False, False, '', '',
-                        'The line begins with character you want to update.'],
+                        'The line begins with character you want to update. [2.0.8]'],
                 ],
                 self.C_CONTINUE_PARAMETER: True,
                 self.C_REDO_PARAMETER: True,
