@@ -3541,6 +3541,8 @@ class TubeCommand():
         file = self.self_format_ph(' '.join(args.file))
         value = self.self_format_ph(' '.join(args.value), replace_sys_ph=True)
         number = int(self.self_format_ph(args.number[0]))
+        if number == 0:
+            number = sys.maxsize
         
         if os.path.exists(file):
             
