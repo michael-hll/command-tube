@@ -4766,7 +4766,7 @@ class TubeCommand():
                         file_pattern = remotepath[last_slash_index + 1 :]
                     
                     # run a find linux command to get file list to copy
-                    find_files_command = 'find {path} -name {pattern}'
+                    find_files_command = 'find {path} -name \'{pattern}\''
                     find_files_command = find_files_command.format(path=remote_dir, pattern=file_pattern)
                     _, stdout, _ = ssh.exec_command(find_files_command)
                     filelist = stdout.read().splitlines()
