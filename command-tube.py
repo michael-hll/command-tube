@@ -5080,7 +5080,7 @@ class TubeCommand():
     
     def self_format_ph(self, value, is_show_empty = False, is_quoted_str=False, tube=None, replace_sys_ph=False):
         '''
-        Recurrencly format placeholder from self and its parent
+        Recursively format placeholder from self and its parent
         
         Args:
             value: The characters you want to replace place hoders {x}
