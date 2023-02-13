@@ -595,7 +595,7 @@ class Storage():
                     [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
                         'The text file name you want to delete. It will override the file argument.'],
                     [False, '-r','--recursive', '', '', 'recursive', False, True, 'store_true', False, 
-                        'If delete files recursively. Default no.'], 
+                        'If delete files recursively. Default no. [2.0.8]'], 
                     [False, '-t','--text', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted files result.'],                   
                 ],
