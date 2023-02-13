@@ -591,10 +591,12 @@ class Storage():
                 self.C_ALIAS: {'F_DELETE', 'F_DEL'},
                 self.C_ARG_ARGS: [        
                     [True, '-','--', 'str', '*', 'file', False, False, '', '',
-                        'The file name you want to delete.'], 
+                        'The file name you want to delete. eg: \'*.txt\'.'], 
                     [False, '-f','--file', 'str', 1, 'afile', False, False, '', '',
                         'The text file name you want to delete. It will override the file argument.'],
-                    [False, '-r','--result', 'str', 1, 'result', False, False, '', '',
+                    [False, '-r','--recursive', '', '', 'recursive', False, True, 'store_true', False, 
+                        'If delete files recursively. Default no.'], 
+                    [False, '-t','--text', 'str', 1, 'result', False, False, '', '',
                         'The text file to store deleted files result.'],                   
                 ],
                 self.C_CONTINUE_PARAMETER: True,
@@ -3790,6 +3792,9 @@ class TubeCommand():
         result = None
         if args.result:
             result = ' '.join(args.result)
+        is_recursive = False
+        if args.recursive:
+            is_recursive = True
         
         if not file:
             raise Exception('\'file\' argument was not provided.')
@@ -3797,7 +3802,12 @@ class TubeCommand():
         count = 0   
         deleted_files = [] 
         if '*' in path.basename(file):
-            files = glob.glob(file)
+            if is_recursive:
+                if os.name == 'nt':
+                    file = '**\\' + file
+                else:
+                    file = '**/' + file
+            files = glob.glob(file, recursive=is_recursive)
             for f in files:
                 if path.isfile(f):
                     os.remove(f)
