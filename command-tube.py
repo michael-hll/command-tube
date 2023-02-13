@@ -3801,24 +3801,17 @@ class TubeCommand():
           
         count = 0   
         deleted_files = [] 
-        if '*' in path.basename(file):
-            if is_recursive:
-                if os.name == 'nt':
-                    file = '**\\' + file
-                else:
-                    file = '**/' + file
-            files = glob.glob(file, recursive=is_recursive)
-            for f in files:
-                if path.isfile(f):
-                    os.remove(f)
-                    deleted_files.append(f)
-                    count += 1
-        elif os.path.exists(file) and path.isfile(file):            
-            os.remove(file)
-            deleted_files.append(file)
-            count += 1
-        else:
-            raise Exception('File doesnot exists: {0}'.format(file))
+        if is_recursive:
+            if os.name == 'nt':
+                file = '**\\' + file
+            else:
+                file = '**/' + file
+        files = glob.glob(file, recursive=is_recursive)
+        for f in files:
+            if path.isfile(f):
+                os.remove(f)
+                deleted_files.append(f)
+                count += 1
 
         # write deleted files to file
         if result:
